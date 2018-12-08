@@ -1,0 +1,19 @@
+plugins {
+    id 'groovy'
+    id 'maven-publish'
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'org.github.c64lib.gradle'
+            artifactId = 'assembler'
+            version = '1.0.0'
+        }
+    }
+}
