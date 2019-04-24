@@ -1,19 +1,13 @@
 plugins {
-    id 'groovy'
-    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.0'
+    id 'java-gradle-plugin'
 }
 
 dependencies {
-    implementation gradleApi()
-    implementation localGroovy()
+    compileOnly gradleApi()
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.0'
 }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = 'org.github.c64lib.gradle'
-            artifactId = 'assembler'
-            version = '1.0.0'
-        }
-    }
+repositories {
+    jcenter()
 }
