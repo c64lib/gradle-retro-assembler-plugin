@@ -10,11 +10,14 @@ class KickAssemblerPlugin : Plugin<Project> {
         if (extension == null) {
             extension = KickAssemblerPluginExtension(project);
         }
-        project.tasks.create("assemble", Assemble::class.java) { task ->
-            task.kaJar = extension!!.kaJar.absolutePath;
+        val assemble = project.tasks.create("assemble", Assemble::class.java) { task ->
+            task.kaJar = extension.kaJar.absolutePath;
             task.libDir = extension.libDir.absolutePath;
         }
-        project.tasks.create("clean", CleanKickFiles::class.java)
+        val clean = project.tasks.create("clean", CleanKickFiles::class.java)
+        val download = project.tasks.create("downloadKickAss", DownloadKickAss::class.java)
+
+        assemble.dependsOn(download);
     }
 }
 

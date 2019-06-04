@@ -21,6 +21,7 @@ gradlePlugin {
 dependencies {
     compileOnly gradleApi()
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.0'
+    compile 'de.undercouch:gradle-download-task:3.4.3'
 }
 
 repositories {

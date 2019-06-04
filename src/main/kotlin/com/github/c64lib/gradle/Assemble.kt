@@ -8,10 +8,10 @@ import org.gradle.api.tasks.TaskAction
 open class Assemble : DefaultTask() {
 
     @Input
-    var kaJar = ""
+    var kaJar = "ka/KickAss.jar"
 
     @Input
-    var libDir = ""
+    var libDir = "lib"
 
     @TaskAction
     fun assemble() {
