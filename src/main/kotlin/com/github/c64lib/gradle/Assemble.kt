@@ -5,7 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-class Assemble : DefaultTask() {
+open class Assemble : DefaultTask() {
 
     @Input
     var kaJar = ""
@@ -22,7 +22,6 @@ class Assemble : DefaultTask() {
                         spec.main = "-jar"
                         spec.args = listOf(kaJar, "-libdir", libDir, file.path)
                     }
-                    return
                 }
     }
 }

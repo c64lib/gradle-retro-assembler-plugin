@@ -1,6 +1,21 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.0'
     id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+apply plugin: 'java-gradle-plugin'
+
+group 'com.github.c64lib'
+version '1.0.0'
+
+gradlePlugin {
+    plugins {
+        simplePlugin {
+            id = 'com.github.c64lib.kick-assembler'
+            implementationClass = 'com.github.c64lib.gradle.KickAssemblerPlugin'
+        }
+    }
 }
 
 dependencies {
@@ -10,4 +25,12 @@ dependencies {
 
 repositories {
     jcenter()
+}
+
+publishing {
+    repositories {
+        maven {
+            url = '../consuming/maven-repo'
+        }
+    }
 }
