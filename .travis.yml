@@ -1,1 +1,2 @@
-language: kotlin
+language: java
+jdk: openjdk8
