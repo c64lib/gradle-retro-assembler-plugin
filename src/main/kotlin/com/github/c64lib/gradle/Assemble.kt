@@ -18,10 +18,10 @@ open class Assemble : DefaultTask() {
         project.fileTree(mapOf("dir" to '.', "include" to "**/*.asm", "exclude" to "cpm_modules"))
                 .forEach { file ->
                     println(file.path)
-                    project.javaexec { spec ->
-                        spec.main = "-jar"
-                        spec.args = listOf(kaJar, "-libdir", libDir, file.path)
-                    }
+//                    project.javaexec { spec ->
+//                        spec.main = "-jar"
+//                        spec.args = listOf(kaJar, "-libdir", libDir, file.path)
+//                    }
                 }
     }
 }

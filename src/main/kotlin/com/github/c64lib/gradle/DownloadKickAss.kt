@@ -7,8 +7,11 @@ open class DownloadKickAss : Download() {
 
     @TaskAction
     override fun download() {
-        src("https://github.com/c64lib/asm-ka/releases/download/5.6/KickAss.jar");
-        dest("ka/KickAss.jar");
-        super.download()
+        val kaFile = project.file("ka/KickAss.jar")
+        if (!kaFile.exists()) {
+            src("https://github.com/c64lib/asm-ka/releases/download/5.6/KickAss.jar");
+            dest(kaFile);
+            super.download()
+        }
     }
 }
