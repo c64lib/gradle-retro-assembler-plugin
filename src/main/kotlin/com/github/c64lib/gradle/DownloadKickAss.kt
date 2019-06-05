@@ -5,6 +5,11 @@ import org.gradle.api.tasks.TaskAction
 
 open class DownloadKickAss : Download() {
 
+    init {
+        description = "Downloads KickAssembler dependency"
+        group = DEPS
+    }
+
     @TaskAction
     override fun download() {
         val kaFile = project.file("ka/KickAss.jar")
