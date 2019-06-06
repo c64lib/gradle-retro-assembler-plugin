@@ -18,7 +18,7 @@ open class Clean : Delete() {
     @TaskAction
     override fun clean() {
         delete(project.buildDir)
-        val asm = AssemblerFacadeFactory.of(extension.dialect, project)
+        val asm = AssemblerFacadeFactory.of(extension.dialect, project, extension)
         delete(asm.targetFiles())
         super.clean()
     }

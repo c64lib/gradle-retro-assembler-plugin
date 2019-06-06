@@ -17,5 +17,5 @@ open class ResolveDevDeps : Download() {
 
     @TaskAction
     override fun download() =
-            AssemblerFacadeFactory.of(extension.dialect, project).resolveDependencies();
+            AssemblerFacadeFactory.of(extension.dialect, project, extension).resolveDependencies();
 }

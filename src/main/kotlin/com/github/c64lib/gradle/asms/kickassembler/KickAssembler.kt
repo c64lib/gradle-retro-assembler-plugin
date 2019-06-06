@@ -8,7 +8,9 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import java.io.File
 
-class KickAssembler(private val project: Project) : AssemblerFacade {
+class KickAssembler(
+        private val project: Project,
+        private val extension: RetroAssemblerPluginExtension) : AssemblerFacade {
 
     private val kaFile = project.file(".ra/asms/ka/5.6/KickAss.jar")
 
@@ -22,16 +24,18 @@ class KickAssembler(private val project: Project) : AssemblerFacade {
     }
 
     override fun sourceFiles(): FileCollection =
-            project.fileTree(".").filter { element ->
-                element.isFile && element.name.endsWith(".asm")
-            }
+            extension.srcDirs.map { srcDir ->
+                project.fileTree(srcDir).filter { element ->
+                    element.isFile && element.name.endsWith(".asm")
+                }
+            }.reduce { acc, rightHand -> acc.plus(rightHand) }
 
     override fun targetFiles(): FileCollection =
             project.fileTree(".").matching { pattern ->
                 pattern.include("**/*.prg", "**/*.sym")
             }
 
-    override fun assemble(sourceFile: File, extension: RetroAssemblerPluginExtension) =
+    override fun assemble(sourceFile: File) =
             project.javaexec { spec ->
                 spec.main = "-jar"
                 spec.args = listOf(

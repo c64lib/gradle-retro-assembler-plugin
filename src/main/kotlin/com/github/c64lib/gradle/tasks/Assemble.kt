@@ -17,9 +17,9 @@ open class Assemble : DefaultTask() {
 
     @TaskAction
     fun assemble() {
-        val asm = AssemblerFacadeFactory.of(extension.dialect, project)
+        val asm = AssemblerFacadeFactory.of(extension.dialect, project, extension)
         asm.sourceFiles().forEach { file ->
-            asm.assemble(file, extension)
+            asm.assemble(file)
         }
     }
 }

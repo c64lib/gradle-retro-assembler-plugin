@@ -17,13 +17,13 @@ interface AssemblerFacade {
     fun resolveDependencies()
     fun targetFiles(): FileCollection
     fun sourceFiles(): FileCollection
-    fun assemble(sourceFile: File, extension: RetroAssemblerPluginExtension): ExecResult
+    fun assemble(sourceFile: File): ExecResult
 }
 
 object AssemblerFacadeFactory {
-    fun of(assembler: Assemblers, project: Project): AssemblerFacade =
+    fun of(assembler: Assemblers, project: Project, extension: RetroAssemblerPluginExtension): AssemblerFacade =
             when (assembler) {
-                Assemblers.KickAssembler -> KickAssembler(project)
+                Assemblers.KickAssembler -> KickAssembler(project, extension)
                 Assemblers.None -> throw GradleException("Assembler dialect is not selected")
             }
 }
