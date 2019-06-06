@@ -9,7 +9,7 @@ open class CleanKickFiles() : Delete() {
 
     init {
         description = "Cleans KickAssembler target files"
-        group = CLEAN
+        group = GROUP_BUILD
     }
 
     @TaskAction

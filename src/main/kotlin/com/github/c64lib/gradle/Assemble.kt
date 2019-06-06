@@ -10,7 +10,7 @@ open class Assemble : DefaultTask() {
 
     init {
         description = "Runs assembler over all source files"
-        group = ASM
+        group = GROUP_BUILD
     }
 
     lateinit var kaJar: File

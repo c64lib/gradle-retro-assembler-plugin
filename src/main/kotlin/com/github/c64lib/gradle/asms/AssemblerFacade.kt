@@ -11,6 +11,7 @@ enum class Assemblers {
 }
 
 interface AssemblerFacade {
+    fun resolveDependencies()
     fun targetFiles(): FileCollection
     fun sourceFiles(): FileCollection
     fun assemble(sourceFile: File, kaJar: File, libDir: File): ExecResult
