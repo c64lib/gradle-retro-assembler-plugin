@@ -1,7 +1,8 @@
-package com.github.c64lib.gradle
+package com.github.c64lib.gradle.tasks
 
+import com.github.c64lib.gradle.GROUP_BUILD
+import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
-import com.github.c64lib.gradle.asms.Assemblers
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.api.tasks.TaskAction
 
@@ -12,7 +13,9 @@ open class ResolveDevDeps : Download() {
         group = GROUP_BUILD
     }
 
+    lateinit var extension: RetroAssemblerPluginExtension
+
     @TaskAction
     override fun download() =
-            AssemblerFacadeFactory.of(Assemblers.KICK_ASSEMBLER, project).resolveDependencies();
+            AssemblerFacadeFactory.of(extension.dialect, project).resolveDependencies();
 }

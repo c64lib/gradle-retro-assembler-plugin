@@ -1,10 +1,10 @@
-package com.github.c64lib.gradle
+package com.github.c64lib.gradle.tasks
 
+import com.github.c64lib.gradle.GROUP_BUILD
+import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
-import com.github.c64lib.gradle.asms.Assemblers
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 
 open class Assemble : DefaultTask() {
 
@@ -13,15 +13,13 @@ open class Assemble : DefaultTask() {
         group = GROUP_BUILD
     }
 
-    lateinit var kaJar: File
-
-    lateinit var libDir: File
+    lateinit var extension: RetroAssemblerPluginExtension
 
     @TaskAction
     fun assemble() {
-        val asm = AssemblerFacadeFactory.of(Assemblers.KICK_ASSEMBLER, project)
+        val asm = AssemblerFacadeFactory.of(extension.dialect, project)
         asm.sourceFiles().forEach { file ->
-            asm.assemble(file, kaJar, libDir)
+            asm.assemble(file, extension)
         }
     }
 }

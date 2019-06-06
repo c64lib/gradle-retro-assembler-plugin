@@ -12,8 +12,8 @@ version '1.0.0'
 gradlePlugin {
     plugins {
         simplePlugin {
-            id = 'com.github.c64lib.kick-assembler'
-            implementationClass = 'com.github.c64lib.gradle.KickAssemblerPlugin'
+            id = 'com.github.c64lib.retro-assembler'
+            implementationClass = 'com.github.c64lib.gradle.RetroAssemblerPlugin'
         }
     }
 }
