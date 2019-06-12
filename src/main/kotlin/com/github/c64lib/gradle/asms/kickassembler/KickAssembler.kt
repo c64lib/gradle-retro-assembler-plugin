@@ -16,7 +16,7 @@ class KickAssembler(
 
     override fun resolveDependencies() {
         if (!kaFile.exists()) {
-            val downloadTask = project.tasks.getByPath(TASK_DOWNLOAD) as Download
+            val downloadTask = project.tasks.create("_c64lib_download_ka", Download::class.java)
             downloadTask.src("https://github.com/c64lib/asm-ka/releases/download/5.6/KickAss.jar");
             downloadTask.dest(kaFile);
             downloadTask.download();
