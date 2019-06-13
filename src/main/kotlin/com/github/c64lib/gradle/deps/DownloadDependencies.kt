@@ -19,7 +19,8 @@ open class DownloadDependencies : DefaultTask() {
     @TaskAction
     fun downloadAndUnzip() {
         extension.dependencies.forEach { dependency ->
-            val downloadTask = project.tasks.create("_c64lib_download_${dependency.type}:${dependency.name}@${dependency.version}", Download::class.java)
+            val dependencyName = dependency.name.replace('/', '-')
+            val downloadTask = project.tasks.create("_c64lib_download_${dependency.type}-$dependencyName@${dependency.version}", Download::class.java)
             val archive = when (dependency.type) {
                 DependencyType.GitHub -> configureGitHub(dependency, downloadTask)
             }
