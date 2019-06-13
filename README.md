@@ -34,6 +34,26 @@ you just need to create `build.gradle` file in root folder of your project. Fill
 
 You can of course adjust values of `libDirs` and `srcDirs` to your needs.
 
+There are two core tasks that can be used from command line:
+* `gradle build` performs assembling process and produces output files (actually `sym` and `prg` files are created 
+alongside source `asm` files)
+* `gradle clean` performs overall cleaning of the project by removing target files (that is `sym` and `prg` files)
+
+If gradle command is issued without any task specified, a `build` task is assumed. It is also possible to run both of
+tasks:
+
+    gradle clean build
+    
+This ensures that old files are removed prior assembling process.
+
+There are two supplementary tasks that are called automatically when `build` task is performed.
+* `resolveDevDeps` - downloads and prepares to use software needed for assembling (i.e. KickAssembler binary)
+* `downloadDeps`  - downloads and unzips libraries (dependencies) that are used by your project.
+
+It is also possible to run supplementary tasks manually:
+
+    gradle resolveDevDeps downloadDeps
+
 ### Using external ASM dependencies
 If you need to use some library code written in KickAssembler, Retro Gradle Plugin can download them 
 for you automatically. You just need to specify these dependencies inside your `retroProject` section:
@@ -49,7 +69,17 @@ be extended.
 Gradle Wrapper is a recommended way to distribute sources of your projects. When Gradle Wrapper is
 installed in your project, other people does not need to have Gradle installed locally. Gradle Wrapper takes
 care on downloading appropriate Gradle version during build and then executing it using `build.gradle`
-file. Actually only Java Environment (JDK) is necessary to build such projects. 
+file. Actually only Java Environment (JDK) is necessary to build such projects.
+
+With Gradle Wrapper build can be run using `gradlew` command:
+
+    gradlew clean build
+    
+or
+
+    ./gradlew clean build
+    
+under linux-like OS. 
 
 Read how to install Gradle Wrapper in Gradle documentation: https://docs.gradle.org/current/userguide/gradle_wrapper.html
 

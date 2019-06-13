@@ -15,7 +15,7 @@ open class RetroAssemblerPluginExtension {
 
     private var _dependencies: MutableList<Dependency> = ArrayList()
 
-    fun libFromGitHub(name: String, version: String, targetPrefix: String = "") {
-        _dependencies.add(Dependency(DependencyType.GitHub, name, version, targetPrefix));
+    fun libFromGitHub(name: String, version: String) {
+        _dependencies.add(Dependency(DependencyType.GitHub, name, version));
     }
 }
