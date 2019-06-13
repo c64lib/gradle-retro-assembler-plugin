@@ -5,9 +5,11 @@ import com.github.c64lib.gradle.deps.Dependency
 import com.github.c64lib.gradle.deps.DependencyType
 
 const val EXTENSION_DSL_NAME = "retroProject"
+const val DIALECT_VERSION_LATEST = "latest";
 
 open class RetroAssemblerPluginExtension {
     var dialect = Assemblers.None
+    var dialectVersion = DIALECT_VERSION_LATEST
     var libDirs: Array<String> = emptyArray();
     var srcDirs = arrayOf(".");
     val dependencies: List<Dependency>

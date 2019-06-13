@@ -27,13 +27,24 @@ you just need to create `build.gradle` file in root folder of your project. Fill
     
     retroProject {
         dialect = "KickAssembler"
+        dialectVersion = "5.6"
         libDirs = ["..", ".ra/deps/c64lib"]
         srcDirs = ["lib", "spec"]
+        
+        // dependencies
         libFromGitHub "c64lib/64spec", "0.7.0pr"
     }
 
-You can of course adjust values of `libDirs` and `srcDirs` to your needs.
+You can of course adjust all values inside `retroProject` to your needs.
 
+### Customizing your build
+The following properties can be customized:
+* `dialect` - selects Assembler dialect and determines Assembler to be used (possible values: `KickAssembler`)
+* `dialectVersion` - selects version of Assembler binary to be used (see https://github.com/c64lib/asm-ka/releases for available versions)
+* `libDirs` - provides array of directory locations where your libraries are downloaded
+* `srcDirs` - provides array of directory locations where your source code (`asm` files) resides
+
+### Launching your build
 There are two core tasks that can be used from command line:
 * `gradle build` performs assembling process and produces output files (actually `sym` and `prg` files are created 
 alongside source `asm` files)
@@ -87,6 +98,7 @@ Read how to install Gradle Wrapper in Gradle documentation: https://docs.gradle.
 
 ### 0.2.0
 * Support for downloading ASM libraries released at GitHub
+* Support for version number for selected assembler (KickAssembler is only supported)
 
 ### 0.1.1
 * Support for configurable source dirs
