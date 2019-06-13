@@ -1,7 +1,6 @@
 package com.github.c64lib.gradle.asms.kickassembler
 
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
-import com.github.c64lib.gradle.TASK_DOWNLOAD
 import com.github.c64lib.gradle.asms.AssemblerFacade
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.api.Project

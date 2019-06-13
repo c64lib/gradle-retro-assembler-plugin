@@ -6,6 +6,7 @@ import com.github.c64lib.gradle.tasks.Clean
 import com.github.c64lib.gradle.tasks.ResolveDevDeps
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 
 class RetroAssemblerPlugin : Plugin<Project> {
 
@@ -23,10 +24,14 @@ class RetroAssemblerPlugin : Plugin<Project> {
             val assemble = project.tasks.create(TASK_BUILD, Assemble::class.java) { task ->
                 task.extension = extension
             }
-            assemble.dependsOn(resolveDevDeps, downloadDependencies);
+            assemble.dependsOn(resolveDevDeps, downloadDependencies)
 
-            val clean = project.tasks.create(TASK_CLEAN, Clean::class.java) { task ->
+            project.tasks.create(TASK_CLEAN, Clean::class.java) { task ->
                 task.extension = extension
+            }
+
+            if (project.defaultTasks.isEmpty()) {
+                project.defaultTasks.add(TASK_BUILD)
             }
         }
     }
