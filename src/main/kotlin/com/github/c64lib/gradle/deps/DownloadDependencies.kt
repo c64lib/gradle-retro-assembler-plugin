@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2018-2019 c64lib: The Ultimate Commodore 64 Library
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package com.github.c64lib.gradle.deps
 
 import com.github.c64lib.gradle.GROUP_BUILD
@@ -19,7 +43,8 @@ open class DownloadDependencies : DefaultTask() {
     @TaskAction
     fun downloadAndUnzip() {
         extension.dependencies.forEach { dependency ->
-            val downloadTask = project.tasks.create("_c64lib_download_${dependency.type}:${dependency.name}@${dependency.version}", Download::class.java)
+            val dependencyName = dependency.name.replace('/', '-')
+            val downloadTask = project.tasks.create("_c64lib_download_${dependency.type}-$dependencyName@${dependency.version}", Download::class.java)
             val archive = when (dependency.type) {
                 DependencyType.GitHub -> configureGitHub(dependency, downloadTask)
             }

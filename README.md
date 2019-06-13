@@ -96,6 +96,10 @@ Read how to install Gradle Wrapper in Gradle documentation: https://docs.gradle.
 
 ## Change log
 
+### 0.2.1
+* Compatibility with Gradle 5.x.x
+* Build works with OpenJDK 12
+
 ### 0.2.0
 * Support for downloading ASM libraries released at GitHub
 * Support for version number for selected assembler (KickAssembler is only supported)
