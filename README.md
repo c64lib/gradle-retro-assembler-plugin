@@ -98,6 +98,7 @@ Read how to install Gradle Wrapper in Gradle documentation: https://docs.gradle.
 
 ### 0.2.1
 * Compatibility with Gradle 5.x.x
+* Build works with OpenJDK 12
 
 ### 0.2.0
 * Support for downloading ASM libraries released at GitHub
