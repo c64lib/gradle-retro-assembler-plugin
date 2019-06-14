@@ -36,6 +36,9 @@ open class RetroAssemblerPluginExtension {
     var dialectVersion = DIALECT_VERSION_LATEST
     var libDirs: Array<String> = emptyArray();
     var srcDirs = arrayOf(".");
+    var includes: Array<String> = arrayOf("**/*.asm");
+    var excludes: Array<String> = arrayOf(".ra/**/*.asm")
+
     val dependencies: List<Dependency>
         get() = _dependencies
 
