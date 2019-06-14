@@ -31,6 +31,7 @@ import de.undercouch.gradle.tasks.download.Download
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
+import org.gradle.api.tasks.util.PatternSet
 import java.io.File
 
 class KickAssembler(
@@ -53,10 +54,11 @@ class KickAssembler(
 
     override fun sourceFiles(): FileCollection =
             extension.srcDirs.map { srcDir ->
-                project.fileTree(srcDir).filter { element ->
-                    element.isFile && element.name.endsWith(".asm")
-                }
-            }.reduce { acc, rightHand -> acc.plus(rightHand) }
+                project.fileTree(srcDir).matching(
+                        PatternSet().include(*extension.includes).exclude(*extension.excludes))
+            }.reduce { acc, rightHand ->
+                acc.plus(rightHand)
+            }
 
     override fun targetFiles(): FileCollection =
             project.fileTree(".").matching { pattern ->

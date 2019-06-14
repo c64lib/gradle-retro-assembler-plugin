@@ -16,7 +16,7 @@ If you have Gradle installed on your machine (get it from [GitHub](https://githu
 you just need to create `build.gradle` file in root folder of your project. Fill it with following content:
 
     plugins {
-        id "com.github.c64lib.retro-assembler" version "0.2.0"
+        id "com.github.c64lib.retro-assembler" version "0.3.0"
     }
     
     repositories {
@@ -41,8 +41,10 @@ You can of course adjust all values inside `retroProject` to your needs.
 The following properties can be customized:
 * `dialect` - selects Assembler dialect and determines Assembler to be used (possible values: `KickAssembler`)
 * `dialectVersion` - selects version of Assembler binary to be used (see https://github.com/c64lib/asm-ka/releases for available versions)
-* `libDirs` - provides array of directory locations where your libraries are downloaded
-* `srcDirs` - provides array of directory locations where your source code (`asm` files) resides
+* `includes` - provides array of file patterns that contains sources you want to assembly; default value: `["**/*.asm"]`
+* `excludes` - provides array of file patterns that matches source files to be excluded from assembling; default value: `[".ra/**/*.asm"]`
+* `srcDirs` - provides array of directory locations where your source code (`asm` files) resides; default value: `["."]`
+* `libDirs` - provides array of directory locations where your libraries are downloaded; default value: `[]`
 
 ### Launching your build
 There are two core tasks that can be used from command line:
@@ -95,6 +97,9 @@ under linux-like OS.
 Read how to install Gradle Wrapper in Gradle documentation: https://docs.gradle.org/current/userguide/gradle_wrapper.html
 
 ## Change log
+### 0.3.0
+* Support for source files patterns via includes
+* Support for excluding source files via patterns
 
 ### 0.2.1
 * Compatibility with Gradle 5.x.x

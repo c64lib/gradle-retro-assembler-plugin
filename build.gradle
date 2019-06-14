@@ -3,12 +3,13 @@ plugins {
     id 'java-gradle-plugin'
     id 'maven-publish'
     id 'com.gradle.plugin-publish' version '0.10.1'
+    id "com.diffplug.gradle.spotless" version "3.23.0"
 }
 
 apply plugin: 'java-gradle-plugin'
 
 group 'com.github.c64lib'
-version '0.2.1'
+version '0.3.0'
 
 pluginBundle {
     website = 'https://github.com/c64lib/gradle-retro-assembler-plugin'
