@@ -22,13 +22,14 @@
  * SOFTWARE.
  */
 
-package com.github.c64lib.gradle
+package com.github.c64lib.gradle.tasks
 
-// official tasks
-const val TASK_BUILD = "build"
-const val TASK_ASM = "asm"
-const val TASK_CLEAN = "clean"
-const val TASK_RESOLVE_DEV_DEPENDENCIES = "resolveDevDeps"
-const val TASK_DEPENDENCIES = "downloadDeps"
-const val TASK_TEST = "test"
-const val TASK_ASM_SPEC = "asmSpec"
+import com.github.c64lib.gradle.GROUP_BUILD
+import org.gradle.api.DefaultTask
+
+open class Build : DefaultTask() {
+    init {
+        description = "Builds the project"
+        group = GROUP_BUILD
+    }
+}

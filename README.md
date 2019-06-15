@@ -97,6 +97,10 @@ under linux-like OS.
 Read how to install Gradle Wrapper in Gradle documentation: https://docs.gradle.org/current/userguide/gradle_wrapper.html
 
 ## Change log
+### 0.4.0
+* Support for running 64spec tests using console mode of Vice
+* Work dir (.ra) can now be changed
+
 ### 0.3.0
 * Support for source files patterns via includes
 * Support for excluding source files via patterns

@@ -33,7 +33,7 @@ import org.gradle.api.tasks.TaskAction
 open class ResolveDevDeps : Download() {
 
     init {
-        description = "Downloads KickAssembler dependency"
+        description = "Downloads KickAssemblerFacade dependency"
         group = GROUP_BUILD
     }
 
@@ -41,5 +41,5 @@ open class ResolveDevDeps : Download() {
 
     @TaskAction
     override fun download() =
-            AssemblerFacadeFactory.of(extension.dialect, project, extension).resolveDependencies();
+            AssemblerFacadeFactory.of(extension.dialect, project, extension).installDevKit();
 }

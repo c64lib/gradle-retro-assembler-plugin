@@ -22,13 +22,14 @@
  * SOFTWARE.
  */
 
-package com.github.c64lib.gradle
+package com.github.c64lib.gradle.spec
 
-// official tasks
-const val TASK_BUILD = "build"
-const val TASK_ASM = "asm"
-const val TASK_CLEAN = "clean"
-const val TASK_RESOLVE_DEV_DEPENDENCIES = "resolveDevDeps"
-const val TASK_DEPENDENCIES = "downloadDeps"
-const val TASK_TEST = "test"
-const val TASK_ASM_SPEC = "asmSpec"
+import java.io.File
+
+fun prgFile(file: File) = fileWithoutExtension(file) + ".prg"
+fun resultFileName(file: File) = fileNameWithoutExtension(file) + ".specOut"
+fun resultFile(file: File) = fileWithoutExtension(file) + ".specOut"
+fun viceSymbolFile(file: File) = fileWithoutExtension(file) + ".vs"
+
+private fun fileWithoutExtension(file: File) = file.canonicalPath.substring(0, file.canonicalPath.lastIndexOf('.'))
+private fun fileNameWithoutExtension(file: File) = file.name.substring(0, file.name.lastIndexOf('.'))

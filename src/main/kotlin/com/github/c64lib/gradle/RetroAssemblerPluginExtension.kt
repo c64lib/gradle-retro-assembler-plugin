@@ -32,12 +32,17 @@ const val EXTENSION_DSL_NAME = "retroProject"
 const val DIALECT_VERSION_LATEST = "latest";
 
 open class RetroAssemblerPluginExtension {
+    var workDir = ".ra"
     var dialect = Assemblers.None
     var dialectVersion = DIALECT_VERSION_LATEST
     var libDirs: Array<String> = emptyArray();
     var srcDirs = arrayOf(".");
     var includes: Array<String> = arrayOf("**/*.asm");
-    var excludes: Array<String> = arrayOf(".ra/**/*.asm")
+    var excludes: Array<String> = arrayOf("$workDir/**/*.asm")
+
+    var viceExecutable = "x64"
+    var specDirs = arrayOf("spec")
+    var specIncludes: Array<String> = arrayOf("**/*.spec.asm")
 
     val dependencies: List<Dependency>
         get() = _dependencies

@@ -25,7 +25,7 @@
 package com.github.c64lib.gradle.asms
 
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
-import com.github.c64lib.gradle.asms.kickassembler.KickAssembler
+import com.github.c64lib.gradle.asms.kickassembler.KickAssemblerFacade
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
@@ -38,16 +38,17 @@ enum class Assemblers {
 }
 
 interface AssemblerFacade {
-    fun resolveDependencies()
+    fun installDevKit()
     fun targetFiles(): FileCollection
     fun sourceFiles(): FileCollection
-    fun assemble(sourceFile: File): ExecResult
+    fun testFiles(): FileCollection
+    fun assemble(sourceFile: File, vararg parameters: String): ExecResult
 }
 
 object AssemblerFacadeFactory {
     fun of(assembler: Assemblers, project: Project, extension: RetroAssemblerPluginExtension): AssemblerFacade =
             when (assembler) {
-                Assemblers.KickAssembler -> KickAssembler(project, extension)
+                Assemblers.KickAssembler -> KickAssemblerFacade(project, extension)
                 Assemblers.None -> throw GradleException("Assembler dialect is not selected")
             }
 }
