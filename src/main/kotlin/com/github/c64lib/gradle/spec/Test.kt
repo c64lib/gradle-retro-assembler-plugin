@@ -32,6 +32,7 @@ import com.github.c64lib.gradle.emu.vice.JamAction
 import com.github.c64lib.gradle.emu.vice.Vice
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.util.PatternSet
 import java.io.File
@@ -45,24 +46,18 @@ open class Test : DefaultTask() {
 
     lateinit var extension: RetroAssemblerPluginExtension
 
-    private class ResultCounters(val success: Int = 0, val total: Int = 0) {
-        private fun tag() = if (success < total) {
-            "FAILED"
-        } else {
-            "Success"
-        }
-
-        override fun toString(): String = "($success/$total) " + tag()
-    }
-
     @TaskAction
     fun runSpec() {
         assert(extension.dialect == Assemblers.KickAssembler) {
             "The specified dialect ${extension.dialect} cannot be used with 64spec, only ${Assemblers.KickAssembler} is supported"
         }
         launchAllTests()
-
-        generateTestReport()
+        val isPositive = TestReport(testFiles()).generateTestReport {
+            println(it)
+        }
+        if (!isPositive) {
+            throw GradleException("There are errors in tests.")
+        }
     }
 
     private fun launchAllTests() = testFiles().forEach { file -> launchTest(file) }
@@ -78,42 +73,9 @@ open class Test : DefaultTask() {
         it.chdir = file.parent
     })
 
-    private fun generateTestReport() {
-        val result = testFiles().map { file ->
-            resultFile(file)
-        }.fold(ResultCounters()) { result, fileName ->
-            val file = File(fileName)
-            println(file.name)
-            val testOutput = fromPetscii(file.readBytes())
-            val counts = parseTestOutput(testOutput)
-            println("Tests execution $counts")
-            ResultCounters(result.success + counts.success, result.total + counts.total)
-        }
-        println("Overall test report $result")
-    }
 
-    private fun parseTestOutput(outputText: String): ResultCounters {
-        val regex = Regex("\\((\\d+)/(\\d+)\\)")
-        val matchResult: MatchResult? = regex.find(outputText)
-        if (matchResult != null) {
-            return ResultCounters(matchResult.groupValues.get(1).toInt(), matchResult.groupValues.get(2).toInt())
-        } else {
-            return ResultCounters()
-        }
-    }
-
-    private fun fromPetscii(bytes: ByteArray) = bytes.asSequence().map { value ->
-        if (value == 13.toByte()) {
-            System.lineSeparator()
-        } else if (value >= 0) {
-            "" + value.toChar()
-        } else {
-            "" + (128 + value).toChar()
-        }
-    }.joinToString(separator = "")
-
-    private fun testFiles() = extension.specDirs.flatMap { specDir ->
-        project.fileTree(specDir).matching(
+    private fun testFiles() = extension.specDirs.flatMap {
+        project.fileTree(it).matching(
                 PatternSet().include(*extension.specIncludes))
     }
 }

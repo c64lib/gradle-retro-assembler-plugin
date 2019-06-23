@@ -32,6 +32,7 @@ const val EXTENSION_DSL_NAME = "retroProject"
 const val DIALECT_VERSION_LATEST = "latest";
 
 open class RetroAssemblerPluginExtension {
+
     var workDir = ".ra"
     var dialect = Assemblers.None
     var dialectVersion = DIALECT_VERSION_LATEST

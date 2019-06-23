@@ -68,7 +68,7 @@ class RetroAssemblerPlugin : Plugin<Project> {
             runSpec.dependsOn(assembleSpec)
             // build
             val build = project.tasks.create(TASK_BUILD, Build::class.java)
-            build.dependsOn(assemble)
+            build.dependsOn(assemble, runSpec)
 
             if (project.defaultTasks.isEmpty()) {
                 project.defaultTasks.add(TASK_BUILD)
