@@ -81,8 +81,8 @@ be extended.
 
 ### Running Unit tests with 64spec
 Version 1.0.0 supports now launching unit tests written in KickAssembler. In order to be able to do so, a Vice 3+
-must be installed on a machine where tests will be launched. Also the 64spec library must be added to dependencies,
-as any other KickAssembler library:
+must be installed on a machine where tests will be launched. It is also assumed that `x64` command is available 
+on the path. Also the 64spec library must be added to dependencies, as any other KickAssembler library:
 
     retroProject {
         libFromGitHub "c64lib/64spec", "0.7.0pr"
