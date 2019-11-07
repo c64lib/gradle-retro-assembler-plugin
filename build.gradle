@@ -4,13 +4,12 @@ plugins {
     id 'maven-publish'
     id 'com.gradle.plugin-publish' version '0.10.1'
     id "com.diffplug.gradle.spotless" version "3.23.0"
-//    id "io.gitlab.arturbosch.detekt" version "1.0.0-RC15"
 }
 
 apply plugin: 'java-gradle-plugin'
 
 group 'com.github.c64lib'
-version '0.4.0rc01'
+version '1.0.0'
 
 pluginBundle {
     website = 'https://github.com/c64lib/gradle-retro-assembler-plugin'
@@ -38,12 +37,6 @@ dependencies {
 repositories {
     jcenter()
 }
-
-//detekt {
-//    toolVersion = "[version]"
-//    input = files("src/main/kotlin")
-//    filters = ".*/resources/.*,.*/build/.*"
-//}
 
 publishing {
     repositories {

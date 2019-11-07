@@ -16,7 +16,7 @@ If you have Gradle installed on your machine (get it from [GitHub](https://githu
 you just need to create `build.gradle` file in root folder of your project. Fill it with following content:
 
     plugins {
-        id "com.github.c64lib.retro-assembler" version "0.3.0"
+        id "com.github.c64lib.retro-assembler" version "1.0.0"
     }
     
     repositories {
@@ -27,7 +27,7 @@ you just need to create `build.gradle` file in root folder of your project. Fill
     
     retroProject {
         dialect = "KickAssembler"
-        dialectVersion = "5.6"
+        dialectVersion = "5.9"
         libDirs = ["..", ".ra/deps/c64lib"]
         srcDirs = ["lib", "spec"]
         
@@ -66,17 +66,121 @@ There are two supplementary tasks that are called automatically when `build` tas
 It is also possible to run supplementary tasks manually:
 
     gradle resolveDevDeps downloadDeps
+    
 
 ### Using external ASM dependencies
 If you need to use some library code written in KickAssembler, Retro Gradle Plugin can download them 
 for you automatically. You just need to specify these dependencies inside your `retroProject` section:
 
     retroProject {
-        libFromGitHub "c64lib/64spec", "0.7.0pr"
+        libFromGitHub "c64lib/common", "1.0.0"
     }
 
 Please note, that currently only GitHub is supported as a source for library releases. In future this will
 be extended.
+
+### Running Unit tests with 64spec
+Version 1.0.0 supports now launching unit tests written in KickAssembler. In order to be able to do so, a Vice 3+
+must be installed on a machine where tests will be launched. Also the 64spec library must be added to dependencies,
+as any other KickAssembler library:
+
+    retroProject {
+        libFromGitHub "c64lib/64spec", "0.7.0pr"
+    }
+    
+Please note, that original version of 64spec does not work with newer versions of KickAssembler, therefore
+forked version is used.
+
+By default, Gradle Retro Assembler plugin detects whether there are any tests in your projects and if found
+it tries to launch them. It is assumed that tests are located in `spec` directory of project's root (or its 
+subdirectories) and that they are included in files ended with `spec.asm`. This default behavior can be 
+customized by assigning new dir name and file masks in `build.gradle`:
+
+    retroProject {
+        specDirs = ['tests']
+        specIncludes = ['**/*.test.asm']
+    }
+    
+The following will reconfigure plugin to seek for tests in `tests` directory and execute each test
+ended with `test.asm`.
+
+## Building Retro Assembler projects on CI environments
+Gradle Retro Assembler Plugin can be used in CI builds launched in the Cloud. As for now
+two environments are supported: CircleCI (recommended) and TravisCI.
+
+### CircleCI
+If you keep your project on `github`, it is very easy then to configure https://circleci.com/ as your
+CI (Continous Integration) environment. So, after each push to `GitHub`, a gradle build will be automatically
+launched there, and all your `asm` sources will be assembled with Kick Assembler. If you have any 64spec
+tests, they will be also launched there using GUI-Less Vice and their results will influence your build 
+results.
+
+If you break your code or break your tests, you will be then notified what's wrong. This will be all done 
+automatically. In result your development speed will be increased as there will be an external "guard"
+that looks after your code stability.
+
+In order to be able to run your project on CircleCi, you have to add configuration file to your code
+repository. The file is named `config.yml` and must be located in `.circleci` directory located right
+in the root of your project. As for now the file should look similar to the example below:
+
+    version: 2
+    jobs:
+      build:
+        branches:
+          only:
+            - master
+            - develop
+        docker:
+          - image: maciejmalecki/c64libci:0.1.4
+    
+        working_directory: ~/repo
+    
+        environment:
+          JVM_OPTS: -Xmx3200m
+          TERM: dumb
+    
+        steps:
+          - checkout
+    
+          - run: ./gradlew
+          
+          
+You still can modify few things in this file:
+* if you want other branches to be built too, add them to the `branches/only` list
+* if you want to customize build options, i.e. skip tests, you have to modify last line 
+of the file, i.e.: `- run ./gradlew -x test`
+
+You have to ensure, that `gradlew` launcher has executable rights on Linux machines, otherwise `run` command
+will fail.
+
+One thing you shouldn't modify is `docker/image` - the `maciejmalecki/c64libci:0.1.4` is a dedicated
+image based on Debian Buster that has Java 11 and Vice 3.x preinstalled and is needed to run both
+KickAssembler and 64spec tests.
+
+### TravisCI
+As for now it is not possible to install Vice 3.x on TravisCI due to outdated Linux images, so that
+64spec tests are not working there. Remember to disable them with `-x` flag, i.e.:
+
+    gradlew build -x test
+    
+In order to enable building on TravisCI, you have to provide configuration file in your repository.
+The file is named `.travis.yml` and must be located in root of your project. The file should have
+following content:
+
+    language: asm
+    sudo: false
+    script:
+      - ./gradlew build -x test
+    notifications:
+      email:
+        on_success: change
+        on_failure: change
+
+Travis integrates well with GitHub and builds can be easily activated for each repository
+hosted on GitHub.
+
+You have to ensure, that `gradlew` launcher has executable rights on Linux machines, otherwise `run` command
+will fail.
 
 ## Using Gradle Wrapper
 Gradle Wrapper is a recommended way to distribute sources of your projects. When Gradle Wrapper is
@@ -97,8 +201,9 @@ under linux-like OS.
 Read how to install Gradle Wrapper in Gradle documentation: https://docs.gradle.org/current/userguide/gradle_wrapper.html
 
 ## Change log
-### 0.4.0
+### 1.0.0
 * Support for running 64spec tests using console mode of Vice
+* Tested support for CircleCI environment via dedicated Docker image
 * Work dir (.ra) can now be changed
 
 ### 0.3.0
