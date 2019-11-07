@@ -22,13 +22,15 @@
  * SOFTWARE.
  */
 
-package com.github.c64lib.gradle
+package com.github.c64lib.gradle.asms.kickassembler
 
-// official tasks
-const val TASK_BUILD = "build"
-const val TASK_ASM = "asm"
-const val TASK_CLEAN = "clean"
-const val TASK_RESOLVE_DEV_DEPENDENCIES = "resolveDevDeps"
-const val TASK_DEPENDENCIES = "downloadDeps"
-const val TASK_TEST = "test"
-const val TASK_ASM_SPEC = "asmSpec"
+import org.gradle.api.Project
+import java.io.File
+
+class KickAssemblerSpec(private val kaFile: File) {
+
+    fun makeArgs(): List<String> {
+        val cli = mutableListOf(kaFile.absolutePath)
+        return cli.toList()
+    }
+}

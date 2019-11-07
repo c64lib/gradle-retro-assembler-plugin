@@ -22,13 +22,34 @@
  * SOFTWARE.
  */
 
-package com.github.c64lib.gradle
+package com.github.c64lib.gradle.spec
 
-// official tasks
-const val TASK_BUILD = "build"
-const val TASK_ASM = "asm"
-const val TASK_CLEAN = "clean"
-const val TASK_RESOLVE_DEV_DEPENDENCIES = "resolveDevDeps"
-const val TASK_DEPENDENCIES = "downloadDeps"
-const val TASK_TEST = "test"
-const val TASK_ASM_SPEC = "asmSpec"
+import com.github.c64lib.gradle.GROUP_BUILD
+import com.github.c64lib.gradle.RetroAssemblerPluginExtension
+import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.TaskAction
+
+open class AssembleSpec : DefaultTask() {
+
+    init {
+        description = "Runs assembler over all spec files"
+        group = GROUP_BUILD
+    }
+
+    lateinit var extension: RetroAssemblerPluginExtension
+
+    @TaskAction
+    fun assemble() {
+        val asm = AssemblerFacadeFactory.of(extension.dialect, project, extension)
+        asm.testFiles().forEach { file ->
+            println(resultFileName(file))
+            asm.assemble(file,
+                    "-o", prgFile(file),
+                    "-vicesymbols",
+                    ":on_exit=jam",
+                    ":write_final_results_to_file=true",
+                    ":result_file_name=" + resultFileName(file))
+        }
+    }
+}

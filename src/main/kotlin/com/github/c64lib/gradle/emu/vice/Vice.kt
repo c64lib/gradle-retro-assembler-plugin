@@ -22,13 +22,16 @@
  * SOFTWARE.
  */
 
-package com.github.c64lib.gradle
+package com.github.c64lib.gradle.emu.vice
 
-// official tasks
-const val TASK_BUILD = "build"
-const val TASK_ASM = "asm"
-const val TASK_CLEAN = "clean"
-const val TASK_RESOLVE_DEV_DEPENDENCIES = "resolveDevDeps"
-const val TASK_DEPENDENCIES = "downloadDeps"
-const val TASK_TEST = "test"
-const val TASK_ASM_SPEC = "asmSpec"
+import org.gradle.api.Action
+import org.gradle.api.Project
+
+class Vice(private val project: Project) {
+
+    fun run(action: Action<ViceSpec>) {
+        val spec = ViceSpec()
+        action.execute(spec)
+        project.exec { it.commandLine = spec.makeCommandLine() }
+    }
+}

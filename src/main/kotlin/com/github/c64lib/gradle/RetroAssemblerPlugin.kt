@@ -25,12 +25,14 @@
 package com.github.c64lib.gradle
 
 import com.github.c64lib.gradle.deps.DownloadDependencies
+import com.github.c64lib.gradle.spec.AssembleSpec
+import com.github.c64lib.gradle.spec.Test
 import com.github.c64lib.gradle.tasks.Assemble
+import com.github.c64lib.gradle.tasks.Build
 import com.github.c64lib.gradle.tasks.Clean
 import com.github.c64lib.gradle.tasks.ResolveDevDeps
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 
 class RetroAssemblerPlugin : Plugin<Project> {
 
@@ -39,13 +41,15 @@ class RetroAssemblerPlugin : Plugin<Project> {
         val extension = project.extensions.create<RetroAssemblerPluginExtension>(EXTENSION_DSL_NAME, RetroAssemblerPluginExtension::class.java)
 
         project.afterEvaluate {
+            // deps
             val resolveDevDeps = project.tasks.create(TASK_RESOLVE_DEV_DEPENDENCIES, ResolveDevDeps::class.java) { task ->
                 task.extension = extension
             }
             val downloadDependencies = project.tasks.create(TASK_DEPENDENCIES, DownloadDependencies::class.java) { task ->
                 task.extension = extension
             }
-            val assemble = project.tasks.create(TASK_BUILD, Assemble::class.java) { task ->
+            // sources
+            val assemble = project.tasks.create(TASK_ASM, Assemble::class.java) { task ->
                 task.extension = extension
             }
             assemble.dependsOn(resolveDevDeps, downloadDependencies)
@@ -53,6 +57,18 @@ class RetroAssemblerPlugin : Plugin<Project> {
             project.tasks.create(TASK_CLEAN, Clean::class.java) { task ->
                 task.extension = extension
             }
+            // spec
+            val assembleSpec = project.tasks.create(TASK_ASM_SPEC, AssembleSpec::class.java) { task ->
+                task.extension = extension
+            }
+            assembleSpec.dependsOn(resolveDevDeps, downloadDependencies)
+            val runSpec = project.tasks.create(TASK_TEST, Test::class.java) { task ->
+                task.extension = extension
+            }
+            runSpec.dependsOn(assembleSpec)
+            // build
+            val build = project.tasks.create(TASK_BUILD, Build::class.java)
+            build.dependsOn(assemble, runSpec)
 
             if (project.defaultTasks.isEmpty()) {
                 project.defaultTasks.add(TASK_BUILD)

@@ -33,7 +33,7 @@ import org.gradle.api.tasks.TaskAction
 open class Clean : Delete() {
 
     init {
-        description = "Cleans KickAssembler target files"
+        description = "Cleans KickAssemblerFacade target files"
         group = GROUP_BUILD
     }
 
