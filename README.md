@@ -37,6 +37,10 @@ you just need to create `build.gradle` file in root folder of your project. Fill
 
 You can of course adjust all values inside `retroProject` to your needs.
 
+As you can see you don't have to download Retro Assembler Plugin, it will be automatically downloaded and used once `gradle` 
+command is run. The plugin is published into Plugins portal: https://plugins.gradle.org/plugin/com.github.c64lib.retro-assembler
+and can be used as any other Gradle plugin.
+
 ### Customizing your build
 The following properties can be customized:
 * `dialect` - selects Assembler dialect and determines Assembler to be used (possible values: `KickAssembler`)
