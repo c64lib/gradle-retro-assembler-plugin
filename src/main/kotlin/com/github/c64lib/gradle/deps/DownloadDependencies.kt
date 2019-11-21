@@ -28,6 +28,7 @@ import com.github.c64lib.gradle.GROUP_BUILD
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
@@ -38,6 +39,7 @@ open class DownloadDependencies : DefaultTask() {
         group = GROUP_BUILD
     }
 
+    @Input
     lateinit var extension: RetroAssemblerPluginExtension
 
     @TaskAction

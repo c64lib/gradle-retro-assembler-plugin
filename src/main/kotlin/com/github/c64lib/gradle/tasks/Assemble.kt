@@ -28,6 +28,7 @@ import com.github.c64lib.gradle.GROUP_BUILD
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 open class Assemble : DefaultTask() {
@@ -37,6 +38,7 @@ open class Assemble : DefaultTask() {
         group = GROUP_BUILD
     }
 
+    @Input
     lateinit var extension: RetroAssemblerPluginExtension
 
     @TaskAction
