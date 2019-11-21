@@ -27,19 +27,21 @@ package com.github.c64lib.gradle.tasks
 import com.github.c64lib.gradle.GROUP_BUILD
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
-import de.undercouch.gradle.tasks.download.Download
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-open class ResolveDevDeps : Download() {
+open class ResolveDevDeps : DefaultTask() {
 
     init {
         description = "Downloads KickAssemblerFacade dependency"
         group = GROUP_BUILD
     }
 
+    @Input
     lateinit var extension: RetroAssemblerPluginExtension
 
     @TaskAction
-    override fun download() =
+    fun download() =
             AssemblerFacadeFactory.of(extension.dialect, project, extension).installDevKit();
 }

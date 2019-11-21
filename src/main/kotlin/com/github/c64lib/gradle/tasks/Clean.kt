@@ -28,6 +28,7 @@ import com.github.c64lib.gradle.GROUP_BUILD
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
 import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 open class Clean : Delete() {
@@ -37,6 +38,7 @@ open class Clean : Delete() {
         group = GROUP_BUILD
     }
 
+    @Input
     lateinit var extension: RetroAssemblerPluginExtension
 
     @TaskAction
