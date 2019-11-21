@@ -9,7 +9,7 @@ plugins {
 apply plugin: 'java-gradle-plugin'
 
 group 'com.github.c64lib'
-version '1.0.0'
+version '1.0.1'
 
 pluginBundle {
     website = 'https://github.com/c64lib/gradle-retro-assembler-plugin'

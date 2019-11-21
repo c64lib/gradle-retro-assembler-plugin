@@ -205,6 +205,10 @@ under linux-like OS.
 Read how to install Gradle Wrapper in Gradle documentation: https://docs.gradle.org/current/userguide/gradle_wrapper.html
 
 ## Change log
+
+### 1.0.1
+* Migrate build to Gradle 6
+
 ### 1.0.0
 * Support for running 64spec tests using console mode of Vice
 * Tested support for CircleCI environment via dedicated Docker image
