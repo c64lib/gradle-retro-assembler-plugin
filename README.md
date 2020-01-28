@@ -16,7 +16,7 @@ If you have Gradle installed on your machine (get it from [GitHub](https://githu
 you just need to create `build.gradle` file in root folder of your project. Fill it with following content:
 
     plugins {
-        id "com.github.c64lib.retro-assembler" version "1.0.0"
+        id "com.github.c64lib.retro-assembler" version "1.0.1"
     }
     
     repositories {
@@ -27,7 +27,7 @@ you just need to create `build.gradle` file in root folder of your project. Fill
     
     retroProject {
         dialect = "KickAssembler"
-        dialectVersion = "5.9"
+        dialectVersion = "5.12"
         libDirs = ["..", ".ra/deps/c64lib"]
         srcDirs = ["lib", "spec"]
         
