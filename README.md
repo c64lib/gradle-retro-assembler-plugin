@@ -41,7 +41,7 @@ As you can see you don't have to download Retro Assembler Plugin, it will be aut
 command is run. The plugin is published into Plugins portal: [https://plugins.gradle.org](https://plugins.gradle.org/plugin/com.github.c64lib.retro-assembler)
 and can be used as any other Gradle plugin.
 
-Read a complete installation manual in documentation: https://c64lib.github.io/docu/install
+Read a complete installation manual in documentation: https://c64lib.github.io/docu/pages/install
 
 ### Customizing your build
 The following properties can be customized:
