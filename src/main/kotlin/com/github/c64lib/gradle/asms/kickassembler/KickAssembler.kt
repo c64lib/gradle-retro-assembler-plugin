@@ -24,9 +24,9 @@
 
 package com.github.c64lib.gradle.asms.kickassembler
 
+import java.io.File
 import org.gradle.api.Action
 import org.gradle.api.Project
-import java.io.File
 
 class KickAssembler(private val project: Project, private val kaFile: File) {
 

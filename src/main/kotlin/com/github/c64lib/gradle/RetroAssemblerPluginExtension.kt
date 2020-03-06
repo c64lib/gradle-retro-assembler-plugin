@@ -29,7 +29,7 @@ import com.github.c64lib.gradle.deps.Dependency
 import com.github.c64lib.gradle.deps.DependencyType
 
 const val EXTENSION_DSL_NAME = "retroProject"
-const val DIALECT_VERSION_LATEST = "latest";
+const val DIALECT_VERSION_LATEST = "latest"
 
 open class RetroAssemblerPluginExtension {
 
@@ -51,6 +51,6 @@ open class RetroAssemblerPluginExtension {
     private var _dependencies: MutableList<Dependency> = ArrayList()
 
     fun libFromGitHub(name: String, version: String) {
-        _dependencies.add(Dependency(DependencyType.GitHub, name, version));
+        _dependencies.add(Dependency(DependencyType.GitHub, name, version))
     }
 }

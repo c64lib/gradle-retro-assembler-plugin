@@ -43,5 +43,5 @@ open class ResolveDevDeps : DefaultTask() {
 
     @TaskAction
     fun download() =
-            AssemblerFacadeFactory.of(extension.dialect, project, extension).installDevKit();
+            AssemblerFacadeFactory.of(extension.dialect, project, extension).installDevKit()
 }

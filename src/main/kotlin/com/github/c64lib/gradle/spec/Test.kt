@@ -30,13 +30,13 @@ import com.github.c64lib.gradle.asms.Assemblers
 import com.github.c64lib.gradle.emu.vice.AutostartPrgMode
 import com.github.c64lib.gradle.emu.vice.JamAction
 import com.github.c64lib.gradle.emu.vice.Vice
+import java.io.File
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.util.PatternSet
-import java.io.File
 
 open class Test : DefaultTask() {
 
@@ -74,7 +74,6 @@ open class Test : DefaultTask() {
         it.monCommands = viceSymbolFile(file)
         it.chdir = file.parent
     })
-
 
     private fun testFiles() = extension.specDirs.flatMap {
         project.fileTree(it).matching(

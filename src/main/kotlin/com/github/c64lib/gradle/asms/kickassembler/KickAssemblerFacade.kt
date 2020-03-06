@@ -28,15 +28,16 @@ import com.github.c64lib.gradle.DIALECT_VERSION_LATEST
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.AssemblerFacade
 import de.undercouch.gradle.tasks.download.Download
+import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.util.PatternSet
-import java.io.File
 
 class KickAssemblerFacade(
-        private val project: Project,
-        private val extension: RetroAssemblerPluginExtension) : AssemblerFacade {
+    private val project: Project,
+    private val extension: RetroAssemblerPluginExtension
+) : AssemblerFacade {
 
     private val kaFile = project.file("${extension.workDir}/asms/ka/${extension.dialectVersion}/KickAss.jar")
 
@@ -46,9 +47,9 @@ class KickAssemblerFacade(
                 throw GradleException("Dialect version ${extension.dialectVersion} is not supported for KickAssemblerFacade")
             }
             val downloadTask = project.tasks.create("_c64lib_download_ka", Download::class.java)
-            downloadTask.src("https://github.com/c64lib/asm-ka/releases/download/${extension.dialectVersion}/KickAss.jar");
-            downloadTask.dest(kaFile);
-            downloadTask.download();
+            downloadTask.src("https://github.com/c64lib/asm-ka/releases/download/${extension.dialectVersion}/KickAss.jar")
+            downloadTask.dest(kaFile)
+            downloadTask.download()
         }
     }
 

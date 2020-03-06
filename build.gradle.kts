@@ -8,7 +8,7 @@ plugins {
     id("java-gradle-plugin")
     id("maven-publish")
     id("com.gradle.plugin-publish") version "0.10.1"
-    id("com.diffplug.gradle.spotless") version "3.23.0"
+    id("com.diffplug.gradle.spotless") version "3.27.2"
 }
 
 group = "com.github.c64lib"
@@ -16,6 +16,12 @@ version = "1.1.0-SNAPSHOT"
 
 if (project.hasProperty(tagPropertyName)) {
     version = project.property(tagPropertyName) ?: version
+}
+
+spotless {
+    kotlin {
+        ktlint()
+    }
 }
 
 pluginBundle {

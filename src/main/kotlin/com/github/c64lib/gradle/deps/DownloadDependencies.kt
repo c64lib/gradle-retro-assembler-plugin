@@ -27,10 +27,10 @@ package com.github.c64lib.gradle.deps
 import com.github.c64lib.gradle.GROUP_BUILD
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import de.undercouch.gradle.tasks.download.Download
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 
 open class DownloadDependencies : DefaultTask() {
 
@@ -50,7 +50,7 @@ open class DownloadDependencies : DefaultTask() {
             val archive = when (dependency.type) {
                 DependencyType.GitHub -> configureGitHub(dependency, downloadTask)
             }
-            downloadTask.download();
+            downloadTask.download()
             unzip(archive, archive.parentFile)
             archive.delete()
         }
