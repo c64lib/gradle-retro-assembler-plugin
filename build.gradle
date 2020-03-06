@@ -11,6 +11,10 @@ apply plugin: 'java-gradle-plugin'
 group 'com.github.c64lib'
 version '1.0.1'
 
+if (project.hasProperty('tag')) {
+    version = project.getProperty('tag')
+}
+
 pluginBundle {
     website = 'https://github.com/c64lib/gradle-retro-assembler-plugin'
     vcsUrl = 'https://github.com/c64lib/gradle-retro-assembler-plugin'

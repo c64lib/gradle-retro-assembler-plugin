@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
         build:
           docker:
@@ -13,18 +13,24 @@ jobs:
           steps:
             - checkout
             - run: ./gradlew build
+            - when:
+                condition:
+                steps:
+                  - run: ./gradlew publishPlugins -Pgradle.publish.key=${GRADLE_PUBLISH_KEY} -Pgradle.publish.secret=${GRADLE_PUBLISH_SECRET}
 
-#        publish:
-#          docker:
-#            - image: cibuilds/github:0.10
-#          steps:
-#            - attach_workspace:
-#                at: ./artifacts
-#            - run:
-#                name: "Publish PRG on GitHub"
-#                command: |
-#                    ls ./artifacts/out
-#                    ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -replace ${CIRCLE_TAG} ./artifacts/out
+        publish:
+          docker:
+            - image: circleci/openjdk:11
+
+          working_directory: ~/repo
+
+          environment:
+            JVM_OPTS: -Xms512m -Xmx1200m
+            TERM: dumb
+
+          steps:
+            - checkout
+            - run: ./gradlew build publishPlugins -Pgradle.publish.key=${GRADLE_PUBLISH_KEY} -Pgradle.publish.secret=${GRADLE_PUBLISH_SECRET}
 
 workflows:
     version: 2
@@ -36,17 +42,13 @@ workflows:
                         only:
                             - master
                             - develop
+
+            - publish:
+                filters:
+                    branches:
+                        ignore:
+                            - master
+                            - develop
                     tags:
                         only:
-                            - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
-#            - publish:
-#                filters:
-#                    branches:
-#                        ignore:
-#                            - master
-#                            - develop
-#                    tags:
-#                        only:
-#                            - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
-#                requires:
-#                    - build
+                            - /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
