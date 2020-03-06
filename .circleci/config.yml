@@ -2,7 +2,7 @@ version: 2.1
 jobs:
         build:
           docker:
-            - image: circleci/openjdk:14-jdk-buster
+            - image: circleci/openjdk:13
 
           working_directory: ~/repo
 
