@@ -2,7 +2,6 @@ val kotlinVersion: String by project
 val gradleDownloadTaskVersion: String by project
 val tagPropertyName = "tag"
 
-
 plugins {
     kotlin("jvm") version "1.3.70"
     id("java-gradle-plugin")
@@ -20,6 +19,9 @@ if (project.hasProperty(tagPropertyName)) {
 
 spotless {
     kotlin {
+        ktlint()
+    }
+    kotlinGradle {
         ktlint()
     }
 }
@@ -43,8 +45,8 @@ gradlePlugin {
 
 dependencies {
     implementation(gradleApi())
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
-    implementation("de.undercouch:gradle-download-task:${gradleDownloadTaskVersion}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
 }
 
 repositories {
