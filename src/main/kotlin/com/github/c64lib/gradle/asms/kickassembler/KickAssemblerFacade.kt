@@ -33,6 +33,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.util.PatternSet
+import org.gradle.process.ExecResult
 
 class KickAssemblerFacade(
     private val project: Project,
@@ -74,17 +75,24 @@ class KickAssemblerFacade(
                 pattern.include("**/*.prg", "**/*.sym", "**/*.vs", "**/*.specOut")
             }
 
-    override fun assemble(sourceFile: File, vararg parameters: String) =
+    override fun assemble(sourceFile: File, vararg parameters: String): ExecResult =
             project.javaexec { spec ->
                 spec.main = "-jar"
                 spec.args = listOf(
                         listOf(kaFile.absolutePath),
                         asLibDirList(extension.libDirs),
+                        asDeclareList(extension.defines),
                         listOf(*parameters),
                         listOf(sourceFile.path)).flatten()
                 println(spec.args)
             }
 
     private fun asLibDirList(libDirs: Array<String>) =
-            libDirs.flatMap { file -> listOf("-libdir", project.file(file).absolutePath) }
+            asParamList("-libdir", libDirs)
+
+    private fun asDeclareList(defines: Array<String>) =
+            asParamList("-define", defines)
+
+    private fun asParamList(paramName: String, values: Array<String>) =
+            values.flatMap { value -> listOf(paramName, value) }
 }
