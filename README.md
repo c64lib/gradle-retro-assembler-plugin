@@ -1,8 +1,10 @@
-# Gradle retro assembler plugin
+# Gradle Retro Assembler Plugin
 
 Adds capability of building assembler projects for 65xx microprocessor family.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Build Status](https://travis-ci.org/c64lib/gradle-retro-assembler-plugin.svg?branch=master)](https://travis-ci.org/c64lib/gradle-retro-assembler-plugin) [![Build Status](https://travis-ci.org/c64lib/gradle-retro-assembler-plugin.svg?branch=develop)](https://travis-ci.org/c64lib/gradle-retro-assembler-plugin)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
+[![CircleCI](https://circleci.com/gh/c64lib/gradle-retro-assembler-plugin/tree/master.svg?style=svg)](https://circleci.com/gh/c64lib/gradle-retro-assembler-plugin/tree/master)
+[![CircleCI](https://circleci.com/gh/c64lib/gradle-retro-assembler-plugin/tree/develop.svg?style=svg)](https://circleci.com/gh/c64lib/gradle-retro-assembler-plugin/tree/develop)
 
 Gradle is an universal build tool that is used for automation in IT industry. It supports Java
 ecosystem out of the box but is also extensible via plugin system.
