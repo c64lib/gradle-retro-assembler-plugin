@@ -37,7 +37,7 @@ gradlePlugin {
 }
 
 dependencies {
-    // implementation(project(":modules:domain"))
+    implementation(project(":modules:domain"))
     implementation(gradleApi())
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
