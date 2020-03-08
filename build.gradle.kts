@@ -5,7 +5,7 @@ val tagPropertyName = "tag"
 plugins {
     kotlin("jvm") version "1.3.70"
     id("java-gradle-plugin")
-    id("maven-publish")
+    // id("maven-publish")
     id("com.gradle.plugin-publish") version "0.10.1"
     id("com.diffplug.gradle.spotless") version "3.27.2"
 }
@@ -53,10 +53,10 @@ repositories {
     jcenter()
 }
 
-publishing {
-    repositories {
-        maven {
-            url = uri("../consuming/maven-repo")
-        }
-    }
-}
+// publishing {
+//    repositories {
+//        maven {
+//            url = uri("../consuming/maven-repo")
+//        }
+//    }
+// }
