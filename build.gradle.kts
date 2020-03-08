@@ -34,8 +34,8 @@ pluginBundle {
 
 gradlePlugin {
     plugins {
-        create("simplePlugin") {
-            id = "com.github.c64lib.retro-assembler"
+        create("retroAssemblerPlugin") {
+            id = "com.github.c64lib.gradle-retro-assembler-plugin"
             displayName = "Retro Assembler Plugin"
             description = "Embeds various 6502 assemblers and provides basic functionality to have builds for your beloved C64"
             implementationClass = "com.github.c64lib.gradle.RetroAssemblerPlugin"
