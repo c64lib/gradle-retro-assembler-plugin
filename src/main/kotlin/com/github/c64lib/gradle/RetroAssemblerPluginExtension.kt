@@ -25,8 +25,8 @@
 package com.github.c64lib.gradle
 
 import com.github.c64lib.gradle.asms.Assemblers
-import com.github.c64lib.gradle.deps.Dependency
-import com.github.c64lib.gradle.deps.DependencyType
+import com.github.c64lib.retroassembler.domain.Dependency
+import com.github.c64lib.retroassembler.domain.DependencyType
 
 const val EXTENSION_DSL_NAME = "retroProject"
 const val DIALECT_VERSION_LATEST = "latest"

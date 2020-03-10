@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.github.c64lib.gradle.deps
+package com.github.c64lib.retroassembler.domain
 
 data class Dependency(
     val type: DependencyType,

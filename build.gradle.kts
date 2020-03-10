@@ -1,4 +1,7 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 val kotlinVersion: String by project
+val vavrVersion: String by project
 val gradleDownloadTaskVersion: String by project
 val tagPropertyName = "tag"
 
@@ -12,6 +15,14 @@ plugins {
 
 group = "com.github.c64lib"
 version = "1.1.0-SNAPSHOT"
+
+java.sourceCompatibility = JavaVersion.VERSION_1_8
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
 
 if (project.hasProperty(tagPropertyName)) {
     version = project.property(tagPropertyName) ?: version
@@ -46,6 +57,7 @@ gradlePlugin {
 dependencies {
     implementation(gradleApi())
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    implementation("io.vavr:vavr:$vavrVersion")
     implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
 }
 
