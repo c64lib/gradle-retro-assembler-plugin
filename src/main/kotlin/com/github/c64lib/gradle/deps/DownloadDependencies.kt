@@ -48,7 +48,7 @@ open class DownloadDependencies : DefaultTask() {
     fun downloadAndUnzip() {
         extension.dependencies.forEach { dependency ->
             val dependencyName = dependency.name.replace('/', '-')
-            val downloadTask = project.tasks.create("_c64lib_download_${dependency.type}-$dependencyName@${dependency.version}", Download::class.java)
+            val downloadTask = project.tasks.create("_c64lib_download_${dependency.type}-$dependencyName@${dependency.version.version}", Download::class.java)
             val archive = when (dependency.type) {
                 DependencyType.GitHub -> configureGitHub(dependency, downloadTask)
             }
@@ -59,9 +59,9 @@ open class DownloadDependencies : DefaultTask() {
     }
 
     private fun configureGitHub(dependency: Dependency, downloadTask: Download): File {
-        val url = "https://github.com/${dependency.name}/archive/${dependency.version}.tar.gz"
+        val url = "https://github.com/${dependency.name}/archive/${dependency.version.version}.tar.gz"
         downloadTask.src(url)
-        val dest = project.file(".ra/deps/${dependency.name}/${dependency.version}.tar.gz")
+        val dest = project.file(".ra/deps/${dependency.name}/${dependency.version.version}.tar.gz")
         downloadTask.dest(dest)
         return dest
     }
@@ -71,7 +71,7 @@ open class DownloadDependencies : DefaultTask() {
         project.copy { spec ->
             spec.from(files)
             spec.into(where)
-            spec.eachFile { it ->
+            spec.eachFile {
                 val index = it.path.indexOf('/')
                 if (index >= 0) {
                     val path = it.path.substring(index + 1)

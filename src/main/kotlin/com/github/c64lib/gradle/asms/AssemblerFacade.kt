@@ -26,16 +26,12 @@ package com.github.c64lib.gradle.asms
 
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.kickassembler.KickAssemblerFacade
+import com.github.c64lib.retroassembler.domain.AssemblerType
 import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.process.ExecResult
-
-enum class Assemblers {
-    KickAssembler,
-    None
-}
 
 interface AssemblerFacade {
     fun installDevKit()
@@ -46,9 +42,9 @@ interface AssemblerFacade {
 }
 
 object AssemblerFacadeFactory {
-    fun of(assembler: Assemblers, project: Project, extension: RetroAssemblerPluginExtension): AssemblerFacade =
+    fun of(assembler: AssemblerType, project: Project, extension: RetroAssemblerPluginExtension): AssemblerFacade =
             when (assembler) {
-                Assemblers.KickAssembler -> KickAssemblerFacade(project, extension)
-                Assemblers.None -> throw GradleException("Assembler dialect is not selected")
+                AssemblerType.KickAssembler -> KickAssemblerFacade(project, extension)
+                AssemblerType.None -> throw GradleException("Assembler dialect is not selected")
             }
 }

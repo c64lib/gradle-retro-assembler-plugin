@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val kotlinVersion: String by project
 val vavrVersion: String by project
 val gradleDownloadTaskVersion: String by project
+val kotlinxCoroutinesVersion: String by project
 val tagPropertyName = "tag"
 
 plugins {
@@ -58,6 +59,8 @@ dependencies {
     implementation(gradleApi())
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("io.vavr:vavr:$vavrVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinxCoroutinesVersion")
     implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
 }
 

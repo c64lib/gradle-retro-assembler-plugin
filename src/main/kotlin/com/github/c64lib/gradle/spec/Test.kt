@@ -26,10 +26,10 @@ package com.github.c64lib.gradle.spec
 
 import com.github.c64lib.gradle.GROUP_BUILD
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
-import com.github.c64lib.gradle.asms.Assemblers
 import com.github.c64lib.gradle.emu.vice.AutostartPrgMode
 import com.github.c64lib.gradle.emu.vice.JamAction
 import com.github.c64lib.gradle.emu.vice.Vice
+import com.github.c64lib.retroassembler.domain.AssemblerType
 import java.io.File
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
@@ -50,8 +50,8 @@ open class Test : DefaultTask() {
 
     @TaskAction
     fun runSpec() {
-        assert(extension.dialect == Assemblers.KickAssembler) {
-            "The specified dialect ${extension.dialect} cannot be used with 64spec, only ${Assemblers.KickAssembler} is supported"
+        assert(extension.dialect == AssemblerType.KickAssembler) {
+            "The specified dialect ${extension.dialect} cannot be used with 64spec, only ${AssemblerType.KickAssembler} is supported"
         }
         launchAllTests()
         val isPositive = TestReport(testFiles()).generateTestReport {
