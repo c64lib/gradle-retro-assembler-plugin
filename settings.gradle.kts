@@ -1,4 +1,4 @@
-rootProject.name = "gradle-retro-assembler-plugin"
+rootProject.name = "retro-assembler"
 
-include(":modules:domain")
-include(":modules:plugins:gradle")
+include(":domain")
+include(":infra:gradle")

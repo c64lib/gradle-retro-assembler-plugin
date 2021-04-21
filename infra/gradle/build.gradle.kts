@@ -10,6 +10,8 @@ plugins {
     id("com.diffplug.gradle.spotless")
 }
 
+group = "com.github.c64lib.retro-assembler"
+
 spotless {
     kotlin {
         ktlint()
@@ -40,13 +42,13 @@ dependencies {
     implementation(gradleApi())
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
-    implementation(project(":modules:domain"))
+    implementation(project(":domain"))
 }
 
 publishing {
     repositories {
         maven {
-            url = uri("../consuming/maven-repo")
+            url = uri("../../../consuming/maven-repo")
         }
     }
 }
