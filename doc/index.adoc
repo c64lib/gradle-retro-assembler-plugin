@@ -1,4 +1,4 @@
-= C64Lib - user manual
+= Retro Assembler build tools
 :icons: font
 :toc: left
 :sectnums:
@@ -10,10 +10,6 @@ WARNING: This document is under development!
 
 Test text.
 
-[excalidraw]
-....
-include::kroki-test.excalidraw[]
-....
+include::include/_02_overview.adoc[leveloffset=+1]
 
-
-include::_overview.adoc[]
+include::include/_04_architecture.adoc[leveloffset=+1]

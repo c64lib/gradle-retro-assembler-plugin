@@ -1,0 +1,8 @@
+= Architecture
+
+This tool is following a hexagonal architecture principle that is depicted on the following picture.
+
+[excalidraw]
+....
+include::diagrams/overall-hexagon.excalidraw[]
+....
