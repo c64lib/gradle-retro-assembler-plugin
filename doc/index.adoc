@@ -1,0 +1,19 @@
+= C64Lib - user manual
+:icons: font
+:toc: left
+:sectnums:
+:stylesheet: clean.css
+:source-highlighter: highlight.js
+:highlightjs-languages: assembly
+
+WARNING: This document is under development!
+
+Test text.
+
+[excalidraw]
+....
+include::kroki-test.excalidraw[]
+....
+
+
+include::_overview.adoc[]

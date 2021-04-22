@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: circleci/openjdk:11
 
-          working_directory: ~/retro-assembler
+    working_directory: ~/retro-assembler
 
     environment:
       JVM_OPTS: -Xms512m -Xmx1200m
@@ -18,7 +18,7 @@ jobs:
     docker:
       - image: circleci/openjdk:11
 
-          working_directory: ~/retro-assembler
+    working_directory: ~/retro-assembler
 
     environment:
       JVM_OPTS: -Xms512m -Xmx1200m
@@ -27,6 +27,23 @@ jobs:
     steps:
       - checkout
       - run: ./gradlew build publishPlugins -Pgradle.publish.key=${GRADLE_PUBLISH_KEY} -Pgradle.publish.secret=${GRADLE_PUBLISH_SECRET} -Ptag=${CIRCLE_TAG}
+
+  documentation:
+    docker:
+      - image: circleci/jruby:latest
+    steps:
+      - run: sudo apt install graphviz
+      - checkout
+      - run: cd doc
+      - run: bundle install
+      - run: bash ./build.sh
+      - run: cd ..
+      - deploy:
+          name: Deploy Release to GitHub
+          command: |
+            if [ $CIRCLE_BRANCH == 'develop' ]; then
+              bash .circleci/publish.sh
+            fi
 
 workflows:
   version: 2
@@ -47,3 +64,8 @@ workflows:
             tags:
               only:
                 - /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
+      - documentation:
+            filters:
+              branches:
+                only:
+                  - develop
