@@ -2,4 +2,4 @@
 
 This tool is following a hexagonal architecture principle that is depicted on the following picture.
 
-image::diagrams/overall-hexagon.svg[]
+image::img/overall-hexagon.svg[]

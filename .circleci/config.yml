@@ -34,7 +34,7 @@ jobs:
     steps:
       - run: sudo apt install graphviz
       - checkout
-      - run: cd doc && bundle install && ./build.sh
+      - run: ./gradlew asciidoctor
       - deploy:
           name: Deploy Release to GitHub
           command: |
