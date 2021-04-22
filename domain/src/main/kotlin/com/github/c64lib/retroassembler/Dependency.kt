@@ -22,8 +22,11 @@
  * SOFTWARE.
  */
 
-package com.github.c64lib.retroassembler.domain
+package com.github.c64lib.retroassembler
 
-enum class DependencyType {
-    GitHub
-}
+data class Dependency(
+    val type: DependencyType,
+    val name: String,
+    val version: DependencyVersion,
+    val prefix: String = ""
+)

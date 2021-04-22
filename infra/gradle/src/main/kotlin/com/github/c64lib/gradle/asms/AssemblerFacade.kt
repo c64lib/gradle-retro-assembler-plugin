@@ -26,7 +26,7 @@ package com.github.c64lib.gradle.asms
 
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.kickassembler.KickAssemblerFacade
-import com.github.c64lib.retroassembler.domain.AssemblerType
+import com.github.c64lib.retroassembler.AssemblerType
 import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project

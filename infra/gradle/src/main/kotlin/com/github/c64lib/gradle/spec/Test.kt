@@ -29,7 +29,7 @@ import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.emu.vice.AutostartPrgMode
 import com.github.c64lib.gradle.emu.vice.JamAction
 import com.github.c64lib.gradle.emu.vice.Vice
-import com.github.c64lib.retroassembler.domain.AssemblerType
+import com.github.c64lib.retroassembler.AssemblerType
 import java.io.File
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask

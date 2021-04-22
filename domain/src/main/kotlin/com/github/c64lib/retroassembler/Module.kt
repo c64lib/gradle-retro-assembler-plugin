@@ -1,4 +1,4 @@
-package com.github.c64lib.retroassembler.domain
+package com.github.c64lib.retroassembler
 
 import io.vavr.collection.List.empty
 import io.vavr.collection.Seq
