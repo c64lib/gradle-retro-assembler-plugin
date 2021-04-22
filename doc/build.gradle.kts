@@ -7,7 +7,7 @@ tasks {
         sourceDir(".")
         baseDirIsProjectDir()
         resources(delegateClosureOf<CopySpec> {
-            from("include/img") {
+            from("img") {
                 include("**/*.jpeg")
                 include("**/*.png")
                 include("**/*.svg")

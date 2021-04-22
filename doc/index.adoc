@@ -10,6 +10,6 @@ WARNING: This document is under development!
 
 Test text.
 
-include::include/_02_overview.adoc[leveloffset=+1]
+include::_02_overview.adoc[leveloffset=+1]
 
-include::include/_04_architecture.adoc[leveloffset=+1]
+include::_04_architecture.adoc[leveloffset=+1]
