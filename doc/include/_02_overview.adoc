@@ -10,4 +10,15 @@ All external dependencies must be handled externally (via retro assembler build 
 
 image:img/domain-asm-project-model.svg[]
 
+There are other kind of files kept in the project:
+
+* data files of Charpad or similar software for developing tiled-based backgrounds,
+* data files of Spritepad or similar software for developing sprites,
+* source files of GoatTracker for SID music sources,
+* plain images in any format to be displayed.
+
+All these files should be kept in source form and then convert via processors to embeddable form (i.e. binary).
+It should be possible to compress binary form if needed, i.e. via Exomizer.
+
+image:img/domain-processors.svg[]
 
