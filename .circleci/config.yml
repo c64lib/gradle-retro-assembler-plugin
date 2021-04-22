@@ -35,7 +35,7 @@ jobs:
       - run: sudo apt install graphviz
       - checkout
       - run: cd doc && ls -al
-      - run: bundle install
+      - run: pwd && bundle install
       - run: bash ./build.sh
       - run: cd ..
       - deploy:
