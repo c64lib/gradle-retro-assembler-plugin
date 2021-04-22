@@ -34,10 +34,7 @@ jobs:
     steps:
       - run: sudo apt install graphviz
       - checkout
-      - run: cd doc && ls -al
-      - run: pwd && bundle install
-      - run: bash ./build.sh
-      - run: cd ..
+      - run: cd doc && bundle install && ./build.sh
       - deploy:
           name: Deploy Release to GitHub
           command: |
