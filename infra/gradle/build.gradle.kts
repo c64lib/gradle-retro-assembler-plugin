@@ -14,6 +14,12 @@ plugins {
 
 group = "com.github.c64lib.retro-assembler"
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}
+
 spotless {
     kotlin {
         ktlint()
