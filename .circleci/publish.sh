@@ -11,9 +11,9 @@ git remote add origin https://maciejmalecki:"$GITHUB_TOKEN"@github.com/c64lib/gr
 
 ls -al
 
-find . -maxdepth 1 ! -name 'doc/out' ! -name '.git' ! -name '.gitignore' ! -name '.circleci' -exec rm -rf {} \;
+find . -maxdepth 1 ! -name 'doc' ! -name '.git' ! -name '.gitignore' ! -name '.circleci' -exec rm -rf {} \;
 mv doc/out/* .
-rm -R doc/
+rm -R doc
 
 ls -al
 
