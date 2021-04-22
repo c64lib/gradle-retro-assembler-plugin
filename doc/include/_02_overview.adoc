@@ -8,7 +8,6 @@ The only means to reuse shared code is to use import directive therefore for the
 All internal dependencies are specified within source files.
 All external dependencies must be handled externally (via retro assembler build tool).
 
-[excalidraw]
-....
-include::diagrams/domain-asm-project-model.excalidraw[]
-....
+image:diagrams/domain-asm-project-model.svg[]
+
+
