@@ -1,7 +1,6 @@
 val kotlinVersion: String by project
 val vavrVersion: String by project
 val gradleDownloadTaskVersion: String by project
-val kotlinxCoroutinesVersion: String by project
 val tagPropertyName = "tag"
 
 // We need to bundle classes of all modules into this single JAR,

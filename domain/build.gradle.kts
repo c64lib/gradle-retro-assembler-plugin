@@ -1,7 +1,5 @@
 val kotlinVersion: String by project
 val vavrVersion: String by project
-val gradleDownloadTaskVersion: String by project
-val kotlinxCoroutinesVersion: String by project
 val tagPropertyName = "tag"
 
 plugins {
@@ -28,6 +26,5 @@ spotless {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-    implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
     implementation("io.vavr:vavr:$vavrVersion")
 }

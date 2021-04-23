@@ -26,8 +26,8 @@ package com.github.c64lib.gradle.deps
 
 import com.github.c64lib.gradle.GROUP_BUILD
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
-import com.github.c64lib.retroassembler.Dependency
-import com.github.c64lib.retroassembler.DependencyType
+import com.github.c64lib.retroassembler.domain.Dependency
+import com.github.c64lib.retroassembler.domain.DependencyType
 import de.undercouch.gradle.tasks.download.Download
 import java.io.File
 import org.gradle.api.DefaultTask
