@@ -3,11 +3,6 @@ val vavrVersion: String by project
 val gradleDownloadTaskVersion: String by project
 val tagPropertyName = "tag"
 
-// We need to bundle classes of all modules into this single JAR,
-// otherwise they are not published with plugins portal publisher plugin.
-// Specify references to all needed subprojects here.
-val localDependencies = arrayOf("../../domain")
-
 plugins {
     kotlin("jvm")
     id("java-gradle-plugin")
@@ -26,6 +21,11 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 tasks {
     val copySubProjectClasses by register("copySubProjectClasses") {
+
+        val localDependencies = project.configurations.compileOnly.get().dependencies
+            .filter { it.group == project.group }
+            .map { "../../${it.name}" }
+
         outputs.files(
             files(localDependencies.map { "$it/build" })
                 .asFileTree.matching {
@@ -34,6 +34,7 @@ tasks {
                 .files.map { "$buildDir/${it.name}" }
         )
         doLast {
+
             copy {
                 from(localDependencies.map { "$it/build" })
                 into(buildDir)
