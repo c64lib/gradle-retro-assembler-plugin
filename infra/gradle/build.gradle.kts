@@ -1,5 +1,6 @@
 val kotlinVersion: String by project
 val vavrVersion: String by project
+val vavrKotlinVersion: String by project
 val gradleDownloadTaskVersion: String by project
 val tagPropertyName = "tag"
 
@@ -24,11 +25,20 @@ tasks {
 
         val localDependencies = project.configurations.compileOnly.get().dependencies
             .filter { it.group == project.group }
-            .map { "../../${it.name}" }
+            .map {
+                when (it.name) {
+                    "charpad-processor",
+                    "nybbler",
+                    "output-interleaver" -> "app/${it.name}"
+                    else -> it.name
+                }
+            }
+            .map { "../../$it" }
 
         outputs.files(
             files(localDependencies.map { "$it/build" })
                 .asFileTree.matching {
+                    include("classes/**")
                     exclude("**/META-INF/*")
                 }
                 .files.map { "$buildDir/${it.name}" }
@@ -37,6 +47,7 @@ tasks {
             copy {
                 from(localDependencies.map { "$it/build" })
                 into(buildDir)
+                include("classes/**")
                 exclude("**/META-INF/*")
             }
         }
@@ -49,7 +60,9 @@ tasks {
 
 spotless {
     kotlin {
-        ktlint()
+        ktfmt()
+        endWithNewline()
+        licenseHeaderFile(file("../../LICENSE"))
     }
     kotlinGradle {
         ktlint()
@@ -79,7 +92,11 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
     implementation("io.vavr:vavr:$vavrVersion")
+    implementation("io.vavr:vavr-kotlin:$vavrKotlinVersion")
     compileOnly(project(":domain"))
+    compileOnly(project(":app:charpad-processor"))
+    compileOnly(project(":app:binary-interleaver"))
+    compileOnly(project(":app:nybbler"))
 }
 
 publishing {

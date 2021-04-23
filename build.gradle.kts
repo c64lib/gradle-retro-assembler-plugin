@@ -22,6 +22,24 @@ allprojects {
     }
 
     repositories {
-        jcenter()
+        mavenCentral()
     }
+}
+
+tasks {
+    val collectTestResults by register("collectTestResults") {
+        group = "verification"
+        doLast {
+            fileTree(".") {
+                include("**/build/test-results/test/*.xml")
+                exclude("build/")
+            }.forEach {
+                copy {
+                    from(it)
+                    into("$buildDir/test-results/gradle")
+                }
+            }
+        }
+    }
+    collectTestResults.dependsOn(named("test"))
 }

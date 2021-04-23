@@ -12,7 +12,9 @@ jobs:
 
     steps:
       - checkout
-      - run: ./gradlew build
+      - run: ./gradlew build test collectTestResults
+      - store_test_results:
+            path: build/test-results
 
   publish:
     docker:

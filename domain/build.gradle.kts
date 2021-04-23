@@ -1,5 +1,6 @@
 val kotlinVersion: String by project
 val vavrVersion: String by project
+val vavrKotlinVersion: String by project
 val tagPropertyName = "tag"
 
 plugins {
@@ -17,7 +18,10 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 spotless {
     kotlin {
-        ktlint()
+        indentWithSpaces(4)
+        endWithNewline()
+        ktfmt()
+        licenseHeaderFile(file("../LICENSE"))
     }
     kotlinGradle {
         ktlint()
@@ -27,4 +31,5 @@ spotless {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("io.vavr:vavr:$vavrVersion")
+    implementation("io.vavr:vavr-kotlin:$vavrKotlinVersion")
 }
