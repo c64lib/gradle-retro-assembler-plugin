@@ -34,7 +34,6 @@ tasks {
                 .files.map { "$buildDir/${it.name}" }
         )
         doLast {
-
             copy {
                 from(localDependencies.map { "$it/build" })
                 into(buildDir)

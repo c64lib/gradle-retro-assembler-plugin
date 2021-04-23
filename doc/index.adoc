@@ -8,8 +8,12 @@
 
 WARNING: This document is under development!
 
-Test text.
+This is initial concept paper of Retro Build Tool - an automation device to build various 8-bit targeted assembly projects.
 
 include::_02_overview.adoc[leveloffset=+1]
 
-include::_04_architecture.adoc[leveloffset=+1]
+include::_03_processes.adoc[leveloffset=+1]
+
+include::_04_requirements.adoc[leveloffset=+1]
+
+include::_10_architecture.adoc[leveloffset=+1]
