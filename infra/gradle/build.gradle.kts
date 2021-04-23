@@ -25,10 +25,21 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 tasks {
-    val copySubProjectClasses by register<Copy>("copySubProjectClasses") {
-        from(localDependencies.map { "$it/build/classes" })
-        into("build/classes")
-        exclude("**/META-INF/*")
+    val copySubProjectClasses by register("copySubProjectClasses") {
+        outputs.files(
+            files(localDependencies.map { "$it/build" })
+                .asFileTree.matching {
+                    exclude("**/META-INF/*")
+                }
+                .files.map { "$buildDir/${it.name}" }
+        )
+        doLast {
+            copy {
+                from(localDependencies.map { "$it/build" })
+                into(buildDir)
+                exclude("**/META-INF/*")
+            }
+        }
         group = "build"
     }
     named("jar") {
