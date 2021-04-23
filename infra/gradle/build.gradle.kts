@@ -4,6 +4,11 @@ val gradleDownloadTaskVersion: String by project
 val kotlinxCoroutinesVersion: String by project
 val tagPropertyName = "tag"
 
+// We need to bundle classes of all modules into this single JAR,
+// otherwise they are not published with plugins portal publisher plugin.
+// Specify references to all needed subprojects here.
+val localDependencies = arrayOf("../../domain")
+
 plugins {
     kotlin("jvm")
     id("java-gradle-plugin")
@@ -17,6 +22,18 @@ group = "com.github.c64lib.retro-assembler"
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         jvmTarget = "11"
+    }
+}
+
+tasks {
+    val copySubProjectClasses by register<Copy>("copySubProjectClasses") {
+        from(localDependencies.map { "$it/build/classes" })
+        into("build/classes")
+        exclude("**/META-INF/*")
+        group = "build"
+    }
+    named("jar") {
+        dependsOn(copySubProjectClasses)
     }
 }
 
@@ -52,7 +69,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
     implementation("io.vavr:vavr:$vavrVersion")
-    implementation(project(":domain"))
+    compileOnly(project(":domain"))
 }
 
 publishing {
