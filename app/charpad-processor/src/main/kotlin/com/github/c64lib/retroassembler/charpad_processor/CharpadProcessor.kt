@@ -27,39 +27,37 @@ import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import com.github.c64lib.retroassembler.domain.processor.OutputProducer
 import com.github.c64lib.retroassembler.domain.processor.Processor
 
-internal interface CTMProcessor: Processor
-
-fun ByteArray.toWord() = this[0].toUnsignedInt() + this[1].toUnsignedInt() * 256
-
-fun Byte.toUnsignedInt() = this.toInt() and 0x000000FF
+internal interface CTMProcessor : Processor
 
 class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
 
-    internal val charsetProducers: Collection<CharsetProducer> =
-        outputProducers.filterIsInstance<CharsetProducer>()
+  internal val charsetProducers: Collection<CharsetProducer> =
+      outputProducers.filterIsInstance<CharsetProducer>()
 
-    internal val charAttributesProducers: Collection<CharAttributesProducer> =
-        outputProducers.filterIsInstance<CharAttributesProducer>()
+  internal val charAttributesProducers: Collection<CharAttributesProducer> =
+      outputProducers.filterIsInstance<CharAttributesProducer>()
 
-    internal val tileProducers: Collection<TileProducer> =
-        outputProducers.filterIsInstance<TileProducer>()
+  internal val tileProducers: Collection<TileProducer> =
+      outputProducers.filterIsInstance<TileProducer>()
 
-    internal val tileColoursProducers: Collection<TileColoursProducer> =
-        outputProducers.filterIsInstance<TileColoursProducer>()
+  internal val tileColoursProducers: Collection<TileColoursProducer> =
+      outputProducers.filterIsInstance<TileColoursProducer>()
 
-    internal val mapProducers: Collection<MapProducer> =
-        outputProducers.filterIsInstance<MapProducer>()
+  internal val mapProducers: Collection<MapProducer> =
+      outputProducers.filterIsInstance<MapProducer>()
 
-    fun process(inputByteStream: InputByteStream) = getProcessor(inputByteStream).process(inputByteStream)
+  fun process(inputByteStream: InputByteStream) =
+      getProcessor(inputByteStream).process(inputByteStream)
 
-    private fun getProcessor(inputByteStream: InputByteStream): CTMProcessor {
-        val id = inputByteStream.read(3).map { it.toChar() }.joinToString(separator = "")
-        if (id != "CTM") {
-            throw InvalidCTMFormatException("CTM id is missing")
-        }
-        return when (val version = inputByteStream.readByte().toInt()) {
-            5 -> CTM5Processor(this@CharpadProcessor)
-            else -> throw InvalidCTMFormatException("Unsupported version: $version")
-        }
+  private fun getProcessor(inputByteStream: InputByteStream): CTMProcessor {
+    val id = inputByteStream.read(3).map { it.toChar() }.joinToString(separator = "")
+    if (id != "CTM") {
+      throw InvalidCTMFormatException("CTM id is missing")
     }
+    return when (val version = inputByteStream.readByte().toInt()
+    ) {
+      5 -> CTM5Processor(this@CharpadProcessor)
+      else -> throw InvalidCTMFormatException("Unsupported version: $version")
+    }
+  }
 }

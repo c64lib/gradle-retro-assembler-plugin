@@ -25,23 +25,24 @@ package com.github.c64lib.retroassembler.nybbler
 
 import com.github.c64lib.retroassembler.domain.processor.BinaryOutput
 
-class Nybbler(private val low: BinaryOutput?, private val hi: BinaryOutput?, private val normalizeHi: Boolean = true) : BinaryOutput {
-    override fun write(data: ByteArray) {
-        low?.let {
-            it.write(data.map { value -> lowNibble(value) }.toByteArray())
-        }
-        hi?.let {
-            it.write(data.map { value -> highNibble(value) }.toByteArray())
-        }
-    }
+class Nybbler(
+    private val low: BinaryOutput?,
+    private val hi: BinaryOutput?,
+    private val normalizeHi: Boolean = true
+) : BinaryOutput {
+  override fun write(data: ByteArray) {
+    low?.let { it.write(data.map { value -> lowNibble(value) }.toByteArray()) }
+    hi?.let { it.write(data.map { value -> highNibble(value) }.toByteArray()) }
+  }
 
-    private fun lowNibble(value: Byte): Byte = (value.toInt() and 0xFF).toByte()
+  private fun lowNibble(value: Byte): Byte = (value.toInt() and 0xFF).toByte()
 
-    private fun highNibble(value: Byte): Byte = optionallyNormalize(value.toInt() and 0xFF00).toByte()
+  private fun highNibble(value: Byte): Byte = optionallyNormalize(value.toInt() and 0xFF00).toByte()
 
-    private fun optionallyNormalize(value: Int): Int = if (normalizeHi) {
+  private fun optionallyNormalize(value: Int): Int =
+      if (normalizeHi) {
         value shl 4
-    } else {
+      } else {
         value
-    }
+      }
 }

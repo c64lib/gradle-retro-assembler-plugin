@@ -26,20 +26,21 @@ package com.github.c64lib.retroassembler.charpad_processor
 import com.github.c64lib.retroassembler.domain.processor.BinaryProducer
 import com.github.c64lib.retroassembler.domain.processor.Output
 
-class CharsetProducer(private val start: Int = 0, private val end: Int = 65536, output: Output<ByteArray>) : BinaryProducer(output) {
+class CharsetProducer(
+    private val start: Int = 0, private val end: Int = 65536, output: Output<ByteArray>
+) : BinaryProducer(output) {
 
-    private val scaledStart = scale(start)
-    private val scaledEnd = scale(end)
+  private val scaledStart = scale(start)
+  private val scaledEnd = scale(end)
 
-    override fun write(data: ByteArray) =
-        super.write(
-            when {
-                scaledStart >= data.size ->
-                    throw InsufficientDataException("Not enough characters to support start=$start")
-                scaledEnd < data.size -> data.copyOfRange(scaledStart, scaledEnd)
-                else -> data.copyOfRange(scaledStart, data.size)
-            }
-        )
+  override fun write(data: ByteArray) =
+      super.write(
+          when {
+            scaledStart >= data.size ->
+                throw InsufficientDataException("Not enough characters to support start=$start")
+            scaledEnd < data.size -> data.copyOfRange(scaledStart, scaledEnd)
+            else -> data.copyOfRange(scaledStart, data.size)
+          })
 
-    private fun scale(value: Int) = value * 8
+  private fun scale(value: Int) = value * 8
 }

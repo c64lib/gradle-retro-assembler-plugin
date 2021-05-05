@@ -23,26 +23,18 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.binary_interleaver
 
+import com.github.c64lib.retroassembler.binutils.concatByteArray
 import com.github.c64lib.retroassembler.domain.processor.BinaryOutput
-import com.github.c64lib.retroassembler.domain.shared.IllegalInputException
-import io.vavr.collection.Seq
+import java.util.*
 
-class BinaryInterleaver(private val outputs: Seq<BinaryOutput>) : BinaryOutput {
+class BinaryOutputMock : BinaryOutput {
 
-  override fun write(data: ByteArray) =
-      checkInput(data) {
-        val outputsLength = outputs.length()
-        outputs.forEachWithIndex { output, index ->
-          val filtered = data.filterIndexed { subIndex, _ -> subIndex % outputsLength == index }
-          output.write(filtered.toByteArray())
-        }
-      }
+  private var storedData: MutableList<ByteArray> = LinkedList()
 
-  private fun checkInput(data: ByteArray, perform: () -> Unit) =
-      if (data.size % outputs.length() != 0) {
-        throw IllegalInputException(
-            "Input data of size ${data.size} cannot be evenly distributed amongst ${outputs.length()} outputs")
-      } else {
-        perform.invoke()
-      }
+  val bytes: ByteArray
+    get() = concatByteArray(storedData)
+
+  override fun write(data: ByteArray) {
+    storedData.add(data)
+  }
 }

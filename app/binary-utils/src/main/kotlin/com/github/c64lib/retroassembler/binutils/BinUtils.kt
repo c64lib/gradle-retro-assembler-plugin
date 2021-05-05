@@ -21,28 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.binary_interleaver
+package com.github.c64lib.retroassembler.binutils
 
-import com.github.c64lib.retroassembler.domain.processor.BinaryOutput
-import com.github.c64lib.retroassembler.domain.shared.IllegalInputException
-import io.vavr.collection.Seq
+fun ByteArray.toWord() = this[0].toUnsignedInt() + this[1].toUnsignedInt() * 256
 
-class BinaryInterleaver(private val outputs: Seq<BinaryOutput>) : BinaryOutput {
+fun Byte.toUnsignedInt() = this.toInt() and 0x000000FF
 
-  override fun write(data: ByteArray) =
-      checkInput(data) {
-        val outputsLength = outputs.length()
-        outputs.forEachWithIndex { output, index ->
-          val filtered = data.filterIndexed { subIndex, _ -> subIndex % outputsLength == index }
-          output.write(filtered.toByteArray())
-        }
-      }
-
-  private fun checkInput(data: ByteArray, perform: () -> Unit) =
-      if (data.size % outputs.length() != 0) {
-        throw IllegalInputException(
-            "Input data of size ${data.size} cannot be evenly distributed amongst ${outputs.length()} outputs")
-      } else {
-        perform.invoke()
-      }
-}
+fun concatByteArray(arrays: Collection<ByteArray>): ByteArray =
+    arrays.fold(ByteArray(0)) { acc, bytes -> acc + bytes }

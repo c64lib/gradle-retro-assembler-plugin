@@ -29,7 +29,8 @@ tasks {
                 when (it.name) {
                     "charpad-processor",
                     "nybbler",
-                    "output-interleaver" -> "app/${it.name}"
+                    "binary-utils",
+                    "binary-interleaver" -> "app/${it.name}"
                     else -> it.name
                 }
             }
@@ -64,9 +65,6 @@ spotless {
         endWithNewline()
         licenseHeaderFile(file("../../LICENSE"))
     }
-    kotlinGradle {
-        ktlint()
-    }
 }
 
 pluginBundle {
@@ -94,6 +92,7 @@ dependencies {
     implementation("io.vavr:vavr:$vavrVersion")
     implementation("io.vavr:vavr-kotlin:$vavrKotlinVersion")
     compileOnly(project(":domain"))
+    compileOnly(project(":app:binary-utils"))
     compileOnly(project(":app:charpad-processor"))
     compileOnly(project(":app:binary-interleaver"))
     compileOnly(project(":app:nybbler"))

@@ -29,19 +29,18 @@ import com.github.c64lib.retroassembler.domain.processor.Output
 class TileProducer(private val start: Int = 0, end: Int = 65536, output: Output<ByteArray>) :
     BinaryProducer(output) {
 
-    private val scaledStart = scale(start)
+  private val scaledStart = scale(start)
 
-    private val scaledEnd = scale(end)
+  private val scaledEnd = scale(end)
 
-    override fun write(data: ByteArray) =
-        super.write(
-            when {
-                scaledStart >= data.size ->
-                    throw InsufficientDataException("Not enough bytes to support start = $start")
-                scaledEnd < data.size -> data.copyOfRange(scaledStart, scaledEnd)
-                else -> data.copyOfRange(scaledStart, data.size)
-            }
-        )
+  override fun write(data: ByteArray) =
+      super.write(
+          when {
+            scaledStart >= data.size ->
+                throw InsufficientDataException("Not enough bytes to support start = $start")
+            scaledEnd < data.size -> data.copyOfRange(scaledStart, scaledEnd)
+            else -> data.copyOfRange(scaledStart, data.size)
+          })
 
-    private fun scale(value: Int) = value * 2
+  private fun scale(value: Int) = value * 2
 }

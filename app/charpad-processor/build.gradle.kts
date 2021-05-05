@@ -18,12 +18,10 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 spotless {
     kotlin {
+        ktfmt()
         endWithNewline()
         trimTrailingWhitespace()
         licenseHeaderFile(file("../../LICENSE"))
-    }
-    kotlinGradle {
-        ktlint()
     }
 }
 
@@ -32,6 +30,7 @@ dependencies {
     implementation("io.vavr:vavr:$vavrVersion")
     implementation("io.vavr:vavr-kotlin:$vavrKotlinVersion")
     implementation(project(":domain"))
+    implementation(project(":app:binary-utils"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
 }

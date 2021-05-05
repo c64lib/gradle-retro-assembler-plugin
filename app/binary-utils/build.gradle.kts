@@ -20,7 +20,8 @@ spotless {
     kotlin {
         endWithNewline()
         ktfmt()
-        licenseHeaderFile(file("../LICENSE"))
+        trimTrailingWhitespace()
+        licenseHeaderFile(file("../../LICENSE"))
     }
 }
 
@@ -28,4 +29,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("io.vavr:vavr:$vavrVersion")
     implementation("io.vavr:vavr-kotlin:$vavrKotlinVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
