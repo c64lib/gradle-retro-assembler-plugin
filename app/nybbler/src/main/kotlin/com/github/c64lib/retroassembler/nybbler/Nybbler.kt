@@ -35,9 +35,9 @@ class Nybbler(
     hi?.let { it.write(data.map { value -> highNibble(value) }.toByteArray()) }
   }
 
-  private fun lowNibble(value: Byte): Byte = (value.toInt() and 0xFF).toByte()
+  private fun lowNibble(value: Byte): Byte = (value.toInt() and 0x0F).toByte()
 
-  private fun highNibble(value: Byte): Byte = optionallyNormalize(value.toInt() and 0xFF00).toByte()
+  private fun highNibble(value: Byte): Byte = optionallyNormalize(value.toInt() and 0xF0).toByte()
 
   private fun optionallyNormalize(value: Int): Int =
       if (normalizeHi) {

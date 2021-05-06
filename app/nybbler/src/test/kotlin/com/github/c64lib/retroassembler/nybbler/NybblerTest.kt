@@ -23,14 +23,33 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.nybbler
 
+import com.github.c64lib.retroassembler.binutils.BinaryOutputMock
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
 
 class NybblerTest :
     DescribeSpec({
       describe("Nybbler") {
-        describe("with null in and out") {
-          val nybbler = Nybbler(null, null)
+        lateinit var nybbler: Nybbler
+
+        describe("with null lo and hi") {
+          beforeEach { nybbler = Nybbler(null, null) }
+
           it("has no effect") { nybbler.write(byteArrayOf(0x01, 0x11, 0x0f, 0x21)) }
+        }
+
+        describe("with lo") {
+          lateinit var lo: BinaryOutputMock
+
+          beforeEach {
+            lo = BinaryOutputMock()
+            nybbler = Nybbler(lo, null)
+          }
+
+          it("produces lo bytes and suppresses hi bytes") {
+            nybbler.write(byteArrayOf(0x01, 0x0f, 0x12, 0x1e))
+            lo.bytes shouldBe byteArrayOf(0x01, 0x0f, 0x02, 0x0e)
+          }
         }
       }
     })
