@@ -1,7 +1,7 @@
 val kotlinVersion: String by project
+val junitVersion: String by project
 val vavrVersion: String by project
 val vavrKotlinVersion: String by project
-
 
 plugins {
     kotlin("jvm")
@@ -29,7 +29,7 @@ dependencies {
     implementation("io.vavr:vavr-kotlin:$vavrKotlinVersion")
     implementation(project(":domain"))
     implementation(project(":app:binary-utils"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 }
 
 tasks.withType<Test> { useJUnitPlatform() }
