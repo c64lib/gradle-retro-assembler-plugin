@@ -32,7 +32,6 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":app:binary-utils"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
 }
 
 tasks.withType<Test> {

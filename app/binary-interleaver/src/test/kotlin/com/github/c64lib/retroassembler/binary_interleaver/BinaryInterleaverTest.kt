@@ -23,6 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.binary_interleaver
 
+import com.github.c64lib.retroassembler.binutils.BinaryOutputMock
 import com.github.c64lib.retroassembler.domain.shared.IllegalInputException
 import io.vavr.collection.List
 import org.junit.jupiter.api.Assertions.assertTrue

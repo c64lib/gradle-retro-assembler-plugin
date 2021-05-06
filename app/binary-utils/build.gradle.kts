@@ -29,8 +29,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("io.vavr:vavr:$vavrVersion")
     implementation("io.vavr:vavr-kotlin:$vavrKotlinVersion")
+    implementation(project(":domain"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
 }
 
 tasks.withType<Test> {

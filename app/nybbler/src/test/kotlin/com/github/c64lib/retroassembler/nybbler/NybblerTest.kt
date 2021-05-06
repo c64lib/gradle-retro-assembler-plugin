@@ -21,20 +21,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.binary_interleaver
+package com.github.c64lib.retroassembler.nybbler
 
-import com.github.c64lib.retroassembler.binutils.concatByteArray
-import com.github.c64lib.retroassembler.domain.processor.BinaryOutput
-import java.util.*
+import io.kotest.core.spec.style.DescribeSpec
 
-class BinaryOutputMock : BinaryOutput {
-
-  private var storedData: MutableList<ByteArray> = LinkedList()
-
-  val bytes: ByteArray
-    get() = concatByteArray(storedData)
-
-  override fun write(data: ByteArray) {
-    storedData.add(data)
-  }
-}
+class NybblerTest :
+    DescribeSpec({
+      describe("Nybbler") {
+        describe("with null in and out") {
+          val nybbler = Nybbler(null, null)
+          it("has no effect") { nybbler.write(byteArrayOf(0x01, 0x11, 0x0f, 0x21)) }
+        }
+      }
+    })

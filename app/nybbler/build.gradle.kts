@@ -1,5 +1,6 @@
 val kotlinVersion: String by project
 val vavrVersion: String by project
+val kotestVersion: String by project
 
 plugins {
     kotlin("jvm")
@@ -27,8 +28,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("io.vavr:vavr:$vavrVersion")
     implementation(project(":domain"))
+    implementation(project(":app:binary-utils"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
 }
 
 tasks.withType<Test> {
