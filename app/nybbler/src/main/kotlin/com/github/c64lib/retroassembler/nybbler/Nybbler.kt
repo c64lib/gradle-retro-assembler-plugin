@@ -41,7 +41,7 @@ class Nybbler(
 
   private fun optionallyNormalize(value: Int): Int =
       if (normalizeHi) {
-        value shl 4
+        value shr 4
       } else {
         value
       }

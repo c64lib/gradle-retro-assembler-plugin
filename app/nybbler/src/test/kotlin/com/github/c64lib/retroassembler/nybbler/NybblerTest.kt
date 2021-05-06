@@ -46,9 +46,50 @@ class NybblerTest :
             nybbler = Nybbler(lo, null)
           }
 
-          it("produces lo bytes and suppresses hi bytes") {
+          it("produces lo nybbles and suppresses hi nybbles") {
             nybbler.write(byteArrayOf(0x01, 0x0f, 0x12, 0x1e))
             lo.bytes shouldBe byteArrayOf(0x01, 0x0f, 0x02, 0x0e)
+          }
+        }
+
+        describe("with hi") {
+          lateinit var hi: BinaryOutputMock
+
+          beforeEach { hi = BinaryOutputMock() }
+
+          describe("when hi is not normalized") {
+            beforeEach { nybbler = Nybbler(null, hi, false) }
+
+            it("produces hi nybbles with no shifting and suppresses lo nybbles") {
+              nybbler.write(byteArrayOf(0x01, 0x0f, 0x12, 0x73))
+              hi.bytes shouldBe byteArrayOf(0x00, 0x00, 0x10, 0x70)
+            }
+          }
+
+          describe("when hi is normalized") {
+            beforeEach { nybbler = Nybbler(null, hi, true) }
+
+            it("produces hi nybbles and suppresses lo nybbles") {
+              nybbler.write(byteArrayOf(0x01, 0x0f, 0x12, 0x73))
+              hi.bytes shouldBe byteArrayOf(0x00, 0x00, 0x01, 0x07)
+            }
+          }
+        }
+
+        describe("with lo and hi") {
+          lateinit var lo: BinaryOutputMock
+          lateinit var hi: BinaryOutputMock
+
+          beforeEach {
+            lo = BinaryOutputMock()
+            hi = BinaryOutputMock()
+            nybbler = Nybbler(lo, hi)
+          }
+
+          it("separates and normalizes lo and hi nybbles") {
+            nybbler.write(byteArrayOf(0x01, 0x02, 0x12, 0x73))
+            lo.bytes shouldBe byteArrayOf(0x01, 0x02, 0x02, 0x03)
+            hi.bytes shouldBe byteArrayOf(0x00, 0x00, 0x01, 0x07)
           }
         }
       }
