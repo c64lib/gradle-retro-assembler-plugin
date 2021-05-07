@@ -32,23 +32,26 @@ class CharpadProcessorTest :
     BehaviorSpec({
       Given("CharpadProcessor with empty processors") {
         val processor = CharpadProcessor(emptyList())
-        When("process is called with empty stream") {
-          val exception =
-              shouldThrow<InvalidCTMFormatException> {
-                processor.process(BinaryInputMock(ByteArray(0)))
-              }
-          Then("exception is thrown") { exception.message shouldBe "CTM id is missing" }
-        }
-        listOf(1, 2, 3, 4, 6, 7).forEach { version ->
-          And("process is called with unsupported CMT version $version") {
+        When("process is called") {
+          And("the input stream is empty") {
             val exception =
                 shouldThrow<InvalidCTMFormatException> {
-                  processor.process(
-                      BinaryInputMock(
-                          byteArrayOf('C'.toByte(), 'T'.toByte(), 'M'.toByte(), version.toByte())))
+                  processor.process(BinaryInputMock(ByteArray(0)))
                 }
-            Then("exception is thrown") {
-              exception.message shouldBe "Unsupported version: $version"
+            Then("exception is thrown") { exception.message shouldBe "CTM id is missing" }
+          }
+          listOf(1, 2, 3, 4, 6, 7).forEach { version ->
+            And("and input stream contains unsupported CMT version $version") {
+              val exception =
+                  shouldThrow<InvalidCTMFormatException> {
+                    processor.process(
+                        BinaryInputMock(
+                            byteArrayOf(
+                                'C'.toByte(), 'T'.toByte(), 'M'.toByte(), version.toByte())))
+                  }
+              Then("exception is thrown") {
+                exception.message shouldBe "Unsupported version: $version"
+              }
             }
           }
         }

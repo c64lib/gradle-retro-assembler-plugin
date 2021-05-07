@@ -26,4 +26,15 @@ package com.github.c64lib.retroassembler.charpad_processor
 import com.github.c64lib.retroassembler.domain.processor.BinaryProducer
 import com.github.c64lib.retroassembler.domain.processor.Output
 
-class CharAttributesProducer(output: Output<ByteArray>) : BinaryProducer(output)
+class CharAttributesProducer(
+    private val start: Int = 0, private val end: Int = 65536, output: Output<ByteArray>
+) : BinaryProducer(output) {
+  override fun write(data: ByteArray) =
+      super.write(
+          when {
+            start >= data.size ->
+                throw InsufficientDataException("Not enough characters to support start=$start")
+            end < data.size -> data.copyOfRange(start, end)
+            else -> data.copyOfRange(start, data.size)
+          })
+}

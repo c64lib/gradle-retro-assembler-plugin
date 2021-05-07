@@ -31,26 +31,32 @@ internal class CTM5Processor(private val charpadProcessor: CharpadProcessor) : C
   override fun process(inputByteStream: InputByteStream) {
     val header = readHeader(inputByteStream)
 
-    val charData = inputByteStream.read(header.numChars * 8)
-    charpadProcessor.charsetProducers.forEach { it.write(charData) }
+    if (header.numChars > 0) {
+      val charData = inputByteStream.read(header.numChars * 8)
+      charpadProcessor.charsetProducers.forEach { it.write(charData) }
 
-    val charAttributeData = inputByteStream.read(header.numChars)
-    charpadProcessor.charAttributesProducers.forEach { it.write(charAttributeData) }
+      val charAttributeData = inputByteStream.read(header.numChars)
+      charpadProcessor.charAttributesProducers.forEach { it.write(charAttributeData) }
+    }
 
     if (header.flags and CTM5Flags.TileSys.bit != 0.toByte()) {
-      val tileData =
-          inputByteStream.read(
-              header.numTiles * header.tileWidth.toInt() * header.tileHeight.toInt())
-      charpadProcessor.tileProducers.forEach { it.write(tileData) }
+      if (header.flags and CTM5Flags.CharEx.bit == 0.toByte()) {
+        val tileData =
+            inputByteStream.read(
+                header.numTiles * header.tileWidth.toInt() * header.tileHeight.toInt())
+        charpadProcessor.tileProducers.forEach { it.write(tileData) }
+      }
+
+      if (header.colouringMethod == ColouringMethod.PerTile.value) {
+        val tileColoursData = inputByteStream.read(header.numTiles)
+        charpadProcessor.tileColoursProducers.forEach { it.write(tileColoursData) }
+      }
     }
 
-    if (header.colouringMethod == ColouringMethod.PerTile.value) {
-      val tileColoursData = inputByteStream.read(header.numTiles)
-      charpadProcessor.tileColoursProducers.forEach { it.write(tileColoursData) }
+    if (header.mapHeight > 0 && header.mapWidth > 0) {
+      val mapData = inputByteStream.read(header.mapWidth * header.mapHeight * 2)
+      charpadProcessor.mapProducers.forEach { it.write(header.mapWidth, header.mapHeight, mapData) }
     }
-
-    val mapData = inputByteStream.read(header.mapWidth * header.mapHeight * 2)
-    charpadProcessor.mapProducers.forEach { it.write(header.mapWidth, header.mapHeight, mapData) }
   }
 
   private fun readHeader(inputByteStream: InputByteStream): CTM5Header {
