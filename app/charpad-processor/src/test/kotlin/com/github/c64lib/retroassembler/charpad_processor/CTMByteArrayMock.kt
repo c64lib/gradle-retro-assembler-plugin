@@ -21,11 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.binutils
+package com.github.c64lib.retroassembler.charpad_processor
 
-fun ByteArray.toWord() = this[0].toUnsignedInt() + this[1].toUnsignedInt() * 256
+import com.github.c64lib.retroassembler.binutils.concat
+import java.util.*
 
-fun Byte.toUnsignedInt() = this.toInt() and 0x000000FF
-
-fun concatByteArray(arrays: Collection<ByteArray>): ByteArray =
-    arrays.fold(ByteArray(0)) { acc, bytes -> acc + bytes }
+internal class CTMByteArrayMock(
+    version: Int,
+    header: CTMHeader =
+        CTMHeader(
+            0.toByte(),
+            1.toByte(),
+            2.toByte(),
+            3.toByte(),
+            ColouringMethod.Global,
+            EnumSet.noneOf(Flags::class.java))
+) {
+  val bytes: ByteArray = "CTM".toByteArray() concat byteArrayOf(version.toByte())
+}

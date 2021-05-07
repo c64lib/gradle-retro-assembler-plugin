@@ -66,12 +66,12 @@ internal class CTM5Processor(private val charpadProcessor: CharpadProcessor) : C
     val charColor = inputByteStream.readByte()
     val colouringMethod = inputByteStream.readByte()
     val flags = inputByteStream.readByte()
-    val numChars = inputByteStream.read(2).toWord() + 1
-    val numTiles = inputByteStream.read(2).toWord() + 1
+    val numChars = inputByteStream.read(2).toWord().value + 1
+    val numTiles = inputByteStream.read(2).toWord().value + 1
     val tileWidth = inputByteStream.readByte()
     val tileHeight = inputByteStream.readByte()
-    val mapWidth = inputByteStream.read(2).toWord()
-    val mapHeight = inputByteStream.read(2).toWord()
+    val mapWidth = inputByteStream.read(2).toWord().value
+    val mapHeight = inputByteStream.read(2).toWord().value
     return CTM5Header(
         screenColor = screenColor,
         multicolor1 = multicolor1,

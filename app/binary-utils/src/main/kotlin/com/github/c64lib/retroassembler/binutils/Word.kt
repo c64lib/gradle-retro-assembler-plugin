@@ -21,26 +21,32 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor
+package com.github.c64lib.retroassembler.binutils
 
-import java.util.*
-
-enum class ColouringMethod(val value: Byte) {
-  Global(0),
-  PerTile(1),
-  PerChar(2)
+fun wordOf(lo: Int, hi: Int): Word {
+  if (lo < 0 || lo > 255) {
+    throw IllegalArgumentException("lo value beyond byte boundaries: $lo")
+  }
+  if (hi < 0 || hi > 255) {
+    throw IllegalArgumentException("hi value beyond byte boundaries: $hi")
+  }
+  return Word(lo.toUnsignedByte(), hi.toUnsignedByte())
 }
 
-enum class Flags {
-  TileSys,
-  CharEx,
-  MCM
+fun wordOf(value: Int): Word {
+  if (value < 0 || value > 65535) {
+    throw IllegalArgumentException("value beyond workd boundaries: $value")
+  }
+  return Word(value.toUnsignedByte(), value.toUnsignedByteHi())
 }
 
-data class CTMHeader(
-    val screenColour: Byte,
-    val multicolor1: Byte,
-    val multicolor2: Byte,
-    val charColor: Byte,
-    val colouringMethod: ColouringMethod,
-    val flags: EnumSet<Flags>)
+fun ByteArray.toWord() = wordOf(this[0].toUnsignedInt(), this[1].toUnsignedInt())
+
+data class Word(val lo: Byte, val hi: Byte) {
+
+  val value = hi.toUnsignedInt() * 256 + lo.toUnsignedInt()
+
+  override fun toString(): String {
+    return value.toString()
+  }
+}

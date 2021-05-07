@@ -23,24 +23,13 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import java.util.*
+import com.github.c64lib.retroassembler.binutils.concat
 
-enum class ColouringMethod(val value: Byte) {
-  Global(0),
-  PerTile(1),
-  PerChar(2)
+internal class CTM5ByteArrayMock(version: Int = 5, header: CTM5Header) {
+
+  val bytes: ByteArray
+
+  init {
+    bytes = "CTM".toByteArray() concat byteArrayOf(version.toByte())
+  }
 }
-
-enum class Flags {
-  TileSys,
-  CharEx,
-  MCM
-}
-
-data class CTMHeader(
-    val screenColour: Byte,
-    val multicolor1: Byte,
-    val multicolor2: Byte,
-    val charColor: Byte,
-    val colouringMethod: ColouringMethod,
-    val flags: EnumSet<Flags>)

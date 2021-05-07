@@ -21,26 +21,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor
+package com.github.c64lib.retroassembler.binutils
 
-import java.util.*
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
 
-enum class ColouringMethod(val value: Byte) {
-  Global(0),
-  PerTile(1),
-  PerChar(2)
-}
-
-enum class Flags {
-  TileSys,
-  CharEx,
-  MCM
-}
-
-data class CTMHeader(
-    val screenColour: Byte,
-    val multicolor1: Byte,
-    val multicolor2: Byte,
-    val charColor: Byte,
-    val colouringMethod: ColouringMethod,
-    val flags: EnumSet<Flags>)
+class ToUnsignedIntTest :
+    ShouldSpec({
+      should("0.toUnsignedInt == 0") {
+        val value: Byte = 0x00
+        value.toUnsignedInt() shouldBe 0
+      }
+      should("1.toUnsignedInt == 1") {
+        val value: Byte = 0x01
+        value.toUnsignedInt() shouldBe 1
+      }
+      should("127.toUnsignedInt == 127") {
+        val value: Byte = 127
+        value.toUnsignedInt() shouldBe 127
+      }
+      should("-128.toUnsignedInt = 128") {
+        val value: Byte = -128
+        value.toUnsignedInt() shouldBe 128
+      }
+      should("-1.toUnsignedInt == 255") {
+        val value: Byte = -1
+        value.toUnsignedInt() shouldBe 255
+      }
+    })

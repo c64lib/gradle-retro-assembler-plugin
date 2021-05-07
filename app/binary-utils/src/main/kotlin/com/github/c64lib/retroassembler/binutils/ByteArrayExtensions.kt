@@ -21,26 +21,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor
+package com.github.c64lib.retroassembler.binutils
 
-import java.util.*
+fun concatByteArray(arrays: Collection<ByteArray>): ByteArray =
+    arrays.fold(ByteArray(0)) { acc, bytes -> acc + bytes }
 
-enum class ColouringMethod(val value: Byte) {
-  Global(0),
-  PerTile(1),
-  PerChar(2)
-}
-
-enum class Flags {
-  TileSys,
-  CharEx,
-  MCM
-}
-
-data class CTMHeader(
-    val screenColour: Byte,
-    val multicolor1: Byte,
-    val multicolor2: Byte,
-    val charColor: Byte,
-    val colouringMethod: ColouringMethod,
-    val flags: EnumSet<Flags>)
+infix fun ByteArray.concat(right: ByteArray): ByteArray = concatByteArray(listOf(this, right))

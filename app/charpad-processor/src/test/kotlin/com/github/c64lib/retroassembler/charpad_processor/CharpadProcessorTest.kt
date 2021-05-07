@@ -44,10 +44,7 @@ class CharpadProcessorTest :
             And("and input stream contains unsupported CMT version $version") {
               val exception =
                   shouldThrow<InvalidCTMFormatException> {
-                    processor.process(
-                        BinaryInputMock(
-                            byteArrayOf(
-                                'C'.toByte(), 'T'.toByte(), 'M'.toByte(), version.toByte())))
+                    processor.process(BinaryInputMock(CTMByteArrayMock(version).bytes))
                   }
               Then("exception is thrown") {
                 exception.message shouldBe "Unsupported version: $version"

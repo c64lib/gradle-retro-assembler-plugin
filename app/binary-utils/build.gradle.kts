@@ -1,5 +1,6 @@
 val kotlinVersion: String by project
 val junitVersion: String by project
+val kotestVersion: String by project
 val vavrVersion: String by project
 val vavrKotlinVersion: String by project
 val tagPropertyName = "tag"
@@ -32,6 +33,7 @@ dependencies {
     implementation("io.vavr:vavr-kotlin:$vavrKotlinVersion")
     implementation(project(":domain"))
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
 }
 
 tasks.withType<Test> {
