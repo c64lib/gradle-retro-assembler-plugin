@@ -23,30 +23,17 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.binutils
 
-fun wordOf(lo: Int, hi: Int): Word {
-  if (lo < 0 || lo > 255) {
-    throw IllegalArgumentException("lo value beyond byte boundaries: $lo")
-  }
-  if (hi < 0 || hi > 255) {
-    throw IllegalArgumentException("hi value beyond byte boundaries: $hi")
-  }
-  return Word(lo.toUnsignedByte(), hi.toUnsignedByte())
-}
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
 
-fun wordOf(value: Int): Word {
-  if (value < 0 || value > 65535) {
-    throw IllegalArgumentException("value beyond word boundaries: $value")
-  }
-  return Word(value.toUnsignedByte(), value.toUnsignedByteHi())
-}
-
-fun ByteArray.toWord() = wordOf(this[0].toUnsignedInt(), this[1].toUnsignedInt())
-
-data class Word(val lo: Byte, val hi: Byte) {
-
-  val value = hi.toUnsignedInt() * 256 + lo.toUnsignedInt()
-
-  override fun toString(): String {
-    return value.toString()
-  }
-}
+class WordTest :
+    ShouldSpec({
+      should("wordOf(0) be 0x0000") { wordOf(0).value shouldBe 0x0000 }
+      should("wordOf(65535) be 0xFFFF") { wordOf(65535).value shouldBe 0xFFFF }
+      should("wordOf(255) be 0x00FF") { wordOf(255).value shouldBe 0x00FF }
+      should("wordOf(65280) be 0xFF00") { wordOf(65280).value shouldBe 0xFF00 }
+      should("wordOf(0,0) be 0x0000") { wordOf(0, 0).value shouldBe 0x0000 }
+      should("wordOf(255,255) be 0xFFFF") { wordOf(255, 255).value shouldBe 0xFFFF }
+      should("wordOf(0,255) be 0xFF00") { wordOf(0, 255).value shouldBe 0xFF00 }
+      should("wordOf(255,0) be 0x00FF") { wordOf(255, 0).value shouldBe 0x00FF }
+    })
