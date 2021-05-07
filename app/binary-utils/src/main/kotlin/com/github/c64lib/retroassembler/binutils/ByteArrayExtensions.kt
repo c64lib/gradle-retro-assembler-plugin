@@ -26,4 +26,6 @@ package com.github.c64lib.retroassembler.binutils
 fun concatByteArray(arrays: Collection<ByteArray>): ByteArray =
     arrays.fold(ByteArray(0)) { acc, bytes -> acc + bytes }
 
+fun byteArrayOfInts(vararg value: Int): ByteArray = value.map { it.toUnsignedByte() }.toByteArray()
+
 infix fun ByteArray.concat(right: ByteArray): ByteArray = concatByteArray(listOf(this, right))

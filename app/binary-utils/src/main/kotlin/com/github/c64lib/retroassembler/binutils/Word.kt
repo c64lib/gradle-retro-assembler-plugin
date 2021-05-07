@@ -46,6 +46,8 @@ data class Word(val lo: Byte, val hi: Byte) {
 
   val value = hi.toUnsignedInt() * 256 + lo.toUnsignedInt()
 
+  fun toByteArray() = byteArrayOf(lo, hi)
+
   override fun toString(): String {
     return value.toString()
   }

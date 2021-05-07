@@ -24,12 +24,18 @@ SOFTWARE.
 package com.github.c64lib.retroassembler.charpad_processor
 
 import com.github.c64lib.retroassembler.binutils.BinaryInputMock
+import com.github.c64lib.retroassembler.binutils.BinaryOutputMock
+import com.github.c64lib.retroassembler.binutils.byteArrayOfInts
+import com.github.c64lib.retroassembler.binutils.concat
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 
 class CharpadProcessorTest :
     BehaviorSpec({
+      isolationMode = IsolationMode.InstancePerTest
+
       Given("CharpadProcessor with empty processors") {
         val processor = CharpadProcessor(emptyList())
         When("process is called") {
@@ -44,11 +50,88 @@ class CharpadProcessorTest :
             And("and input stream contains unsupported CMT version $version") {
               val exception =
                   shouldThrow<InvalidCTMFormatException> {
-                    processor.process(BinaryInputMock(CTMByteArrayMock(version).bytes))
+                    processor.process(
+                        BinaryInputMock("CTM".toByteArray() concat byteArrayOf(version.toByte())))
                   }
               Then("exception is thrown") {
                 exception.message shouldBe "Unsupported version: $version"
               }
+            }
+          }
+        }
+      }
+
+      Given("CharpadProcessor with charset processor") {
+        val charsetOutput = BinaryOutputMock()
+        And("whole charset producer is used") {
+          val producer = CharsetProducer(output = charsetOutput)
+          val processor = CharpadProcessor(listOf(producer))
+          When("process is called") {
+            processor.process(
+                BinaryInputMock(
+                    CTMByteArrayMock(
+                        version = 5,
+                        charset = byteArrayOfInts(0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x13),
+                        tiles = ByteArray(16))
+                        .bytes))
+            Then("charset content is properly produced") {
+              charsetOutput.bytes shouldBe
+                  byteArrayOfInts(0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x13)
+            }
+          }
+        }
+      }
+
+      Given("CharpadProcessor with tiles processor") {
+        val tilesOutput = BinaryOutputMock()
+        And("the whole tileset is used") {
+          val producer = TileProducer(output = tilesOutput)
+          val processor = CharpadProcessor(listOf(producer))
+          When("process is called") {
+            processor.process(
+                BinaryInputMock(
+                    CTMByteArrayMock(
+                        version = 5,
+                        charset = byteArrayOfInts(0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x13),
+                        charAttributes = byteArrayOfInts(0x00),
+                        tiles =
+                            byteArrayOfInts(
+                                0x00,
+                                0x01,
+                                0x10,
+                                0x11,
+                                0x20,
+                                0x21,
+                                0x30,
+                                0x31,
+                                0x00,
+                                0x01,
+                                0x10,
+                                0x11,
+                                0x20,
+                                0x21,
+                                0x30,
+                                0x31))
+                        .bytes))
+            Then("tiles content is properly produced") {
+              tilesOutput.bytes shouldBe
+                  byteArrayOfInts(
+                      0x00,
+                      0x01,
+                      0x10,
+                      0x11,
+                      0x20,
+                      0x21,
+                      0x30,
+                      0x31,
+                      0x00,
+                      0x01,
+                      0x10,
+                      0x11,
+                      0x20,
+                      0x21,
+                      0x30,
+                      0x31)
             }
           }
         }

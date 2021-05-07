@@ -43,4 +43,8 @@ data class CTMHeader(
     val multicolor2: Byte,
     val charColor: Byte,
     val colouringMethod: ColouringMethod,
-    val flags: EnumSet<Flags>)
+    val flags: EnumSet<Flags>,
+    val tileWidth: Byte,
+    val tileHeight: Byte,
+    val mapWidth: Int,
+    val mapHeight: Int)

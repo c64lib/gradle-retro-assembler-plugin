@@ -25,6 +25,7 @@ package com.github.c64lib.retroassembler.charpad_processor
 
 import com.github.c64lib.retroassembler.binutils.toWord
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
+import java.util.*
 import kotlin.experimental.and
 
 internal class CTM5Processor(private val charpadProcessor: CharpadProcessor) : CTMProcessor {
@@ -39,19 +40,19 @@ internal class CTM5Processor(private val charpadProcessor: CharpadProcessor) : C
       charpadProcessor.charAttributesProducers.forEach { it.write(charAttributeData) }
     }
 
-    if (header.flags and CTM5Flags.TileSys.bit != 0.toByte()) {
-      if (header.flags and CTM5Flags.CharEx.bit == 0.toByte()) {
-        val tileData =
-            inputByteStream.read(
-                header.numTiles * header.tileWidth.toInt() * header.tileHeight.toInt())
-        charpadProcessor.tileProducers.forEach { it.write(tileData) }
-      }
-
-      if (header.colouringMethod == ColouringMethod.PerTile.value) {
-        val tileColoursData = inputByteStream.read(header.numTiles)
-        charpadProcessor.tileColoursProducers.forEach { it.write(tileColoursData) }
-      }
+    // if (header.flags and CTM5Flags.TileSys.bit != 0.toByte()) {
+    if (header.flags and CTM5Flags.CharEx.bit == 0.toByte()) {
+      val tileData =
+          inputByteStream.read(
+              header.numTiles * header.tileWidth.toInt() * header.tileHeight.toInt() * 2)
+      charpadProcessor.tileProducers.forEach { it.write(tileData) }
     }
+
+    if (header.colouringMethod == ColouringMethod.PerTile.value) {
+      val tileColoursData = inputByteStream.read(header.numTiles)
+      charpadProcessor.tileColoursProducers.forEach { it.write(tileColoursData) }
+    }
+    // }
 
     if (header.mapHeight > 0 && header.mapWidth > 0) {
       val mapData = inputByteStream.read(header.mapWidth * header.mapHeight * 2)
@@ -88,11 +89,21 @@ internal class CTM5Processor(private val charpadProcessor: CharpadProcessor) : C
   }
 }
 
-enum class CTM5Flags(val bit: Byte) {
+internal enum class CTM5Flags(val bit: Byte) {
   TileSys(0x01),
   CharEx(0x02),
   MCM(0x04)
 }
+
+internal fun Flags.toCTM5Flag(): CTM5Flags =
+    when (this) {
+      Flags.TileSys -> CTM5Flags.TileSys
+      Flags.MCM -> CTM5Flags.MCM
+      Flags.CharEx -> CTM5Flags.CharEx
+    }
+
+fun toCTM5Byte(flags: EnumSet<Flags>): Byte =
+    flags.fold(0.toByte()) { acc, flag -> acc and flag.toCTM5Flag().bit }
 
 internal data class CTM5Header(
     val screenColor: Byte,

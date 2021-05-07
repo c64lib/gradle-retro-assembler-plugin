@@ -23,7 +23,6 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import com.github.c64lib.retroassembler.binutils.concat
 import java.util.*
 
 internal class CTMByteArrayMock(
@@ -35,7 +34,28 @@ internal class CTMByteArrayMock(
             2.toByte(),
             3.toByte(),
             ColouringMethod.Global,
-            EnumSet.noneOf(Flags::class.java))
+            EnumSet.of(Flags.TileSys),
+            2,
+            2,
+            0,
+            0),
+    charset: ByteArray = ByteArray(0),
+    charAttributes: ByteArray = ByteArray(0),
+    tiles: ByteArray = ByteArray(0),
+    tileColours: ByteArray = ByteArray(0),
+    map: ByteArray = ByteArray(0)
 ) {
-  val bytes: ByteArray = "CTM".toByteArray() concat byteArrayOf(version.toByte())
+  val bytes =
+      when (version) {
+        5 ->
+            CTM5ByteArrayMock(
+                header = header,
+                charset = charset,
+                charAttributes = charAttributes,
+                tiles = tiles,
+                tileColours = tileColours,
+                map = map)
+                .bytes
+        else -> throw IllegalArgumentException("Unhandled version: $version")
+      }
 }
