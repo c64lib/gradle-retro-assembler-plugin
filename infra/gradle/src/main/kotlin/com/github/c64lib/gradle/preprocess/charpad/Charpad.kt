@@ -82,8 +82,11 @@ open class Charpad : DefaultTask() {
   private fun charsetAttributesProducers(
       output: OutputsExtension, buffers: MutableList<OutputBuffer>
   ) =
-      output.charsetAttributes.map { charsetAttributesProducers ->
-        CharAttributesProducer(charsetAttributesProducers.resolveOutput(buffers))
+      output.charsetAttributes.map { charsetAttributes ->
+        CharAttributesProducer(
+            start = charsetAttributes.start,
+            end = charsetAttributes.end,
+            output = charsetAttributes.resolveOutput(buffers))
       }
 
   private fun tileProducers(output: OutputsExtension, buffers: MutableList<OutputBuffer>) =

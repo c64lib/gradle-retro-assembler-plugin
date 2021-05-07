@@ -34,7 +34,7 @@ abstract class OutputsExtension @Inject constructor(private val objectFactory: O
 
   internal val charsets = LinkedList<StartEndExtension>()
 
-  internal val charsetAttributes = LinkedList<FilterAwareExtension>()
+  internal val charsetAttributes = LinkedList<StartEndExtension>()
 
   internal val tiles = LinkedList<StartEndExtension>()
 
@@ -48,8 +48,8 @@ abstract class OutputsExtension @Inject constructor(private val objectFactory: O
     charsets.add(ex)
   }
 
-  fun charsetAttributes(action: Action<FilterAwareExtension>) {
-    val ex = objectFactory.newInstance(FilterAwareExtension::class.java)
+  fun charsetAttributes(action: Action<StartEndExtension>) {
+    val ex = objectFactory.newInstance(StartEndExtension::class.java)
     action.execute(ex)
     charsetAttributes.add(ex)
   }
