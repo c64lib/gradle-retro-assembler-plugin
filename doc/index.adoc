@@ -11,9 +11,11 @@ It supports Java ecosystem out of the box but is also extensible via plugin syst
 This is a plugin that allows 8-bit assembly projects to be build via Gradle.
 Currently, it supports Commodore 64 output and KickAssembler only, but there are plans to extend it further.
 
+If you're interested in development plans of this plugin, you can always refer this link:concept[Concept paper].
+
 == Usage
 
-If you have Gradle installed on your machine (get it from https://github.com/gradle/gradle/releases[GitHub]), you just need to create `build.gradle` file in root folder of your project.
+If you have Gradle installed on your machine (get it from https://github.com/gradle/gradle/releases[GitHub] or refer https://gradle.org/[]), you just need to create `build.gradle` file in root folder of your project.
 Fill it with following content:
 
 [source,groovy]
