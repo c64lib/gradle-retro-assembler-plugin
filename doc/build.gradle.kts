@@ -13,6 +13,12 @@ tasks {
                 include("**/*.svg")
                 into("img")
             }
+          from("concept/img") {
+            include("**/*.jpeg")
+            include("**/*.png")
+            include("**/*.svg")
+            into("concept/img")
+          }
         })
     }
 }
