@@ -80,6 +80,25 @@ class CharpadProcessorTest :
             }
           }
         }
+        And("a subset of charset is used") {
+          val producer = CharsetProducer(start = 1, end = 2, output = charsetOutput)
+          val processor = CharpadProcessor(listOf(producer))
+          When("process is called") {
+            val char0 = byteArrayOfInts(0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07)
+            val char1 = byteArrayOfInts(0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17)
+            val char2 = byteArrayOfInts(0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27)
+            processor.process(
+                BinaryInputMock(
+                    CTMByteArrayMock(
+                        version = 5,
+                        charset = char0 concat char1 concat char2,
+                        tiles = ByteArray(16))
+                        .bytes))
+            Then("subset of charset content is properly produced") {
+              charsetOutput.bytes shouldBe char1
+            }
+          }
+        }
       }
 
       Given("CharpadProcessor with tiles processor") {
@@ -88,51 +107,18 @@ class CharpadProcessorTest :
           val producer = TileProducer(output = tilesOutput)
           val processor = CharpadProcessor(listOf(producer))
           When("process is called") {
+            val tileData =
+                byteArrayOfInts(0x00, 0x01, 0x10, 0x11, 0x20, 0x21, 0x30, 0x31) concat
+                    byteArrayOfInts(0x00, 0x01, 0x10, 0x11, 0x20, 0x21, 0x30, 0x31)
             processor.process(
                 BinaryInputMock(
                     CTMByteArrayMock(
                         version = 5,
                         charset = byteArrayOfInts(0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x13),
                         charAttributes = byteArrayOfInts(0x00),
-                        tiles =
-                            byteArrayOfInts(
-                                0x00,
-                                0x01,
-                                0x10,
-                                0x11,
-                                0x20,
-                                0x21,
-                                0x30,
-                                0x31,
-                                0x00,
-                                0x01,
-                                0x10,
-                                0x11,
-                                0x20,
-                                0x21,
-                                0x30,
-                                0x31))
+                        tiles = tileData)
                         .bytes))
-            Then("tiles content is properly produced") {
-              tilesOutput.bytes shouldBe
-                  byteArrayOfInts(
-                      0x00,
-                      0x01,
-                      0x10,
-                      0x11,
-                      0x20,
-                      0x21,
-                      0x30,
-                      0x31,
-                      0x00,
-                      0x01,
-                      0x10,
-                      0x11,
-                      0x20,
-                      0x21,
-                      0x30,
-                      0x31)
-            }
+            Then("tiles content is properly produced") { tilesOutput.bytes shouldBe tileData }
           }
         }
       }

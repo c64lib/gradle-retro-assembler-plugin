@@ -27,7 +27,7 @@ import com.github.c64lib.retroassembler.binary_interleaver.BinaryInterleaver
 import com.github.c64lib.retroassembler.domain.processor.BinaryOutput
 import com.github.c64lib.retroassembler.domain.shared.IllegalConfigurationException
 import com.github.c64lib.retroassembler.nybbler.Nybbler
-import io.vavr.kotlin.toVavrList
+import io.vavr.collection.List
 import java.io.File
 import java.util.*
 import org.gradle.api.Action
@@ -82,7 +82,7 @@ abstract class FilterAwareExtension {
                         it.output ?: throw IllegalConfigurationException("Output is not specified"))
                   }
           outputBuffers.forEach { buffers.add(it) }
-          BinaryInterleaver(outputBuffers.toVavrList())
+          BinaryInterleaver(List.ofAll(outputBuffers))
         }
         else ->
             throw IllegalConfigurationException(

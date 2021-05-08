@@ -90,7 +90,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
     implementation("io.vavr:vavr:$vavrVersion")
-    implementation("io.vavr:vavr-kotlin:$vavrKotlinVersion")
     compileOnly(project(":domain"))
     compileOnly(project(":app:binary-utils"))
     compileOnly(project(":app:charpad-processor"))
