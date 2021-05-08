@@ -27,7 +27,21 @@ import com.github.c64lib.retroassembler.domain.processor.BinaryOutput
 import java.io.File
 import java.io.FileOutputStream
 
-class OutputBuffer(private val outputFile: File) : BinaryOutput {
+interface OutputBuffer : BinaryOutput {
+  fun flush()
+}
+
+class DevNull : OutputBuffer {
+  override fun flush() {
+    // nothing to do
+  }
+
+  override fun write(data: ByteArray) {
+    // ignore data
+  }
+}
+
+class FileOutputBuffer(private val outputFile: File) : OutputBuffer {
 
   private var buffer: MutableList<ByteArray> = ArrayList()
 
@@ -35,6 +49,6 @@ class OutputBuffer(private val outputFile: File) : BinaryOutput {
     buffer.add(data)
   }
 
-  fun flush() =
+  override fun flush() =
       FileOutputStream(outputFile).use { fos -> buffer.forEach { data -> fos.write(data) } }
 }

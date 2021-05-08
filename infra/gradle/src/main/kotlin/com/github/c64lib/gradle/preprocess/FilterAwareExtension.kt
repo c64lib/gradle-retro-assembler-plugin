@@ -63,24 +63,27 @@ abstract class FilterAwareExtension {
       when {
         hasOutput -> {
           val fos =
-              OutputBuffer(output ?: throw IllegalConfigurationException("Output is not specified"))
+              FileOutputBuffer(
+                  output ?: throw IllegalConfigurationException("Output is not specified"))
           buffers.add(fos)
           fos
         }
         hasNybbler -> {
-          val lo = getNybbler().loOutput?.let { OutputBuffer(it) }
-          val hi = getNybbler().hiOutput?.let { OutputBuffer(it) }
+          val lo = getNybbler().loOutput?.let { FileOutputBuffer(it) }
+          val hi = getNybbler().hiOutput?.let { FileOutputBuffer(it) }
           lo?.let { buffers.add(lo) }
           hi?.let { buffers.add(hi) }
           Nybbler(lo, hi, getNybbler().normalizeHi)
         }
         hasInterleavers -> {
           val outputBuffers =
-              interleavers.filter { it.output != null }
-                  .map {
-                    OutputBuffer(
-                        it.output ?: throw IllegalConfigurationException("Output is not specified"))
-                  }
+              interleavers.map {
+                if (it.output != null) {
+                  FileOutputBuffer(it.output!!)
+                } else {
+                  DevNull()
+                }
+              }
           outputBuffers.forEach { buffers.add(it) }
           BinaryInterleaver(List.ofAll(outputBuffers))
         }
