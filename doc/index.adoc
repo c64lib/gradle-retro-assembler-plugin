@@ -361,6 +361,64 @@ preprocess {
 
 Either hi or lo part can be ignored by not specifying `loOutput` or `hiOutput` respectively.
 
+==== Complete example
+
+[source,groovy]
+----
+preprocess {
+    charpad {
+        input = file("src/levels/level1/background.ctm")
+        outputs {
+            charset {
+                // complete charset
+                start = 0
+                end = 256
+                output = file("src/levels/level1/charset.bin")
+            }
+            tiles {
+                end = 64
+                interleaver {
+                    output = file("src/levels/level1/tiles.bin")
+                }
+                // only 256 characters, hi byte can be ignored
+                interleaver {
+                }
+            }
+            tileColours {
+                output = file("src/levels/level1/colors.bin")
+            }
+            // one map is used for three levels
+            map {
+                right = 135
+                interleaver {
+                    output = file("src/levels/level1/map-1.bin")
+                }
+                // only 64 tiles, hi byte can be ignored
+                interleaver {
+                }
+            }
+            map {
+                left = 135
+                right = 260
+                interleaver {
+                    output = file("src/levels/level1/map-2.bin")
+                }
+                interleaver {
+                }
+            }
+            map {
+                left = 260
+                interleaver {
+                    output = file("src/levels/level1/map-3.bin")
+                }
+                interleaver {
+                }
+            }
+        }
+    }
+}
+----
+
 === Running Unit tests with 64spec
 Version 1.0.0 supports now launching unit tests written in KickAssembler.
 In order to be able to do so, a Vice 3+ must be installed on a machine where tests will be launched.
