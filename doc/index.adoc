@@ -172,7 +172,7 @@ start:: Number of the first character to be exported (zero--based, default: 0).
 end:: Number of the character that follows the last one to be exported (zero--based, default 65536).
 output:: Output file or transformations (see: <<Output transformations>>).
 
-[IMPORTANT]: Each character is defined by 8 bytes. The `start` and `end` values are specified in character positions, not bytes.
+IMPORTANT: Each character is defined by 8 bytes. The `start` and `end` values are specified in character positions, not bytes.
 
 ===== Charset attributes
 
