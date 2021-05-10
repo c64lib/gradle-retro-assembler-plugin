@@ -5,6 +5,7 @@
 :stylesheet: clean.css
 :source-highlighter: highlight.js
 :highlightjs-languages: assembly,kotlin,groovy,bash,yaml
+:stem: latexmath
 
 Retro assembler build tool brings automation to the C64 software building process.
 It is implemented as a Gradle plugin.
