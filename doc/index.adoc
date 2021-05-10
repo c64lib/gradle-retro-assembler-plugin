@@ -103,7 +103,7 @@ Please note, that currently only GitHub is supported as a source for library rel
 
 === Charpad exports
 
-Retro assembler build tool supports Charpad version 5 file format and provided export of the following elements:
+Retro assembler build tool supports Charpad version 5 file format and provides export of the following elements:
 
 * charset,
 * charset colours,
@@ -111,7 +111,88 @@ Retro assembler build tool supports Charpad version 5 file format and provided e
 * tile set colours,
 * maps.
 
-==== Output options
+Charpad processor is a part of preprocessor and is executed before assembling process is started.
+Charpad processor will be executed only if there is at least one `charpad` pipeline defined in `preprocess` section:
+
+[source,groovy]
+----
+preprocess {
+    charpad {
+        input = file("src/levels/level1/level-background.ctm")
+        outputs {
+            charset {
+                start = 0
+                end = 64
+                output = file("src/levels/level1/charset.bin")
+            }
+        }
+    }
+}
+----
+
+Each pipeline tackles single CTM file.
+If you have more than one CTM file in your project, you have to declare multiple pipelines -- one per file.
+
+[source,groovy]
+----
+preprocess {
+    charpad {
+        input = file("src/levels/level1/level-background.ctm")
+        outputs {
+            charset {
+                output = file("src/levels/level1/charset.bin")
+            }
+        }
+    }
+    charpad {
+        input = file("src/levels/level2/level-background.ctm")
+        outputs {
+            charset {
+                output = file("src/levels/level2/charset.bin")
+            }
+        }
+    }
+}
+----
+
+.Elements of charpad pipeline definition
+input::
+File element defining input file to the pipeline.
+It must point to the correct CTM file.
+
+outputs::
+Set of outputs defining output files, parameters and transformations.
+
+==== Outputs
+
+===== Charset
+
+.Elements of charset output
+start:: Number of the first character to be exported (zero--based, default: 0).
+end:: Number of the character that follows the last one to be exported (zero--based, default 65536).
+output:: Output file or transformations (see: <<Output transformations>>).
+
+[IMPORTANT]: Each character is defined by 8 bytes. The `start` and `end` values are specified in character positions, not bytes.
+
+===== Charset attributes
+
+.Elements of charset attributes
+start:: Number of the first character attribute to be exported (zero--based, default: 0).
+end:: Number of the character attribute that follows the last one to be exported (zero--based, default 65536).
+output:: Output file or transformation (see: <<Output transformations>>).
+
+Each character attribute is encoded in single byte.
+High nybble contains material code.
+Low nybble contains colour value.
+Use <<Nybbler>> transformer to keep these nybbles separated.
+
+===== Tiles
+
+===== Tile colours
+
+===== Map
+
+==== Output transformations
 The Charpad preprocessor produces binary files for each of the element.
 It is possible to apply further filtering to these files when needed.
 
