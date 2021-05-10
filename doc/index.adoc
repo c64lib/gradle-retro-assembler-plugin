@@ -7,6 +7,7 @@
 :highlightjs-languages: assembly,kotlin,groovy,bash,yaml
 
 Gradle is a universal build tool that is used for automation in IT industry.
+
 It supports Java ecosystem out of the box but is also extensible via plugin system.
 This is a plugin that allows 8-bit assembly projects to be build via Gradle.
 Currently, it supports Commodore 64 output and KickAssembler only, but there are plans to extend it further.
@@ -109,6 +110,126 @@ Retro assembler build tool supports Charpad version 5 file format and provided e
 * tile set,
 * tile set colours,
 * maps.
+
+==== Output options
+The Charpad preprocessor produces binary files for each of the element.
+It is possible to apply further filtering to these files when needed.
+
+===== Straight output
+Straight output means there are no filtering applied.
+This option is suitable when produced binary output fits your needs perfectly.
+You are then welcome to include such binary file into your program using appropriate directive (i.e. `LoadBinary` function and `.fill` directive of KickAssembler).
+
+To use straight output specify the `output` property:
+
+[source,groovy]
+----
+charpad {
+    input = file("src/levels/level1/level1-background.ctm")
+    outputs {
+        charset {
+            output = file("src/levels/level1/charset-1.bin")
+        }
+    }
+}
+----
+
+===== Interleaver
+For most of the data, Charpad uses encoding that takes more than one byte per unit.
+Examples are: tile set (2 bytes per character number) and map data (2 bytes per tile code).
+Usually it is more efficient to have these bytes interleaved (one block for lo byte, one for hi byte).
+
+Or maybe, you know that you use up to 256 characters (usually this is the case), or you use up to 256 tiles at once.
+In such case, you may want to ignore hi bytes completely.
+
+Here is the place, where interleaved output comes with help.
+To split hi and lo bytes into separate outputs, you can use the following:
+
+[source,groovy]
+----
+preprocess {
+    charpad {
+        input = file("src/levels/level1/level1-background.ctm")
+        outputs {
+            map {
+              interleaver {
+                output = file("src/levels/level1/map-1-lo.bin")
+              }
+              interleaver {
+                output = file("src/levels/level1/map-1-hi.bin")
+              }
+            }
+        }
+    }
+}
+----
+
+In case you just want to ignore either lo or hi part, just keep corresponding part empty:
+
+[source,groovy]
+----
+preprocess {
+    charpad {
+        input = file("src/levels/level1/level1-background.ctm")
+        outputs {
+            map {
+              interleaver {
+                output = file("src/levels/level1/map-1.bin")
+              }
+              interleaver {
+              }
+            }
+        }
+    }
+}
+----
+
+===== Nybbler
+
+Sometimes Charpad encodes two kind of information into single byte.
+This is the case for charset attributes, which are encoded in form `MMMMCCCC` where hi nybble stands for material code and lo nybble contains color data.
+It may be convenient to split this information into two separate output files.
+In such cases you can use nybbler:
+
+[source,groovy]
+----
+preprocess {
+    charpad {
+        input = file("src/levels/level1/level1-background.ctm")
+        outputs {
+            charsetAttributes {
+                nybbler {
+                    loOutput = file("src/levels/level1/charset-1-colors.bin")
+                    hiOutput = file("src/levels/level1/charset-1-material.bin")
+                }
+            }
+        }
+    }
+}
+----
+
+By default, the hi output bytes are normalized (shifted right by 4 bits).
+This mechanism can be disabled with appropriate option:
+
+[source,groovy]
+----
+preprocess {
+    charpad {
+        input = file("src/levels/level1/level1-background.ctm")
+        outputs {
+            charsetAttributes {
+                nybbler {
+                    loOutput = file("src/levels/level1/charset-1-colors.bin")
+                    hiOutput = file("src/levels/level1/charset-1-material.bin")
+                    normalizeHi = false
+                }
+            }
+        }
+    }
+}
+----
+
+Either hi or lo part can be ignored by not specifying `loOutput` or `hiOutput` respectively.
 
 === Running Unit tests with 64spec
 Version 1.0.0 supports now launching unit tests written in KickAssembler.
@@ -244,3 +365,5 @@ or
 under linux-like OS.
 
 Read how to install Gradle Wrapper in Gradle documentation: https://docs.gradle.org/current/userguide/gradle_wrapper.html[].
+
+include::../CHANGES.adoc[leveloffset=+1]
