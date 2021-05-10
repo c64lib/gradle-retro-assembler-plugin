@@ -6,8 +6,10 @@
 :source-highlighter: highlight.js
 :highlightjs-languages: assembly,kotlin,groovy,bash,yaml
 
-Gradle is a universal build tool that is used for automation in IT industry.
+Retro assembler build tool brings automation to the C64 software building process.
+It is implemented as a Gradle plugin.
 
+Gradle is a universal build tool that is used for automation in IT industry.
 It supports Java ecosystem out of the box but is also extensible via plugin system.
 This is a plugin that allows 8-bit assembly projects to be build via Gradle.
 Currently, it supports Commodore 64 output and KickAssembler only, but there are plans to extend it further.
@@ -162,35 +164,82 @@ It must point to the correct CTM file.
 
 outputs::
 Set of outputs defining output files, parameters and transformations.
+See <<Outputs>> for details.
 
 ==== Outputs
+The `outputs` section brings extensive configuration capabilities regarding what data are extracted from CTM file.
+It is possible to create multiple binary files from single input CTM file.
+
+The following elements can be specified (multiple times) under `outputs`:
+
+* `charset`,
+* `charsetAttributes`,
+* `tiles`,
+* `tileColours`,
+* `map`.
 
 ===== Charset
+Outputs charset data out of the CTM file.
+Each character is defined by 8 bytes.
+The layout of the data follows the layout scheme of the C64 character generator.
 
 .Elements of charset output
-start:: Number of the first character to be exported (zero--based, default: 0).
-end:: Number of the character that follows the last one to be exported (zero--based, default 65536).
+start:: Number of the first character to be exported (zero-based, default: 0).
+end:: Number of the character that follows the last one to be exported (zero-based, default 65536).
 output:: Output file or transformations (see: <<Output transformations>>).
 
-IMPORTANT: Each character is defined by 8 bytes. The `start` and `end` values are specified in character positions, not bytes.
+NOTE: The `start` and `end` values are specified in character positions, not bytes.
 
 ===== Charset attributes
+Outputs specific attributes of the characters out of the CTM file.
+
+Each character attribute is encoded in single byte:
+
+* high nybble contains material code,
+* low nybble contains colour value.
 
 .Elements of charset attributes
-start:: Number of the first character attribute to be exported (zero--based, default: 0).
-end:: Number of the character attribute that follows the last one to be exported (zero--based, default 65536).
+start:: Number of the first character attribute to be exported (zero-based, default: 0).
+end:: Number of the character attribute that follows the last one to be exported (zero-based, default 65536).
 output:: Output file or transformation (see: <<Output transformations>>).
 
-Each character attribute is encoded in single byte.
-High nybble contains material code.
-Low nybble contains colour value.
-Use <<Nybbler>> transformer to keep these nybbles separated.
+As both material and colour information is packed into single byte, the <<Nybbler>> transformer can be used to separate this data into two output files.
 
 ===== Tiles
+Outputs tile set in case this one exist in CTM file.
+
+If tile set exists, each tile consists of latexmath:[w_T \times h_T \times 2] bytes, where latexmath:[w_T] stands for tile width and latexmath:[h_T] stands for tile height.
+
+It is noteworthy, that each character of the tile is defined by two bytes, as CTM file supports up to 65526 characters. To filter out high-byte values, use <<Interleaver>>.
+
+.Elements of tiles output
+start:: Number of the first tile to be exported (zero-based, default: 0).
+end:: Number of the tile that follows the last one to be exported (zero-based, default: 65536).
+output:: Output file or transformations (see: <<Output transformations>>).
 
 ===== Tile colours
+Outputs tile colours information if the tile set is included in CTM file.
+
+Colour of the tile is specified by single byte.
+
+.Elements of tile colours output
+start:: Number of the first file colour data to be exported (zero-based, default: 0).
+end:: Number of the tile colour data that follows the last one to be exported (zero-based, default: 65536).
+output:: Output file or transformations (see: <<Output transformations>>).
 
 ===== Map
+Outputs map data out of the CTM file.
+
+Each cell of map data consists of 2 bytes and defines either the tile or the character, depending on the CTM mode.
+This output supports exporting rectangular portions of the map out-of-the-box.
+If you need to export several portions of the same input file (i.e. for multiple levels sharing the same character and tile set information), map output can be repeated for each of the portion.
+
+.Elements of the map output
+left:: Left edge of the map being exported (zero-based, default: 0).
+top:: Top edge of the map being exported (zero-based, default: 0).
+right:: Right edge (exclusive) of the map being exported (zero-based, default: 65536).
+bottom:: Bottom edge (exclusive) of the map being exported (zero-based, default: 65536).
+output:: Output file or transformations (see: <<Output transformations>>).
 
 ==== Output transformations
 The Charpad preprocessor produces binary files for each of the element.
