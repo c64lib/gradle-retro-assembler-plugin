@@ -55,56 +55,90 @@ open class Charpad : DefaultTask() {
       val inputFile = pipeline.getInput().get()
       logger.debug("Found pipeline: input=${pipeline.getInput().get()}.")
       val fis = FileInputStream(inputFile)
-      fis.use { pipeline.outputs.forEach { output -> processInput(fis, output) } }
+      fis.use { pipeline.outputs.forEach { output -> processInput(fis, output, pipeline) } }
     }
   }
 
-  private fun processInput(fis: FileInputStream, output: OutputsExtension) {
+  private fun processInput(
+      fis: FileInputStream, output: OutputsExtension, pipeline: CharpadPipelineExtension
+  ) {
     val buffers: MutableList<OutputBuffer> = LinkedList()
-    val processor = CharpadProcessor(producers(output, buffers))
+    val processor = CharpadProcessor(producers(output, buffers, pipeline))
     processor.process(FisInput(fis))
     buffers.forEach { it.flush() }
   }
 
-  private fun producers(output: OutputsExtension, buffers: MutableList<OutputBuffer>) =
-      charsetProducers(output, buffers) +
-          charsetAttributesProducers(output, buffers) +
-          tileProducers(output, buffers) +
-          tileColoursProducers(output, buffers) +
-          mapProducers(output, buffers)
+  private fun producers(
+      output: OutputsExtension,
+      buffers: MutableList<OutputBuffer>,
+      pipeline: CharpadPipelineExtension
+  ) =
+      charsetProducers(output, buffers, pipeline) +
+          charsetAttributesProducers(output, buffers, pipeline) +
+          tileProducers(output, buffers, pipeline) +
+          tileColoursProducers(output, buffers, pipeline) +
+          mapProducers(output, buffers, pipeline)
 
-  private fun charsetProducers(output: OutputsExtension, buffers: MutableList<OutputBuffer>) =
+  private fun charsetProducers(
+      output: OutputsExtension,
+      buffers: MutableList<OutputBuffer>,
+      pipeline: CharpadPipelineExtension
+  ) =
       output.charsets.map { charset ->
         CharsetProducer(
-            start = charset.start, end = charset.end, output = charset.resolveOutput(buffers))
+            start = charset.start,
+            end = charset.end,
+            output = charset.resolveOutput(buffers, useBuildDir(pipeline)))
       }
 
   private fun charsetAttributesProducers(
-      output: OutputsExtension, buffers: MutableList<OutputBuffer>
+      output: OutputsExtension,
+      buffers: MutableList<OutputBuffer>,
+      pipeline: CharpadPipelineExtension
   ) =
       output.charsetAttributes.map { charsetAttributes ->
         CharAttributesProducer(
             start = charsetAttributes.start,
             end = charsetAttributes.end,
-            output = charsetAttributes.resolveOutput(buffers))
+            output = charsetAttributes.resolveOutput(buffers, useBuildDir(pipeline)))
       }
 
-  private fun tileProducers(output: OutputsExtension, buffers: MutableList<OutputBuffer>) =
+  private fun tileProducers(
+      output: OutputsExtension,
+      buffers: MutableList<OutputBuffer>,
+      pipeline: CharpadPipelineExtension
+  ) =
       output.tiles.map { tile ->
-        TileProducer(start = tile.start, end = tile.end, output = tile.resolveOutput(buffers))
+        TileProducer(
+            start = tile.start,
+            end = tile.end,
+            output = tile.resolveOutput(buffers, useBuildDir(pipeline)))
       }
 
-  private fun tileColoursProducers(output: OutputsExtension, buffers: MutableList<OutputBuffer>) =
+  private fun tileColoursProducers(
+      output: OutputsExtension,
+      buffers: MutableList<OutputBuffer>,
+      pipeline: CharpadPipelineExtension
+  ) =
       output.tileColours.map { tileAttr ->
         TileColoursProducer(
-            start = tileAttr.start, end = tileAttr.end, output = tileAttr.resolveOutput(buffers))
+            start = tileAttr.start,
+            end = tileAttr.end,
+            output = tileAttr.resolveOutput(buffers, useBuildDir(pipeline)))
       }
 
-  private fun mapProducers(output: OutputsExtension, buffers: MutableList<OutputBuffer>) =
+  private fun mapProducers(
+      output: OutputsExtension,
+      buffers: MutableList<OutputBuffer>,
+      pipeline: CharpadPipelineExtension
+  ) =
       output.maps.map { map ->
         MapProducer(
             leftTop = MapCoord(map.left, map.top),
             rightBottom = MapCoord(map.right, map.bottom),
-            output = map.resolveOutput(buffers))
+            output = map.resolveOutput(buffers, useBuildDir(pipeline)))
       }
+
+  private fun useBuildDir(pipeline: CharpadPipelineExtension): Boolean =
+      pipeline.getUseBuildDir().getOrElse(true)
 }

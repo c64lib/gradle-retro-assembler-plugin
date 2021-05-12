@@ -26,6 +26,8 @@ package com.github.c64lib.gradle.preprocess
 import com.github.c64lib.retroassembler.domain.processor.BinaryOutput
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createDirectory
 
 interface OutputBuffer : BinaryOutput {
   fun flush()

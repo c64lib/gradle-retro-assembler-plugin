@@ -24,8 +24,11 @@ SOFTWARE.
 package com.github.c64lib.gradle.preprocess.charpad
 
 import com.github.c64lib.gradle.preprocess.FilterAwareExtension
+import javax.inject.Inject
+import org.gradle.api.file.ProjectLayout
 
-abstract class MapExtension : FilterAwareExtension() {
+abstract class MapExtension @Inject constructor(project: ProjectLayout) :
+    FilterAwareExtension(project) {
   var left: Int = 0
   var top: Int = 0
   var right: Int = 65536

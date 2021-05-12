@@ -24,8 +24,11 @@ SOFTWARE.
 package com.github.c64lib.gradle.preprocess.charpad
 
 import com.github.c64lib.gradle.preprocess.FilterAwareExtension
+import javax.inject.Inject
+import org.gradle.api.file.ProjectLayout
 
-abstract class StartEndExtension : FilterAwareExtension() {
+abstract class StartEndExtension @Inject constructor(project: ProjectLayout) :
+    FilterAwareExtension(project) {
   var start: Int = 0
   var end: Int = 65536
 }

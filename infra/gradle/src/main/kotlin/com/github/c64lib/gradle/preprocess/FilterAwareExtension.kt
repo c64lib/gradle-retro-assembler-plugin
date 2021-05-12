@@ -30,11 +30,18 @@ import com.github.c64lib.retroassembler.nybbler.Nybbler
 import io.vavr.collection.List
 import java.io.File
 import java.util.*
+import javax.inject.Inject
 import org.gradle.api.Action
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.tasks.Nested
 
-abstract class FilterAwareExtension {
+// TODO this must be moved to the charpad, refactor!
+private const val CHARPAD_DIR = "charpad"
+
+abstract class FilterAwareExtension @Inject constructor(private val project: ProjectLayout) {
   var output: File? = null
+
+  private val charpadBuildDir = project.buildDirectory.dir(CHARPAD_DIR).get().asFile.toPath()
 
   private val interleavers: MutableList<InterleaverExtension> = LinkedList()
 
@@ -59,18 +66,21 @@ abstract class FilterAwareExtension {
   private val hasInterleavers: Boolean
     get() = interleavers.isNotEmpty()
 
-  internal fun resolveOutput(buffers: MutableList<OutputBuffer>): BinaryOutput =
+  internal fun resolveOutput(
+      buffers: MutableList<OutputBuffer>, outputToBuildDir: Boolean
+  ): BinaryOutput =
       when {
         hasOutput -> {
           val fos =
               FileOutputBuffer(
-                  output ?: throw IllegalConfigurationException("Output is not specified"))
+                  normalize(output, outputToBuildDir)
+                      ?: throw IllegalConfigurationException("Output is not specified"))
           buffers.add(fos)
           fos
         }
         hasNybbler -> {
-          val lo = getNybbler().loOutput?.let { FileOutputBuffer(it) }
-          val hi = getNybbler().hiOutput?.let { FileOutputBuffer(it) }
+          val lo = normalize(getNybbler().loOutput, outputToBuildDir)?.let { FileOutputBuffer(it) }
+          val hi = normalize(getNybbler().hiOutput, outputToBuildDir)?.let { FileOutputBuffer(it) }
           lo?.let { buffers.add(lo) }
           hi?.let { buffers.add(hi) }
           Nybbler(lo, hi, getNybbler().normalizeHi)
@@ -78,8 +88,9 @@ abstract class FilterAwareExtension {
         hasInterleavers -> {
           val outputBuffers =
               interleavers.map {
-                if (it.output != null) {
-                  FileOutputBuffer(it.output!!)
+                val interleaverOutput = normalize(it.output, outputToBuildDir)
+                if (interleaverOutput != null) {
+                  FileOutputBuffer(interleaverOutput)
                 } else {
                   DevNull()
                 }
@@ -90,5 +101,17 @@ abstract class FilterAwareExtension {
         else ->
             throw IllegalConfigurationException(
                 "Either output or at least one output filters must be configured.")
+      }
+
+  private fun normalize(output: File?, outputToBuildDir: Boolean): File? =
+      if (output != null && outputToBuildDir) {
+        // TODO refactor!
+        val outputRelativePath =
+            project.projectDirectory.asFile.toPath().relativize(output.toPath())
+        val resultPath = charpadBuildDir.resolve(outputRelativePath)
+        resultPath.parent?.toFile()?.mkdirs()
+        resultPath.toFile()
+      } else {
+        output
       }
 }
