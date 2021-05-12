@@ -1,0 +1,35 @@
+= Change log
+
+1.1.0::
+* Support for `-define` parameters.
+* Preprocessor functions:
+** Charpad support added (CTM v.5)
+* Migrate build to Gradle 7.
+
+1.0.1::
+* Migrate build to Gradle 6.
+
+1.0.0::
+* Support for running 64spec tests using console mode of Vice.
+* Tested support for CircleCI environment via dedicated Docker image.
+* Work dir (.ra) can now be changed.
+
+0.3.0::
+* Support for source files patterns via includes.
+* Support for excluding source files via patterns.
+
+0.2.1::
+* Compatibility with Gradle 5.x.x.
+* Build works with OpenJDK 12.
+
+0.2.0::
+* Support for downloading ASM libraries released at GitHub.
+* Support for version number for selected assembler (KickAssembler is only supported).
+
+0.1.1::
+* Support for configurable source dirs.
+
+0.1.0::
+* Support for KickAssembler.
+* Download of KickAssembler.
+* clean and build tasks.

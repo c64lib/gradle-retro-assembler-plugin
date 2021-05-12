@@ -1,0 +1,20 @@
+= Retro Assembler build tools
+:icons: font
+:toc: left
+:sectnums:
+:stylesheet: clean.css
+:source-highlighter: highlight.js
+:highlightjs-languages: assembly
+:includedir:  concept/
+
+WARNING: This document is under development!
+
+This is initial concept paper of Retro Build Tool - an automation device to build various 8-bit targeted assembly projects.
+
+include::{includedir}_02_overview.adoc[leveloffset=+1]
+
+include::{includedir}_03_processes.adoc[leveloffset=+1]
+
+include::{includedir}_04_requirements.adoc[leveloffset=+1]
+
+include::{includedir}_10_architecture.adoc[leveloffset=+1]

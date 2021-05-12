@@ -53,6 +53,7 @@ The following properties can be customized:
 * `excludes` - provides array of file patterns that matches source files to be excluded from assembling; default value: `[".ra/**/*.asm"]`
 * `srcDirs` - provides array of directory locations where your source code (`asm` files) resides; default value: `["."]`
 * `libDirs` - provides array of directory locations where your libraries are downloaded; default value: `[]`
+* `defines` - sets up a list of preprocessor symbols that will de defined during this assembly launch
 
 ### Launching your build
 There are two core tasks that can be used from command line:
@@ -209,6 +210,9 @@ under linux-like OS.
 Read how to install Gradle Wrapper in Gradle documentation: https://docs.gradle.org/current/userguide/gradle_wrapper.html
 
 ## Change log
+
+### 1.1.0
+* Support for `-define` parameters
 
 ### 1.0.1
 * Migrate build to Gradle 6
