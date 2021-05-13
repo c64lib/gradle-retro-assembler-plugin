@@ -82,7 +82,7 @@ class KickAssemblerFacade(
             listOf(
                 listOf(kaFile.absolutePath),
                 asLibDirList(extension.libDirs),
-                asDeclareList(extension.defines),
+                asDefineList(extension.defines),
                 listOf(*parameters),
                 listOf(sourceFile.path))
                 .flatten()
@@ -91,7 +91,7 @@ class KickAssemblerFacade(
 
   private fun asLibDirList(libDirs: Array<String>) = asParamList("-libdir", libDirs)
 
-  private fun asDeclareList(defines: Array<String>) = asParamList("-define", defines)
+  private fun asDefineList(defines: Array<String>) = asParamList("-define", defines)
 
   private fun asParamList(paramName: String, values: Array<String>) =
       values.flatMap { value -> listOf(paramName, value) }

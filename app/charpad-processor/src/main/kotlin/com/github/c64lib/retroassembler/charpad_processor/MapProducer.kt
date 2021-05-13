@@ -28,9 +28,7 @@ import com.github.c64lib.retroassembler.domain.processor.Output
 import com.github.c64lib.retroassembler.domain.shared.IllegalInputException
 
 class MapProducer(
-    private val leftTop: MapCoord = MapCoord(0, 0),
-    private val rightBottom: MapCoord? = null,
-    output: Output<ByteArray>
+    private val leftTop: MapCoord, private val rightBottom: MapCoord, output: Output<ByteArray>
 ) : BinaryProducer(output) {
 
   fun write(width: Int, height: Int, data: ByteArray) =
@@ -39,17 +37,21 @@ class MapProducer(
   private fun cutMap(
       width: Int, height: Int, leftTop: MapCoord, rightBottom: MapCoord, data: ByteArray
   ): ByteArray =
-      checkInput(width, height, leftTop, rightBottom) {
+      checkInput(width, height, leftTop, rightBottom) { rightBottomAdjusted ->
         cutMapLeftRight(
             ByteArray(0),
             width,
             leftTop.x,
-            rightBottom.x,
-            data.copyOfRange(leftTop.y * width * 2, rightBottom.y * width * 2))
+            rightBottomAdjusted.x,
+            data.copyOfRange(leftTop.y * width * 2, rightBottomAdjusted.y * width * 2))
       }
 
   private fun checkInput(
-      width: Int, height: Int, leftTop: MapCoord, rightBottom: MapCoord, perform: () -> ByteArray
+      width: Int,
+      height: Int,
+      leftTop: MapCoord,
+      rightBottom: MapCoord,
+      perform: (rightBottomAdjusted: MapCoord) -> ByteArray
   ): ByteArray =
       when {
         width < 1 -> throw IllegalInputException("Width < 1: $width")
@@ -60,8 +62,21 @@ class MapProducer(
         leftTop.y < 0 -> throw IllegalInputException("Top < 0: ${leftTop.y}")
         rightBottom.y <= leftTop.y ->
             throw IllegalInputException("Bottom <= Top: ${rightBottom.y} <= ${leftTop.y}")
-        else -> perform.invoke()
+        else -> perform.invoke(adjust(width, height, rightBottom))
       }
+
+  private fun adjust(width: Int, height: Int, rightBottom: MapCoord): MapCoord =
+      MapCoord(
+          if (rightBottom.x > width) {
+            width
+          } else {
+            rightBottom.x
+          },
+          if (rightBottom.y > height) {
+            height
+          } else {
+            rightBottom.y
+          })
 
   private tailrec fun cutMapLeftRight(
       prefix: ByteArray, width: Int, leftMargin: Int, rightMargin: Int, data: ByteArray

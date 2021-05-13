@@ -24,3 +24,7 @@ SOFTWARE.
 package com.github.c64lib.retroassembler.charpad_processor
 
 data class MapCoord(val x: Int, val y: Int)
+
+val minTopLeftMapCoord = MapCoord(0, 0)
+
+val maxRightBottomMapCoord = MapCoord(65536, 65536)
