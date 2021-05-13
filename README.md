@@ -14,3 +14,9 @@ Version 1.1.0 brings support of [Charpad](https://subchristsoftware.itch.io/char
 A complete User's Manual is available at the following address:
 
 https://c64lib.github.io/gradle-retro-assembler-plugin/
+
+## Change log
+
+A change log together with the list of available versions can be seen at:
+
+https://c64lib.github.io/gradle-retro-assembler-plugin/#_change_log
