@@ -6,8 +6,12 @@
 
 This is a plugin for [Gradle build tool](https://gradle.org/) that adds capability of building Assembly projects for MOS 65xx family of microprocessors.
 
-Currently, the plugin supports [Kick Assembler](http://theweb.dk/KickAssembler/Main.html#frontpage) as the only dialect.
-Version 1.1.0 brings support of [Charpad](https://subchristsoftware.itch.io/charpad-free-edition) export of CTM files (v5 is the only supported version).
+Currently, the plugin supports [Kick Assembler](http://theweb.dk/KickAssembler/Main.html#frontpage) as the only ASM dialect.
+
+## Highlights
+
+Current version is 1.1.0.
+It brings support of [Charpad](https://subchristsoftware.itch.io/charpad-free-edition) export of CTM files (v5 is the only supported version as for now).
 
 ## User's Manual
 

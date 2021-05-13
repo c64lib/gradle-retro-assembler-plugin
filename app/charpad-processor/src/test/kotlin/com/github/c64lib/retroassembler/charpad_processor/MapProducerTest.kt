@@ -74,7 +74,7 @@ class MapProducerTest :
                   leftTop = minTopLeftMapCoord, rightBottom = MapCoord(2, 2), output = outputMock)
           When("write is called") {
             producer.write(width, height, mapData)
-            Then("right bottom part of map is written") {
+            Then("top left part of map is written") {
               outputMock.bytes shouldBe
                   (byteArrayOfInts(0x01, 0x02, 0x11, 0x12) concat
                       byteArrayOfInts(0x31, 0x32, 0x41, 0x42))
@@ -87,7 +87,7 @@ class MapProducerTest :
                   leftTop = MapCoord(1, 1), rightBottom = MapCoord(3, 3), output = outputMock)
           When("write is called") {
             producer.write(width, height, mapData)
-            Then("right bottom part of map is written") {
+            Then("middle part of map is written") {
               outputMock.bytes shouldBe
                   (byteArrayOfInts(0x41, 0x42, 0x51, 0x52) concat
                       byteArrayOfInts(0x71, 0x72, 0x81, 0x82))
