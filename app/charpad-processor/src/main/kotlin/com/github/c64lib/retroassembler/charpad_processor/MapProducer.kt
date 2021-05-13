@@ -28,9 +28,7 @@ import com.github.c64lib.retroassembler.domain.processor.Output
 import com.github.c64lib.retroassembler.domain.shared.IllegalInputException
 
 class MapProducer(
-    private val leftTop: MapCoord = MapCoord(0, 0),
-    private val rightBottom: MapCoord? = null,
-    output: Output<ByteArray>
+    private val leftTop: MapCoord, private val rightBottom: MapCoord, output: Output<ByteArray>
 ) : BinaryProducer(output) {
 
   fun write(width: Int, height: Int, data: ByteArray) =
