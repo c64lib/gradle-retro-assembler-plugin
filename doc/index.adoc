@@ -172,7 +172,7 @@ preprocess {
         input = file("src/levels/level1/level-background.ctm")
         outputs {
             charset {
-                output = file("src/levels/level1/charset.bin")
+                output = file("levels/level1/charset.bin")
             }
         }
     }
@@ -180,7 +180,7 @@ preprocess {
         input = file("src/levels/level2/level-background.ctm")
         outputs {
             charset {
-                output = file("src/levels/level2/charset.bin")
+                output = file("levels/level2/charset.bin")
             }
         }
     }
@@ -294,7 +294,7 @@ charpad {
     input = file("src/levels/level1/level1-background.ctm")
     outputs {
         charset {
-            output = file("src/levels/level1/charset-1.bin")
+            output = file("levels/level1/charset-1.bin")
         }
     }
 }
@@ -319,10 +319,10 @@ preprocess {
         outputs {
             map {
               interleaver {
-                output = file("src/levels/level1/map-1-lo.bin")
+                output = file("levels/level1/map-1-lo.bin")
               }
               interleaver {
-                output = file("src/levels/level1/map-1-hi.bin")
+                output = file("levels/level1/map-1-hi.bin")
               }
             }
         }
@@ -340,7 +340,7 @@ preprocess {
         outputs {
             map {
               interleaver {
-                output = file("src/levels/level1/map-1.bin")
+                output = file("levels/level1/map-1.bin")
               }
               interleaver {
               }
@@ -365,8 +365,8 @@ preprocess {
         outputs {
             charsetAttributes {
                 nybbler {
-                    loOutput = file("src/levels/level1/charset-1-colors.bin")
-                    hiOutput = file("src/levels/level1/charset-1-material.bin")
+                    loOutput = file("levels/level1/charset-1-colors.bin")
+                    hiOutput = file("levels/level1/charset-1-material.bin")
                 }
             }
         }
@@ -385,8 +385,8 @@ preprocess {
         outputs {
             charsetAttributes {
                 nybbler {
-                    loOutput = file("src/levels/level1/charset-1-colors.bin")
-                    hiOutput = file("src/levels/level1/charset-1-material.bin")
+                    loOutput = file("levels/level1/charset-1-colors.bin")
+                    hiOutput = file("levels/level1/charset-1-material.bin")
                     normalizeHi = false
                 }
             }
@@ -409,25 +409,25 @@ preprocess {
                 // complete charset
                 start = 0
                 end = 256
-                output = file("src/levels/level1/charset.bin")
+                output = file("levels/level1/charset.bin")
             }
             tiles {
                 end = 64
                 interleaver {
-                    output = file("src/levels/level1/tiles.bin")
+                    output = file("levels/level1/tiles.bin")
                 }
                 // only 256 characters, hi byte can be ignored
                 interleaver {
                 }
             }
             tileColours {
-                output = file("src/levels/level1/colors.bin")
+                output = file("levels/level1/colors.bin")
             }
             // one map is used for three levels
             map {
                 right = 135
                 interleaver {
-                    output = file("src/levels/level1/map-1.bin")
+                    output = file("levels/level1/map-1.bin")
                 }
                 // only 64 tiles, hi byte can be ignored
                 interleaver {
@@ -437,7 +437,7 @@ preprocess {
                 left = 135
                 right = 260
                 interleaver {
-                    output = file("src/levels/level1/map-2.bin")
+                    output = file("levels/level1/map-2.bin")
                 }
                 interleaver {
                 }
@@ -445,7 +445,7 @@ preprocess {
             map {
                 left = 260
                 interleaver {
-                    output = file("src/levels/level1/map-3.bin")
+                    output = file("levels/level1/map-3.bin")
                 }
                 interleaver {
                 }
