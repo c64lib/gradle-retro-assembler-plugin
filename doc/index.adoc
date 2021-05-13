@@ -21,7 +21,7 @@ If you're interested in development plans of this plugin, you can always refer t
 === Installation & requirements
 
 You need Java 11+ in order to proceed.
-If you don't have any, or your version is too old (less than 11), proceed to https://jdk.java.net/, download and install appropriate version.
+If you don't have any, or your version is too old (less than 11), proceed to https://jdk.java.net/[], download and install appropriate version.
 
 If the project you want to build uses Gradle Wrapper (see <<Using Gradle Wrapper>> section for more details), you don't need to install anything more.
 It would be then sufficient to enter project directory and type:
@@ -31,16 +31,16 @@ It would be then sufficient to enter project directory and type:
 gradlew build
 ----
 
-You can use the following project for reference: https://github.com/maciejmalecki/trex64
+You can use the following project for reference: https://github.com/maciejmalecki/trex64[].
 
 If the project does not use Gradle Wrapper, you have to install Gradle Build Tool by yourself.
-It is pretty straightforward, you'll find instructions here: https://gradle.org/install/
+It is pretty straightforward, you'll find instructions here: https://gradle.org/install/[].
 
 Having Gradle Build Tool installed is also needed if you want to author Gradle Wrapper capable projects by yourself.
 Please refer <<Using Gradle Wrapper>> for further reading.
 
 === Create your first build script
-If you have Gradle installed on your machine (get it from https://github.com/gradle/gradle/releases[GitHub] or refer https://gradle.org/[]), you just need to create `build.gradle` file in root folder of your project.
+If you have Gradle installed on your machine, you just need to create `build.gradle` file in root folder of your project.
 Fill it with following content:
 
 [source,groovy]
