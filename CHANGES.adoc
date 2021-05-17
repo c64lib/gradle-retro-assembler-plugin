@@ -1,8 +1,11 @@
 = Change log
 
+1.1.1::
+* Bugfix: #26 charpad: fixed map generation in CTM files without Tileset.
+
 1.1.0::
 * Support for `-define` parameters.
-* Charpad support added (CTM v.5)
+* Charpad support added (CTM v.5).
 * Support for Gradle 7.
 
 1.0.1::
