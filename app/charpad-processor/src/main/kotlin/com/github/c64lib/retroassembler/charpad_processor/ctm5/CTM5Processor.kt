@@ -39,10 +39,10 @@ internal class CTM5Processor(private val charpadProcessor: CharpadProcessor) : C
 
     if (header.numChars > 0) {
       val charData = inputByteStream.read(header.numChars * 8)
-      charpadProcessor.charsetProducers.forEach { it.write(charData) }
+      charpadProcessor.processCharset { it.write(charData) }
 
       val charAttributeData = inputByteStream.read(header.numChars)
-      charpadProcessor.charAttributesProducers.forEach { it.write(charAttributeData) }
+      charpadProcessor.processCharAttributes { it.write(charAttributeData) }
     }
 
     if (header.flags and CTM5Flags.TileSys.bit != 0.toByte()) {
@@ -50,18 +50,18 @@ internal class CTM5Processor(private val charpadProcessor: CharpadProcessor) : C
         val tileData =
             inputByteStream.read(
                 header.numTiles * header.tileWidth.toInt() * header.tileHeight.toInt() * 2)
-        charpadProcessor.tileProducers.forEach { it.write(tileData) }
+        charpadProcessor.processTiles { it.write(tileData) }
       }
 
       if (header.colouringMethod == ColouringMethod.PerTile.value) {
         val tileColoursData = inputByteStream.read(header.numTiles)
-        charpadProcessor.tileColoursProducers.forEach { it.write(tileColoursData) }
+        charpadProcessor.processTileColours { it.write(tileColoursData) }
       }
     }
 
     if (header.mapHeight > 0 && header.mapWidth > 0) {
       val mapData = inputByteStream.read(header.mapWidth * header.mapHeight * 2)
-      charpadProcessor.mapProducers.forEach { it.write(header.mapWidth, header.mapHeight, mapData) }
+      charpadProcessor.processMap { it.write(header.mapWidth, header.mapHeight, mapData) }
     }
   }
 
