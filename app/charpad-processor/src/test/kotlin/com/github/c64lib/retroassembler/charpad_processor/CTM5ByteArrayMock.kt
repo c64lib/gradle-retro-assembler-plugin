@@ -25,6 +25,7 @@ package com.github.c64lib.retroassembler.charpad_processor
 
 import com.github.c64lib.retroassembler.binutils.concat
 import com.github.c64lib.retroassembler.binutils.wordOf
+import com.github.c64lib.retroassembler.charpad_processor.ctm5.toCTM5Byte
 
 internal class CTM5ByteArrayMock(
     header: CTMHeader,

@@ -21,9 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor
+package com.github.c64lib.retroassembler.charpad_processor.ctm5
 
 import com.github.c64lib.retroassembler.binutils.toWord
+import com.github.c64lib.retroassembler.charpad_processor.CTMProcessor
+import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
+import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
+import com.github.c64lib.retroassembler.charpad_processor.Flags
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import java.util.*
 import kotlin.experimental.and

@@ -23,6 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
+import com.github.c64lib.retroassembler.charpad_processor.ctm5.CTM5Processor
+import com.github.c64lib.retroassembler.charpad_processor.ctm6.CTM6Processor
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import com.github.c64lib.retroassembler.domain.processor.OutputProducer
 import com.github.c64lib.retroassembler.domain.processor.Processor
@@ -57,6 +59,7 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
     return when (val version = inputByteStream.readByte().toInt()
     ) {
       5 -> CTM5Processor(this@CharpadProcessor)
+      6 -> CTM6Processor(this@CharpadProcessor)
       else -> throw InvalidCTMFormatException("Unsupported version: $version")
     }
   }
