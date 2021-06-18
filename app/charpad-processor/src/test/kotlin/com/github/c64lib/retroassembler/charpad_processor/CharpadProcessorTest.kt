@@ -46,7 +46,7 @@ class CharpadProcessorTest :
                 }
             Then("exception is thrown") { exception.message shouldBe "CTM id is missing" }
           }
-          listOf(1, 2, 3, 4, 7).forEach { version ->
+          listOf(1, 2, 3, 4).forEach { version ->
             And("and input stream contains unsupported CMT version $version") {
               val exception =
                   shouldThrow<InvalidCTMFormatException> {

@@ -131,13 +131,15 @@ Please note, that currently only GitHub is supported as a source for library rel
 
 === Charpad exports
 
-Retro assembler build tool supports Charpad version 5 file format and provides export of the following elements:
+Retro assembler build tool supports Charpad CTM file format and provides export of the following elements:
 
 * charset,
 * charset colours,
 * tile set,
 * tile set colours,
 * maps.
+
+Currently supported versions of CTM file are 5, 6 and 7.
 
 Charpad processor is a part of preprocessor and is executed before assembling process is started.
 

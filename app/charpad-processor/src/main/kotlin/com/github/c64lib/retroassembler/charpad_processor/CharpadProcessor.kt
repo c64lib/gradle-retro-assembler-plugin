@@ -67,7 +67,7 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
     return when (val version = inputByteStream.readByte().toInt()
     ) {
       5 -> CTM5Processor(this@CharpadProcessor)
-      6 -> CTM6Processor(this@CharpadProcessor)
+      6, 7 -> CTM6Processor(this@CharpadProcessor, version)
       else -> throw InvalidCTMFormatException("Unsupported version: $version")
     }
   }

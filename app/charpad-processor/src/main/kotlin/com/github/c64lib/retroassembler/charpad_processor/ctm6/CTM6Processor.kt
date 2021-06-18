@@ -32,7 +32,9 @@ import com.github.c64lib.retroassembler.charpad_processor.ctm5.CTM5Flags
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import kotlin.experimental.and
 
-internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : CTMProcessor {
+internal class CTM6Processor(
+    private val charpadProcessor: CharpadProcessor, private val version: Int
+) : CTMProcessor {
 
   override fun process(inputByteStream: InputByteStream) {
     val header = readHeader(inputByteStream)
@@ -63,6 +65,7 @@ internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : C
 
       if (header.colouringMethod == ColouringMethod.PerTile.value) {
         // block n tile colours
+        val tileColoursHeader = readBlockMarker(inputByteStream)
         val tileColoursData = inputByteStream.read(numTiles)
         charpadProcessor.processTileColours { it.write(tileColoursData) }
       }
@@ -115,8 +118,16 @@ internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : C
     val screenColor = inputByteStream.readByte()
     val multicolor1 = inputByteStream.readByte()
     val multicolor2 = inputByteStream.readByte()
+    if (version > 6) {
+      // TODO bg4 is now ignored
+      inputByteStream.readByte()
+    }
     val charColor = inputByteStream.readByte()
     val colouringMethod = inputByteStream.readByte()
+    if (version > 6) {
+      // TODO ignore screen mode for now
+      inputByteStream.readByte()
+    }
     val flags = inputByteStream.readByte()
     return CTM6Header(
         screenColor = screenColor,
