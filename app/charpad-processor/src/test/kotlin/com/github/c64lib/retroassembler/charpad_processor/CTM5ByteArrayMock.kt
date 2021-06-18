@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2018 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2021 c64lib: The Ultimate Commodore 64 Library
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ package com.github.c64lib.retroassembler.charpad_processor
 
 import com.github.c64lib.retroassembler.binutils.concat
 import com.github.c64lib.retroassembler.binutils.wordOf
+import com.github.c64lib.retroassembler.charpad_processor.ctm5.toCTM5Byte
 
 internal class CTM5ByteArrayMock(
     header: CTMHeader,

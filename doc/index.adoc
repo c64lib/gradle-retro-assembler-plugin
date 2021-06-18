@@ -16,12 +16,16 @@ It supports Java ecosystem out of the box but is also extensible via plugin syst
 This plugin supports Commodore 64 output and KickAssembler only, but there are plans to extend it further.
 If you're interested in development plans of this plugin, you can always refer this link:concept[Concept paper].
 
+This is an open source project hosted on https://github.com/c64lib/gradle-retro-assembler-plugin[GitHub].
+In case of any problems when working with the plugin, don't hesitate to create an https://github.com/c64lib/gradle-retro-assembler-plugin/issues[issue].
+Feel free to fork and create pull requests.
+
 == Usage
 
 === Installation & requirements
 
-You need Java 11+ in order to proceed.
-If you don't have any, or your version is too old (less than 11), proceed to https://jdk.java.net/[], download and install appropriate version.
+You need Java 11+ in order to use Gradle and the plugin as such.
+If you don't have any, or your version is too old (less than 11), go to https://jdk.java.net/[], download and install appropriate version.
 
 If the project you want to build uses Gradle Wrapper (see <<Using Gradle Wrapper>> section for more details), you don't need to install anything more.
 It would be then sufficient to enter project directory and type:
@@ -50,7 +54,7 @@ plugins {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 apply plugin: "com.github.c64lib.retro-assembler"
@@ -127,13 +131,15 @@ Please note, that currently only GitHub is supported as a source for library rel
 
 === Charpad exports
 
-Retro assembler build tool supports Charpad version 5 file format and provides export of the following elements:
+Retro assembler build tool supports Charpad CTM file format and provides export of the following elements:
 
 * charset,
 * charset colours,
 * tile set,
 * tile set colours,
 * maps.
+
+Currently supported versions of CTM file are 5, 6 and 7.
 
 Charpad processor is a part of preprocessor and is executed before assembling process is started.
 
@@ -403,6 +409,7 @@ Either hi or lo part can be ignored by not specifying `loOutput` or `hiOutput` r
 ----
 preprocess {
     charpad {
+        useBuildDir = true
         input = file("src/levels/level1/background.ctm")
         outputs {
             charset {

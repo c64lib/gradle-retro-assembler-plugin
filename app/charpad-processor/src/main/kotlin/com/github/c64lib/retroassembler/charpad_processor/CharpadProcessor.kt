@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2018 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2021 c64lib: The Ultimate Commodore 64 Library
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
+import com.github.c64lib.retroassembler.charpad_processor.ctm5.CTM5Processor
+import com.github.c64lib.retroassembler.charpad_processor.ctm6.CTM6Processor
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import com.github.c64lib.retroassembler.domain.processor.OutputProducer
 import com.github.c64lib.retroassembler.domain.processor.Processor
@@ -31,23 +33,31 @@ internal interface CTMProcessor : Processor
 
 class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
 
-  internal val charsetProducers: Collection<CharsetProducer> =
+  private val charsetProducers: Collection<CharsetProducer> =
       outputProducers.filterIsInstance<CharsetProducer>()
 
-  internal val charAttributesProducers: Collection<CharAttributesProducer> =
+  private val charAttributesProducers: Collection<CharAttributesProducer> =
       outputProducers.filterIsInstance<CharAttributesProducer>()
 
-  internal val tileProducers: Collection<TileProducer> =
+  private val tileProducers: Collection<TileProducer> =
       outputProducers.filterIsInstance<TileProducer>()
 
-  internal val tileColoursProducers: Collection<TileColoursProducer> =
+  private val tileColoursProducers: Collection<TileColoursProducer> =
       outputProducers.filterIsInstance<TileColoursProducer>()
 
-  internal val mapProducers: Collection<MapProducer> =
+  private val mapProducers: Collection<MapProducer> =
       outputProducers.filterIsInstance<MapProducer>()
 
   fun process(inputByteStream: InputByteStream) =
       getProcessor(inputByteStream).process(inputByteStream)
+
+  internal fun processCharset(action: (CharsetProducer) -> Unit) = charsetProducers.forEach(action)
+  internal fun processCharAttributes(action: (CharAttributesProducer) -> Unit) =
+      charAttributesProducers.forEach(action)
+  internal fun processTiles(action: (TileProducer) -> Unit) = tileProducers.forEach(action)
+  internal fun processTileColours(action: (TileColoursProducer) -> Unit) =
+      tileColoursProducers.forEach(action)
+  internal fun processMap(action: (MapProducer) -> Unit) = mapProducers.forEach(action)
 
   private fun getProcessor(inputByteStream: InputByteStream): CTMProcessor {
     val id = inputByteStream.read(3).map { it.toChar() }.joinToString(separator = "")
@@ -57,6 +67,7 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
     return when (val version = inputByteStream.readByte().toInt()
     ) {
       5 -> CTM5Processor(this@CharpadProcessor)
+      6, 7 -> CTM6Processor(this@CharpadProcessor, version)
       else -> throw InvalidCTMFormatException("Unsupported version: $version")
     }
   }

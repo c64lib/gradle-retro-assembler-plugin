@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2018 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2021 c64lib: The Ultimate Commodore 64 Library
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ class CharpadProcessorTest :
                 }
             Then("exception is thrown") { exception.message shouldBe "CTM id is missing" }
           }
-          listOf(1, 2, 3, 4, 6, 7).forEach { version ->
+          listOf(1, 2, 3, 4).forEach { version ->
             And("and input stream contains unsupported CMT version $version") {
               val exception =
                   shouldThrow<InvalidCTMFormatException> {

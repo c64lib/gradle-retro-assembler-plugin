@@ -1,5 +1,8 @@
 = Change log
 
+1.2.0::
+* Charpad support for CTM v.6, 7 file format.
+
 1.1.1::
 * Bugfix: #26 charpad: fixed map generation in CTM files without Tileset.
 
