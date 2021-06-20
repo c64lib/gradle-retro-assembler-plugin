@@ -28,6 +28,7 @@ tasks {
             .map {
                 when (it.name) {
                     "charpad-processor",
+                    "spritepad-processor",
                     "nybbler",
                     "binary-utils",
                     "binary-interleaver" -> "app/${it.name}"
