@@ -94,6 +94,7 @@ dependencies {
     compileOnly(project(":domain"))
     compileOnly(project(":app:binary-utils"))
     compileOnly(project(":app:charpad-processor"))
+    compileOnly(project(":app:spritepad-processor"))
     compileOnly(project(":app:binary-interleaver"))
     compileOnly(project(":app:nybbler"))
 }

@@ -24,6 +24,7 @@ SOFTWARE.
 package com.github.c64lib.gradle.preprocess
 
 import com.github.c64lib.gradle.preprocess.charpad.CharpadPipelineExtension
+import com.github.c64lib.gradle.preprocess.spritepad.SpritepadPipelineExtension
 import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
@@ -36,9 +37,17 @@ abstract class PreprocessingExtension
 
   val charpadPipelines = ArrayList<CharpadPipelineExtension>()
 
+  val spritepadPipelines = ArrayList<SpritepadPipelineExtension>()
+
   fun charpad(action: Action<CharpadPipelineExtension>) {
     val ex = objectFactory.newInstance(CharpadPipelineExtension::class.java)
     action.execute(ex)
     charpadPipelines.add(ex)
+  }
+
+  fun spritepad(action: Action<SpritepadPipelineExtension>) {
+    val ex = objectFactory.newInstance(SpritepadPipelineExtension::class.java)
+    action.execute(ex)
+    spritepadPipelines.add(ex)
   }
 }

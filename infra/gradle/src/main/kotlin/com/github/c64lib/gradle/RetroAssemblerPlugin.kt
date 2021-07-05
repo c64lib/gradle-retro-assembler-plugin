@@ -27,6 +27,7 @@ import com.github.c64lib.gradle.deps.DownloadDependencies
 import com.github.c64lib.gradle.preprocess.PREPROCESSING_EXTENSION_DSL_NAME
 import com.github.c64lib.gradle.preprocess.PreprocessingExtension
 import com.github.c64lib.gradle.preprocess.charpad.Charpad
+import com.github.c64lib.gradle.preprocess.spritepad.Spritepad
 import com.github.c64lib.gradle.spec.AssembleSpec
 import com.github.c64lib.gradle.spec.Test
 import com.github.c64lib.gradle.tasks.Assemble
@@ -43,7 +44,7 @@ class RetroAssemblerPlugin : Plugin<Project> {
     val extension =
         project.extensions.create(EXTENSION_DSL_NAME, RetroAssemblerPluginExtension::class.java)
 
-    val charpadExtension =
+    val preprocessExtension =
         project.extensions
             .create(PREPROCESSING_EXTENSION_DSL_NAME, PreprocessingExtension::class.java)
 
@@ -60,13 +61,17 @@ class RetroAssemblerPlugin : Plugin<Project> {
       // sources
       val charpad =
           project.tasks.create(TASK_CHARPAD, Charpad::class.java) { task ->
-            task.preprocessingExtension = charpadExtension
+            task.preprocessingExtension = preprocessExtension
+          }
+      val spritepad =
+          project.tasks.create(TASK_SPRITEPAD, Spritepad::class.java) { task ->
+            task.preprocessingExtension = preprocessExtension
           }
       val assemble =
           project.tasks.create(TASK_ASM, Assemble::class.java) { task ->
             task.extension = extension
           }
-      assemble.dependsOn(resolveDevDeps, downloadDependencies, charpad)
+      assemble.dependsOn(resolveDevDeps, downloadDependencies, charpad, spritepad)
 
       project.tasks.create(TASK_CLEAN, Clean::class.java) { task -> task.extension = extension }
       // spec
