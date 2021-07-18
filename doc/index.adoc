@@ -293,7 +293,42 @@ This option is suitable when produced binary output fits your needs perfectly.
 You are then welcome to include such binary file into your program using appropriate directive (i.e. `LoadBinary` function and `.fill` directive of KickAssembler).
 
 To use straight output specify the `output` property:
+Retro assembler build tool supports Charpad CTM file format and provides export of the following elements:
 
+* charset,
+* charset colours,
+* tile set,
+* tile set colours,
+* maps.
+
+Currently supported versions of CTM file are 5, 6 and 7.
+
+Charpad processor is a part of preprocessor and is executed before assembling process is started.
+
+Charpad processor can be launched explicitly with following command:
+
+[source,bash]
+----
+gradle charpad
+----
+
+Charpad processor will be executed only if there is at least one `charpad` pipeline defined in `preprocess` section:
+
+[source,groovy]
+----
+preprocess {
+    charpad {
+        input = file("src/levels/level1/level-background.ctm")
+        outputs {
+            charset {
+                start = 0
+                end = 64
+                output = file("src/levels/level1/charset.bin")
+            }
+        }
+    }
+}
+----
 [source,groovy]
 ----
 charpad {
@@ -456,6 +491,38 @@ preprocess {
                 }
                 interleaver {
                 }
+            }
+        }
+    }
+}
+----
+
+=== Spritepad exports
+
+Retro assembler build tool supports Spritepad SPD file format and provides export of the sprites definition only.
+As for now, export of animation and colours is not supported.
+
+Currently supported versions of SPD file are 4 and 5.
+
+Spritepad processor is a part of preprocessor and is executed before assembling process is started.
+
+Spritepad processor can be launched explicitly with following command:
+
+[source,bash]
+----
+gradle spritepad
+----
+
+Spritepad processor will be executed only if there is at least one `spritepad` pipeline defined in `preprocess` section:
+
+[source,groovy]
+----
+preprocess {
+    spritepad {
+        input = file("src/sprites/dino.spd")
+        outputs {
+            sprites {
+                output = file("src/sprites/dino.bin")
             }
         }
     }

@@ -35,13 +35,12 @@ import org.gradle.api.Action
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.tasks.Nested
 
-// TODO this must be moved to the charpad, refactor!
-private const val CHARPAD_DIR = "charpad"
-
-abstract class FilterAwareExtension @Inject constructor(private val project: ProjectLayout) {
+abstract class FilterAwareExtension
+    @Inject
+    constructor(buildDir: String, private val project: ProjectLayout) {
   var output: File? = null
 
-  private val charpadBuildDir = project.buildDirectory.dir(CHARPAD_DIR).get().asFile.toPath()
+  private val charpadBuildDir = project.buildDirectory.dir(buildDir).get().asFile.toPath()
 
   private val interleavers: MutableList<InterleaverExtension> = LinkedList()
 
