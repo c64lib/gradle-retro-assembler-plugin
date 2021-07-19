@@ -38,7 +38,7 @@ import org.gradle.api.tasks.TaskAction
 open class Spritepad : DefaultTask() {
 
   init {
-    description = "Process Charpad data files (CTM) into a bunch of binary output files."
+    description = "Process Spritepad data files (SPD) into a bunch of binary output files."
     group = GROUP_BUILD
   }
 
