@@ -1,5 +1,0 @@
-= Architecture
-
-This tool is following a hexagonal architecture principle that is depicted on the following picture.
-
-image::img/overall-hexagon.svg[]

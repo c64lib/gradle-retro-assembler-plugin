@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>Retro Assembler build tools: User&#8217;s Manual</title>
+<style>
+/* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+
+@import url("//fonts.googleapis.com/css?family=Noto+Sans:300,600italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700");
+@import url(https://cdn.jsdelivr.net/gh/asciidoctor/asciidoctor@2.0/data/stylesheets/asciidoctor-default.css); /* Default asciidoc style framework - important */
+
+/* CUSTOMISATIONS */
+/* Change the values in root for quick customisation. If you want even more fine grain... venture further. */
+
+:root{
+--maincolor:#FFFFFF;
+--primarycolor:#2c3e50;
+--secondarycolor:#ba3925;
+--tertiarycolor: #186d7a;
+--sidebarbackground:#CCC;
+--linkcolor:#b71c1c;
+--linkcoloralternate:#f44336;
+--white:#FFFFFF;
+--black:#000000;
+}
+
+/* Text styles */
+h1{color:var(--primarycolor) !important;}
+h2,h3,h4,h5,h6{color:var(--secondarycolor) !important;}
+.title{color:var(--tertiarycolor) !important; font-family:"Noto Sans",sans-serif !important;font-style: normal !important; font-weight: normal !important;}
+p{font-family: "Noto Sans",sans-serif !important}
+
+/* Table styles */
+th{font-family: "Noto Sans",sans-serif !important}
+
+/* Responsiveness fixes */
+video {
+  max-width: 100%;
+}
+
+@media all and (max-width: 600px) {
+table {
+  width: 55vw!important;
+  font-size: 3vw;
+}
+
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Retro Assembler build tools: User&#8217;s Manual</h1>
+<div class="details">
+<span id="revnumber">version 1.4.0-SNAPSHOT</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_usage">1. Usage</a>
+<ul class="sectlevel2">
+<li><a href="#_installation_requirements">1.1. Installation &amp; requirements</a></li>
+<li><a href="#_create_your_first_build_script">1.2. Create your first build script</a></li>
+<li><a href="#_customizing_your_build">1.3. Customizing your build</a></li>
+<li><a href="#_launching_your_build">1.4. Launching your build</a></li>
+<li><a href="#_using_external_asm_dependencies">1.5. Using external ASM dependencies</a></li>
+<li><a href="#_charpad_exports">1.6. Charpad exports</a></li>
+<li><a href="#_spritepad_exports">1.7. Spritepad exports</a></li>
+<li><a href="#_running_unit_tests_with_64spec">1.8. Running Unit tests with 64spec</a></li>
+</ul>
+</li>
+<li><a href="#_building_retro_assembler_projects_on_ci_environments">2. Building Retro Assembler projects on CI environments</a>
+<ul class="sectlevel2">
+<li><a href="#_circleci">2.1. CircleCI</a></li>
+<li><a href="#_travisci">2.2. TravisCI</a></li>
+</ul>
+</li>
+<li><a href="#_using_gradle_wrapper">3. Using Gradle Wrapper</a></li>
+<li><a href="#_change_log">4. Change log</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Retro assembler build tool brings automation to the C64 software building process.
+It is implemented as a Gradle plugin.</p>
+</div>
+<div class="paragraph">
+<p>Gradle is a universal build tool that is used for automation in IT industry.
+It supports Java ecosystem out of the box but is also extensible via plugin system.</p>
+</div>
+<div class="paragraph">
+<p>This plugin supports Commodore 64 output and KickAssembler only, but there are plans to extend it further.
+If you&#8217;re interested in development plans of this plugin, you can always refer this <a href="concept">Concept paper</a>.</p>
+</div>
+<div class="paragraph">
+<p>This is an open source project hosted on <a href="https://github.com/c64lib/gradle-retro-assembler-plugin">GitHub</a>.
+In case of any problems when working with the plugin, don&#8217;t hesitate to create an <a href="https://github.com/c64lib/gradle-retro-assembler-plugin/issues">issue</a>.
+Feel free to fork and create pull requests.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_usage">1. Usage</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_installation_requirements">1.1. Installation &amp; requirements</h3>
+<div class="paragraph">
+<p>You need Java 11+ in order to use Gradle and the plugin as such.
+If you don&#8217;t have any, or your version is too old (less than 11), go to <a href="https://jdk.java.net/" class="bare">https://jdk.java.net/</a>, download and install appropriate version.</p>
+</div>
+<div class="paragraph">
+<p>If the project you want to build uses Gradle Wrapper (see <a href="#_using_gradle_wrapper">Using Gradle Wrapper</a> section for more details), you don&#8217;t need to install anything more.
+It would be then sufficient to enter project directory and type:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">gradlew build</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can use the following project for reference: <a href="https://github.com/maciejmalecki/trex64" class="bare">https://github.com/maciejmalecki/trex64</a>.</p>
+</div>
+<div class="paragraph">
+<p>If the project does not use Gradle Wrapper, you have to install Gradle Build Tool by yourself.
+It is pretty straightforward, you&#8217;ll find instructions here: <a href="https://gradle.org/install/" class="bare">https://gradle.org/install/</a>.</p>
+</div>
+<div class="paragraph">
+<p>Having Gradle Build Tool installed is also needed if you want to author Gradle Wrapper capable projects by yourself.
+Please refer <a href="#_using_gradle_wrapper">Using Gradle Wrapper</a> for further reading.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_create_your_first_build_script">1.2. Create your first build script</h3>
+<div class="paragraph">
+<p>If you have Gradle installed on your machine, you just need to create <code>build.gradle</code> file in root folder of your project.
+Fill it with following content:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">plugins {
+    id "com.github.c64lib.retro-assembler" version "1.3.0"
+}
+
+repositories {
+    mavenCentral()
+}
+
+retroProject {
+    dialect = "KickAssembler"
+    dialectVersion = "5.20"
+    libDirs = ["..", ".ra/deps/c64lib"]
+    srcDirs = ["lib", "spec"]
+
+    // dependencies
+    libFromGitHub "c64lib/64spec", "0.7.0pr"
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can of course adjust all values inside <code>retroProject</code> to your needs.</p>
+</div>
+<div class="paragraph">
+<p>As you can see you don&#8217;t have to download Retro Assembler Plugin, it will be automatically downloaded and used once <code>gradle</code> command is run.The plugin is published into Plugins portal: <a href="https://plugins.gradle.org/plugin/com.github.c64lib.retro-assembler">https://plugins.gradle.org</a> and can be used as any other Gradle plugin.</p>
+</div>
+<div class="paragraph">
+<p>Read a complete installation manual in documentation: <a href="https://c64lib.github.io/docu/pages/install" class="bare">https://c64lib.github.io/docu/pages/install</a></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_customizing_your_build">1.3. Customizing your build</h3>
+<div class="paragraph">
+<p>The following properties can be customized:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>defines</code> - sets up a list of preprocessor symbols that will de defined during this assembly launch</p>
+</li>
+<li>
+<p><code>dialect</code> - selects Assembler dialect and determines Assembler to be used (possible values: <code>KickAssembler</code>)</p>
+</li>
+<li>
+<p><code>dialectVersion</code> - selects version of Assembler binary to be used (see <a href="https://github.com/c64lib/asm-ka/releases" class="bare">https://github.com/c64lib/asm-ka/releases</a> for available versions)</p>
+</li>
+<li>
+<p><code>excludes</code> - provides array of file patterns that matches source files to be excluded from assembling; default value: <code>[".ra/**/*.asm"]</code></p>
+</li>
+<li>
+<p><code>includes</code> - provides array of file patterns that contains sources you want to assembly; default value: <code>["**/*.asm"]</code></p>
+</li>
+<li>
+<p><code>libDirs</code> - provides array of directory locations where your libraries are downloaded; default value: <code>[]</code></p>
+</li>
+<li>
+<p><code>srcDirs</code> - provides array of directory locations where your source code (<code>asm</code> files) resides; default value: <code>["."]</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_launching_your_build">1.4. Launching your build</h3>
+<div class="paragraph">
+<p>There are two core tasks that can be used from command line:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>gradle build</code> performs assembling process and produces output files (actually <code>sym</code> and <code>prg</code> files are created
+alongside source <code>asm</code> files)</p>
+</li>
+<li>
+<p><code>gradle clean</code> performs overall cleaning of the project by removing target files (that is <code>sym</code> and <code>prg</code> files)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If gradle command is issued without any task specified, a <code>build</code> task is assumed.
+It is also possible to run both of tasks:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">gradle clean build</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This ensures that old files are removed prior assembling process.</p>
+</div>
+<div class="paragraph">
+<p>There are two supplementary tasks that are called automatically when <code>build</code> task is performed:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>resolveDevDeps</code> - downloads and prepares to use software needed for assembling (i.e. KickAssembler binary)</p>
+</li>
+<li>
+<p><code>downloadDeps</code>  - downloads and unzips libraries (dependencies) that are used by your project.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>It is also possible to run supplementary tasks manually:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">gradle resolveDevDeps downloadDeps</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_external_asm_dependencies">1.5. Using external ASM dependencies</h3>
+<div class="paragraph">
+<p>If you need to use some library code written in KickAssembler, Retro Gradle Plugin can download them for you automatically.
+You just need to specify these dependencies inside your <code>retroProject</code> section:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">retroProject {
+    libFromGitHub "c64lib/common", "1.0.0"
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Please note, that currently only GitHub is supported as a source for library releases.In future this will be extended.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_charpad_exports">1.6. Charpad exports</h3>
+<div class="paragraph">
+<p>Retro assembler build tool supports Charpad CTM file format and provides export of the following elements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>charset,</p>
+</li>
+<li>
+<p>charset colours,</p>
+</li>
+<li>
+<p>tile set,</p>
+</li>
+<li>
+<p>tile set colours,</p>
+</li>
+<li>
+<p>maps.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Currently supported versions of CTM file are 5, 6 and 7.</p>
+</div>
+<div class="paragraph">
+<p>Charpad processor is a part of preprocessor and is executed before assembling process is started.</p>
+</div>
+<div class="paragraph">
+<p>Charpad processor can be launched explicitly with following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">gradle charpad</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Charpad processor will be executed only if there is at least one <code>charpad</code> pipeline defined in <code>preprocess</code> section:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">preprocess {
+    charpad {
+        input = file("src/levels/level1/level-background.ctm")
+        outputs {
+            charset {
+                start = 0
+                end = 64
+                output = file("src/levels/level1/charset.bin")
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Each pipeline tackles single CTM file.
+If you have more than one CTM file in your project, you have to declare multiple pipelines&#8201;&#8212;&#8201;one per file.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">preprocess {
+    charpad {
+        input = file("src/levels/level1/level-background.ctm")
+        outputs {
+            charset {
+                output = file("levels/level1/charset.bin")
+            }
+        }
+    }
+    charpad {
+        input = file("src/levels/level2/level-background.ctm")
+        outputs {
+            charset {
+                output = file("levels/level2/charset.bin")
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="dlist">
+<div class="title">Elements of charpad pipeline definition</div>
+<dl>
+<dt class="hdlist1">input</dt>
+<dd>
+<p>File element defining input file to the pipeline.
+It must point to the correct CTM file.</p>
+</dd>
+<dt class="hdlist1">outputs</dt>
+<dd>
+<p>Set of outputs defining output files, parameters and transformations.
+See <a href="#_outputs">Outputs</a> for details.</p>
+</dd>
+<dt class="hdlist1">useBuildDir</dt>
+<dd>
+<p>Whether to use build dir for output files.
+Accepts boolean values: <code>true</code> (default) or <code>false</code>.
+If set to <code>true</code>, all outputs will be created within <code>build/charpad</code> as a parent directory.
+If set to <code>false</code>, all outputs will be created within project directory as a parent.</p>
+</dd>
+</dl>
+</div>
+<div class="sect3">
+<h4 id="_outputs">1.6.1. Outputs</h4>
+<div class="paragraph">
+<p>The <code>outputs</code> section brings extensive configuration capabilities regarding what data are extracted from CTM file.
+It is possible to create multiple binary files from single input CTM file.</p>
+</div>
+<div class="paragraph">
+<p>The following elements can be specified (multiple times) under <code>outputs</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>charset</code>,</p>
+</li>
+<li>
+<p><code>charsetAttributes</code>,</p>
+</li>
+<li>
+<p><code>tiles</code>,</p>
+</li>
+<li>
+<p><code>tileColours</code>,</p>
+</li>
+<li>
+<p><code>map</code>.</p>
+</li>
+</ul>
+</div>
+<div class="sect4">
+<h5 id="_charset">Charset</h5>
+<div class="paragraph">
+<p>Outputs charset data out of the CTM file.
+Each character is defined by 8 bytes.
+The layout of the data follows the layout scheme of the C64 character generator.</p>
+</div>
+<div class="dlist">
+<div class="title">Elements of charset output</div>
+<dl>
+<dt class="hdlist1">start</dt>
+<dd>
+<p>Number of the first character to be exported (zero-based, default: 0).</p>
+</dd>
+<dt class="hdlist1">end</dt>
+<dd>
+<p>Number of the character that follows the last one to be exported (zero-based, default 65536).</p>
+</dd>
+<dt class="hdlist1">output</dt>
+<dd>
+<p>Output file or transformations (see: <a href="#_output_transformations">Output transformations</a>).</p>
+</dd>
+</dl>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>start</code> and <code>end</code> values are specified in character positions, not bytes.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_charset_attributes">Charset attributes</h5>
+<div class="paragraph">
+<p>Outputs specific attributes of the characters out of the CTM file.</p>
+</div>
+<div class="paragraph">
+<p>Each character attribute is encoded in single byte:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>high nybble contains material code,</p>
+</li>
+<li>
+<p>low nybble contains colour value.</p>
+</li>
+</ul>
+</div>
+<div class="dlist">
+<div class="title">Elements of charset attributes</div>
+<dl>
+<dt class="hdlist1">start</dt>
+<dd>
+<p>Number of the first character attribute to be exported (zero-based, default: 0).</p>
+</dd>
+<dt class="hdlist1">end</dt>
+<dd>
+<p>Number of the character attribute that follows the last one to be exported (zero-based, default 65536).</p>
+</dd>
+<dt class="hdlist1">output</dt>
+<dd>
+<p>Output file or transformation (see: <a href="#_output_transformations">Output transformations</a>).</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>As both material and colour information is packed into single byte, the <a href="#_nybbler">Nybbler</a> transformer can be used to separate this data into two output files.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_tiles">Tiles</h5>
+<div class="paragraph">
+<p>Outputs tile set in case this one exist in CTM file.</p>
+</div>
+<div class="paragraph">
+<p>If tile set exists, each tile consists of \(w_T \times h_T \times 2\) bytes, where \(w_T\) stands for tile width and \(h_T\) stands for tile height.</p>
+</div>
+<div class="paragraph">
+<p>It is noteworthy, that each character of the tile is defined by two bytes, as CTM file supports up to 65526 characters. To filter out high-byte values, use <a href="#_interleaver">Interleaver</a>.</p>
+</div>
+<div class="dlist">
+<div class="title">Elements of tiles output</div>
+<dl>
+<dt class="hdlist1">start</dt>
+<dd>
+<p>Number of the first tile to be exported (zero-based, default: 0).</p>
+</dd>
+<dt class="hdlist1">end</dt>
+<dd>
+<p>Number of the tile that follows the last one to be exported (zero-based, default: 65536).</p>
+</dd>
+<dt class="hdlist1">output</dt>
+<dd>
+<p>Output file or transformations (see: <a href="#_output_transformations">Output transformations</a>).</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_tile_colours">Tile colours</h5>
+<div class="paragraph">
+<p>Outputs tile colours information if the tile set is included in CTM file.</p>
+</div>
+<div class="paragraph">
+<p>Colour of the tile is specified by single byte.</p>
+</div>
+<div class="dlist">
+<div class="title">Elements of tile colours output</div>
+<dl>
+<dt class="hdlist1">start</dt>
+<dd>
+<p>Number of the first file colour data to be exported (zero-based, default: 0).</p>
+</dd>
+<dt class="hdlist1">end</dt>
+<dd>
+<p>Number of the tile colour data that follows the last one to be exported (zero-based, default: 65536).</p>
+</dd>
+<dt class="hdlist1">output</dt>
+<dd>
+<p>Output file or transformations (see: <a href="#_output_transformations">Output transformations</a>).</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_map">Map</h5>
+<div class="paragraph">
+<p>Outputs map data out of the CTM file.</p>
+</div>
+<div class="paragraph">
+<p>Each cell of map data consists of 2 bytes and defines either the tile or the character, depending on the CTM mode.
+This output supports exporting rectangular portions of the map out-of-the-box.
+If you need to export several portions of the same input file (i.e. for multiple levels sharing the same character and tile set information), map output can be repeated for each of the portion.</p>
+</div>
+<div class="dlist">
+<div class="title">Elements of the map output</div>
+<dl>
+<dt class="hdlist1">left</dt>
+<dd>
+<p>Left edge of the map being exported (zero-based, default: 0).</p>
+</dd>
+<dt class="hdlist1">top</dt>
+<dd>
+<p>Top edge of the map being exported (zero-based, default: 0).</p>
+</dd>
+<dt class="hdlist1">right</dt>
+<dd>
+<p>Right edge (exclusive) of the map being exported (zero-based, default: 65536).</p>
+</dd>
+<dt class="hdlist1">bottom</dt>
+<dd>
+<p>Bottom edge (exclusive) of the map being exported (zero-based, default: 65536).</p>
+</dd>
+<dt class="hdlist1">output</dt>
+<dd>
+<p>Output file or transformations (see: <a href="#_output_transformations">Output transformations</a>).</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_output_transformations">1.6.2. Output transformations</h4>
+<div class="paragraph">
+<p>The Charpad preprocessor produces binary files for each of the element.
+It is possible to apply further filtering to these files when needed.</p>
+</div>
+<div class="sect4">
+<h5 id="_straight_output">Straight output</h5>
+<div class="paragraph">
+<p>Straight output means there are no filtering applied.
+This option is suitable when produced binary output fits your needs perfectly.
+You are then welcome to include such binary file into your program using appropriate directive (i.e. <code>LoadBinary</code> function and <code>.fill</code> directive of KickAssembler).</p>
+</div>
+<div class="paragraph">
+<p>To use straight output specify the <code>output</code> property:
+Retro assembler build tool supports Charpad CTM file format and provides export of the following elements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>charset,</p>
+</li>
+<li>
+<p>charset colours,</p>
+</li>
+<li>
+<p>tile set,</p>
+</li>
+<li>
+<p>tile set colours,</p>
+</li>
+<li>
+<p>maps.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Currently supported versions of CTM file are 5, 6 and 7.</p>
+</div>
+<div class="paragraph">
+<p>Charpad processor is a part of preprocessor and is executed before assembling process is started.</p>
+</div>
+<div class="paragraph">
+<p>Charpad processor can be launched explicitly with following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">gradle charpad</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Charpad processor will be executed only if there is at least one <code>charpad</code> pipeline defined in <code>preprocess</code> section:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">preprocess {
+    charpad {
+        input = file("src/levels/level1/level-background.ctm")
+        outputs {
+            charset {
+                start = 0
+                end = 64
+                output = file("src/levels/level1/charset.bin")
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">charpad {
+    input = file("src/levels/level1/level1-background.ctm")
+    outputs {
+        charset {
+            output = file("levels/level1/charset-1.bin")
+        }
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_interleaver">Interleaver</h5>
+<div class="paragraph">
+<p>For most of the data, Charpad uses encoding that takes more than one byte per unit.
+Examples are: tile set (2 bytes per character number) and map data (2 bytes per tile code).
+Usually it is more efficient to have these bytes interleaved (one block for lo byte, one for hi byte).</p>
+</div>
+<div class="paragraph">
+<p>Or maybe, you know that you use up to 256 characters (usually this is the case), or you use up to 256 tiles at once.
+In such case, you may want to ignore hi bytes completely.</p>
+</div>
+<div class="paragraph">
+<p>Here is the place, where interleaved output comes with help.
+To split hi and lo bytes into separate outputs, you can use the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">preprocess {
+    charpad {
+        input = file("src/levels/level1/level1-background.ctm")
+        outputs {
+            map {
+              interleaver {
+                output = file("levels/level1/map-1-lo.bin")
+              }
+              interleaver {
+                output = file("levels/level1/map-1-hi.bin")
+              }
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In case you just want to ignore either lo or hi part, just keep corresponding part empty:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">preprocess {
+    charpad {
+        input = file("src/levels/level1/level1-background.ctm")
+        outputs {
+            map {
+              interleaver {
+                output = file("levels/level1/map-1.bin")
+              }
+              interleaver {
+              }
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_nybbler">Nybbler</h5>
+<div class="paragraph">
+<p>Sometimes Charpad encodes two kind of information into single byte.
+This is the case for charset attributes, which are encoded in form <code>MMMMCCCC</code> where hi nybble stands for material code and lo nybble contains color data.
+It may be convenient to split this information into two separate output files.
+In such cases you can use nybbler:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">preprocess {
+    charpad {
+        input = file("src/levels/level1/level1-background.ctm")
+        outputs {
+            charsetAttributes {
+                nybbler {
+                    loOutput = file("levels/level1/charset-1-colors.bin")
+                    hiOutput = file("levels/level1/charset-1-material.bin")
+                }
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>By default, the hi output bytes are normalized (shifted right by 4 bits).
+This mechanism can be disabled with appropriate option:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">preprocess {
+    charpad {
+        input = file("src/levels/level1/level1-background.ctm")
+        outputs {
+            charsetAttributes {
+                nybbler {
+                    loOutput = file("levels/level1/charset-1-colors.bin")
+                    hiOutput = file("levels/level1/charset-1-material.bin")
+                    normalizeHi = false
+                }
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Either hi or lo part can be ignored by not specifying <code>loOutput</code> or <code>hiOutput</code> respectively.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_complete_example">1.6.3. Complete example</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">preprocess {
+    charpad {
+        useBuildDir = true
+        input = file("src/levels/level1/background.ctm")
+        outputs {
+            charset {
+                // complete charset
+                start = 0
+                end = 256
+                output = file("levels/level1/charset.bin")
+            }
+            tiles {
+                end = 64
+                interleaver {
+                    output = file("levels/level1/tiles.bin")
+                }
+                // only 256 characters, hi byte can be ignored
+                interleaver {
+                }
+            }
+            tileColours {
+                output = file("levels/level1/colors.bin")
+            }
+            // one map is used for three levels
+            map {
+                right = 135
+                interleaver {
+                    output = file("levels/level1/map-1.bin")
+                }
+                // only 64 tiles, hi byte can be ignored
+                interleaver {
+                }
+            }
+            map {
+                left = 135
+                right = 260
+                interleaver {
+                    output = file("levels/level1/map-2.bin")
+                }
+                interleaver {
+                }
+            }
+            map {
+                left = 260
+                interleaver {
+                    output = file("levels/level1/map-3.bin")
+                }
+                interleaver {
+                }
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_spritepad_exports">1.7. Spritepad exports</h3>
+<div class="paragraph">
+<p>Retro assembler build tool supports Spritepad SPD file format and provides export of the sprites definition only.
+As for now, export of animation and colours is not supported.</p>
+</div>
+<div class="paragraph">
+<p>Currently supported versions of SPD file are 4 and 5.</p>
+</div>
+<div class="paragraph">
+<p>Spritepad processor is a part of preprocessor and is executed before assembling process is started.</p>
+</div>
+<div class="paragraph">
+<p>Spritepad processor can be launched explicitly with following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">gradle spritepad</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Spritepad processor will be executed only if there is at least one <code>spritepad</code> pipeline defined in <code>preprocess</code> section:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">preprocess {
+    spritepad {
+        input = file("src/sprites/dino.spd")
+        outputs {
+            sprites {
+                output = file("src/sprites/dino.bin")
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>By default, all sprites defined in SPD file are exported.
+Each sprite is exported as 64 bytes - first 63 bytes contains sprite definition, the last byte contains sprite attribute, which is identical to the attribute byte of Spritepad SPD file specification.</p>
+</div>
+<div class="paragraph">
+<p>It is possible to export a subset of sprites for given SPD file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">preprocess {
+    spritepad {
+        input = file("src/sprites/dino.spd")
+        outputs {
+            sprites {
+                start = 1
+                end = 2
+                output = file("src/sprites/dino.bin")
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The example above exports only second (1) and third (2) sprite definition.
+Omit <code>start</code> to start from beginning, omit <code>end</code> to export till the end of the file.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_running_unit_tests_with_64spec">1.8. Running Unit tests with 64spec</h3>
+<div class="paragraph">
+<p>Version 1.0.0 supports now launching unit tests written in KickAssembler.
+In order to be able to do so, a Vice 3+ must be installed on a machine where tests will be launched.
+It is also assumed that <code>x64</code> command is available on the path.
+Also the 64spec library must be added to dependencies, as any other KickAssembler library:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">retroProject {
+    libFromGitHub "c64lib/64spec", "0.7.0pr"
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Please note, that original version of 64spec does not work with newer versions of KickAssembler, therefore forked version is used.</p>
+</div>
+<div class="paragraph">
+<p>By default, Gradle Retro Assembler plugin detects whether there are any tests in your projects and if found it tries to launch them.
+It is assumed that tests are located in <code>spec</code> directory of project&#8217;s root (or its
+subdirectories) and that they are included in files ended with <code>spec.asm</code>.
+This default behavior can be customized by assigning new dir name and file masks in <code>build.gradle</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">retroProject {
+    specDirs = ['tests']
+    specIncludes = ['**/*.test.asm']
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The following will reconfigure plugin to seek for tests in <code>tests</code> directory and execute each test ended with <code>test.asm</code>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_building_retro_assembler_projects_on_ci_environments">2. Building Retro Assembler projects on CI environments</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Gradle Retro Assembler Plugin can be used in CI builds launched in the Cloud.
+As for now two environments are supported: CircleCI (recommended) and TravisCI.</p>
+</div>
+<div class="sect2">
+<h3 id="_circleci">2.1. CircleCI</h3>
+<div class="paragraph">
+<p>If you keep your project on <code>github</code>, it is very easy then to configure <a href="https://circleci.com/" class="bare">https://circleci.com/</a> as your CI (Continuous Integration) environment.
+So, after each push to <code>GitHub</code>, a gradle build will be automatically launched there, and all your <code>asm</code> sources will be assembled with Kick Assembler.
+If you have any 64spec tests, they will be also launched there using GUI-Less Vice and their results will influence your build results.</p>
+</div>
+<div class="paragraph">
+<p>If you break your code or break your tests, you will be then notified what&#8217;s wrong.
+This will be all done automatically.
+In result your development speed will be increased as there will be an external "guard" that looks after your code stability.</p>
+</div>
+<div class="paragraph">
+<p>In order to be able to run your project on CircleCi, you have to add configuration file to your code repository.
+The file is named <code>config.yml</code> and must be located in <code>.circleci</code> directory located right
+in the root of your project.
+As for now the file should look similar to the example below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="yaml" class="language-yaml hljs">version: 2
+jobs:
+  build:
+    branches:
+      only:
+        - master
+        - develop
+    docker:
+      - image: maciejmalecki/c64libci:0.1.4
+
+    working_directory: ~/repo
+
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+
+    steps:
+      - checkout
+      - run: ./gradlew</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You still can modify few things in this file:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>if you want other branches to be built too, add them to the <code>branches/only</code> list</p>
+</li>
+<li>
+<p>if you want to customize build options, i.e. skip tests, you have to modify last line of the file, i.e.: <code>- run ./gradlew -x test</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You have to ensure, that <code>gradlew</code> launcher has executable rights on Linux machines, otherwise <code>run</code> command will fail.</p>
+</div>
+<div class="paragraph">
+<p>One thing you shouldn&#8217;t modify is <code>docker/image</code> - the <code>maciejmalecki/c64libci:0.1.4</code> is a dedicated image based on Debian Buster that has Java 11 and Vice 3.x preinstalled and is needed to run both KickAssembler and 64spec tests.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_travisci">2.2. TravisCI</h3>
+<div class="paragraph">
+<p>As for now it is not possible to install Vice 3.x on TravisCI due to outdated Linux images, so that 64spec tests are not working there.
+Remember to disable them with <code>-x</code> flag, i.e.:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">gradlew build -x test</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In order to enable building on TravisCI, you have to provide configuration file in your repository.
+The file is named <code>.travis.yml</code> and must be located in root of your project.
+The file should have following content:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="yaml" class="language-yaml hljs">language: asm
+sudo: false
+script:
+  - ./gradlew build -x test
+notifications:
+  email:
+    on_success: change
+    on_failure: change</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Travis integrates well with GitHub and builds can be easily activated for each repository
+hosted on GitHub.</p>
+</div>
+<div class="paragraph">
+<p>You have to ensure, that <code>gradlew</code> launcher has executable rights on Linux machines, otherwise <code>run</code> command will fail.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_using_gradle_wrapper">3. Using Gradle Wrapper</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Gradle Wrapper is a recommended way to distribute sources of your projects.
+When Gradle Wrapper is installed in your project, other people do not need to have Gradle installed locally.
+Gradle Wrapper takes care on downloading appropriate Gradle version during build and then executing it using <code>build.gradle</code> file.
+Actually only Java Environment (JDK) is necessary to build such projects.</p>
+</div>
+<div class="paragraph">
+<p>With Gradle Wrapper build can be run using <code>gradlew</code> command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">gradlew clean build</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">./gradlew clean build</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>under linux-like OS.</p>
+</div>
+<div class="paragraph">
+<p>Read how to install Gradle Wrapper in Gradle documentation: <a href="https://docs.gradle.org/current/userguide/gradle_wrapper.html" class="bare">https://docs.gradle.org/current/userguide/gradle_wrapper.html</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_change_log">4. Change log</h2>
+<div class="sectionbody">
+<div class="dlist">
+<dl>
+<dt class="hdlist1">1.3.0</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Spritepad support for SPD v.4, 5 file format.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">1.2.0</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Charpad support for CTM v.6, 7 file format.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">1.1.1</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Bugfix: #26 charpad: fixed map generation in CTM files without Tileset.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">1.1.0</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Support for <code>-define</code> parameters.</p>
+</li>
+<li>
+<p>Charpad support added (CTM v.5).</p>
+</li>
+<li>
+<p>Support for Gradle 7.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">1.0.1</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Support for Gradle 6.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">1.0.0</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Support for running 64spec tests using console mode of Vice.</p>
+</li>
+<li>
+<p>Support for CircleCI environment via dedicated Docker image.</p>
+</li>
+<li>
+<p>Work dir (.ra) can now be changed.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">0.3.0</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Support for source files patterns via includes.</p>
+</li>
+<li>
+<p>Support for excluding source files via patterns.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">0.2.1</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Support for Gradle 5.</p>
+</li>
+<li>
+<p>Build works with OpenJDK 12.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">0.2.0</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Support for downloading ASM libraries released from GitHub.</p>
+</li>
+<li>
+<p>Support for version number for selected assembler (KickAssembler only).</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">0.1.1</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Support for configurable source dirs.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">0.1.0</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Support for KickAssembler.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.4.0-SNAPSHOT<br>
+Last updated 2021-07-19 13:01:11 UTC
+</div>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/assembly.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/kotlin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/groovy.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/bash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/yaml.min.js"></script>
+<script>hljs.initHighlighting()</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+</body>
+</html>
