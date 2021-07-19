@@ -28,6 +28,7 @@ tasks {
             .map {
                 when (it.name) {
                     "charpad-processor",
+                    "spritepad-processor",
                     "nybbler",
                     "binary-utils",
                     "binary-interleaver" -> "app/${it.name}"
@@ -93,6 +94,7 @@ dependencies {
     compileOnly(project(":domain"))
     compileOnly(project(":app:binary-utils"))
     compileOnly(project(":app:charpad-processor"))
+    compileOnly(project(":app:spritepad-processor"))
     compileOnly(project(":app:binary-interleaver"))
     compileOnly(project(":app:nybbler"))
 }

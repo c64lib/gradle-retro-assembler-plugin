@@ -21,23 +21,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle
+package com.github.c64lib.retroassembler.spritepad_processor
 
-// official tasks
-const val TASK_BUILD = "build"
+import com.github.c64lib.retroassembler.domain.processor.BinaryProducer
+import com.github.c64lib.retroassembler.domain.processor.Output
+import com.github.c64lib.retroassembler.domain.shared.OutOfDataException
 
-const val TASK_ASM = "asm"
+class SpriteProducer(val start: Int = 0, private val end: Int = 65536, output: Output<ByteArray>) :
+    BinaryProducer(output) {
 
-const val TASK_CLEAN = "clean"
+  private val scaledStart = scale(start)
+  private val scaledEnd = scale(end)
 
-const val TASK_RESOLVE_DEV_DEPENDENCIES = "resolveDevDeps"
+  override fun write(data: ByteArray) =
+      super.write(
+          when {
+            scaledStart >= data.size ->
+                throw OutOfDataException("Not enough characters to support start=$start")
+            scaledEnd < data.size -> data.copyOfRange(scaledStart, scaledEnd)
+            else -> data.copyOfRange(scaledStart, data.size)
+          })
 
-const val TASK_DEPENDENCIES = "downloadDeps"
-
-const val TASK_TEST = "test"
-
-const val TASK_ASM_SPEC = "asmSpec"
-
-const val TASK_CHARPAD = "charpad"
-
-const val TASK_SPRITEPAD = "spritepad"
+  private fun scale(value: Int) = value * 64
+}

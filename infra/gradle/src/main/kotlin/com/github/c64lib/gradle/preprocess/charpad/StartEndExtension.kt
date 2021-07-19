@@ -28,7 +28,7 @@ import javax.inject.Inject
 import org.gradle.api.file.ProjectLayout
 
 abstract class StartEndExtension @Inject constructor(project: ProjectLayout) :
-    FilterAwareExtension(project) {
+    FilterAwareExtension(CHARPAD_DIR, project) {
   var start: Int = 0
   var end: Int = 65536
 }

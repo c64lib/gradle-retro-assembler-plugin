@@ -28,7 +28,7 @@ import javax.inject.Inject
 import org.gradle.api.file.ProjectLayout
 
 abstract class MapExtension @Inject constructor(project: ProjectLayout) :
-    FilterAwareExtension(project) {
+    FilterAwareExtension(CHARPAD_DIR, project) {
   var left: Int = 0
   var top: Int = 0
   var right: Int = 65536

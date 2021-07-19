@@ -21,23 +21,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle
+package com.github.c64lib.gradle.preprocess.spritepad
 
-// official tasks
-const val TASK_BUILD = "build"
+import java.util.*
+import javax.inject.Inject
+import org.gradle.api.Action
+import org.gradle.api.model.ObjectFactory
 
-const val TASK_ASM = "asm"
+abstract class SpritesOutputsExtension
+    @Inject
+    constructor(private val objectFactory: ObjectFactory) {
 
-const val TASK_CLEAN = "clean"
+  internal val sprites = LinkedList<SpritesExtension>()
 
-const val TASK_RESOLVE_DEV_DEPENDENCIES = "resolveDevDeps"
-
-const val TASK_DEPENDENCIES = "downloadDeps"
-
-const val TASK_TEST = "test"
-
-const val TASK_ASM_SPEC = "asmSpec"
-
-const val TASK_CHARPAD = "charpad"
-
-const val TASK_SPRITEPAD = "spritepad"
+  fun sprites(action: Action<SpritesExtension>) {
+    val ex = objectFactory.newInstance(SpritesExtension::class.java)
+    action.execute(ex)
+    sprites.add(ex)
+  }
+}

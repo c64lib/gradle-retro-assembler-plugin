@@ -21,23 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle
+package com.github.c64lib.gradle.preprocess.spritepad
 
-// official tasks
-const val TASK_BUILD = "build"
+import com.github.c64lib.gradle.preprocess.FilterAwareExtension
+import javax.inject.Inject
+import org.gradle.api.file.ProjectLayout
 
-const val TASK_ASM = "asm"
-
-const val TASK_CLEAN = "clean"
-
-const val TASK_RESOLVE_DEV_DEPENDENCIES = "resolveDevDeps"
-
-const val TASK_DEPENDENCIES = "downloadDeps"
-
-const val TASK_TEST = "test"
-
-const val TASK_ASM_SPEC = "asmSpec"
-
-const val TASK_CHARPAD = "charpad"
-
-const val TASK_SPRITEPAD = "spritepad"
+abstract class SpritesExtension @Inject constructor(project: ProjectLayout) :
+    FilterAwareExtension("spritepad", project) {
+  var start: Int = 0
+  var end: Int = 65536
+}

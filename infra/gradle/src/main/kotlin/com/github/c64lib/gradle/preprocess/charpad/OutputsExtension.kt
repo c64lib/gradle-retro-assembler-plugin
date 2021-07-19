@@ -23,8 +23,6 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.preprocess.charpad
 
-import com.github.c64lib.gradle.preprocess.FilterAwareExtension
-import io.vavr.collection.Map
 import java.util.*
 import javax.inject.Inject
 import org.gradle.api.Action
