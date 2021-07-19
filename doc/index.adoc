@@ -529,6 +529,30 @@ preprocess {
 }
 ----
 
+By default, all sprites defined in SPD file are exported.
+Each sprite is exported as 64 bytes - first 63 bytes contains sprite definition, the last byte contains sprite attribute, which is identical to the attribute byte of Spritepad SPD file specification.
+
+It is possible to export a subset of sprites for given SPD file:
+
+[source,groovy]
+----
+preprocess {
+    spritepad {
+        input = file("src/sprites/dino.spd")
+        outputs {
+            sprites {
+                start = 1
+                end = 2
+                output = file("src/sprites/dino.bin")
+            }
+        }
+    }
+}
+----
+
+The example above exports only second (1) and third (2) sprite definition.
+Omit `start` to start from beginning, omit `end` to export till the end of the file.
+
 === Running Unit tests with 64spec
 Version 1.0.0 supports now launching unit tests written in KickAssembler.
 In order to be able to do so, a Vice 3+ must be installed on a machine where tests will be launched.
