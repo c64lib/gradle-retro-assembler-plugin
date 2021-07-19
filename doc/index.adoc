@@ -50,18 +50,16 @@ Fill it with following content:
 [source,groovy]
 ----
 plugins {
-    id "com.github.c64lib.retro-assembler" version "1.0.1"
+    id "com.github.c64lib.retro-assembler" version "1.3.0"
 }
 
 repositories {
     mavenCentral()
 }
 
-apply plugin: "com.github.c64lib.retro-assembler"
-
 retroProject {
     dialect = "KickAssembler"
-    dialectVersion = "5.12"
+    dialectVersion = "5.20"
     libDirs = ["..", ".ra/deps/c64lib"]
     srcDirs = ["lib", "spec"]
 
