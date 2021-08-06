@@ -10,8 +10,8 @@ Currently, the plugin supports [Kick Assembler](http://theweb.dk/KickAssembler/M
 
 ## Highlights
 
-Current version is 1.1.0.
-It brings support of [Charpad](https://subchristsoftware.itch.io/charpad-free-edition) export of CTM files (v5 is the only supported version as for now).
+Current version is 1.3.0.
+It brings support of [Spritepad](https://subchristsoftware.itch.io/spritepad-pro) export of SPD files.
 
 ## User's Manual
 
