@@ -23,8 +23,6 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import java.util.*
-
 internal class CTMByteArrayMock(
     version: Int,
     header: CTMHeader =
@@ -34,7 +32,8 @@ internal class CTMByteArrayMock(
             2.toByte(),
             3.toByte(),
             ColouringMethod.Global,
-            EnumSet.of(Flags.TileSys),
+            true,
+            ScreenMode.TextHires,
             2,
             2,
             0,

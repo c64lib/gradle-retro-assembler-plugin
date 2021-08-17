@@ -23,28 +23,47 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import java.util.*
-
 enum class ColouringMethod(val value: Byte) {
   Global(0),
   PerTile(1),
   PerChar(2)
 }
 
-enum class Flags {
-  TileSys,
-  CharEx,
-  MCM
+internal fun colouringMethodFrom(value: Byte): ColouringMethod =
+    when (value) {
+      ColouringMethod.Global.value -> ColouringMethod.Global
+      ColouringMethod.PerTile.value -> ColouringMethod.PerTile
+      ColouringMethod.PerChar.value -> ColouringMethod.PerChar
+      else -> throw InvalidCTMFormatException("Unknown colouring method: $value.")
+    }
+
+enum class ScreenMode(val value: Byte) {
+  TextHires(0),
+  TextMulticolor(1),
+  TextExtendedBackground(2),
+  BitmapHires(3),
+  BitmapMulticolor(4)
 }
+
+internal fun screenModeFrom(value: Byte): ScreenMode =
+    when (value) {
+      ScreenMode.TextHires.value -> ScreenMode.TextHires
+      ScreenMode.TextMulticolor.value -> ScreenMode.TextMulticolor
+      ScreenMode.TextExtendedBackground.value -> ScreenMode.TextExtendedBackground
+      ScreenMode.BitmapHires.value -> ScreenMode.BitmapHires
+      ScreenMode.BitmapMulticolor.value -> ScreenMode.BitmapMulticolor
+      else -> throw InvalidCTMFormatException("Unsupported screen mode: $value.")
+    }
 
 data class CTMHeader(
     val screenColour: Byte,
-    val multicolor1: Byte,
-    val multicolor2: Byte,
-    val charColor: Byte,
+    val multicolour1: Byte,
+    val multicolour2: Byte,
+    val charColour: Byte,
     val colouringMethod: ColouringMethod,
-    val flags: EnumSet<Flags>,
-    val tileWidth: Byte,
-    val tileHeight: Byte,
+    val useTiles: Boolean,
+    val screenMode: ScreenMode,
+    val tileWidth: Byte?,
+    val tileHeight: Byte?,
     val mapWidth: Int,
     val mapHeight: Int)

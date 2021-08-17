@@ -25,7 +25,7 @@ package com.github.c64lib.retroassembler.charpad_processor
 
 import com.github.c64lib.retroassembler.binutils.concat
 import com.github.c64lib.retroassembler.binutils.wordOf
-import com.github.c64lib.retroassembler.charpad_processor.ctm5.toCTM5Byte
+import com.github.c64lib.retroassembler.charpad_processor.ctm5.toCTM5Flags
 
 internal class CTM5ByteArrayMock(
     header: CTMHeader,
@@ -40,14 +40,15 @@ internal class CTM5ByteArrayMock(
   private val headerBytes =
       byteArrayOf(
           header.screenColour,
-          header.multicolor1,
-          header.multicolor2,
-          header.charColor,
+          header.multicolour1,
+          header.multicolour2,
+          header.charColour,
           header.colouringMethod.value,
-          toCTM5Byte(header.flags)) concat
+          header.toCTM5Flags()) concat
           wordOf(charset.size / 8 - 1).toByteArray() concat
-          wordOf(tiles.size / 2 / header.tileWidth / header.tileHeight - 1).toByteArray() concat
-          byteArrayOf(header.tileWidth, header.tileHeight) concat
+          wordOf(tiles.size / 2 / (header.tileWidth ?: 1) / (header.tileHeight ?: 1) - 1)
+              .toByteArray() concat
+          byteArrayOf(header.tileWidth ?: 1, header.tileHeight ?: 1) concat
           wordOf(header.mapWidth).toByteArray() concat
           wordOf(header.mapHeight).toByteArray()
 

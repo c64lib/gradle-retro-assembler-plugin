@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor.ctm6
+package com.github.c64lib.retroassembler.charpad_processor.ctm7
 
 import com.github.c64lib.retroassembler.binutils.toUnsignedByte
 import com.github.c64lib.retroassembler.binutils.toWord
@@ -30,12 +30,12 @@ import com.github.c64lib.retroassembler.charpad_processor.CTMProcessor
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException
-import com.github.c64lib.retroassembler.charpad_processor.ScreenMode
 import com.github.c64lib.retroassembler.charpad_processor.colouringMethodFrom
+import com.github.c64lib.retroassembler.charpad_processor.screenModeFrom
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import kotlin.experimental.and
 
-internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : CTMProcessor {
+internal class CTM7Processor(private val charpadProcessor: CharpadProcessor) : CTMProcessor {
 
   override fun process(inputByteStream: InputByteStream) {
     val header = readHeader(inputByteStream)
@@ -58,7 +58,7 @@ internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : C
     var tileWidth: Byte? = null
     var tileHeight: Byte? = null
 
-    if (header.flags and CTM6Flags.TileSys.bit != 0.toByte()) {
+    if (header.flags and CTM7Flags.TileSys.bit != 0.toByte()) {
       // block n tiles
       val tilesHeader = readBlockMarker(inputByteStream)
       val numTiles = inputByteStream.read(2).toWord().value + 1
@@ -94,6 +94,7 @@ internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : C
       charpadProcessor.processMap { it.write(mapWidth, mapHeight, mapData) }
     }
 
+    // all data here, process header
     charpadProcessor.processHeader {
       it.write(header.toHeader(tileWidth, tileHeight, mapWidth, mapHeight))
     }
@@ -122,19 +123,23 @@ internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : C
     return result.toString()
   }
 
-  private fun readHeader(inputByteStream: InputByteStream): CTM6Header {
+  private fun readHeader(inputByteStream: InputByteStream): CTM7Header {
     val screenColor = inputByteStream.readByte()
     val multicolor1 = inputByteStream.readByte()
     val multicolor2 = inputByteStream.readByte()
+    val backgroundColour4 = inputByteStream.readByte()
     val charColor = inputByteStream.readByte()
     val colouringMethod = inputByteStream.readByte()
+    val screenMode = inputByteStream.readByte()
     val flags = inputByteStream.readByte()
-    return CTM6Header(
+    return CTM7Header(
         screenColour = screenColor,
         multicolour1 = multicolor1,
         multicolour2 = multicolor2,
+        backgroundColour4 = backgroundColour4,
         charColour = charColor,
         colouringMethod = colouringMethod,
+        screenMode = screenMode,
         flags = flags)
   }
 
@@ -145,17 +150,18 @@ internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : C
   }
 }
 
-internal enum class CTM6Flags(val bit: Byte) {
-  MCM(0x01),
-  TileSys(0x02)
+internal enum class CTM7Flags(val bit: Byte) {
+  TileSys(0x01)
 }
 
-internal data class CTM6Header(
+internal data class CTM7Header(
     val screenColour: Byte,
     val multicolour1: Byte,
     val multicolour2: Byte,
+    val backgroundColour4: Byte,
     val charColour: Byte,
     val colouringMethod: Byte,
+    val screenMode: Byte,
     val flags: Byte
 ) {
 
@@ -166,13 +172,8 @@ internal data class CTM6Header(
           multicolour2 = multicolour2,
           charColour = charColour,
           colouringMethod = colouringMethodFrom(colouringMethod),
-          useTiles = flags and CTM6Flags.TileSys.bit != 0.toUnsignedByte(),
-          screenMode =
-              if (flags and CTM6Flags.MCM.bit != 0.toUnsignedByte()) {
-                ScreenMode.TextMulticolor
-              } else {
-                ScreenMode.TextHires
-              },
+          useTiles = flags and CTM7Flags.TileSys.bit != 0.toUnsignedByte(),
+          screenMode = screenModeFrom(screenMode),
           tileWidth = tileWidth,
           tileHeight = tileHeight,
           mapWidth = mapWidth,
