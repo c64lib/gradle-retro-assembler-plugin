@@ -1,5 +1,8 @@
 = Change log
 
+1.4.0::
+* Charpad support for CTM v.8 file format.
+
 1.3.0::
 * Spritepad support for SPD v.4, 5 file format.
 

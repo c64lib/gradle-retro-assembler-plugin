@@ -74,7 +74,7 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
       if (colouringMethodFrom(header.colouringMethod) == ColouringMethod.PerTile) {
         // block n tile colours
         val tileColoursHeader = readBlockMarker(inputByteStream)
-        val tileColoursData = inputByteStream.read(numTiles)
+        val tileColoursData = inputByteStream.read(numTiles * 4)
         charpadProcessor.processTileColours { it.write(tileColoursData) }
       }
 
