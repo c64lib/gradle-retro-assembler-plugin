@@ -58,8 +58,9 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
       val charColours = readBlockMarker(inputByteStream)
       if (numChars > 0) {
         val charColoursData = inputByteStream.read(numChars * 4)
-        charpadProcessor.processCharAttributes { it.write(charColoursData) }
+        charpadProcessor.processCharColours { it.write(charColoursData) }
       }
+      // TODO see if we can process char attributes as well
     }
 
     if (header.flags and CTM8Flags.TileSys.bit != 0.toByte()) {

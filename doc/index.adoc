@@ -245,6 +245,10 @@ output:: Output file or transformation (see: <<Output transformations>>).
 
 As both material and colour information is packed into single byte, the <<Nybbler>> transformer can be used to separate this data into two output files.
 
+===== Charset colours
+
+===== Charset materials
+
 ===== Tiles
 Outputs tile set in case this one exist in CTM file.
 
@@ -295,6 +299,7 @@ Retro assembler build tool supports Charpad CTM file format and provides export 
 
 * charset,
 * charset colours,
+* charset materials,
 * tile set,
 * tile set colours,
 * maps.

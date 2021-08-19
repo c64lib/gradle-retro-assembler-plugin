@@ -49,7 +49,8 @@ internal class CTM5Processor(private val charpadProcessor: CharpadProcessor) : C
       charpadProcessor.processCharset { it.write(charData) }
 
       val charAttributeData = inputByteStream.read(rawHeader.numChars)
-      charpadProcessor.processCharAttributes { it.write(isolateLoNybbles(charAttributeData)) }
+      charpadProcessor.processCharAttributes { it.write(charAttributeData) }
+      charpadProcessor.processCharColours { it.write(isolateLoNybbles(charAttributeData)) }
       charpadProcessor.processCharMaterials { it.write(isolateHiNybbles(charAttributeData)) }
     }
 

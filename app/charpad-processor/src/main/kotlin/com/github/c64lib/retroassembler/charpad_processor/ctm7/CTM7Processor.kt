@@ -54,7 +54,8 @@ internal class CTM7Processor(private val charpadProcessor: CharpadProcessor) : C
     val charAttrHeader = readBlockMarker(inputByteStream)
     if (numChars > 0) {
       val charAttributeData = inputByteStream.read(numChars)
-      charpadProcessor.processCharAttributes { it.write(isolateLoNybbles(charAttributeData)) }
+      charpadProcessor.processCharAttributes { it.write(charAttributeData) }
+      charpadProcessor.processCharColours { it.write(isolateLoNybbles(charAttributeData)) }
       charpadProcessor.processCharMaterials { it.write(isolateHiNybbles(charAttributeData)) }
     }
 
