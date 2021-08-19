@@ -29,6 +29,8 @@ import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException
 import com.github.c64lib.retroassembler.charpad_processor.colouringMethodFrom
+import com.github.c64lib.retroassembler.charpad_processor.combineNybbles
+import com.github.c64lib.retroassembler.charpad_processor.isolateEachFourth
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import kotlin.experimental.and
 
@@ -48,8 +50,9 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
 
     // block 1 char materials
     val charAttrHeader = readBlockMarker(inputByteStream)
+    var charMaterialData: ByteArray? = null
     if (numChars > 0) {
-      val charMaterialData = inputByteStream.read(numChars)
+      charMaterialData = inputByteStream.read(numChars)
       charpadProcessor.processCharMaterials { it.write(charMaterialData) }
     }
 
@@ -59,8 +62,12 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
       if (numChars > 0) {
         val charColoursData = inputByteStream.read(numChars * 4)
         charpadProcessor.processCharColours { it.write(charColoursData) }
+        if (charMaterialData != null) {
+          charpadProcessor.processCharAttributes {
+            it.write(combineNybbles(isolateEachFourth(charColoursData), charMaterialData))
+          }
+        }
       }
-      // TODO see if we can process char attributes as well
     }
 
     if (header.flags and CTM8Flags.TileSys.bit != 0.toByte()) {

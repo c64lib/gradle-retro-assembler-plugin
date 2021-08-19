@@ -28,3 +28,11 @@ internal fun isolateHiNybbles(data: ByteArray): ByteArray =
 
 internal fun isolateLoNybbles(data: ByteArray): ByteArray =
     data.map { (it.toInt() and 0x0F).toByte() }.toByteArray()
+
+internal fun isolateEachFourth(data: ByteArray): ByteArray =
+    data.filterIndexed { subIndex, _ -> subIndex % 4 == 3 }.toByteArray()
+
+internal fun combineNybbles(dataLo: ByteArray, dataHi: ByteArray): ByteArray =
+    dataLo.zip(dataHi)
+        .map { pair -> (pair.first + (pair.second.toInt() shl 4)).toByte() }
+        .toByteArray()
