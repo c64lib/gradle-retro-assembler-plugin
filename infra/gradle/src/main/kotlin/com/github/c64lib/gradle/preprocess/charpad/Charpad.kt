@@ -29,6 +29,7 @@ import com.github.c64lib.gradle.preprocess.OutputBuffer
 import com.github.c64lib.gradle.preprocess.PreprocessingExtension
 import com.github.c64lib.retroassembler.charpad_processor.CharAttributesProducer
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
+import com.github.c64lib.retroassembler.charpad_processor.CharsetMaterialsProducer
 import com.github.c64lib.retroassembler.charpad_processor.CharsetProducer
 import com.github.c64lib.retroassembler.charpad_processor.MapCoord
 import com.github.c64lib.retroassembler.charpad_processor.MapProducer
@@ -40,7 +41,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-internal const val CHARPAD_DIR = "charpad";
+internal const val CHARPAD_DIR = "charpad"
 
 open class Charpad : DefaultTask() {
 
@@ -77,6 +78,7 @@ open class Charpad : DefaultTask() {
   ) =
       charsetProducers(output, buffers, pipeline) +
           charsetAttributesProducers(output, buffers, pipeline) +
+          charsetMaterialsProducers(output, buffers, pipeline) +
           tileProducers(output, buffers, pipeline) +
           tileColoursProducers(output, buffers, pipeline) +
           mapProducers(output, buffers, pipeline)
@@ -103,6 +105,18 @@ open class Charpad : DefaultTask() {
             start = charsetAttributes.start,
             end = charsetAttributes.end,
             output = charsetAttributes.resolveOutput(buffers, useBuildDir(pipeline)))
+      }
+
+  private fun charsetMaterialsProducers(
+      output: OutputsExtension,
+      buffers: MutableList<OutputBuffer>,
+      pipeline: CharpadPipelineExtension
+  ) =
+      output.charsetMaterials.map { charsetMaterials ->
+        CharsetMaterialsProducer(
+            start = charsetMaterials.start,
+            end = charsetMaterials.end,
+            output = charsetMaterials.resolveOutput(buffers, useBuildDir(pipeline)))
       }
 
   private fun tileProducers(

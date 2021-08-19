@@ -31,6 +31,8 @@ import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.ScreenMode
 import com.github.c64lib.retroassembler.charpad_processor.colouringMethodFrom
+import com.github.c64lib.retroassembler.charpad_processor.isolateHiNybbles
+import com.github.c64lib.retroassembler.charpad_processor.isolateLoNybbles
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import kotlin.experimental.and
 import kotlin.experimental.or
@@ -47,7 +49,8 @@ internal class CTM5Processor(private val charpadProcessor: CharpadProcessor) : C
       charpadProcessor.processCharset { it.write(charData) }
 
       val charAttributeData = inputByteStream.read(rawHeader.numChars)
-      charpadProcessor.processCharAttributes { it.write(charAttributeData) }
+      charpadProcessor.processCharAttributes { it.write(isolateLoNybbles(charAttributeData)) }
+      charpadProcessor.processCharMaterials { it.write(isolateHiNybbles(charAttributeData)) }
     }
 
     if (rawHeader.flags and CTM5Flags.TileSys.bit != 0.toByte()) {

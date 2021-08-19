@@ -41,6 +41,9 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
   private val charAttributesProducers: Collection<CharAttributesProducer> =
       outputProducers.filterIsInstance<CharAttributesProducer>()
 
+  private val charsetMaterialsProducer: Collection<CharsetMaterialsProducer> =
+      outputProducers.filterIsInstance<CharsetMaterialsProducer>()
+
   private val tileProducers: Collection<TileProducer> =
       outputProducers.filterIsInstance<TileProducer>()
 
@@ -59,6 +62,8 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
   internal fun processCharset(action: (CharsetProducer) -> Unit) = charsetProducers.forEach(action)
   internal fun processCharAttributes(action: (CharAttributesProducer) -> Unit) =
       charAttributesProducers.forEach(action)
+  internal fun processCharMaterials(action: (CharsetMaterialsProducer) -> Unit) =
+      charsetMaterialsProducer.forEach(action)
   internal fun processTiles(action: (TileProducer) -> Unit) = tileProducers.forEach(action)
   internal fun processTileColours(action: (TileColoursProducer) -> Unit) =
       tileColoursProducers.forEach(action)

@@ -49,8 +49,8 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
     // block 1 char materials
     val charAttrHeader = readBlockMarker(inputByteStream)
     if (numChars > 0) {
-      val charAttributeData = inputByteStream.read(numChars)
-      // TODO extra processors for materials are needed
+      val charMaterialData = inputByteStream.read(numChars)
+      charpadProcessor.processCharMaterials { it.write(charMaterialData) }
     }
 
     if (colouringMethod == ColouringMethod.PerChar) {

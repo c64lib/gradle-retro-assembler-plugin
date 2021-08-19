@@ -34,6 +34,8 @@ abstract class OutputsExtension @Inject constructor(private val objectFactory: O
 
   internal val charsetAttributes = LinkedList<StartEndExtension>()
 
+  internal val charsetMaterials = LinkedList<StartEndExtension>()
+
   internal val tiles = LinkedList<StartEndExtension>()
 
   internal val tileColours = LinkedList<StartEndExtension>()
@@ -50,6 +52,12 @@ abstract class OutputsExtension @Inject constructor(private val objectFactory: O
     val ex = objectFactory.newInstance(StartEndExtension::class.java)
     action.execute(ex)
     charsetAttributes.add(ex)
+  }
+
+  fun charsetMaterials(action: Action<StartEndExtension>) {
+    val ex = objectFactory.newInstance(StartEndExtension::class.java)
+    action.execute(ex)
+    charsetMaterials.add(ex)
   }
 
   fun tiles(action: Action<StartEndExtension>) {

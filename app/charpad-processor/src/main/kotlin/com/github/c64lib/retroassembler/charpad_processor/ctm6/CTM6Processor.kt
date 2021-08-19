@@ -32,6 +32,8 @@ import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException
 import com.github.c64lib.retroassembler.charpad_processor.ScreenMode
 import com.github.c64lib.retroassembler.charpad_processor.colouringMethodFrom
+import com.github.c64lib.retroassembler.charpad_processor.isolateHiNybbles
+import com.github.c64lib.retroassembler.charpad_processor.isolateLoNybbles
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import kotlin.experimental.and
 
@@ -52,7 +54,8 @@ internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : C
     val charAttrHeader = readBlockMarker(inputByteStream)
     if (numChars > 0) {
       val charAttributeData = inputByteStream.read(numChars)
-      charpadProcessor.processCharAttributes { it.write(charAttributeData) }
+      charpadProcessor.processCharAttributes { it.write(isolateLoNybbles(charAttributeData)) }
+      charpadProcessor.processCharMaterials { it.write(isolateHiNybbles(charAttributeData)) }
     }
 
     var tileWidth: Byte? = null
