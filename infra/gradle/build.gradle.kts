@@ -69,7 +69,7 @@ spotless {
 }
 
 pluginBundle {
-    website = "https://github.com/c64lib/gradle-retro-assembler-plugin"
+    website = "https://c64lib.github.io/gradle-retro-assembler-plugin/"
     vcsUrl = "https://github.com/c64lib/gradle-retro-assembler-plugin"
     tags = listOf("assembly", "65xx", "mos6502", "mos6510")
 }
