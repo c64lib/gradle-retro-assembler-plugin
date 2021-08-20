@@ -50,7 +50,7 @@ Fill it with following content:
 [source,groovy]
 ----
 plugins {
-    id "com.github.c64lib.retro-assembler" version "1.3.0"
+    id "com.github.c64lib.retro-assembler" version "1.4.0"
 }
 
 repositories {
@@ -132,12 +132,12 @@ Please note, that currently only GitHub is supported as a source for library rel
 Retro assembler build tool supports Charpad CTM file format and provides export of the following elements:
 
 * charset,
-* charset colours,
+* charset attributes, colours, screen colours (bitmap only) and materials,
 * tile set,
-* tile set colours,
+* tile set colours and screen colours (bitmap only),
 * maps.
 
-Currently supported versions of CTM file are 5, 6 and 7.
+Currently supported versions of CTM file are 5, 6, 7 and 8.
 
 Charpad processor is a part of preprocessor and is executed before assembling process is started.
 
@@ -268,6 +268,13 @@ end:: Number of the character screen colour that follows the last one to be expo
 output:: Output file or transformation (see: <<Output transformations>>).
 
 ===== Charset materials
+Output material codes of given charset.
+Material code is encoded into single byte taking its low nybble.
+
+.Elements of charset materials
+start:: Number of the first character material to be exported (zero-based, default: 0).
+end:: Number of the character material that follows the last one to be exported (zero-based, default 65536).
+output:: Output file or transformation (see: <<Output transformations>>).
 
 ===== Tiles
 Outputs tile set in case this one exist in CTM file.
