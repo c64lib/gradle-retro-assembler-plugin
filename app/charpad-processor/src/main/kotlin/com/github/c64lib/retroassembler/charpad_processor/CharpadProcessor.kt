@@ -41,17 +41,23 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
   private val charAttributesProducers: Collection<CharAttributesProducer> =
       outputProducers.filterIsInstance<CharAttributesProducer>()
 
-  private val charColoursProducer: Collection<CharColoursProducer> =
+  private val charColoursProducers: Collection<CharColoursProducer> =
       outputProducers.filterIsInstance<CharColoursProducer>()
 
-  private val charsetMaterialsProducer: Collection<CharsetMaterialsProducer> =
-      outputProducers.filterIsInstance<CharsetMaterialsProducer>()
+  private val charScreenColoursProducers: Collection<CharScreenColoursProducer> =
+      outputProducers.filterIsInstance<CharScreenColoursProducer>()
+
+  private val charMaterialsProducer: Collection<CharMaterialsProducer> =
+      outputProducers.filterIsInstance<CharMaterialsProducer>()
 
   private val tileProducers: Collection<TileProducer> =
       outputProducers.filterIsInstance<TileProducer>()
 
   private val tileColoursProducers: Collection<TileColoursProducer> =
       outputProducers.filterIsInstance<TileColoursProducer>()
+
+  private val tileScreenColoursProducers: Collection<TileScreenColoursProducer> =
+      outputProducers.filterIsInstance<TileScreenColoursProducer>()
 
   private val mapProducers: Collection<MapProducer> =
       outputProducers.filterIsInstance<MapProducer>()
@@ -66,12 +72,16 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
   internal fun processCharAttributes(action: (CharAttributesProducer) -> Unit) =
       charAttributesProducers.forEach(action)
   internal fun processCharColours(action: (CharColoursProducer) -> Unit) =
-      charColoursProducer.forEach(action)
-  internal fun processCharMaterials(action: (CharsetMaterialsProducer) -> Unit) =
-      charsetMaterialsProducer.forEach(action)
+      charColoursProducers.forEach(action)
+  internal fun processCharScreenColours(action: (CharScreenColoursProducer) -> Unit) =
+      charScreenColoursProducers.forEach(action)
+  internal fun processCharMaterials(action: (CharMaterialsProducer) -> Unit) =
+      charMaterialsProducer.forEach(action)
   internal fun processTiles(action: (TileProducer) -> Unit) = tileProducers.forEach(action)
   internal fun processTileColours(action: (TileColoursProducer) -> Unit) =
       tileColoursProducers.forEach(action)
+  internal fun processTileScreenColours(action: (TileScreenColoursProducer) -> Unit) =
+      tileScreenColoursProducers.forEach(action)
   internal fun processMap(action: (MapProducer) -> Unit) = mapProducers.forEach(action)
   internal fun processHeader(action: (HeaderProducer) -> Unit) = headerProducers.forEach(action)
 

@@ -28,13 +28,16 @@ import com.github.c64lib.gradle.preprocess.FisInput
 import com.github.c64lib.gradle.preprocess.OutputBuffer
 import com.github.c64lib.gradle.preprocess.PreprocessingExtension
 import com.github.c64lib.retroassembler.charpad_processor.CharAttributesProducer
+import com.github.c64lib.retroassembler.charpad_processor.CharColoursProducer
+import com.github.c64lib.retroassembler.charpad_processor.CharMaterialsProducer
+import com.github.c64lib.retroassembler.charpad_processor.CharScreenColoursProducer
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
-import com.github.c64lib.retroassembler.charpad_processor.CharsetMaterialsProducer
 import com.github.c64lib.retroassembler.charpad_processor.CharsetProducer
 import com.github.c64lib.retroassembler.charpad_processor.MapCoord
 import com.github.c64lib.retroassembler.charpad_processor.MapProducer
 import com.github.c64lib.retroassembler.charpad_processor.TileColoursProducer
 import com.github.c64lib.retroassembler.charpad_processor.TileProducer
+import com.github.c64lib.retroassembler.charpad_processor.TileScreenColoursProducer
 import java.io.FileInputStream
 import java.util.*
 import org.gradle.api.DefaultTask
@@ -79,8 +82,11 @@ open class Charpad : DefaultTask() {
       charsetProducers(output, buffers, pipeline) +
           charsetAttributesProducers(output, buffers, pipeline) +
           charsetMaterialsProducers(output, buffers, pipeline) +
+          charsetColoursProducer(output, buffers, pipeline) +
+          charsetScreenColoursProducer(output, buffers, pipeline) +
           tileProducers(output, buffers, pipeline) +
           tileColoursProducers(output, buffers, pipeline) +
+          tileScreenColoursProducers(output, buffers, pipeline) +
           mapProducers(output, buffers, pipeline)
 
   private fun charsetProducers(
@@ -107,13 +113,37 @@ open class Charpad : DefaultTask() {
             output = charsetAttributes.resolveOutput(buffers, useBuildDir(pipeline)))
       }
 
+  private fun charsetColoursProducer(
+      output: OutputsExtension,
+      buffers: MutableList<OutputBuffer>,
+      pipeline: CharpadPipelineExtension
+  ) =
+      output.charsetColours.map { charsetColours ->
+        CharColoursProducer(
+            start = charsetColours.start,
+            end = charsetColours.end,
+            output = charsetColours.resolveOutput(buffers, useBuildDir(pipeline)))
+      }
+
+  private fun charsetScreenColoursProducer(
+      output: OutputsExtension,
+      buffers: MutableList<OutputBuffer>,
+      pipeline: CharpadPipelineExtension
+  ) =
+      output.charsetScreenColours.map { charsetScreenColours ->
+        CharScreenColoursProducer(
+            start = charsetScreenColours.start,
+            end = charsetScreenColours.end,
+            output = charsetScreenColours.resolveOutput(buffers, useBuildDir(pipeline)))
+      }
+
   private fun charsetMaterialsProducers(
       output: OutputsExtension,
       buffers: MutableList<OutputBuffer>,
       pipeline: CharpadPipelineExtension
   ) =
       output.charsetMaterials.map { charsetMaterials ->
-        CharsetMaterialsProducer(
+        CharMaterialsProducer(
             start = charsetMaterials.start,
             end = charsetMaterials.end,
             output = charsetMaterials.resolveOutput(buffers, useBuildDir(pipeline)))
@@ -141,6 +171,18 @@ open class Charpad : DefaultTask() {
             start = tileAttr.start,
             end = tileAttr.end,
             output = tileAttr.resolveOutput(buffers, useBuildDir(pipeline)))
+      }
+
+  private fun tileScreenColoursProducers(
+      output: OutputsExtension,
+      buffers: MutableList<OutputBuffer>,
+      pipeline: CharpadPipelineExtension
+  ) =
+      output.tileScreenColours.map { tileScreenColours ->
+        TileScreenColoursProducer(
+            start = tileScreenColours.start,
+            end = tileScreenColours.end,
+            output = tileScreenColours.resolveOutput(buffers, useBuildDir(pipeline)))
       }
 
   private fun mapProducers(

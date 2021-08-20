@@ -1,7 +1,9 @@
 = Change log
 
 1.4.0::
-* Charpad support for CTM v.8 file format.
+* Charpad: support for CTM v.8 file format.
+* Charpad: support for producing charset colours, screen colours and charset materials.
+* Charpad: support for producing tile screen colours.
 
 1.3.0::
 * Spritepad support for SPD v.4, 5 file format.

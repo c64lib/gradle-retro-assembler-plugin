@@ -27,11 +27,12 @@ import com.github.c64lib.retroassembler.domain.processor.BinaryProducer
 import com.github.c64lib.retroassembler.domain.processor.Output
 
 /**
- * Produces primary color for characters. In Charpad 3.0 it is always the fourth byte (pen 11), it
- * normally goes to color RAM.
+ * Produces screen ram colors of bitmap modes. In Charpad 3.0 it is always the second and third byte
+ * (pen 01 and 10), encoded in single byte using nybbles.
  */
-class CharColoursProducer(private val start: Int = 0, end: Int = 65536, output: Output<ByteArray>) :
-    BinaryProducer(output) {
+class CharScreenColoursProducer(
+    private val start: Int = 0, end: Int = 65536, output: Output<ByteArray>
+) : BinaryProducer(output) {
 
   private val scaledStart = scale(start)
 

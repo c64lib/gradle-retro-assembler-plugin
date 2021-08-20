@@ -21,18 +21,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor
+package com.github.c64lib.retroassembler.binutils
 
-internal fun isolateHiNybbles(data: ByteArray): ByteArray =
+fun isolateHiNybbles(data: ByteArray): ByteArray =
     data.map { ((it.toInt() and 0xF0) shr 4).toByte() }.toByteArray()
 
-internal fun isolateLoNybbles(data: ByteArray): ByteArray =
+fun isolateLoNybbles(data: ByteArray): ByteArray =
     data.map { (it.toInt() and 0x0F).toByte() }.toByteArray()
 
-internal fun isolateEachFourth(data: ByteArray): ByteArray =
-    data.filterIndexed { subIndex, _ -> subIndex % 4 == 3 }.toByteArray()
+fun isolateEachNth(data: ByteArray, size: Int, n: Int): ByteArray =
+    data.filterIndexed { subIndex, _ -> subIndex % size == n }.toByteArray()
 
-internal fun combineNybbles(dataLo: ByteArray, dataHi: ByteArray): ByteArray =
+fun combineNybbles(dataLo: ByteArray, dataHi: ByteArray): ByteArray =
     dataLo.zip(dataHi)
         .map { pair -> (pair.first + (pair.second.toInt() shl 4)).toByte() }
         .toByteArray()

@@ -34,11 +34,17 @@ abstract class OutputsExtension @Inject constructor(private val objectFactory: O
 
   internal val charsetAttributes = LinkedList<StartEndExtension>()
 
+  internal val charsetColours = LinkedList<StartEndExtension>()
+
+  internal val charsetScreenColours = LinkedList<StartEndExtension>()
+
   internal val charsetMaterials = LinkedList<StartEndExtension>()
 
   internal val tiles = LinkedList<StartEndExtension>()
 
   internal val tileColours = LinkedList<StartEndExtension>()
+
+  internal val tileScreenColours = LinkedList<StartEndExtension>()
 
   internal val maps = LinkedList<MapExtension>()
 
@@ -52,6 +58,18 @@ abstract class OutputsExtension @Inject constructor(private val objectFactory: O
     val ex = objectFactory.newInstance(StartEndExtension::class.java)
     action.execute(ex)
     charsetAttributes.add(ex)
+  }
+
+  fun charsetColours(action: Action<StartEndExtension>) {
+    val ex = objectFactory.newInstance(StartEndExtension::class.java)
+    action.execute(ex)
+    charsetColours.add(ex)
+  }
+
+  fun charsetScreenColours(action: Action<StartEndExtension>) {
+    val ex = objectFactory.newInstance(StartEndExtension::class.java)
+    action.execute(ex)
+    charsetScreenColours.add(ex)
   }
 
   fun charsetMaterials(action: Action<StartEndExtension>) {
@@ -70,6 +88,12 @@ abstract class OutputsExtension @Inject constructor(private val objectFactory: O
     val ex = objectFactory.newInstance(StartEndExtension::class.java)
     action.execute(ex)
     tileColours.add(ex)
+  }
+
+  fun tileScreenColours(action: Action<StartEndExtension>) {
+    val ex = objectFactory.newInstance(StartEndExtension::class.java)
+    action.execute(ex)
+    tileScreenColours.add(ex)
   }
 
   fun map(action: Action<MapExtension>) {

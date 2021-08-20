@@ -23,14 +23,14 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor.ctm8
 
+import com.github.c64lib.retroassembler.binutils.combineNybbles
+import com.github.c64lib.retroassembler.binutils.isolateEachNth
 import com.github.c64lib.retroassembler.binutils.toWord
 import com.github.c64lib.retroassembler.charpad_processor.CTMProcessor
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException
 import com.github.c64lib.retroassembler.charpad_processor.colouringMethodFrom
-import com.github.c64lib.retroassembler.charpad_processor.combineNybbles
-import com.github.c64lib.retroassembler.charpad_processor.isolateEachFourth
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import kotlin.experimental.and
 
@@ -61,10 +61,15 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
       val charColours = readBlockMarker(inputByteStream)
       if (numChars > 0) {
         val charColoursData = inputByteStream.read(numChars * 4)
-        charpadProcessor.processCharColours { it.write(charColoursData) }
+        charpadProcessor.processCharColours { it.write(isolateEachNth(charColoursData, 4, 3)) }
+        charpadProcessor.processCharScreenColours {
+          it.write(
+              combineNybbles(
+                  isolateEachNth(charColoursData, 4, 1), isolateEachNth(charColoursData, 4, 2)))
+        }
         if (charMaterialData != null) {
           charpadProcessor.processCharAttributes {
-            it.write(combineNybbles(isolateEachFourth(charColoursData), charMaterialData))
+            it.write(combineNybbles(isolateEachNth(charColoursData, 4, 3), charMaterialData))
           }
         }
       }
@@ -83,7 +88,12 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
         // block n tile colours
         val tileColoursHeader = readBlockMarker(inputByteStream)
         val tileColoursData = inputByteStream.read(numTiles * 4)
-        charpadProcessor.processTileColours { it.write(tileColoursData) }
+        charpadProcessor.processTileColours { it.write(isolateEachNth(tileColoursData, 4, 3)) }
+        charpadProcessor.processTileScreenColours {
+          it.write(
+              combineNybbles(
+                  isolateEachNth(tileColoursData, 4, 1), isolateEachNth(tileColoursData, 4, 2)))
+        }
       }
 
       // block n tile tags

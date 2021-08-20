@@ -23,6 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor.ctm5
 
+import com.github.c64lib.retroassembler.binutils.isolateHiNybbles
+import com.github.c64lib.retroassembler.binutils.isolateLoNybbles
 import com.github.c64lib.retroassembler.binutils.toUnsignedByte
 import com.github.c64lib.retroassembler.binutils.toWord
 import com.github.c64lib.retroassembler.charpad_processor.CTMHeader
@@ -31,8 +33,6 @@ import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.ScreenMode
 import com.github.c64lib.retroassembler.charpad_processor.colouringMethodFrom
-import com.github.c64lib.retroassembler.charpad_processor.isolateHiNybbles
-import com.github.c64lib.retroassembler.charpad_processor.isolateLoNybbles
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import kotlin.experimental.and
 import kotlin.experimental.or
