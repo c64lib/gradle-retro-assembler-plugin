@@ -23,38 +23,18 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-internal class CTMByteArrayMock(
-    version: Int,
-    header: CTMHeader =
-        CTMHeader(
-            0.toByte(),
-            1.toByte(),
-            2.toByte(),
-            3.toByte(),
-            ColouringMethod.Global,
-            true,
-            ScreenMode.TextHires,
-            2,
-            2,
-            0,
-            0),
-    charset: ByteArray = ByteArray(0),
-    charAttributes: ByteArray = ByteArray(0),
-    tiles: ByteArray = ByteArray(0),
-    tileColours: ByteArray = ByteArray(0),
-    map: ByteArray = ByteArray(0)
-) {
-  val bytes =
-      when (version) {
-        5 ->
-            CTM5ByteArrayMock(
-                header = header,
-                charset = charset,
-                charAttributes = charAttributes,
-                tiles = tiles,
-                tileColours = tileColours,
-                map = map)
-                .bytes
-        else -> throw IllegalArgumentException("Unhandled version: $version")
-      }
+import com.github.c64lib.retroassembler.domain.processor.BinaryProducer
+import com.github.c64lib.retroassembler.domain.processor.Output
+
+class CharMaterialsProducer(
+    private val start: Int = 0, private val end: Int = 65536, output: Output<ByteArray>
+) : BinaryProducer(output) {
+  override fun write(data: ByteArray) =
+      super.write(
+          when {
+            start >= data.size ->
+                throw InsufficientDataException("Not enough characters to support start=$start")
+            end < data.size -> data.copyOfRange(start, end)
+            else -> data.copyOfRange(start, data.size)
+          })
 }

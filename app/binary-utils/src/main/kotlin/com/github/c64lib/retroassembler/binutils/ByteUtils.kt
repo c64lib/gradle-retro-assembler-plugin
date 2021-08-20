@@ -21,40 +21,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor
+package com.github.c64lib.retroassembler.binutils
 
-internal class CTMByteArrayMock(
-    version: Int,
-    header: CTMHeader =
-        CTMHeader(
-            0.toByte(),
-            1.toByte(),
-            2.toByte(),
-            3.toByte(),
-            ColouringMethod.Global,
-            true,
-            ScreenMode.TextHires,
-            2,
-            2,
-            0,
-            0),
-    charset: ByteArray = ByteArray(0),
-    charAttributes: ByteArray = ByteArray(0),
-    tiles: ByteArray = ByteArray(0),
-    tileColours: ByteArray = ByteArray(0),
-    map: ByteArray = ByteArray(0)
-) {
-  val bytes =
-      when (version) {
-        5 ->
-            CTM5ByteArrayMock(
-                header = header,
-                charset = charset,
-                charAttributes = charAttributes,
-                tiles = tiles,
-                tileColours = tileColours,
-                map = map)
-                .bytes
-        else -> throw IllegalArgumentException("Unhandled version: $version")
-      }
-}
+fun isolateHiNybbles(data: ByteArray): ByteArray =
+    data.map { ((it.toInt() and 0xF0) shr 4).toByte() }.toByteArray()
+
+fun isolateLoNybbles(data: ByteArray): ByteArray =
+    data.map { (it.toInt() and 0x0F).toByte() }.toByteArray()
+
+fun isolateEachNth(data: ByteArray, size: Int, n: Int): ByteArray =
+    data.filterIndexed { subIndex, _ -> subIndex % size == n }.toByteArray()
+
+fun combineNybbles(dataLo: ByteArray, dataHi: ByteArray): ByteArray =
+    dataLo.zip(dataHi)
+        .map { pair -> (pair.first + (pair.second.toInt() shl 4)).toByte() }
+        .toByteArray()

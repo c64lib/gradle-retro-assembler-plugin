@@ -21,26 +21,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor.ctm6
+package com.github.c64lib.retroassembler.charpad_processor.ctm8
 
-import com.github.c64lib.retroassembler.binutils.isolateHiNybbles
-import com.github.c64lib.retroassembler.binutils.isolateLoNybbles
-import com.github.c64lib.retroassembler.binutils.toUnsignedByte
+import com.github.c64lib.retroassembler.binutils.combineNybbles
+import com.github.c64lib.retroassembler.binutils.isolateEachNth
 import com.github.c64lib.retroassembler.binutils.toWord
-import com.github.c64lib.retroassembler.charpad_processor.CTMHeader
 import com.github.c64lib.retroassembler.charpad_processor.CTMProcessor
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException
-import com.github.c64lib.retroassembler.charpad_processor.ScreenMode
 import com.github.c64lib.retroassembler.charpad_processor.colouringMethodFrom
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import kotlin.experimental.and
 
-internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : CTMProcessor {
+internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : CTMProcessor {
 
   override fun process(inputByteStream: InputByteStream) {
     val header = readHeader(inputByteStream)
+    val colouringMethod = colouringMethodFrom(header.colouringMethod)
 
     // block 0 charset
     val charHeader = readBlockMarker(inputByteStream)
@@ -50,32 +48,52 @@ internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : C
       charpadProcessor.processCharset { it.write(charData) }
     }
 
-    // block 1 char attrs
+    // block 1 char materials
     val charAttrHeader = readBlockMarker(inputByteStream)
+    var charMaterialData: ByteArray? = null
     if (numChars > 0) {
-      val charAttributeData = inputByteStream.read(numChars)
-      charpadProcessor.processCharAttributes { it.write(charAttributeData) }
-      charpadProcessor.processCharColours { it.write(isolateLoNybbles(charAttributeData)) }
-      charpadProcessor.processCharMaterials { it.write(isolateHiNybbles(charAttributeData)) }
+      charMaterialData = inputByteStream.read(numChars)
+      charpadProcessor.processCharMaterials { it.write(charMaterialData) }
     }
 
-    var tileWidth: Byte? = null
-    var tileHeight: Byte? = null
+    if (colouringMethod == ColouringMethod.PerChar) {
+      // block 2 char colours
+      val charColours = readBlockMarker(inputByteStream)
+      if (numChars > 0) {
+        val charColoursData = inputByteStream.read(numChars * 4)
+        charpadProcessor.processCharColours { it.write(isolateEachNth(charColoursData, 4, 3)) }
+        charpadProcessor.processCharScreenColours {
+          it.write(
+              combineNybbles(
+                  isolateEachNth(charColoursData, 4, 1), isolateEachNth(charColoursData, 4, 2)))
+        }
+        if (charMaterialData != null) {
+          charpadProcessor.processCharAttributes {
+            it.write(combineNybbles(isolateEachNth(charColoursData, 4, 3), charMaterialData))
+          }
+        }
+      }
+    }
 
-    if (header.flags and CTM6Flags.TileSys.bit != 0.toByte()) {
+    if (header.flags and CTM8Flags.TileSys.bit != 0.toByte()) {
       // block n tiles
       val tilesHeader = readBlockMarker(inputByteStream)
       val numTiles = inputByteStream.read(2).toWord().value + 1
-      tileWidth = inputByteStream.readByte()
-      tileHeight = inputByteStream.readByte()
+      val tileWidth = inputByteStream.readByte()
+      val tileHeight = inputByteStream.readByte()
       val tileData = inputByteStream.read(numTiles * tileWidth.toInt() * tileHeight.toInt() * 2)
       charpadProcessor.processTiles { it.write(tileData) }
 
       if (colouringMethodFrom(header.colouringMethod) == ColouringMethod.PerTile) {
         // block n tile colours
         val tileColoursHeader = readBlockMarker(inputByteStream)
-        val tileColoursData = inputByteStream.read(numTiles)
-        charpadProcessor.processTileColours { it.write(tileColoursData) }
+        val tileColoursData = inputByteStream.read(numTiles * 4)
+        charpadProcessor.processTileColours { it.write(isolateEachNth(tileColoursData, 4, 3)) }
+        charpadProcessor.processTileScreenColours {
+          it.write(
+              combineNybbles(
+                  isolateEachNth(tileColoursData, 4, 1), isolateEachNth(tileColoursData, 4, 2)))
+        }
       }
 
       // block n tile tags
@@ -96,10 +114,6 @@ internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : C
     if (mapHeight > 0 && mapWidth > 0) {
       val mapData = inputByteStream.read(mapWidth * mapHeight * 2)
       charpadProcessor.processMap { it.write(mapWidth, mapHeight, mapData) }
-    }
-
-    charpadProcessor.processHeader {
-      it.write(header.toHeader(tileWidth, tileHeight, mapWidth, mapHeight))
     }
   }
 
@@ -126,18 +140,29 @@ internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : C
     return result.toString()
   }
 
-  private fun readHeader(inputByteStream: InputByteStream): CTM6Header {
+  private fun readHeader(inputByteStream: InputByteStream): CTM8Header {
+    val displayMode = inputByteStream.readByte()
+    val colouringMethod = inputByteStream.readByte()
+    val flags = inputByteStream.readByte()
     val screenColor = inputByteStream.readByte()
     val multicolor1 = inputByteStream.readByte()
     val multicolor2 = inputByteStream.readByte()
-    val charColor = inputByteStream.readByte()
-    val colouringMethod = inputByteStream.readByte()
-    val flags = inputByteStream.readByte()
-    return CTM6Header(
-        screenColour = screenColor,
-        multicolour1 = multicolor1,
-        multicolour2 = multicolor2,
-        charColour = charColor,
+    val backgroundColor4 = inputByteStream.readByte()
+    val colorBase0 = inputByteStream.readByte()
+    val colorBase1 = inputByteStream.readByte()
+    val colorBase2 = inputByteStream.readByte()
+    val colorBase3 = inputByteStream.readByte()
+
+    return CTM8Header(
+        displayMode = displayMode,
+        screenColor = screenColor,
+        multicolor1 = multicolor1,
+        multicolor2 = multicolor2,
+        backgroundColor4 = backgroundColor4,
+        charColor0 = colorBase0,
+        charColor1 = colorBase1,
+        charColor2 = colorBase2,
+        charColor3 = colorBase3,
         colouringMethod = colouringMethod,
         flags = flags)
   }
@@ -149,36 +174,19 @@ internal class CTM6Processor(private val charpadProcessor: CharpadProcessor) : C
   }
 }
 
-internal enum class CTM6Flags(val bit: Byte) {
-  MCM(0x01),
-  TileSys(0x02)
+internal enum class CTM8Flags(val bit: Byte) {
+  TileSys(0x01)
 }
 
-internal data class CTM6Header(
-    val screenColour: Byte,
-    val multicolour1: Byte,
-    val multicolour2: Byte,
-    val charColour: Byte,
+internal data class CTM8Header(
+    val displayMode: Byte,
+    val screenColor: Byte,
+    val multicolor1: Byte,
+    val multicolor2: Byte,
+    val backgroundColor4: Byte,
+    val charColor0: Byte,
+    val charColor1: Byte,
+    val charColor2: Byte,
+    val charColor3: Byte,
     val colouringMethod: Byte,
-    val flags: Byte
-) {
-
-  fun toHeader(tileWidth: Byte?, tileHeight: Byte?, mapWidth: Int, mapHeight: Int): CTMHeader =
-      CTMHeader(
-          screenColour = screenColour,
-          multicolour1 = multicolour1,
-          multicolour2 = multicolour2,
-          charColour = charColour,
-          colouringMethod = colouringMethodFrom(colouringMethod),
-          useTiles = flags and CTM6Flags.TileSys.bit != 0.toUnsignedByte(),
-          screenMode =
-              if (flags and CTM6Flags.MCM.bit != 0.toUnsignedByte()) {
-                ScreenMode.TextMulticolor
-              } else {
-                ScreenMode.TextHires
-              },
-          tileWidth = tileWidth,
-          tileHeight = tileHeight,
-          mapWidth = mapWidth,
-          mapHeight = mapHeight)
-}
+    val flags: Byte)

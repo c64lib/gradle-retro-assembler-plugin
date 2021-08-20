@@ -26,6 +26,10 @@ package com.github.c64lib.retroassembler.charpad_processor
 import com.github.c64lib.retroassembler.domain.processor.BinaryProducer
 import com.github.c64lib.retroassembler.domain.processor.Output
 
+/**
+ * Produces pre-3.0 style of charset color encoding: material code as hi nybble, color code as lo
+ * nibble.
+ */
 class CharAttributesProducer(
     private val start: Int = 0, private val end: Int = 65536, output: Output<ByteArray>
 ) : BinaryProducer(output) {

@@ -25,6 +25,8 @@ package com.github.c64lib.retroassembler.charpad_processor
 
 import com.github.c64lib.retroassembler.charpad_processor.ctm5.CTM5Processor
 import com.github.c64lib.retroassembler.charpad_processor.ctm6.CTM6Processor
+import com.github.c64lib.retroassembler.charpad_processor.ctm7.CTM7Processor
+import com.github.c64lib.retroassembler.charpad_processor.ctm8.CTM8Processor
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import com.github.c64lib.retroassembler.domain.processor.OutputProducer
 import com.github.c64lib.retroassembler.domain.processor.Processor
@@ -39,14 +41,29 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
   private val charAttributesProducers: Collection<CharAttributesProducer> =
       outputProducers.filterIsInstance<CharAttributesProducer>()
 
+  private val charColoursProducers: Collection<CharColoursProducer> =
+      outputProducers.filterIsInstance<CharColoursProducer>()
+
+  private val charScreenColoursProducers: Collection<CharScreenColoursProducer> =
+      outputProducers.filterIsInstance<CharScreenColoursProducer>()
+
+  private val charMaterialsProducer: Collection<CharMaterialsProducer> =
+      outputProducers.filterIsInstance<CharMaterialsProducer>()
+
   private val tileProducers: Collection<TileProducer> =
       outputProducers.filterIsInstance<TileProducer>()
 
   private val tileColoursProducers: Collection<TileColoursProducer> =
       outputProducers.filterIsInstance<TileColoursProducer>()
 
+  private val tileScreenColoursProducers: Collection<TileScreenColoursProducer> =
+      outputProducers.filterIsInstance<TileScreenColoursProducer>()
+
   private val mapProducers: Collection<MapProducer> =
       outputProducers.filterIsInstance<MapProducer>()
+
+  private val headerProducers: Collection<HeaderProducer> =
+      outputProducers.filterIsInstance<HeaderProducer>()
 
   fun process(inputByteStream: InputByteStream) =
       getProcessor(inputByteStream).process(inputByteStream)
@@ -54,10 +71,19 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
   internal fun processCharset(action: (CharsetProducer) -> Unit) = charsetProducers.forEach(action)
   internal fun processCharAttributes(action: (CharAttributesProducer) -> Unit) =
       charAttributesProducers.forEach(action)
+  internal fun processCharColours(action: (CharColoursProducer) -> Unit) =
+      charColoursProducers.forEach(action)
+  internal fun processCharScreenColours(action: (CharScreenColoursProducer) -> Unit) =
+      charScreenColoursProducers.forEach(action)
+  internal fun processCharMaterials(action: (CharMaterialsProducer) -> Unit) =
+      charMaterialsProducer.forEach(action)
   internal fun processTiles(action: (TileProducer) -> Unit) = tileProducers.forEach(action)
   internal fun processTileColours(action: (TileColoursProducer) -> Unit) =
       tileColoursProducers.forEach(action)
+  internal fun processTileScreenColours(action: (TileScreenColoursProducer) -> Unit) =
+      tileScreenColoursProducers.forEach(action)
   internal fun processMap(action: (MapProducer) -> Unit) = mapProducers.forEach(action)
+  internal fun processHeader(action: (HeaderProducer) -> Unit) = headerProducers.forEach(action)
 
   private fun getProcessor(inputByteStream: InputByteStream): CTMProcessor {
     val id = inputByteStream.read(3).map { it.toChar() }.joinToString(separator = "")
@@ -67,7 +93,9 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
     return when (val version = inputByteStream.readByte().toInt()
     ) {
       5 -> CTM5Processor(this@CharpadProcessor)
-      6, 7 -> CTM6Processor(this@CharpadProcessor, version)
+      6 -> CTM6Processor(this@CharpadProcessor)
+      7 -> CTM7Processor(this@CharpadProcessor)
+      8 -> CTM8Processor(this@CharpadProcessor)
       else -> throw InvalidCTMFormatException("Unsupported version: $version")
     }
   }

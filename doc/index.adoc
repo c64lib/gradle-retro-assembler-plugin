@@ -50,18 +50,16 @@ Fill it with following content:
 [source,groovy]
 ----
 plugins {
-    id "com.github.c64lib.retro-assembler" version "1.0.1"
+    id "com.github.c64lib.retro-assembler" version "1.3.0"
 }
 
 repositories {
     mavenCentral()
 }
 
-apply plugin: "com.github.c64lib.retro-assembler"
-
 retroProject {
     dialect = "KickAssembler"
-    dialectVersion = "5.12"
+    dialectVersion = "5.20"
     libDirs = ["..", ".ra/deps/c64lib"]
     srcDirs = ["lib", "spec"]
 
@@ -216,8 +214,11 @@ The following elements can be specified (multiple times) under `outputs`:
 
 * `charset`,
 * `charsetAttributes`,
+* `charsetColours`,
+* `charsetScreenColours`,
 * `tiles`,
 * `tileColours`,
+* `tileScreenColours`,
 * `map`.
 
 ===== Charset
@@ -247,6 +248,27 @@ output:: Output file or transformation (see: <<Output transformations>>).
 
 As both material and colour information is packed into single byte, the <<Nybbler>> transformer can be used to separate this data into two output files.
 
+===== Charset colours
+Outputs primary colours of given charset.
+This is basically the same color as produced by <<Charset attributes>> except it does not contain material information.
+
+.Elements of charset colours
+start:: Number of the first character colour to be exported (zero-based, default: 0).
+end:: Number of the character colour that follows the last one to be exported (zero-based, default 65536).
+output:: Output file or transformation (see: <<Output transformations>>).
+
+===== Charset screen colours
+Output colours `01` and `02` of given charset.
+This producer makes sense for bitmap modes and works only with CTM files of Charpad 3.0 or higher.
+Colours are packed into nybbles in exactly the way the VIC-II expects to see them in screen memory.
+
+.Elements of charset screen colours
+start:: Number of the first character screen colour to be exported (zero-based, default: 0).
+end:: Number of the character screen colour that follows the last one to be exported (zero-based, default 65536).
+output:: Output file or transformation (see: <<Output transformations>>).
+
+===== Charset materials
+
 ===== Tiles
 Outputs tile set in case this one exist in CTM file.
 
@@ -265,8 +287,21 @@ Outputs tile colours information if the tile set is included in CTM file.
 Colour of the tile is specified by single byte.
 
 .Elements of tile colours output
-start:: Number of the first file colour data to be exported (zero-based, default: 0).
+start:: Number of the first tile colour data to be exported (zero-based, default: 0).
 end:: Number of the tile colour data that follows the last one to be exported (zero-based, default: 65536).
+output:: Output file or transformations (see: <<Output transformations>>).
+
+===== Tile screen colours
+
+Outputs tile screen colours information if the tile set is included in CTM file.
+
+This specifies colours `01` and `10` and makes sense only for bitmap modes.
+Colours are packed into single byte using two nybbles.
+This data is produced only when CTM file is created with Charpad 3.0 or higher.
+
+.Elements of tile screen colours output
+start:: Number of the first tile screen colour data to be exported (zero-based, default: 0).
+end:: Number of the tile screen colour data that follows the last one to be exported (zero-based, default: 65536).
 output:: Output file or transformations (see: <<Output transformations>>).
 
 ===== Map
@@ -297,6 +332,7 @@ Retro assembler build tool supports Charpad CTM file format and provides export 
 
 * charset,
 * charset colours,
+* charset materials,
 * tile set,
 * tile set colours,
 * maps.

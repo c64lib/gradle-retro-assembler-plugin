@@ -23,38 +23,28 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-internal class CTMByteArrayMock(
-    version: Int,
-    header: CTMHeader =
-        CTMHeader(
-            0.toByte(),
-            1.toByte(),
-            2.toByte(),
-            3.toByte(),
-            ColouringMethod.Global,
-            true,
-            ScreenMode.TextHires,
-            2,
-            2,
-            0,
-            0),
-    charset: ByteArray = ByteArray(0),
-    charAttributes: ByteArray = ByteArray(0),
-    tiles: ByteArray = ByteArray(0),
-    tileColours: ByteArray = ByteArray(0),
-    map: ByteArray = ByteArray(0)
-) {
-  val bytes =
-      when (version) {
-        5 ->
-            CTM5ByteArrayMock(
-                header = header,
-                charset = charset,
-                charAttributes = charAttributes,
-                tiles = tiles,
-                tileColours = tileColours,
-                map = map)
-                .bytes
-        else -> throw IllegalArgumentException("Unhandled version: $version")
-      }
+import com.github.c64lib.retroassembler.domain.processor.BinaryProducer
+import com.github.c64lib.retroassembler.domain.processor.Output
+
+/**
+ * Produces primary color for characters. In Charpad 3.0 it is always the fourth byte (pen 11), it
+ * normally goes to color RAM.
+ */
+class CharColoursProducer(private val start: Int = 0, end: Int = 65536, output: Output<ByteArray>) :
+    BinaryProducer(output) {
+
+  private val scaledStart = scale(start)
+
+  private val scaledEnd = scale(end)
+
+  override fun write(data: ByteArray) =
+      super.write(
+          when {
+            scaledStart >= data.size ->
+                throw InsufficientDataException("Not enough characters to support start=$start")
+            scaledEnd < data.size -> data.copyOfRange(scaledStart, scaledEnd)
+            else -> data.copyOfRange(scaledStart, data.size)
+          })
+
+  private fun scale(value: Int) = value
 }
