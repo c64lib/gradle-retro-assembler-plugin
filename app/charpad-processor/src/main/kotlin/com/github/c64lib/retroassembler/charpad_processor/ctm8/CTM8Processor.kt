@@ -30,7 +30,9 @@ import com.github.c64lib.retroassembler.charpad_processor.CTMProcessor
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException
+import com.github.c64lib.retroassembler.charpad_processor.ScreenMode
 import com.github.c64lib.retroassembler.charpad_processor.colouringMethodFrom
+import com.github.c64lib.retroassembler.charpad_processor.screenModeFrom
 import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import kotlin.experimental.and
 
@@ -39,6 +41,9 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
   override fun process(inputByteStream: InputByteStream) {
     val header = readHeader(inputByteStream)
     val colouringMethod = colouringMethodFrom(header.colouringMethod)
+    val screenMode = screenModeFrom(header.displayMode)
+    val (lo, hi) = screenMode.getPaletteIndexes()
+    val primaryColorIndex = screenMode.getPrimaryColorIndex()
 
     // block 0 charset
     val charHeader = readBlockMarker(inputByteStream)
@@ -61,15 +66,19 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
       val charColours = readBlockMarker(inputByteStream)
       if (numChars > 0) {
         val charColoursData = inputByteStream.read(numChars * 4)
-        charpadProcessor.processCharColours { it.write(isolateEachNth(charColoursData, 4, 3)) }
+        charpadProcessor.processCharColours {
+          it.write(isolateEachNth(charColoursData, 4, primaryColorIndex))
+        }
         charpadProcessor.processCharScreenColours {
           it.write(
               combineNybbles(
-                  isolateEachNth(charColoursData, 4, 1), isolateEachNth(charColoursData, 4, 2)))
+                  isolateEachNth(charColoursData, 4, lo), isolateEachNth(charColoursData, 4, hi)))
         }
         if (charMaterialData != null) {
           charpadProcessor.processCharAttributes {
-            it.write(combineNybbles(isolateEachNth(charColoursData, 4, 3), charMaterialData))
+            it.write(
+                combineNybbles(
+                    isolateEachNth(charColoursData, 4, primaryColorIndex), charMaterialData))
           }
         }
       }
@@ -88,11 +97,13 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
         // block n tile colours
         val tileColoursHeader = readBlockMarker(inputByteStream)
         val tileColoursData = inputByteStream.read(numTiles * 4)
-        charpadProcessor.processTileColours { it.write(isolateEachNth(tileColoursData, 4, 3)) }
+        charpadProcessor.processTileColours {
+          it.write(isolateEachNth(tileColoursData, 4, primaryColorIndex))
+        }
         charpadProcessor.processTileScreenColours {
           it.write(
               combineNybbles(
-                  isolateEachNth(tileColoursData, 4, 1), isolateEachNth(tileColoursData, 4, 2)))
+                  isolateEachNth(tileColoursData, 4, lo), isolateEachNth(tileColoursData, 4, hi)))
         }
       }
 
@@ -190,3 +201,20 @@ internal data class CTM8Header(
     val charColor3: Byte,
     val colouringMethod: Byte,
     val flags: Byte)
+
+internal data class ScreenMemoryPalette(val lo: Int, val hi: Int)
+
+internal fun ScreenMode.getPaletteIndexes(): ScreenMemoryPalette =
+    when (this) {
+      ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground ->
+          ScreenMemoryPalette(0, 0)
+      ScreenMode.BitmapHires -> ScreenMemoryPalette(0, 3)
+      ScreenMode.BitmapMulticolor -> ScreenMemoryPalette(1, 2)
+    }
+
+internal fun ScreenMode.getPrimaryColorIndex(): Int =
+    when (this) {
+      ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground -> 3
+      ScreenMode.BitmapMulticolor -> 3
+      ScreenMode.BitmapHires -> 1
+    }

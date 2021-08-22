@@ -50,7 +50,7 @@ Fill it with following content:
 [source,groovy]
 ----
 plugins {
-    id "com.github.c64lib.retro-assembler" version "1.4.0"
+    id "com.github.c64lib.retro-assembler" version "1.4.1"
 }
 
 repositories {
