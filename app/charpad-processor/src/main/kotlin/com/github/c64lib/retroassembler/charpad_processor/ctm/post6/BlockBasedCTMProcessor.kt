@@ -61,6 +61,7 @@ internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProc
     return Dimensions(mapWidth, mapHeight)
   }
 
+  /** Only for v6, v7. */
   protected fun processCharsetAttributesBlock(numChars: Int, inputByteStream: InputByteStream) {
     readBlockMarker(inputByteStream)
     if (numChars > 0) {
@@ -93,6 +94,7 @@ internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProc
     val tileNamesData = readTileNames(inputByteStream, numTiles)
   }
 
+  /** Only for v8. */
   protected fun processCharsetMaterialsBlock(
       numChars: Int, inputByteStream: InputByteStream
   ): ByteArray? =
@@ -128,7 +130,7 @@ internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProc
   }
 
   protected fun readBlockMarker(inputByteStream: InputByteStream): Byte {
-    val byte0 = inputByteStream.readByte()
+    inputByteStream.readByte()
     val byte1 = inputByteStream.readByte()
     return byte1 and 0x0f.toByte()
   }

@@ -26,6 +26,8 @@ package com.github.c64lib.retroassembler.charpad_processor.ctm.post6
 import com.github.c64lib.processor.commons.InputByteStream
 import com.github.c64lib.retroassembler.binutils.combineNybbles
 import com.github.c64lib.retroassembler.binutils.isolateEachNth
+import com.github.c64lib.retroassembler.binutils.toUnsignedByte
+import com.github.c64lib.retroassembler.charpad_processor.CTMHeader
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.ScreenMode
@@ -72,9 +74,14 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
       }
     }
 
+    var tileWidth: Byte? = null
+    var tileHeight: Byte? = null
+
     if (header.flags and CTM8Flags.TileSys.bit != 0.toByte()) {
       // block n tiles
-      val (numTiles, _, _) = processTilesBlock(inputByteStream)
+      val (numTiles, width, height) = processTilesBlock(inputByteStream)
+      tileWidth = width
+      tileHeight = height
 
       if (colouringMethodFrom(header.colouringMethod) == ColouringMethod.PerTile) {
         // block n tile colours
@@ -97,7 +104,12 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
     }
 
     // block n map
-    processMapBlock(inputByteStream)
+    val (mapWidth, mapHeight) = processMapBlock(inputByteStream)
+
+    // all data here, process header
+    charpadProcessor.processHeader {
+      it.write(header.toHeader(tileWidth, tileHeight, mapWidth, mapHeight))
+    }
   }
 
   private fun readHeader(inputByteStream: InputByteStream): CTM8Header {
@@ -115,14 +127,14 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
 
     return CTM8Header(
         displayMode = displayMode,
-        screenColor = screenColor,
-        multicolor1 = multicolor1,
-        multicolor2 = multicolor2,
-        backgroundColor4 = backgroundColor4,
-        charColor0 = colorBase0,
-        charColor1 = colorBase1,
-        charColor2 = colorBase2,
-        charColor3 = colorBase3,
+        screenColour = screenColor,
+        multicolour1 = multicolor1,
+        multicolour2 = multicolor2,
+        backgroundColour4 = backgroundColor4,
+        charColour0 = colorBase0,
+        charColour1 = colorBase1,
+        charColour2 = colorBase2,
+        charColour3 = colorBase3,
         colouringMethod = colouringMethod,
         flags = flags)
   }
@@ -134,16 +146,32 @@ internal enum class CTM8Flags(val bit: Byte) {
 
 internal data class CTM8Header(
     val displayMode: Byte,
-    val screenColor: Byte,
-    val multicolor1: Byte,
-    val multicolor2: Byte,
-    val backgroundColor4: Byte,
-    val charColor0: Byte,
-    val charColor1: Byte,
-    val charColor2: Byte,
-    val charColor3: Byte,
+    val screenColour: Byte,
+    val multicolour1: Byte,
+    val multicolour2: Byte,
+    val backgroundColour4: Byte,
+    val charColour0: Byte,
+    val charColour1: Byte,
+    val charColour2: Byte,
+    val charColour3: Byte,
     val colouringMethod: Byte,
-    val flags: Byte)
+    val flags: Byte
+) {
+
+  fun toHeader(tileWidth: Byte?, tileHeight: Byte?, mapWidth: Int, mapHeight: Int): CTMHeader =
+      CTMHeader(
+          screenColour = screenColour,
+          multicolour1 = multicolour1,
+          multicolour2 = multicolour2,
+          charColour = charColour3,
+          colouringMethod = colouringMethodFrom(colouringMethod),
+          useTiles = flags and CTM7Flags.TileSys.bit != 0.toUnsignedByte(),
+          screenMode = screenModeFrom(displayMode),
+          tileWidth = tileWidth,
+          tileHeight = tileHeight,
+          mapWidth = mapWidth,
+          mapHeight = mapHeight)
+}
 
 internal data class ScreenMemoryPalette(val lo: Int, val hi: Int)
 
