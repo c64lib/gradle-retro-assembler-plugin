@@ -1,5 +1,8 @@
 = Change log
 
+1.4.2::
+* Charpad: fixing char colour assignment for colouring per char in CTM v.8.
+
 1.4.1::
 * Charpad: fixing bitmap mode color layout in palette.
 
