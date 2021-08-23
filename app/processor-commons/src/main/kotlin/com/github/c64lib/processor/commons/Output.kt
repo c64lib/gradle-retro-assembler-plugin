@@ -25,6 +25,8 @@ package com.github.c64lib.processor.commons
 
 typealias BinaryOutput = Output<ByteArray>
 
+typealias TextOutput = Output<String>
+
 interface Output<T> {
   fun write(data: T)
 }

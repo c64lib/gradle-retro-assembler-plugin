@@ -23,6 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.processor.commons
 
+/** Denotes input data that is always a byte stream. */
 interface InputByteStream {
   fun read(amount: Int): ByteArray
   fun readByte() = read(1)[0]

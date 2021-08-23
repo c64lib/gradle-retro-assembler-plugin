@@ -23,16 +23,20 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import com.github.c64lib.processor.commons.BinaryProducer
 import com.github.c64lib.processor.commons.Output
+import com.github.c64lib.processor.commons.OutputProducer
 import com.github.c64lib.retroassembler.domain.shared.IllegalInputException
 
 class MapProducer(
-    private val leftTop: MapCoord, private val rightBottom: MapCoord, output: Output<ByteArray>
-) : BinaryProducer(output) {
+    private val leftTop: MapCoord,
+    private val rightBottom: MapCoord,
+    private val output: Output<ByteArray>
+) : OutputProducer<ByteArray> {
 
   fun write(width: Int, height: Int, data: ByteArray) =
-      write(cutMap(width, height, leftTop, calcRightBottom(width, height), data))
+      write(cutMap(width, height, leftTop, rightBottom, data))
+
+  override fun write(data: ByteArray) = output.write(data)
 
   private fun cutMap(
       width: Int, height: Int, leftTop: MapCoord, rightBottom: MapCoord, data: ByteArray
@@ -91,7 +95,4 @@ class MapProducer(
             rightMargin,
             data.copyOfRange(width * 2, data.size))
       }
-
-  private fun calcRightBottom(width: Int, height: Int): MapCoord =
-      rightBottom ?: MapCoord(width, height)
 }

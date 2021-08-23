@@ -23,29 +23,12 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import com.github.c64lib.processor.commons.BinaryProducer
 import com.github.c64lib.processor.commons.Output
+import com.github.c64lib.processor.commons.ScalableBinaryProducer
 
 /**
  * Produces screen ram colors of bitmap modes. In Charpad 3.0 it is always the second and third byte
  * (pen 01 and 10), encoded in single byte using nybbles.
  */
-class CharScreenColoursProducer(
-    private val start: Int = 0, end: Int = 65536, output: Output<ByteArray>
-) : BinaryProducer(output) {
-
-  private val scaledStart = scale(start)
-
-  private val scaledEnd = scale(end)
-
-  override fun write(data: ByteArray) =
-      super.write(
-          when {
-            scaledStart >= data.size ->
-                throw InsufficientDataException("Not enough characters to support start=$start")
-            scaledEnd < data.size -> data.copyOfRange(scaledStart, scaledEnd)
-            else -> data.copyOfRange(scaledStart, data.size)
-          })
-
-  private fun scale(value: Int) = value
-}
+class CharScreenColoursProducer(start: Int = 0, end: Int = 65536, output: Output<ByteArray>) :
+    ScalableBinaryProducer(start = start, end = end, output = output)

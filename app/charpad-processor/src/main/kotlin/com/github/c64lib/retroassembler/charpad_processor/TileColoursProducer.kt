@@ -23,18 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import com.github.c64lib.processor.commons.BinaryProducer
 import com.github.c64lib.processor.commons.Output
+import com.github.c64lib.processor.commons.ScalableBinaryProducer
 
-class TileColoursProducer(
-    private val start: Int = 0, private val end: Int = 65536, output: Output<ByteArray>
-) : BinaryProducer(output) {
-  override fun write(data: ByteArray) =
-      super.write(
-          when {
-            start >= data.size ->
-                throw InsufficientDataException("Not enough bytes to support start = $start")
-            end < data.size -> data.copyOfRange(start, end)
-            else -> data.copyOfRange(start, data.size)
-          })
-}
+class TileColoursProducer(start: Int = 0, end: Int = 65536, output: Output<ByteArray>) :
+    ScalableBinaryProducer(start = start, end = end, output = output)
