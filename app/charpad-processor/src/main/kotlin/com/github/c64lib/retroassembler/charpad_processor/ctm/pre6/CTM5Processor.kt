@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor.ctm5
+package com.github.c64lib.retroassembler.charpad_processor.ctm.pre6
 
 import com.github.c64lib.processor.commons.InputByteStream
 import com.github.c64lib.retroassembler.binutils.isolateHiNybbles

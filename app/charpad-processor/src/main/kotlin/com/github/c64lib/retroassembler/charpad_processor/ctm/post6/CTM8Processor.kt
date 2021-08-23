@@ -21,22 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor.ctm8
+package com.github.c64lib.retroassembler.charpad_processor.ctm.post6
 
 import com.github.c64lib.processor.commons.InputByteStream
 import com.github.c64lib.retroassembler.binutils.combineNybbles
 import com.github.c64lib.retroassembler.binutils.isolateEachNth
 import com.github.c64lib.retroassembler.binutils.toWord
-import com.github.c64lib.retroassembler.charpad_processor.CTMProcessor
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
-import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException
 import com.github.c64lib.retroassembler.charpad_processor.ScreenMode
 import com.github.c64lib.retroassembler.charpad_processor.colouringMethodFrom
 import com.github.c64lib.retroassembler.charpad_processor.screenModeFrom
 import kotlin.experimental.and
 
-internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : CTMProcessor {
+internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
+    BlockBasedCTMProcessor(charpadProcessor) {
 
   override fun process(inputByteStream: InputByteStream) {
     val header = readHeader(inputByteStream)
@@ -46,12 +45,7 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
     val primaryColorIndex = screenMode.getPrimaryColorIndex()
 
     // block 0 charset
-    val charHeader = readBlockMarker(inputByteStream)
-    val numChars = inputByteStream.read(2).toWord().value + 1
-    if (numChars > 0) {
-      val charData = inputByteStream.read(numChars * 8)
-      charpadProcessor.processCharset { it.write(charData) }
-    }
+    val numChars = processCharsetBlock(inputByteStream)
 
     // block 1 char materials
     val charAttrHeader = readBlockMarker(inputByteStream)
@@ -119,36 +113,7 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
     }
 
     // block n map
-    val mapHeader = readBlockMarker(inputByteStream)
-    val mapWidth = inputByteStream.read(2).toWord().value
-    val mapHeight = inputByteStream.read(2).toWord().value
-    if (mapHeight > 0 && mapWidth > 0) {
-      val mapData = inputByteStream.read(mapWidth * mapHeight * 2)
-      charpadProcessor.processMap { it.write(mapWidth, mapHeight, mapData) }
-    }
-  }
-
-  private fun readTileNames(inputByteStream: InputByteStream, numTiles: Int): Array<String> =
-      (1..numTiles).map { readTileName(inputByteStream) }.toTypedArray()
-
-  private fun readTileName(inputByteStream: InputByteStream): String {
-    var i = 0
-    var value = inputByteStream.readByte()
-    val result = StringBuffer(32)
-
-    while (i < 32 && value != 0.toByte()) {
-      ++i
-      result.append(value.toChar())
-      value = inputByteStream.readByte()
-    }
-    if (i == 32) {
-      value = inputByteStream.readByte()
-      if (value != 0.toByte()) {
-        throw InsufficientDataException(
-            "Lack of null termination in 32 character tile name: $result")
-      }
-    }
-    return result.toString()
+    processMapBlock(inputByteStream)
   }
 
   private fun readHeader(inputByteStream: InputByteStream): CTM8Header {
@@ -176,12 +141,6 @@ internal class CTM8Processor(private val charpadProcessor: CharpadProcessor) : C
         charColor3 = colorBase3,
         colouringMethod = colouringMethod,
         flags = flags)
-  }
-
-  private fun readBlockMarker(inputByteStream: InputByteStream): Byte {
-    val byte0 = inputByteStream.readByte()
-    val byte1 = inputByteStream.readByte()
-    return byte1 and 0x0f.toByte()
   }
 }
 

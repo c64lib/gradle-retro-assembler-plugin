@@ -26,10 +26,10 @@ package com.github.c64lib.retroassembler.charpad_processor
 import com.github.c64lib.processor.commons.InputByteStream
 import com.github.c64lib.processor.commons.OutputProducer
 import com.github.c64lib.processor.commons.Processor
-import com.github.c64lib.retroassembler.charpad_processor.ctm5.CTM5Processor
-import com.github.c64lib.retroassembler.charpad_processor.ctm6.CTM6Processor
-import com.github.c64lib.retroassembler.charpad_processor.ctm7.CTM7Processor
-import com.github.c64lib.retroassembler.charpad_processor.ctm8.CTM8Processor
+import com.github.c64lib.retroassembler.charpad_processor.ctm.post6.CTM6Processor
+import com.github.c64lib.retroassembler.charpad_processor.ctm.post6.CTM7Processor
+import com.github.c64lib.retroassembler.charpad_processor.ctm.post6.CTM8Processor
+import com.github.c64lib.retroassembler.charpad_processor.ctm.pre6.CTM5Processor
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharAttributesProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharColoursProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharMaterialsProducer
