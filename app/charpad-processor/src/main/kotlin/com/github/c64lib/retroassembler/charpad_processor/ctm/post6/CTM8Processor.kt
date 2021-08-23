@@ -160,9 +160,10 @@ internal data class CTM8Header(
 
   fun toHeader(tileWidth: Byte?, tileHeight: Byte?, mapWidth: Int, mapHeight: Int): CTMHeader =
       CTMHeader(
-          screenColour = screenColour,
-          multicolour1 = multicolour1,
-          multicolour2 = multicolour2,
+          backgroundColour0 = screenColour,
+          backgroundColour1 = multicolour1,
+          backgroundColour2 = multicolour2,
+          backgroundColour3 = backgroundColour4,
           charColour = charColour3,
           colouringMethod = colouringMethodFrom(colouringMethod),
           useTiles = flags and CTM7Flags.TileSys.bit != 0.toUnsignedByte(),

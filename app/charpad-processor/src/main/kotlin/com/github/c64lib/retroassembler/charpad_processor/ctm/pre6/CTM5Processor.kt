@@ -136,9 +136,10 @@ internal data class CTM5Header(
 ) {
   fun toHeader(): CTMHeader =
       CTMHeader(
-          screenColour = screenColour,
-          multicolour1 = multicolour1,
-          multicolour2 = multicolour2,
+          backgroundColour0 = screenColour,
+          backgroundColour1 = multicolour1,
+          backgroundColour2 = multicolour2,
+          backgroundColour3 = 0,
           charColour = charColour,
           colouringMethod = colouringMethodFrom(colouringMethod),
           useTiles = flags and CTM5Flags.TileSys.bit != 0.toUnsignedByte(),

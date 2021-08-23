@@ -35,6 +35,7 @@ internal class CTMByteArrayMock(
             1.toByte(),
             2.toByte(),
             3.toByte(),
+            3.toByte(),
             ColouringMethod.Global,
             true,
             ScreenMode.TextHires,

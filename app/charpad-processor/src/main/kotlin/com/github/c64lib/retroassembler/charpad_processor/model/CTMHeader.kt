@@ -24,9 +24,10 @@ SOFTWARE.
 package com.github.c64lib.retroassembler.charpad_processor.model
 
 data class CTMHeader(
-    val screenColour: Byte,
-    val multicolour1: Byte,
-    val multicolour2: Byte,
+    val backgroundColour0: Byte,
+    val backgroundColour1: Byte,
+    val backgroundColour2: Byte,
+    val backgroundColour3: Byte,
     val charColour: Byte,
     val colouringMethod: ColouringMethod,
     val useTiles: Boolean,

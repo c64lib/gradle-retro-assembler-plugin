@@ -40,9 +40,9 @@ internal class CTM5ByteArrayMock(
   private val signature = "CTM".toByteArray() concat byteArrayOf(5.toByte())
   private val headerBytes =
       byteArrayOf(
-          header.screenColour,
-          header.multicolour1,
-          header.multicolour2,
+          header.backgroundColour0,
+          header.backgroundColour1,
+          header.backgroundColour2,
           header.charColour,
           header.colouringMethod.value,
           header.toCTM5Flags()) concat
