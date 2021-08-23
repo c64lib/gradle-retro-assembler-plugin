@@ -21,10 +21,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor
+package com.github.c64lib.retroassembler.charpad_processor.model
 
-data class MapCoord(val x: Int, val y: Int)
+import com.github.c64lib.retroassembler.charpad_processor.InvalidCTMFormatException
 
-val minTopLeftMapCoord = MapCoord(0, 0)
+enum class ColouringMethod(val value: Byte) {
+  Global(0),
+  PerTile(1),
+  PerChar(2)
+}
 
-val maxRightBottomMapCoord = MapCoord(65536, 65536)
+internal fun colouringMethodFrom(value: Byte): ColouringMethod =
+    when (value) {
+      ColouringMethod.Global.value -> ColouringMethod.Global
+      ColouringMethod.PerTile.value -> ColouringMethod.PerTile
+      ColouringMethod.PerChar.value -> ColouringMethod.PerChar
+      else -> throw InvalidCTMFormatException("Unknown colouring method: $value.")
+    }

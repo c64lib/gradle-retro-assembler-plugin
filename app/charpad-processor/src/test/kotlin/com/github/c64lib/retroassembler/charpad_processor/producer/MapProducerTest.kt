@@ -26,9 +26,9 @@ package com.github.c64lib.retroassembler.charpad_processor.producer
 import com.github.c64lib.retroassembler.binutils.BinaryOutputMock
 import com.github.c64lib.retroassembler.binutils.byteArrayOfInts
 import com.github.c64lib.retroassembler.binutils.concat
-import com.github.c64lib.retroassembler.charpad_processor.MapCoord
-import com.github.c64lib.retroassembler.charpad_processor.maxRightBottomMapCoord
-import com.github.c64lib.retroassembler.charpad_processor.minTopLeftMapCoord
+import com.github.c64lib.retroassembler.charpad_processor.model.MapCoord
+import com.github.c64lib.retroassembler.charpad_processor.model.maxRightBottomMapCoord
+import com.github.c64lib.retroassembler.charpad_processor.model.minTopLeftMapCoord
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe

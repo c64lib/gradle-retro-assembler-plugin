@@ -23,6 +23,10 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
+import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
+import com.github.c64lib.retroassembler.charpad_processor.model.ColouringMethod
+import com.github.c64lib.retroassembler.charpad_processor.model.ScreenMode
+
 internal class CTMByteArrayMock(
     version: Int,
     header: CTMHeader =

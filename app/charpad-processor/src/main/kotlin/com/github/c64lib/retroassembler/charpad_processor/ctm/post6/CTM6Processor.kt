@@ -25,11 +25,11 @@ package com.github.c64lib.retroassembler.charpad_processor.ctm.post6
 
 import com.github.c64lib.processor.commons.InputByteStream
 import com.github.c64lib.retroassembler.binutils.toUnsignedByte
-import com.github.c64lib.retroassembler.charpad_processor.CTMHeader
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
-import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
-import com.github.c64lib.retroassembler.charpad_processor.ScreenMode
-import com.github.c64lib.retroassembler.charpad_processor.colouringMethodFrom
+import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
+import com.github.c64lib.retroassembler.charpad_processor.model.ColouringMethod
+import com.github.c64lib.retroassembler.charpad_processor.model.ScreenMode
+import com.github.c64lib.retroassembler.charpad_processor.model.colouringMethodFrom
 import kotlin.experimental.and
 
 internal class CTM6Processor(charpadProcessor: CharpadProcessor) :

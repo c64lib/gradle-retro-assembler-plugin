@@ -21,39 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor
-
-enum class ColouringMethod(val value: Byte) {
-  Global(0),
-  PerTile(1),
-  PerChar(2)
-}
-
-internal fun colouringMethodFrom(value: Byte): ColouringMethod =
-    when (value) {
-      ColouringMethod.Global.value -> ColouringMethod.Global
-      ColouringMethod.PerTile.value -> ColouringMethod.PerTile
-      ColouringMethod.PerChar.value -> ColouringMethod.PerChar
-      else -> throw InvalidCTMFormatException("Unknown colouring method: $value.")
-    }
-
-enum class ScreenMode(val value: Byte) {
-  TextHires(0),
-  TextMulticolor(1),
-  TextExtendedBackground(2),
-  BitmapHires(3),
-  BitmapMulticolor(4)
-}
-
-internal fun screenModeFrom(value: Byte): ScreenMode =
-    when (value) {
-      ScreenMode.TextHires.value -> ScreenMode.TextHires
-      ScreenMode.TextMulticolor.value -> ScreenMode.TextMulticolor
-      ScreenMode.TextExtendedBackground.value -> ScreenMode.TextExtendedBackground
-      ScreenMode.BitmapHires.value -> ScreenMode.BitmapHires
-      ScreenMode.BitmapMulticolor.value -> ScreenMode.BitmapMulticolor
-      else -> throw InvalidCTMFormatException("Unsupported screen mode: $value.")
-    }
+package com.github.c64lib.retroassembler.charpad_processor.model
 
 data class CTMHeader(
     val screenColour: Byte,

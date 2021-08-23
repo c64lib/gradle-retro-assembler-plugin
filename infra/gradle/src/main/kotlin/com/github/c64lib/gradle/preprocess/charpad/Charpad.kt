@@ -28,7 +28,7 @@ import com.github.c64lib.gradle.preprocess.FisInput
 import com.github.c64lib.gradle.preprocess.OutputBuffer
 import com.github.c64lib.gradle.preprocess.PreprocessingExtension
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
-import com.github.c64lib.retroassembler.charpad_processor.MapCoord
+import com.github.c64lib.retroassembler.charpad_processor.model.MapCoord
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharAttributesProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharColoursProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharMaterialsProducer

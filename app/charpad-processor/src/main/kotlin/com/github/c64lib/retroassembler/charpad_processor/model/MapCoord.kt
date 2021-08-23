@@ -21,12 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor.producer
+package com.github.c64lib.retroassembler.charpad_processor.model
 
-import com.github.c64lib.processor.commons.Output
-import com.github.c64lib.processor.commons.OutputProducer
-import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
+data class MapCoord(val x: Int, val y: Int)
 
-class HeaderProducer(private val output: Output<CTMHeader>) : OutputProducer<CTMHeader> {
-  override fun write(data: CTMHeader) = output.write(data)
-}
+val minTopLeftMapCoord = MapCoord(0, 0)
+
+val maxRightBottomMapCoord = MapCoord(65536, 65536)

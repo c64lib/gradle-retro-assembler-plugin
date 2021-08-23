@@ -21,12 +21,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor.producer
+package com.github.c64lib.retroassembler.charpad_processor.model
 
-import com.github.c64lib.processor.commons.Output
-import com.github.c64lib.processor.commons.OutputProducer
-import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
+import com.github.c64lib.retroassembler.charpad_processor.InvalidCTMFormatException
 
-class HeaderProducer(private val output: Output<CTMHeader>) : OutputProducer<CTMHeader> {
-  override fun write(data: CTMHeader) = output.write(data)
+enum class ScreenMode(val value: Byte) {
+  TextHires(0),
+  TextMulticolor(1),
+  TextExtendedBackground(2),
+  BitmapHires(3),
+  BitmapMulticolor(4)
 }
+
+internal fun screenModeFrom(value: Byte): ScreenMode =
+    when (value) {
+      ScreenMode.TextHires.value -> ScreenMode.TextHires
+      ScreenMode.TextMulticolor.value -> ScreenMode.TextMulticolor
+      ScreenMode.TextExtendedBackground.value -> ScreenMode.TextExtendedBackground
+      ScreenMode.BitmapHires.value -> ScreenMode.BitmapHires
+      ScreenMode.BitmapMulticolor.value -> ScreenMode.BitmapMulticolor
+      else -> throw InvalidCTMFormatException("Unsupported screen mode: $value.")
+    }
