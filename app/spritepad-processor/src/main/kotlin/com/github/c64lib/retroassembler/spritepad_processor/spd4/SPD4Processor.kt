@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.spritepad_processor.spd4
 
+import com.github.c64lib.processor.commons.InputByteStream
 import com.github.c64lib.retroassembler.binutils.toWord
-import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import com.github.c64lib.retroassembler.spritepad_processor.SPDProcessor
 import com.github.c64lib.retroassembler.spritepad_processor.SpritepadProcessor
 

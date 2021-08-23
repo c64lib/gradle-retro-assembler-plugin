@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import com.github.c64lib.retroassembler.domain.processor.BinaryProducer
-import com.github.c64lib.retroassembler.domain.processor.Output
+import com.github.c64lib.processor.commons.BinaryProducer
+import com.github.c64lib.processor.commons.Output
 
 /**
  * Produces pre-3.0 style of charset color encoding: material code as hi nybble, color code as lo

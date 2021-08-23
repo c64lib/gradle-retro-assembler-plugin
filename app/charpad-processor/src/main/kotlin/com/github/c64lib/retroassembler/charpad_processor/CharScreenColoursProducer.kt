@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import com.github.c64lib.retroassembler.domain.processor.BinaryProducer
-import com.github.c64lib.retroassembler.domain.processor.Output
+import com.github.c64lib.processor.commons.BinaryProducer
+import com.github.c64lib.processor.commons.Output
 
 /**
  * Produces screen ram colors of bitmap modes. In Charpad 3.0 it is always the second and third byte

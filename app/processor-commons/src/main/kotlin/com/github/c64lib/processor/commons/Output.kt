@@ -21,9 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.domain.processor
+package com.github.c64lib.processor.commons
 
-interface InputByteStream {
-  fun read(amount: Int): ByteArray
-  fun readByte() = read(1)[0]
+typealias BinaryOutput = Output<ByteArray>
+
+interface Output<T> {
+  fun write(data: T)
 }

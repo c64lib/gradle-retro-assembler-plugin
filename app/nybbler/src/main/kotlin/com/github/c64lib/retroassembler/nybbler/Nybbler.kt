@@ -23,7 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.nybbler
 
-import com.github.c64lib.retroassembler.domain.processor.BinaryOutput
+import com.github.c64lib.processor.commons.BinaryOutput
 
 class Nybbler(
     private val low: BinaryOutput?,

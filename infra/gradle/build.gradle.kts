@@ -31,6 +31,7 @@ tasks {
                     "spritepad-processor",
                     "nybbler",
                     "binary-utils",
+                    "processor-commons",
                     "binary-interleaver" -> "app/${it.name}"
                     else -> it.name
                 }
@@ -93,6 +94,7 @@ dependencies {
     implementation("io.vavr:vavr:$vavrVersion")
     compileOnly(project(":domain"))
     compileOnly(project(":app:binary-utils"))
+    compileOnly(project(":app:processor-commons"))
     compileOnly(project(":app:charpad-processor"))
     compileOnly(project(":app:spritepad-processor"))
     compileOnly(project(":app:binary-interleaver"))

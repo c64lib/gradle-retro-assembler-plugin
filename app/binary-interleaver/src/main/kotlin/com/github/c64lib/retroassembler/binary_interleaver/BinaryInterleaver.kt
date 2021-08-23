@@ -23,7 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.binary_interleaver
 
-import com.github.c64lib.retroassembler.domain.processor.BinaryOutput
+import com.github.c64lib.processor.commons.BinaryOutput
 import com.github.c64lib.retroassembler.domain.shared.IllegalInputException
 import io.vavr.collection.Seq
 

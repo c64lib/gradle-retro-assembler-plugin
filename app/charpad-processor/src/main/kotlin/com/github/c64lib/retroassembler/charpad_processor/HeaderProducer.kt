@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import com.github.c64lib.retroassembler.domain.processor.Output
-import com.github.c64lib.retroassembler.domain.processor.OutputProducer
+import com.github.c64lib.processor.commons.Output
+import com.github.c64lib.processor.commons.OutputProducer
 
 class HeaderProducer(private val output: Output<CTMHeader>) : OutputProducer<CTMHeader> {
   override fun write(data: CTMHeader) = output.write(data)

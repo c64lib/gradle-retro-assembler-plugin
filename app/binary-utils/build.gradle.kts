@@ -32,6 +32,7 @@ dependencies {
     implementation("io.vavr:vavr:$vavrVersion")
     implementation("io.vavr:vavr-kotlin:$vavrKotlinVersion")
     implementation(project(":domain"))
+    implementation(project(":app:processor-commons"))
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
 }

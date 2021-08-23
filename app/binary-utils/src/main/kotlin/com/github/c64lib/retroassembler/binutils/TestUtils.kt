@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.binutils
 
-import com.github.c64lib.retroassembler.domain.processor.BinaryOutput
-import com.github.c64lib.retroassembler.domain.processor.InputByteStream
+import com.github.c64lib.processor.commons.BinaryOutput
+import com.github.c64lib.processor.commons.InputByteStream
 import java.io.ByteArrayInputStream
 import java.util.*
 

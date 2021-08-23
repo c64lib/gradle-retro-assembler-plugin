@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import com.github.c64lib.retroassembler.domain.processor.BinaryProducer
-import com.github.c64lib.retroassembler.domain.processor.Output
+import com.github.c64lib.processor.commons.BinaryProducer
+import com.github.c64lib.processor.commons.Output
 import com.github.c64lib.retroassembler.domain.shared.IllegalInputException
 
 class MapProducer(

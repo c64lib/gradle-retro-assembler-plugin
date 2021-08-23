@@ -23,7 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.preprocess
 
-import com.github.c64lib.retroassembler.domain.processor.Output
+import com.github.c64lib.processor.commons.Output
 import java.io.FileOutputStream
 
 class FosOutput(private val fos: FileOutputStream) : Output<ByteArray> {

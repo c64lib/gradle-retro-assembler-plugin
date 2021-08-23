@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import com.github.c64lib.retroassembler.domain.processor.BinaryProducer
-import com.github.c64lib.retroassembler.domain.processor.Output
+import com.github.c64lib.processor.commons.BinaryProducer
+import com.github.c64lib.processor.commons.Output
 
 class CharsetProducer(
     private val start: Int = 0, private val end: Int = 65536, output: Output<ByteArray>

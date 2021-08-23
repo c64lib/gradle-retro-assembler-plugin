@@ -23,6 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor.ctm7
 
+import com.github.c64lib.processor.commons.InputByteStream
 import com.github.c64lib.retroassembler.binutils.isolateHiNybbles
 import com.github.c64lib.retroassembler.binutils.isolateLoNybbles
 import com.github.c64lib.retroassembler.binutils.toUnsignedByte
@@ -34,7 +35,6 @@ import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException
 import com.github.c64lib.retroassembler.charpad_processor.colouringMethodFrom
 import com.github.c64lib.retroassembler.charpad_processor.screenModeFrom
-import com.github.c64lib.retroassembler.domain.processor.InputByteStream
 import kotlin.experimental.and
 
 internal class CTM7Processor(private val charpadProcessor: CharpadProcessor) : CTMProcessor {
