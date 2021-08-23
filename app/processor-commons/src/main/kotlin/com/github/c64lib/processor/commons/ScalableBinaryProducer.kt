@@ -26,8 +26,10 @@ package com.github.c64lib.processor.commons
 import com.github.c64lib.retroassembler.domain.shared.OutOfDataException
 
 /**
- * Produces binary output from binary input. Is capable of working with equal portions of bytes and
- * allows to specify start and end of the window as well as portion size (scale).
+ * Produces binary output from binary input.
+ *
+ * Is capable of working with equal portions of bytes and allows to specify start and end of the
+ * window as well as portion size (scale).
  */
 open class ScalableBinaryProducer(
     private val start: Int,

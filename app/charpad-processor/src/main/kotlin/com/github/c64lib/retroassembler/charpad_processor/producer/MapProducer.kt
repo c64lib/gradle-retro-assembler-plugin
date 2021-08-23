@@ -35,7 +35,7 @@ class MapProducer(
 ) : OutputProducer<ByteArray> {
 
   fun write(width: Int, height: Int, data: ByteArray) =
-      write(cutMap(width, height, leftTop, rightBottom, data))
+      write(cutMap(width, height, leftTop, calcRightBottom(width, height), data))
 
   override fun write(data: ByteArray) = output.write(data)
 
@@ -96,4 +96,7 @@ class MapProducer(
             rightMargin,
             data.copyOfRange(width * 2, data.size))
       }
+
+  private fun calcRightBottom(width: Int, height: Int): MapCoord =
+      rightBottom ?: MapCoord(width, height)
 }
