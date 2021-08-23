@@ -21,10 +21,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor
+package com.github.c64lib.retroassembler.charpad_processor.producer
 
 import com.github.c64lib.processor.commons.Output
-import com.github.c64lib.processor.commons.ScalableBinaryProducer
+import com.github.c64lib.processor.commons.OutputProducer
+import com.github.c64lib.retroassembler.charpad_processor.CTMHeader
 
-class TileProducer(start: Int = 0, end: Int = 65536, output: Output<ByteArray>) :
-    ScalableBinaryProducer(start = start, end = end, scale = 2, output = output)
+class HeaderProducer(private val output: Output<CTMHeader>) : OutputProducer<CTMHeader> {
+  override fun write(data: CTMHeader) = output.write(data)
+}

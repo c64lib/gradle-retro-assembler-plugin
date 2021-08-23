@@ -30,6 +30,16 @@ import com.github.c64lib.retroassembler.charpad_processor.ctm5.CTM5Processor
 import com.github.c64lib.retroassembler.charpad_processor.ctm6.CTM6Processor
 import com.github.c64lib.retroassembler.charpad_processor.ctm7.CTM7Processor
 import com.github.c64lib.retroassembler.charpad_processor.ctm8.CTM8Processor
+import com.github.c64lib.retroassembler.charpad_processor.producer.CharAttributesProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.CharColoursProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.CharMaterialsProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.CharScreenColoursProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.CharsetProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.HeaderProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.MapProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.TileColoursProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.TileProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.TileScreenColoursProducer
 
 internal interface CTMProcessor : Processor
 

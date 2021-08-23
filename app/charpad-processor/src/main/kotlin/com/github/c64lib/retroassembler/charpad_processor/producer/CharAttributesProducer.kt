@@ -21,14 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor
+package com.github.c64lib.retroassembler.charpad_processor.producer
 
 import com.github.c64lib.processor.commons.Output
 import com.github.c64lib.processor.commons.ScalableBinaryProducer
 
 /**
- * Produces primary color for characters. In Charpad 3.0 it is always the fourth byte (pen 11), it
- * normally goes to color RAM.
+ * Produces pre-3.0 style of charset color encoding: material code as hi nybble, color code as lo
+ * nibble.
  */
-class CharColoursProducer(start: Int = 0, end: Int = 65536, output: Output<ByteArray>) :
+class CharAttributesProducer(start: Int = 0, end: Int = 65536, output: Output<ByteArray>) :
     ScalableBinaryProducer(start = start, end = end, output = output)

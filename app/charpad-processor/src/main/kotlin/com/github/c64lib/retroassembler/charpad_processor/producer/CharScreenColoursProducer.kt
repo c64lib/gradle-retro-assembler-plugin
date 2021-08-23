@@ -21,11 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor
+package com.github.c64lib.retroassembler.charpad_processor.producer
 
 import com.github.c64lib.processor.commons.Output
-import com.github.c64lib.processor.commons.OutputProducer
+import com.github.c64lib.processor.commons.ScalableBinaryProducer
 
-class HeaderProducer(private val output: Output<CTMHeader>) : OutputProducer<CTMHeader> {
-  override fun write(data: CTMHeader) = output.write(data)
-}
+/**
+ * Produces screen ram colors of bitmap modes. In Charpad 3.0 it is always the second and third byte
+ * (pen 01 and 10), encoded in single byte using nybbles.
+ */
+class CharScreenColoursProducer(start: Int = 0, end: Int = 65536, output: Output<ByteArray>) :
+    ScalableBinaryProducer(start = start, end = end, output = output)
