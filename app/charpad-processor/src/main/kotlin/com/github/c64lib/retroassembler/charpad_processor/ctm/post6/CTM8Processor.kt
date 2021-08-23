@@ -26,7 +26,6 @@ package com.github.c64lib.retroassembler.charpad_processor.ctm.post6
 import com.github.c64lib.processor.commons.InputByteStream
 import com.github.c64lib.retroassembler.binutils.combineNybbles
 import com.github.c64lib.retroassembler.binutils.isolateEachNth
-import com.github.c64lib.retroassembler.binutils.toWord
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.ScreenMode
@@ -48,12 +47,7 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
     val numChars = processCharsetBlock(inputByteStream)
 
     // block 1 char materials
-    val charAttrHeader = readBlockMarker(inputByteStream)
-    var charMaterialData: ByteArray? = null
-    if (numChars > 0) {
-      charMaterialData = inputByteStream.read(numChars)
-      charpadProcessor.processCharMaterials { it.write(charMaterialData) }
-    }
+    val charMaterialData = processCharsetMaterialsBlock(numChars, inputByteStream)
 
     if (colouringMethod == ColouringMethod.PerChar) {
       // block 2 char colours
@@ -80,12 +74,7 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
 
     if (header.flags and CTM8Flags.TileSys.bit != 0.toByte()) {
       // block n tiles
-      val tilesHeader = readBlockMarker(inputByteStream)
-      val numTiles = inputByteStream.read(2).toWord().value + 1
-      val tileWidth = inputByteStream.readByte()
-      val tileHeight = inputByteStream.readByte()
-      val tileData = inputByteStream.read(numTiles * tileWidth.toInt() * tileHeight.toInt() * 2)
-      charpadProcessor.processTiles { it.write(tileData) }
+      val (numTiles, _, _) = processTilesBlock(inputByteStream)
 
       if (colouringMethodFrom(header.colouringMethod) == ColouringMethod.PerTile) {
         // block n tile colours
@@ -102,14 +91,9 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
       }
 
       // block n tile tags
-      val tileTagsHeader = readBlockMarker(inputByteStream)
-      // TODO: tiles tags are ignored for now
-      val tileTagsData = inputByteStream.read(numTiles)
-
+      processTilesTagsBlock(numTiles, inputByteStream)
       // block n tile names
-      val tileNamesHeader = readBlockMarker(inputByteStream)
-      // TODO: tile names are ignored for now
-      val tileNamesData = readTileNames(inputByteStream, numTiles)
+      processTilesNamesBlock(numTiles, inputByteStream)
     }
 
     // block n map

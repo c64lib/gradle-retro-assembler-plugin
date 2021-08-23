@@ -25,7 +25,6 @@ package com.github.c64lib.retroassembler.charpad_processor.ctm.post6
 
 import com.github.c64lib.processor.commons.InputByteStream
 import com.github.c64lib.retroassembler.binutils.toUnsignedByte
-import com.github.c64lib.retroassembler.binutils.toWord
 import com.github.c64lib.retroassembler.charpad_processor.CTMHeader
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.ColouringMethod
@@ -49,12 +48,9 @@ internal class CTM6Processor(charpadProcessor: CharpadProcessor) :
 
     if (header.flags and CTM6Flags.TileSys.bit != 0.toByte()) {
       // block n tiles
-      val tilesHeader = readBlockMarker(inputByteStream)
-      val numTiles = inputByteStream.read(2).toWord().value + 1
-      tileWidth = inputByteStream.readByte()
-      tileHeight = inputByteStream.readByte()
-      val tileData = inputByteStream.read(numTiles * tileWidth.toInt() * tileHeight.toInt() * 2)
-      charpadProcessor.processTiles { it.write(tileData) }
+      val (numTiles, width, height) = processTilesBlock(inputByteStream)
+      tileWidth = width
+      tileHeight = height
 
       if (colouringMethodFrom(header.colouringMethod) == ColouringMethod.PerTile) {
         // block n tile colours
@@ -64,16 +60,10 @@ internal class CTM6Processor(charpadProcessor: CharpadProcessor) :
       }
 
       // block n tile tags
-      val tileTagsHeader = readBlockMarker(inputByteStream)
-      // TODO: tiles tags are ignored for now
-      val tileTagsData = inputByteStream.read(numTiles)
-
+      processTilesTagsBlock(numTiles, inputByteStream)
       // block n tile names
-      val tileNamesHeader = readBlockMarker(inputByteStream)
-      // TODO: tile names are ignored for now
-      val tileNamesData = readTileNames(inputByteStream, numTiles)
+      processTilesNamesBlock(numTiles, inputByteStream)
     }
-
     // block n map
     val (mapWidth, mapHeight) = processMapBlock(inputByteStream)
 

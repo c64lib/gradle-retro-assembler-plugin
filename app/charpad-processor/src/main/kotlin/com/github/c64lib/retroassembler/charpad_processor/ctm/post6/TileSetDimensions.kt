@@ -23,4 +23,4 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor.ctm.post6
 
-data class MapDimensions(val width: Int, val Height: Int)
+data class TileSetDimensions(val numTiles: Int, val width: Byte, val height: Byte)

@@ -50,7 +50,7 @@ internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProc
     return numChars
   }
 
-  protected fun processMapBlock(inputByteStream: InputByteStream): MapDimensions {
+  protected fun processMapBlock(inputByteStream: InputByteStream): Dimensions<Int> {
     readBlockMarker(inputByteStream)
     val mapWidth = inputByteStream.read(2).toWord().value
     val mapHeight = inputByteStream.read(2).toWord().value
@@ -58,7 +58,7 @@ internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProc
       val mapData = inputByteStream.read(mapWidth * mapHeight * 2)
       charpadProcessor.processMap { it.write(mapWidth, mapHeight, mapData) }
     }
-    return MapDimensions(mapWidth, mapHeight)
+    return Dimensions(mapWidth, mapHeight)
   }
 
   protected fun processCharsetAttributesBlock(numChars: Int, inputByteStream: InputByteStream) {
@@ -71,7 +71,40 @@ internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProc
     }
   }
 
-  protected fun readTileNames(inputByteStream: InputByteStream, numTiles: Int): Array<String> =
+  protected fun processTilesBlock(inputByteStream: InputByteStream): TileSetDimensions {
+    readBlockMarker(inputByteStream)
+    val numTiles = inputByteStream.read(2).toWord().value + 1
+    val tileWidth = inputByteStream.readByte()
+    val tileHeight = inputByteStream.readByte()
+    val tileData = inputByteStream.read(numTiles * tileWidth.toInt() * tileHeight.toInt() * 2)
+    charpadProcessor.processTiles { it.write(tileData) }
+    return TileSetDimensions(numTiles, tileWidth, tileHeight)
+  }
+
+  protected fun processTilesTagsBlock(numTiles: Int, inputByteStream: InputByteStream) {
+    readBlockMarker(inputByteStream)
+    // TODO: tiles tags are ignored for now
+    val tileTagsData = inputByteStream.read(numTiles)
+  }
+
+  protected fun processTilesNamesBlock(numTiles: Int, inputByteStream: InputByteStream) {
+    readBlockMarker(inputByteStream)
+    // TODO: tile names are ignored for now
+    val tileNamesData = readTileNames(inputByteStream, numTiles)
+  }
+
+  protected fun processCharsetMaterialsBlock(
+      numChars: Int, inputByteStream: InputByteStream
+  ): ByteArray? =
+      if (numChars > 0) {
+        val charMaterialData = inputByteStream.read(numChars)
+        charpadProcessor.processCharMaterials { it.write(charMaterialData) }
+        charMaterialData
+      } else {
+        null
+      }
+
+  private fun readTileNames(inputByteStream: InputByteStream, numTiles: Int): Array<String> =
       (1..numTiles).map { readTileName(inputByteStream) }.toTypedArray()
 
   private fun readTileName(inputByteStream: InputByteStream): String {
