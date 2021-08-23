@@ -21,6 +21,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.charpad_processor.ctm.post6
+package com.github.c64lib.retroassembler.charpad_processor.model
 
-data class TileSetDimensions(val numTiles: Int, val width: Byte, val height: Byte)
+data class Dimensions<T>(val width: T, val height: T)

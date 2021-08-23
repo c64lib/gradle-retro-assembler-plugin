@@ -30,6 +30,8 @@ import com.github.c64lib.retroassembler.binutils.toWord
 import com.github.c64lib.retroassembler.charpad_processor.CTMProcessor
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException
+import com.github.c64lib.retroassembler.charpad_processor.model.Dimensions
+import com.github.c64lib.retroassembler.charpad_processor.model.TileSetDimensions
 import kotlin.experimental.and
 
 internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProcessor) :

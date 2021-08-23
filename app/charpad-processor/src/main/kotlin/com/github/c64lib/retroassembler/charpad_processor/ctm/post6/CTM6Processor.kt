@@ -28,6 +28,7 @@ import com.github.c64lib.retroassembler.binutils.toUnsignedByte
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
 import com.github.c64lib.retroassembler.charpad_processor.model.ColouringMethod
+import com.github.c64lib.retroassembler.charpad_processor.model.Dimensions
 import com.github.c64lib.retroassembler.charpad_processor.model.ScreenMode
 import com.github.c64lib.retroassembler.charpad_processor.model.colouringMethodFrom
 import kotlin.experimental.and
@@ -111,15 +112,17 @@ internal data class CTM6Header(
           backgroundColour3 = 0,
           charColour = charColour,
           colouringMethod = colouringMethodFrom(colouringMethod),
-          useTiles = flags and CTM6Flags.TileSys.bit != 0.toUnsignedByte(),
           screenMode =
               if (flags and CTM6Flags.MCM.bit != 0.toUnsignedByte()) {
                 ScreenMode.TextMulticolor
               } else {
                 ScreenMode.TextHires
               },
-          tileWidth = tileWidth,
-          tileHeight = tileHeight,
-          mapWidth = mapWidth,
-          mapHeight = mapHeight)
+          tileDimensions =
+              if (flags and CTM6Flags.TileSys.bit != 0.toUnsignedByte()) {
+                Dimensions(tileWidth!!, tileHeight!!)
+              } else {
+                null
+              },
+          mapDimensions = Dimensions(mapWidth, mapHeight))
 }

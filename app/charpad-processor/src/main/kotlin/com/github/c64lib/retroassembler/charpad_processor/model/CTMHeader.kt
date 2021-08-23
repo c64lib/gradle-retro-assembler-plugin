@@ -30,9 +30,10 @@ data class CTMHeader(
     val backgroundColour3: Byte,
     val charColour: Byte,
     val colouringMethod: ColouringMethod,
-    val useTiles: Boolean,
     val screenMode: ScreenMode,
-    val tileWidth: Byte?,
-    val tileHeight: Byte?,
-    val mapWidth: Int,
-    val mapHeight: Int)
+    val tileDimensions: Dimensions<Byte>?,
+    val mapDimensions: Dimensions<Int>
+) {
+
+  val useTiles = tileDimensions != null
+}

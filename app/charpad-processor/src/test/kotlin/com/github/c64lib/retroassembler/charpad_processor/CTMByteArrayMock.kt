@@ -25,6 +25,7 @@ package com.github.c64lib.retroassembler.charpad_processor
 
 import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
 import com.github.c64lib.retroassembler.charpad_processor.model.ColouringMethod
+import com.github.c64lib.retroassembler.charpad_processor.model.Dimensions
 import com.github.c64lib.retroassembler.charpad_processor.model.ScreenMode
 
 internal class CTMByteArrayMock(
@@ -37,12 +38,9 @@ internal class CTMByteArrayMock(
             3.toByte(),
             3.toByte(),
             ColouringMethod.Global,
-            true,
             ScreenMode.TextHires,
-            2,
-            2,
-            0,
-            0),
+            Dimensions(2.toByte(), 2.toByte()),
+            Dimensions(0, 0)),
     charset: ByteArray = ByteArray(0),
     charAttributes: ByteArray = ByteArray(0),
     tiles: ByteArray = ByteArray(0),
