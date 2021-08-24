@@ -38,6 +38,7 @@ import com.github.c64lib.retroassembler.charpad_processor.producer.MapProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.TileColoursProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.TileProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.TileScreenColoursProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.TileTagsProducer
 import java.io.FileInputStream
 import java.util.*
 import org.gradle.api.DefaultTask
@@ -85,6 +86,7 @@ open class Charpad : DefaultTask() {
           charsetColoursProducer(output, buffers, pipeline) +
           charsetScreenColoursProducer(output, buffers, pipeline) +
           tileProducers(output, buffers, pipeline) +
+          tileTagsProducers(output, buffers, pipeline) +
           tileColoursProducers(output, buffers, pipeline) +
           tileScreenColoursProducers(output, buffers, pipeline) +
           mapProducers(output, buffers, pipeline)
@@ -159,6 +161,18 @@ open class Charpad : DefaultTask() {
             start = tile.start,
             end = tile.end,
             output = tile.resolveOutput(buffers, useBuildDir(pipeline)))
+      }
+
+  private fun tileTagsProducers(
+      output: OutputsExtension,
+      buffers: MutableList<OutputBuffer>,
+      pipeline: CharpadPipelineExtension
+  ) =
+      output.tileTags.map { tileTags ->
+        TileTagsProducer(
+            start = tileTags.start,
+            end = tileTags.end,
+            output = tileTags.resolveOutput(buffers, useBuildDir(pipeline)))
       }
 
   private fun tileColoursProducers(

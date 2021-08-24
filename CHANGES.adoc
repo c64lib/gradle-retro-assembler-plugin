@@ -4,6 +4,7 @@
 * Charpad: fixing char colour assignment for colouring per char in CTM v.8.
 * Charpad: CTM v.8 will generate char attributes output even if no per-char colouring method is used (for backward compatibility).
 * Charpad: char colours output won't be generated if per-char colouring method is not used.
+* Charpad: support of tile tags data export.
 
 1.4.1::
 * Charpad: fixing bitmap mode color layout in palette.

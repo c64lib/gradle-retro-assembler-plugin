@@ -42,6 +42,8 @@ abstract class OutputsExtension @Inject constructor(private val objectFactory: O
 
   internal val tiles = LinkedList<StartEndExtension>()
 
+  internal val tileTags = LinkedList<StartEndExtension>()
+
   internal val tileColours = LinkedList<StartEndExtension>()
 
   internal val tileScreenColours = LinkedList<StartEndExtension>()
@@ -82,6 +84,12 @@ abstract class OutputsExtension @Inject constructor(private val objectFactory: O
     val ex = objectFactory.newInstance(StartEndExtension::class.java)
     action.execute(ex)
     tiles.add(ex)
+  }
+
+  fun tileTags(action: Action<StartEndExtension>) {
+    val ex = objectFactory.newInstance(StartEndExtension::class.java)
+    action.execute(ex)
+    tileTags.add(ex)
   }
 
   fun tileColours(action: Action<StartEndExtension>) {

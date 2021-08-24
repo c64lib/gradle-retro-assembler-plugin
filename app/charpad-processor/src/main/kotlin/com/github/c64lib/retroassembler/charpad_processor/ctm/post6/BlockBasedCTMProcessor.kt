@@ -92,8 +92,8 @@ internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProc
 
   protected fun processTilesTagsBlock(numTiles: Int, inputByteStream: InputByteStream) {
     readBlockMarker(inputByteStream)
-    // TODO: tiles tags are ignored for now
     val tileTagsData = inputByteStream.read(numTiles)
+    charpadProcessor.processTileTags { it.write(tileTagsData) }
   }
 
   protected fun processTilesNamesBlock(numTiles: Int, inputByteStream: InputByteStream) {

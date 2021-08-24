@@ -40,6 +40,7 @@ import com.github.c64lib.retroassembler.charpad_processor.producer.MapProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.TileColoursProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.TileProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.TileScreenColoursProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.TileTagsProducer
 
 internal interface CTMProcessor : Processor
 
@@ -57,11 +58,14 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
   private val charScreenColoursProducers: Collection<CharScreenColoursProducer> =
       outputProducers.filterIsInstance<CharScreenColoursProducer>()
 
-  private val charMaterialsProducer: Collection<CharMaterialsProducer> =
+  private val charMaterialsProducers: Collection<CharMaterialsProducer> =
       outputProducers.filterIsInstance<CharMaterialsProducer>()
 
   private val tileProducers: Collection<TileProducer> =
       outputProducers.filterIsInstance<TileProducer>()
+
+  private val tileTagsProducers: Collection<TileTagsProducer> =
+      outputProducers.filterIsInstance<TileTagsProducer>()
 
   private val tileColoursProducers: Collection<TileColoursProducer> =
       outputProducers.filterIsInstance<TileColoursProducer>()
@@ -86,8 +90,10 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
   internal fun processCharScreenColours(action: (CharScreenColoursProducer) -> Unit) =
       charScreenColoursProducers.forEach(action)
   internal fun processCharMaterials(action: (CharMaterialsProducer) -> Unit) =
-      charMaterialsProducer.forEach(action)
+      charMaterialsProducers.forEach(action)
   internal fun processTiles(action: (TileProducer) -> Unit) = tileProducers.forEach(action)
+  internal fun processTileTags(action: (TileTagsProducer) -> Unit) =
+      tileTagsProducers.forEach(action)
   internal fun processTileColours(action: (TileColoursProducer) -> Unit) =
       tileColoursProducers.forEach(action)
   internal fun processTileScreenColours(action: (TileScreenColoursProducer) -> Unit) =

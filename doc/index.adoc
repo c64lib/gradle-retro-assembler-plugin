@@ -311,6 +311,17 @@ start:: Number of the first tile screen colour data to be exported (zero-based, 
 end:: Number of the tile screen colour data that follows the last one to be exported (zero-based, default: 65536).
 output:: Output file or transformations (see: <<Output transformations>>).
 
+===== Tile tags
+
+Outputs tile tags if the tile set is included in CTM file.
+
+Each tag is a byte of information assigned to each tile in the tileset.
+
+.Elements of tile tags output
+start:: Number of the first tile tag data to be exported (zero-based, default: 0).
+end:: Number of the tile tag data that follows the last one to be exported (zero-based, default: 65536).
+output:: Output file or transformation (see: <<Output transformations>>).
+
 ===== Map
 Outputs map data out of the CTM file.
 
