@@ -37,6 +37,7 @@ import com.github.c64lib.retroassembler.charpad_processor.producer.HeaderProduce
 import com.github.c64lib.retroassembler.charpad_processor.producer.MapProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.TileColoursProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.TileProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.TileTagsProducer
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -46,6 +47,7 @@ class TextMulticCTMTest :
       isolationMode = IsolationMode.InstancePerTest
 
       val supportedVersions = listOf(5, 6, 7, 8)
+      val tileTagsSupportingVersions = listOf(6, 7, 8)
 
       val expectedCharsetData =
           byteArrayOf(0x00, 0x7E, 0x42, 0x00, 0x00, 0x42, 0x7E, 0x00) +
@@ -64,11 +66,14 @@ class TextMulticCTMTest :
               byteArrayOf(0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00) +
               byteArrayOf(0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00)
 
+      val expectedTileTagsData = byteArrayOf(0, 2, 4)
+
       val charsetOutput = BinaryOutputMock()
       val charsetColourOutput = BinaryOutputMock()
       val charsetAttributesOutput = BinaryOutputMock()
       val charsetMaterialOutput = BinaryOutputMock()
       val tilesetOutput = BinaryOutputMock()
+      val tileTagsOutput = BinaryOutputMock()
       val tileColoursOutput = BinaryOutputMock()
       val mapOutput = BinaryOutputMock()
       val headerOutput = OutputMock<CTMHeader>()
@@ -83,6 +88,7 @@ class TextMulticCTMTest :
                   CharMaterialsProducer(output = charsetMaterialOutput),
                   TileProducer(output = tilesetOutput),
                   TileColoursProducer(output = tileColoursOutput),
+                  TileTagsProducer(output = tileTagsOutput),
                   MapProducer(
                       leftTop = MapCoord(0, 0),
                       rightBottom = MapCoord(40, 25),
@@ -111,6 +117,8 @@ class TextMulticCTMTest :
               charsetMaterialOutput.bytes shouldBe expectedMaterialData
             }
             Then("no tiles are produced") { tilesetOutput.bytes.size shouldBe 0 }
+            Then("no tile colours are produced") { tileColoursOutput.bytes.size shouldBe 0 }
+            Then("no tile tags are produced") { tileTagsOutput.bytes.size shouldBe 0 }
             Then("map is read") {
               mapOutput.bytes.copyOfRange(0, 8) shouldBe
                   byteArrayOf(0x00, 0x00, 0x01, 0x00, 0x03, 0x00, 0x02, 0x00)
@@ -152,6 +160,22 @@ class TextMulticCTMTest :
               mapOutput.bytes.copyOfRange(480 - 4, 480) shouldBe byteArrayOf(0x02, 0x00, 0x01, 0x00)
               mapOutput.bytes.copyOfRange(4, 480 - 4).filter { it != 0.toByte() }.size shouldBe 0
             }
+          }
+        }
+      }
+
+      tileTagsSupportingVersions.forEach { ctmVersion ->
+        val input =
+            InputByteStreamAdapter(
+                this.javaClass
+                    .getResourceAsStream(
+                        "/text-multic/text-mc-per-char-tiles-ctm$ctmVersion.ctm")!!)
+
+        Given("[CTM v$ctmVersion] with per char colouring method and with tile set") {
+          When("process is called") {
+            processor.process(input)
+
+            Then("tile tags are read") { tileTagsOutput.bytes shouldBe expectedTileTagsData }
           }
         }
       }
