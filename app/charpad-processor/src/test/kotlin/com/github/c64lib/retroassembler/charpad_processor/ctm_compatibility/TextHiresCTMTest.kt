@@ -90,6 +90,14 @@ class TextHiresCTMTest :
               charsetMaterialOutput.bytes shouldBe byteArrayOf(0x0, 0x4, 0x8, 0xC)
             }
             Then("no tiles are produced") { tilesetOutput.bytes.size shouldBe 0 }
+            Then("map is read") {
+              mapOutput.bytes.copyOfRange(0, 8) shouldBe
+                  byteArrayOf(0x00, 0x00, 0x01, 0x00, 0x03, 0x00, 0x02, 0x00)
+              mapOutput.bytes.copyOfRange(2000 - 6, 2000) shouldBe
+                  byteArrayOf(0x03, 0x00, 0x02, 0x00, 0x01, 0x00)
+              mapOutput.bytes.copyOfRange(8, 2000 - 6).filter { it != 0x00.toByte() }.size shouldBe
+                  0
+            }
           }
         }
       }
