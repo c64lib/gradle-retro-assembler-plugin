@@ -38,11 +38,7 @@ class KickAssemblerSrcWriter(private val writer: PrintWriter) : AssemblySrcWrite
         }
       }
 
-  override fun separate() {
-    writer.println()
-  }
+  override fun separate() = writer.println()
 
-  override fun label(name: String, value: Int) {
-    writer.println(".label $name = $value")
-  }
+  override fun label(name: String, value: Int) = writer.println(".label $name = $value")
 }
