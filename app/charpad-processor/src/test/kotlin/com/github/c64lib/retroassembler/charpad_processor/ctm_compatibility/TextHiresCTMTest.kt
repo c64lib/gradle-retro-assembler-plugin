@@ -48,7 +48,7 @@ class TextHiresCTMTest :
         val input =
             InputByteStreamAdapter(
                 this.javaClass
-                    .getResourceAsStream("/text-hi-per-char-notiles-ctm$ctmVersion.ctm")!!)
+                    .getResourceAsStream("/text-hires/text-hi-per-char-notiles-ctm$ctmVersion.ctm")!!)
 
         Given("[CTM v$ctmVersion] with per char colouring method and no tile set") {
           val charsetOutput = BinaryOutputMock()
@@ -107,7 +107,7 @@ class TextHiresCTMTest :
       supportedVersions.forEach { ctmVersion ->
         val input =
             InputByteStreamAdapter(
-                this.javaClass.getResourceAsStream("/text-hi-per-char-tiles-ctm$ctmVersion.ctm")!!)
+                this.javaClass.getResourceAsStream("/text-hires/text-hi-per-char-tiles-ctm$ctmVersion.ctm")!!)
 
         Given("[CTM v$ctmVersion] with per char colouring method and with tile set") {
           val charsetOutput = BinaryOutputMock()
@@ -172,7 +172,7 @@ class TextHiresCTMTest :
       supportedVersions.forEach { ctmVersion ->
         val input =
             InputByteStreamAdapter(
-                this.javaClass.getResourceAsStream("/text-hi-per-tile-ctm$ctmVersion.ctm")!!)
+                this.javaClass.getResourceAsStream("/text-hires/text-hi-per-tile-ctm$ctmVersion.ctm")!!)
 
         Given("[CTM v$ctmVersion] with per tile colouring method and with tile set") {
           val charsetOutput = BinaryOutputMock()
