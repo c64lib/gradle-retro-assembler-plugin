@@ -37,103 +37,107 @@ import kotlin.experimental.and
 internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProcessor) :
     CTMProcessor {
 
-  /**
-   * Process charset definition block.
-   *
-   * @return number of characters available in the block
-   */
-  protected fun processCharsetBlock(inputByteStream: InputByteStream): Int {
-    readBlockMarker(inputByteStream)
-    val numChars = inputByteStream.read(2).toWord().value + 1
-    if (numChars > 0) {
-      val charData = inputByteStream.read(numChars * 8)
-      charpadProcessor.processCharset { it.write(charData) }
+    /**
+     * Process charset definition block.
+     *
+     * @return number of characters available in the block
+     */
+    protected fun processCharsetBlock(inputByteStream: InputByteStream): Int {
+        readBlockMarker(inputByteStream)
+        val numChars = inputByteStream.read(2).toWord().value + 1
+        if (numChars > 0) {
+            val charData = inputByteStream.read(numChars * 8)
+            charpadProcessor.processCharset { it.write(charData) }
+        }
+        return numChars
     }
-    return numChars
-  }
 
-  protected fun processMapBlock(inputByteStream: InputByteStream): Dimensions<Int> {
-    readBlockMarker(inputByteStream)
-    val mapWidth = inputByteStream.read(2).toWord().value
-    val mapHeight = inputByteStream.read(2).toWord().value
-    if (mapHeight > 0 && mapWidth > 0) {
-      val mapData = inputByteStream.read(mapWidth * mapHeight * 2)
-      charpadProcessor.processMap { it.write(mapWidth, mapHeight, mapData) }
+    protected fun processMapBlock(inputByteStream: InputByteStream): Dimensions<Int> {
+        readBlockMarker(inputByteStream)
+        val mapWidth = inputByteStream.read(2).toWord().value
+        val mapHeight = inputByteStream.read(2).toWord().value
+        if (mapHeight > 0 && mapWidth > 0) {
+            val mapData = inputByteStream.read(mapWidth * mapHeight * 2)
+            charpadProcessor.processMap { it.write(mapWidth, mapHeight, mapData) }
+        }
+        return Dimensions(mapWidth, mapHeight)
     }
-    return Dimensions(mapWidth, mapHeight)
-  }
 
-  /** Only for v6, v7. */
-  protected fun processCharsetAttributesBlock(numChars: Int, inputByteStream: InputByteStream) {
-    readBlockMarker(inputByteStream)
-    if (numChars > 0) {
-      val charAttributeData = inputByteStream.read(numChars)
-      charpadProcessor.processCharAttributes { it.write(charAttributeData) }
-      charpadProcessor.processCharColours { it.write(isolateLoNybbles(charAttributeData)) }
-      charpadProcessor.processCharMaterials { it.write(isolateHiNybbles(charAttributeData)) }
+    /** Only for v6, v7. */
+    protected fun processCharsetAttributesBlock(numChars: Int, inputByteStream: InputByteStream) {
+        readBlockMarker(inputByteStream)
+        if (numChars > 0) {
+            val charAttributeData = inputByteStream.read(numChars)
+            charpadProcessor.processCharAttributes { it.write(charAttributeData) }
+            charpadProcessor.processCharColours { it.write(isolateLoNybbles(charAttributeData)) }
+            charpadProcessor.processCharMaterials { it.write(isolateHiNybbles(charAttributeData)) }
+        }
     }
-  }
 
-  protected fun processTilesBlock(inputByteStream: InputByteStream): TileSetDimensions {
-    readBlockMarker(inputByteStream)
-    val numTiles = inputByteStream.read(2).toWord().value + 1
-    val tileWidth = inputByteStream.readByte()
-    val tileHeight = inputByteStream.readByte()
-    val tileData = inputByteStream.read(numTiles * tileWidth.toInt() * tileHeight.toInt() * 2)
-    charpadProcessor.processTiles { it.write(tileData) }
-    return TileSetDimensions(numTiles, tileWidth, tileHeight)
-  }
-
-  protected fun processTilesTagsBlock(numTiles: Int, inputByteStream: InputByteStream) {
-    readBlockMarker(inputByteStream)
-    // TODO: tiles tags are ignored for now
-    val tileTagsData = inputByteStream.read(numTiles)
-  }
-
-  protected fun processTilesNamesBlock(numTiles: Int, inputByteStream: InputByteStream) {
-    readBlockMarker(inputByteStream)
-    // TODO: tile names are ignored for now
-    val tileNamesData = readTileNames(inputByteStream, numTiles)
-  }
-
-  /** Only for v8. */
-  protected fun processCharsetMaterialsBlock(
-      numChars: Int, inputByteStream: InputByteStream
-  ): ByteArray? =
-      if (numChars > 0) {
-        val charMaterialData = inputByteStream.read(numChars)
-        charpadProcessor.processCharMaterials { it.write(charMaterialData) }
-        charMaterialData
-      } else {
-        null
-      }
-
-  private fun readTileNames(inputByteStream: InputByteStream, numTiles: Int): Array<String> =
-      (1..numTiles).map { readTileName(inputByteStream) }.toTypedArray()
-
-  private fun readTileName(inputByteStream: InputByteStream): String {
-    var i = 0
-    var value = inputByteStream.readByte()
-    val result = StringBuffer(32)
-
-    while (i < 32 && value != 0.toByte()) {
-      ++i
-      result.append(value.toChar())
-      value = inputByteStream.readByte()
+    protected fun processTilesBlock(inputByteStream: InputByteStream): TileSetDimensions {
+        readBlockMarker(inputByteStream)
+        val numTiles = inputByteStream.read(2).toWord().value + 1
+        val tileWidth = inputByteStream.readByte()
+        val tileHeight = inputByteStream.readByte()
+        val tileData = inputByteStream.read(numTiles * tileWidth.toInt() * tileHeight.toInt() * 2)
+        charpadProcessor.processTiles { it.write(tileData) }
+        return TileSetDimensions(numTiles, tileWidth, tileHeight)
     }
-    if (i == 32) {
-      value = inputByteStream.readByte()
-      if (value != 0.toByte()) {
-        throw InsufficientDataException(
-            "Lack of null termination in 32 character tile name: $result")
-      }
-    }
-    return result.toString()
-  }
 
-  protected fun readBlockMarker(inputByteStream: InputByteStream): Byte {
-    inputByteStream.readByte()
-    val byte1 = inputByteStream.readByte()
-    return byte1 and 0x0f.toByte()
-  }
+    protected fun processTilesTagsBlock(numTiles: Int, inputByteStream: InputByteStream) {
+        readBlockMarker(inputByteStream)
+        // TODO: tiles tags are ignored for now
+        val tileTagsData = inputByteStream.read(numTiles)
+    }
+
+    protected fun processTilesNamesBlock(numTiles: Int, inputByteStream: InputByteStream) {
+        readBlockMarker(inputByteStream)
+        // TODO: tile names are ignored for now
+        val tileNamesData = readTileNames(inputByteStream, numTiles)
+    }
+
+    /** Only for v8. */
+    protected fun processCharsetMaterialsBlock(
+        numChars: Int,
+        inputByteStream: InputByteStream
+    ): ByteArray? {
+        readBlockMarker(inputByteStream)
+        return if (numChars > 0) {
+            val charMaterialData = inputByteStream.read(numChars)
+            charpadProcessor.processCharMaterials { it.write(charMaterialData) }
+            charMaterialData
+        } else {
+            null
+        }
+    }
+
+    private fun readTileNames(inputByteStream: InputByteStream, numTiles: Int): Array<String> =
+        (1..numTiles).map { readTileName(inputByteStream) }.toTypedArray()
+
+    private fun readTileName(inputByteStream: InputByteStream): String {
+        var i = 0
+        var value = inputByteStream.readByte()
+        val result = StringBuffer(32)
+
+        while (i < 32 && value != 0.toByte()) {
+            ++i
+            result.append(value.toChar())
+            value = inputByteStream.readByte()
+        }
+        if (i == 32) {
+            value = inputByteStream.readByte()
+            if (value != 0.toByte()) {
+                throw InsufficientDataException(
+                    "Lack of null termination in 32 character tile name: $result"
+                )
+            }
+        }
+        return result.toString()
+    }
+
+    protected fun readBlockMarker(inputByteStream: InputByteStream): Byte {
+        inputByteStream.readByte()
+        val byte1 = inputByteStream.readByte()
+        return byte1 and 0x0f.toByte()
+    }
 }
