@@ -33,6 +33,7 @@ import com.github.c64lib.retroassembler.charpad_processor.producer.CharColoursPr
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharMaterialsProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharsetProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.MapProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.TileColoursProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.TileProducer
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
@@ -114,6 +115,7 @@ class TextHiresCTMTest :
           val charsetAttributesOutput = BinaryOutputMock()
           val charsetMaterialOutput = BinaryOutputMock()
           val tilesetOutput = BinaryOutputMock()
+          val tileColoursOutput = BinaryOutputMock()
           val mapOutput = BinaryOutputMock()
 
           val processor =
@@ -124,6 +126,7 @@ class TextHiresCTMTest :
                       CharAttributesProducer(output = charsetAttributesOutput),
                       CharMaterialsProducer(output = charsetMaterialOutput),
                       TileProducer(output = tilesetOutput),
+                      TileColoursProducer(output = tileColoursOutput),
                       MapProducer(
                           leftTop = MapCoord(0, 0),
                           rightBottom = MapCoord(40, 25),
@@ -154,6 +157,72 @@ class TextHiresCTMTest :
                   byteArrayOf(0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00) +
                       byteArrayOf(0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00) +
                       byteArrayOf(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
+            }
+            Then("tile colours are empty") { tileColoursOutput.bytes.size shouldBe 0 }
+            Then("map is read") {
+              mapOutput.bytes.copyOfRange(0, 6) shouldBe
+                  byteArrayOf(0x00, 0x00, 0x01, 0x00, 0x02, 0x00)
+              mapOutput.bytes.copyOfRange(480 - 6, 480) shouldBe
+                  byteArrayOf(0x02, 0x00, 0x01, 0x00, 0x00, 0x00)
+            }
+          }
+        }
+      }
+
+      supportedVersions.forEach { ctmVersion ->
+        val input =
+            InputByteStreamAdapter(
+                this.javaClass.getResourceAsStream("/text-hi-per-tile-ctm$ctmVersion.ctm")!!)
+
+        Given("[CTM v$ctmVersion] with per tile colouring method and with tile set") {
+          val charsetOutput = BinaryOutputMock()
+          val charsetColourOutput = BinaryOutputMock()
+          val charsetAttributesOutput = BinaryOutputMock()
+          val charsetMaterialOutput = BinaryOutputMock()
+          val tilesetOutput = BinaryOutputMock()
+          val tilesColoursOutput = BinaryOutputMock()
+          val mapOutput = BinaryOutputMock()
+
+          val processor =
+              CharpadProcessor(
+                  listOf(
+                      CharsetProducer(output = charsetOutput),
+                      CharColoursProducer(output = charsetColourOutput),
+                      CharAttributesProducer(output = charsetAttributesOutput),
+                      CharMaterialsProducer(output = charsetMaterialOutput),
+                      TileProducer(output = tilesetOutput),
+                      TileColoursProducer(output = tilesColoursOutput),
+                      MapProducer(
+                          leftTop = MapCoord(0, 0),
+                          rightBottom = MapCoord(40, 25),
+                          output = mapOutput)))
+
+          When("process is called") {
+            processor.process(input)
+
+            Then("charset content is read") {
+              charsetOutput.bytes shouldBe
+                  byteArrayOf(0x00, 0x7E, 0x42, 0x00, 0x00, 0x42, 0x7E, 0x00) +
+                      byteArrayOf(0x00, 0x18, 0x18, 0x24, 0x24, 0x42, 0x42, 0x00) +
+                      byteArrayOf(0x00, 0x7E, 0x42, 0x40, 0x40, 0x42, 0x7E, 0x00) +
+                      byteArrayOf(0x00, 0x66, 0x42, 0x42, 0x42, 0x42, 0x66, 0x00)
+            }
+            Then("char colours are empty") { charsetColourOutput.bytes.size shouldBe 0 }
+            Then("char attributes are read") {
+              charsetAttributesOutput.bytes shouldBe
+                  byteArrayOf(0x00, 0x40, 0x80.toByte(), 0xC0.toByte())
+            }
+            Then("char materials are read") {
+              charsetMaterialOutput.bytes shouldBe byteArrayOf(0x0, 0x4, 0x8, 0xC)
+            }
+            Then("tiles are read") {
+              tilesetOutput.bytes shouldBe
+                  byteArrayOf(0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00) +
+                      byteArrayOf(0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00) +
+                      byteArrayOf(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
+            }
+            Then("tiles colours are read") {
+              tilesColoursOutput.bytes shouldBe byteArrayOf(0x01, 0x02, 0x06)
             }
             Then("map is read") {
               mapOutput.bytes.copyOfRange(0, 6) shouldBe

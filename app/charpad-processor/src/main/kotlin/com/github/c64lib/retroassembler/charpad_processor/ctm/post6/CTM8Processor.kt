@@ -25,6 +25,7 @@ package com.github.c64lib.retroassembler.charpad_processor.ctm.post6
 
 import com.github.c64lib.processor.commons.InputByteStream
 import com.github.c64lib.retroassembler.binutils.combineNybbles
+import com.github.c64lib.retroassembler.binutils.convertToHiNybbles
 import com.github.c64lib.retroassembler.binutils.isolateEachNth
 import com.github.c64lib.retroassembler.binutils.toUnsignedByte
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
@@ -54,7 +55,7 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
 
     if (colouringMethod == ColouringMethod.PerChar) {
       // block 2 char colours
-      val charColours = readBlockMarker(inputByteStream)
+      readBlockMarker(inputByteStream)
       if (numChars > 0) {
         val charColoursData = inputByteStream.read(numChars * 4)
         charpadProcessor.processCharColours {
@@ -73,6 +74,8 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
           }
         }
       }
+    } else if (charMaterialData != null) {
+      charpadProcessor.processCharAttributes { it.write(convertToHiNybbles(charMaterialData)) }
     }
 
     var tileWidth: Byte? = null
@@ -86,7 +89,7 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
 
       if (colouringMethodFrom(header.colouringMethod) == ColouringMethod.PerTile) {
         // block n tile colours
-        val tileColoursHeader = readBlockMarker(inputByteStream)
+        readBlockMarker(inputByteStream)
         val tileColoursData = inputByteStream.read(numTiles * 4)
         charpadProcessor.processTileColours {
           it.write(isolateEachNth(tileColoursData, 4, primaryColorIndex))

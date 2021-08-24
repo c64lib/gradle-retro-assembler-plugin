@@ -42,7 +42,8 @@ internal class CTM7Processor(charpadProcessor: CharpadProcessor) :
     // block 0 charset
     val numChars = processCharsetBlock(inputByteStream)
     // block 1 char attrs
-    processCharsetAttributesBlock(numChars, inputByteStream)
+    processCharsetAttributesBlock(
+        colouringMethodFrom(header.colouringMethod), numChars, inputByteStream)
 
     var tileWidth: Byte? = null
     var tileHeight: Byte? = null

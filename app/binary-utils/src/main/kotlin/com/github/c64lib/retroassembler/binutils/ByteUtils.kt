@@ -36,3 +36,6 @@ fun combineNybbles(dataLo: ByteArray, dataHi: ByteArray): ByteArray =
     dataLo.zip(dataHi)
         .map { pair -> (pair.first + (pair.second.toInt() shl 4)).toByte() }
         .toByteArray()
+
+fun convertToHiNybbles(data: ByteArray): ByteArray =
+    data.map { value -> (value.toInt() shl 4).toByte() }.toByteArray()

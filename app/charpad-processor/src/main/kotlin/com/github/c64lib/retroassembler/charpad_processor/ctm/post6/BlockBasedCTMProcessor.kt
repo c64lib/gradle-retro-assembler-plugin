@@ -30,6 +30,8 @@ import com.github.c64lib.retroassembler.binutils.toWord
 import com.github.c64lib.retroassembler.charpad_processor.CTMProcessor
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException
+import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
+import com.github.c64lib.retroassembler.charpad_processor.model.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.model.Dimensions
 import com.github.c64lib.retroassembler.charpad_processor.model.TileSetDimensions
 import kotlin.experimental.and
@@ -64,12 +66,16 @@ internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProc
   }
 
   /** Only for v6, v7. */
-  protected fun processCharsetAttributesBlock(numChars: Int, inputByteStream: InputByteStream) {
+  protected fun processCharsetAttributesBlock(
+      colouringMethod: ColouringMethod, numChars: Int, inputByteStream: InputByteStream
+  ) {
     readBlockMarker(inputByteStream)
     if (numChars > 0) {
       val charAttributeData = inputByteStream.read(numChars)
       charpadProcessor.processCharAttributes { it.write(charAttributeData) }
-      charpadProcessor.processCharColours { it.write(isolateLoNybbles(charAttributeData)) }
+      if (colouringMethod == ColouringMethod.PerChar) {
+        charpadProcessor.processCharColours { it.write(isolateLoNybbles(charAttributeData)) }
+      }
       charpadProcessor.processCharMaterials { it.write(isolateHiNybbles(charAttributeData)) }
     }
   }
