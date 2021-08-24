@@ -139,6 +139,7 @@ internal data class CTM5Header(
 ) {
   fun toHeader(): CTMHeader =
       CTMHeader(
+          version = 5,
           backgroundColour0 = screenColour,
           backgroundColour1 = multicolour1,
           backgroundColour2 = multicolour2,

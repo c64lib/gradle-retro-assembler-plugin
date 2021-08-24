@@ -32,6 +32,7 @@ internal class CTMByteArrayMock(
     version: Int,
     header: CTMHeader =
         CTMHeader(
+            version.toByte(),
             0.toByte(),
             1.toByte(),
             2.toByte(),

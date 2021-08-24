@@ -25,6 +25,7 @@ package com.github.c64lib.retroassembler.binutils
 
 import com.github.c64lib.processor.commons.BinaryOutput
 import com.github.c64lib.processor.commons.InputByteStream
+import com.github.c64lib.processor.commons.Output
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.util.*
@@ -38,6 +39,18 @@ class BinaryOutputMock : BinaryOutput {
 
   override fun write(data: ByteArray) {
     storedData.add(data)
+  }
+}
+
+class OutputMock<T> : Output<T> {
+
+  private var storedData: T? = null
+
+  val data: T?
+    get() = storedData
+
+  override fun write(data: T) {
+    storedData = data
   }
 }
 

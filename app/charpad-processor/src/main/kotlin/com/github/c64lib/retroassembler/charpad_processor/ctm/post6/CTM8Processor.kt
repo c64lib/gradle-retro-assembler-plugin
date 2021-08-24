@@ -164,6 +164,7 @@ internal data class CTM8Header(
 
   fun toHeader(tileWidth: Byte?, tileHeight: Byte?, mapWidth: Int, mapHeight: Int): CTMHeader =
       CTMHeader(
+          version = 8,
           backgroundColour0 = screenColour,
           backgroundColour1 = multicolour1,
           backgroundColour2 = multicolour2,

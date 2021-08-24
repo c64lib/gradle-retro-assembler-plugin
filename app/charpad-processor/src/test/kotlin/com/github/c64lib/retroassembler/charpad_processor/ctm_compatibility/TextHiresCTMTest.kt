@@ -25,13 +25,16 @@ package com.github.c64lib.retroassembler.charpad_processor.ctm_compatibility
 
 import com.github.c64lib.retroassembler.binutils.BinaryOutputMock
 import com.github.c64lib.retroassembler.binutils.InputByteStreamAdapter
+import com.github.c64lib.retroassembler.binutils.OutputMock
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
+import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
 import com.github.c64lib.retroassembler.charpad_processor.model.MapCoord
 import com.github.c64lib.retroassembler.charpad_processor.model.minTopLeftMapCoord
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharAttributesProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharColoursProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharMaterialsProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharsetProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.HeaderProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.MapProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.TileColoursProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.TileProducer
@@ -58,10 +61,12 @@ class TextHiresCTMTest :
           val charsetMaterialOutput = BinaryOutputMock()
           val tilesetOutput = BinaryOutputMock()
           val mapOutput = BinaryOutputMock()
+          val headerOutput = OutputMock<CTMHeader>()
 
           val processor =
               CharpadProcessor(
                   listOf(
+                      HeaderProducer(output = headerOutput),
                       CharsetProducer(output = charsetOutput),
                       CharColoursProducer(output = charsetColourOutput),
                       CharAttributesProducer(output = charsetAttributesOutput),
@@ -75,6 +80,7 @@ class TextHiresCTMTest :
           When("process is called") {
             processor.process(input)
 
+            Then("CTM version matches") { headerOutput.data?.version?.toInt() shouldBe ctmVersion }
             Then("charset content is read") {
               charsetOutput.bytes shouldBe
                   byteArrayOf(0x00, 0x7E, 0x42, 0x00, 0x00, 0x42, 0x7E, 0x00) +
