@@ -27,4 +27,4 @@ import com.github.c64lib.processor.commons.Output
 import com.github.c64lib.processor.commons.ScalableBinaryProducer
 
 class TileTagsProducer(start: Int = 0, end: Int = 65536, output: Output<ByteArray>) :
-    ScalableBinaryProducer(start = start, end = end, scale = 2, output = output)
+    ScalableBinaryProducer(start = start, end = end, output = output)
