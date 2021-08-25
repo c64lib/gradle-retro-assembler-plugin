@@ -24,8 +24,8 @@ SOFTWARE.
 package com.github.c64lib.gradle.preprocess.spritepad
 
 import com.github.c64lib.gradle.GROUP_BUILD
+import com.github.c64lib.gradle.preprocess.BinaryOutputBuffer
 import com.github.c64lib.gradle.preprocess.FisInput
-import com.github.c64lib.gradle.preprocess.OutputBuffer
 import com.github.c64lib.gradle.preprocess.PreprocessingExtension
 import com.github.c64lib.retroassembler.spritepad_processor.SpriteProducer
 import com.github.c64lib.retroassembler.spritepad_processor.SpritepadProcessor
@@ -57,7 +57,7 @@ open class Spritepad : DefaultTask() {
   private fun processInput(
       fis: FileInputStream, output: SpritesOutputsExtension, pipeline: SpritepadPipelineExtension
   ) {
-    val buffers: MutableList<OutputBuffer> = LinkedList()
+    val buffers: MutableList<BinaryOutputBuffer> = LinkedList()
     val processor = SpritepadProcessor(producers(output, buffers, pipeline))
     processor.process(FisInput(fis))
     buffers.forEach { it.flush() }
@@ -65,7 +65,7 @@ open class Spritepad : DefaultTask() {
 
   private fun producers(
       output: SpritesOutputsExtension,
-      buffers: MutableList<OutputBuffer>,
+      buffers: MutableList<BinaryOutputBuffer>,
       pipeline: SpritepadPipelineExtension
   ) =
       output.sprites.map { sprites ->

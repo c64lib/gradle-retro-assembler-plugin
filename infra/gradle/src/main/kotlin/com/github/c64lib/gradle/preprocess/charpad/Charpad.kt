@@ -24,20 +24,24 @@ SOFTWARE.
 package com.github.c64lib.gradle.preprocess.charpad
 
 import com.github.c64lib.gradle.GROUP_BUILD
+import com.github.c64lib.gradle.asms.AssemblySrcWriterFactory
+import com.github.c64lib.gradle.preprocess.BinaryOutputBuffer
 import com.github.c64lib.gradle.preprocess.FisInput
-import com.github.c64lib.gradle.preprocess.OutputBuffer
 import com.github.c64lib.gradle.preprocess.PreprocessingExtension
-import com.github.c64lib.retroassembler.charpad_processor.CharAttributesProducer
-import com.github.c64lib.retroassembler.charpad_processor.CharColoursProducer
-import com.github.c64lib.retroassembler.charpad_processor.CharMaterialsProducer
-import com.github.c64lib.retroassembler.charpad_processor.CharScreenColoursProducer
+import com.github.c64lib.gradle.preprocess.TextOutputBuffer
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
-import com.github.c64lib.retroassembler.charpad_processor.CharsetProducer
-import com.github.c64lib.retroassembler.charpad_processor.MapCoord
-import com.github.c64lib.retroassembler.charpad_processor.MapProducer
-import com.github.c64lib.retroassembler.charpad_processor.TileColoursProducer
-import com.github.c64lib.retroassembler.charpad_processor.TileProducer
-import com.github.c64lib.retroassembler.charpad_processor.TileScreenColoursProducer
+import com.github.c64lib.retroassembler.charpad_processor.model.MapCoord
+import com.github.c64lib.retroassembler.charpad_processor.producer.CharAttributesProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.CharColoursProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.CharMaterialsProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.CharScreenColoursProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.CharsetProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.HeaderProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.MapProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.TileColoursProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.TileProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.TileScreenColoursProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.TileTagsProducer
 import java.io.FileInputStream
 import java.util.*
 import org.gradle.api.DefaultTask
@@ -68,15 +72,18 @@ open class Charpad : DefaultTask() {
   private fun processInput(
       fis: FileInputStream, output: OutputsExtension, pipeline: CharpadPipelineExtension
   ) {
-    val buffers: MutableList<OutputBuffer> = LinkedList()
-    val processor = CharpadProcessor(producers(output, buffers, pipeline))
+    val buffers: MutableList<BinaryOutputBuffer> = LinkedList()
+    val textBuffers: MutableList<TextOutputBuffer> = LinkedList()
+    val processor = CharpadProcessor(producers(output, buffers, textBuffers, pipeline))
     processor.process(FisInput(fis))
     buffers.forEach { it.flush() }
+    textBuffers.forEach { it.flush() }
   }
 
   private fun producers(
       output: OutputsExtension,
-      buffers: MutableList<OutputBuffer>,
+      buffers: MutableList<BinaryOutputBuffer>,
+      textBuffers: MutableList<TextOutputBuffer>,
       pipeline: CharpadPipelineExtension
   ) =
       charsetProducers(output, buffers, pipeline) +
@@ -85,13 +92,26 @@ open class Charpad : DefaultTask() {
           charsetColoursProducer(output, buffers, pipeline) +
           charsetScreenColoursProducer(output, buffers, pipeline) +
           tileProducers(output, buffers, pipeline) +
+          tileTagsProducers(output, buffers, pipeline) +
           tileColoursProducers(output, buffers, pipeline) +
           tileScreenColoursProducers(output, buffers, pipeline) +
-          mapProducers(output, buffers, pipeline)
+          mapProducers(output, buffers, pipeline) +
+          metaProducers(output, textBuffers, pipeline)
+
+  private fun metaProducers(
+      output: OutputsExtension,
+      textBuffers: MutableList<TextOutputBuffer>,
+      pipeline: CharpadPipelineExtension
+  ) =
+      output.meta.map { meta ->
+        val textOutput = meta.resolveOutput(textBuffers, useBuildDir(pipeline))
+        val srcWriter = AssemblySrcWriterFactory.of(meta.dialect, textOutput)
+        HeaderProducer(output = CharpadMetaOutput(srcWriter, meta))
+      }
 
   private fun charsetProducers(
       output: OutputsExtension,
-      buffers: MutableList<OutputBuffer>,
+      buffers: MutableList<BinaryOutputBuffer>,
       pipeline: CharpadPipelineExtension
   ) =
       output.charsets.map { charset ->
@@ -103,7 +123,7 @@ open class Charpad : DefaultTask() {
 
   private fun charsetAttributesProducers(
       output: OutputsExtension,
-      buffers: MutableList<OutputBuffer>,
+      buffers: MutableList<BinaryOutputBuffer>,
       pipeline: CharpadPipelineExtension
   ) =
       output.charsetAttributes.map { charsetAttributes ->
@@ -115,7 +135,7 @@ open class Charpad : DefaultTask() {
 
   private fun charsetColoursProducer(
       output: OutputsExtension,
-      buffers: MutableList<OutputBuffer>,
+      buffers: MutableList<BinaryOutputBuffer>,
       pipeline: CharpadPipelineExtension
   ) =
       output.charsetColours.map { charsetColours ->
@@ -127,7 +147,7 @@ open class Charpad : DefaultTask() {
 
   private fun charsetScreenColoursProducer(
       output: OutputsExtension,
-      buffers: MutableList<OutputBuffer>,
+      buffers: MutableList<BinaryOutputBuffer>,
       pipeline: CharpadPipelineExtension
   ) =
       output.charsetScreenColours.map { charsetScreenColours ->
@@ -139,7 +159,7 @@ open class Charpad : DefaultTask() {
 
   private fun charsetMaterialsProducers(
       output: OutputsExtension,
-      buffers: MutableList<OutputBuffer>,
+      buffers: MutableList<BinaryOutputBuffer>,
       pipeline: CharpadPipelineExtension
   ) =
       output.charsetMaterials.map { charsetMaterials ->
@@ -151,7 +171,7 @@ open class Charpad : DefaultTask() {
 
   private fun tileProducers(
       output: OutputsExtension,
-      buffers: MutableList<OutputBuffer>,
+      buffers: MutableList<BinaryOutputBuffer>,
       pipeline: CharpadPipelineExtension
   ) =
       output.tiles.map { tile ->
@@ -161,9 +181,21 @@ open class Charpad : DefaultTask() {
             output = tile.resolveOutput(buffers, useBuildDir(pipeline)))
       }
 
+  private fun tileTagsProducers(
+      output: OutputsExtension,
+      buffers: MutableList<BinaryOutputBuffer>,
+      pipeline: CharpadPipelineExtension
+  ) =
+      output.tileTags.map { tileTags ->
+        TileTagsProducer(
+            start = tileTags.start,
+            end = tileTags.end,
+            output = tileTags.resolveOutput(buffers, useBuildDir(pipeline)))
+      }
+
   private fun tileColoursProducers(
       output: OutputsExtension,
-      buffers: MutableList<OutputBuffer>,
+      buffers: MutableList<BinaryOutputBuffer>,
       pipeline: CharpadPipelineExtension
   ) =
       output.tileColours.map { tileAttr ->
@@ -175,7 +207,7 @@ open class Charpad : DefaultTask() {
 
   private fun tileScreenColoursProducers(
       output: OutputsExtension,
-      buffers: MutableList<OutputBuffer>,
+      buffers: MutableList<BinaryOutputBuffer>,
       pipeline: CharpadPipelineExtension
   ) =
       output.tileScreenColours.map { tileScreenColours ->
@@ -187,7 +219,7 @@ open class Charpad : DefaultTask() {
 
   private fun mapProducers(
       output: OutputsExtension,
-      buffers: MutableList<OutputBuffer>,
+      buffers: MutableList<BinaryOutputBuffer>,
       pipeline: CharpadPipelineExtension
   ) =
       output.maps.map { map ->

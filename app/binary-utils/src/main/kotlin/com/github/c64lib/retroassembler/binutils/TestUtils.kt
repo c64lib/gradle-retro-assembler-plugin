@@ -23,9 +23,11 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.binutils
 
-import com.github.c64lib.retroassembler.domain.processor.BinaryOutput
-import com.github.c64lib.retroassembler.domain.processor.InputByteStream
+import com.github.c64lib.processor.commons.BinaryOutput
+import com.github.c64lib.processor.commons.InputByteStream
+import com.github.c64lib.processor.commons.Output
 import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.util.*
 
 class BinaryOutputMock : BinaryOutput {
@@ -40,9 +42,29 @@ class BinaryOutputMock : BinaryOutput {
   }
 }
 
+class OutputMock<T> : Output<T> {
+
+  private var storedData: T? = null
+
+  val data: T?
+    get() = storedData
+
+  override fun write(data: T) {
+    storedData = data
+  }
+}
+
 class BinaryInputMock(data: ByteArray) : InputByteStream {
 
   private val stream = ByteArrayInputStream(data)
 
   override fun read(amount: Int): ByteArray = stream.readNBytes(amount)
+}
+
+class InputByteStreamAdapter(private val inputStream: InputStream) : InputByteStream {
+  override fun read(amount: Int): ByteArray {
+    val buffer = ByteArray(amount)
+    val size = inputStream.read(buffer)
+    return buffer.copyOfRange(0, size)
+  }
 }

@@ -25,7 +25,8 @@ package com.github.c64lib.retroassembler.charpad_processor
 
 import com.github.c64lib.retroassembler.binutils.concat
 import com.github.c64lib.retroassembler.binutils.wordOf
-import com.github.c64lib.retroassembler.charpad_processor.ctm5.toCTM5Flags
+import com.github.c64lib.retroassembler.charpad_processor.ctm.pre6.toCTM5Flags
+import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
 
 internal class CTM5ByteArrayMock(
     header: CTMHeader,
@@ -39,18 +40,22 @@ internal class CTM5ByteArrayMock(
   private val signature = "CTM".toByteArray() concat byteArrayOf(5.toByte())
   private val headerBytes =
       byteArrayOf(
-          header.screenColour,
-          header.multicolour1,
-          header.multicolour2,
+          header.backgroundColour0,
+          header.backgroundColour1,
+          header.backgroundColour2,
           header.charColour,
           header.colouringMethod.value,
           header.toCTM5Flags()) concat
           wordOf(charset.size / 8 - 1).toByteArray() concat
-          wordOf(tiles.size / 2 / (header.tileWidth ?: 1) / (header.tileHeight ?: 1) - 1)
+          wordOf(
+              tiles.size /
+                  2 /
+                  (header.tileDimensions?.width ?: 1) /
+                  (header.tileDimensions?.height ?: 1) - 1)
               .toByteArray() concat
-          byteArrayOf(header.tileWidth ?: 1, header.tileHeight ?: 1) concat
-          wordOf(header.mapWidth).toByteArray() concat
-          wordOf(header.mapHeight).toByteArray()
+          byteArrayOf(header.tileDimensions?.width ?: 1, header.tileDimensions?.height ?: 1) concat
+          wordOf(header.mapDimensions.width).toByteArray() concat
+          wordOf(header.mapDimensions.height).toByteArray()
 
   val bytes: ByteArray =
       signature concat

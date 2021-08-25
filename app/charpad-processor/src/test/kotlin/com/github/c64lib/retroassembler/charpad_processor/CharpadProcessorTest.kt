@@ -27,6 +27,8 @@ import com.github.c64lib.retroassembler.binutils.BinaryInputMock
 import com.github.c64lib.retroassembler.binutils.BinaryOutputMock
 import com.github.c64lib.retroassembler.binutils.byteArrayOfInts
 import com.github.c64lib.retroassembler.binutils.concat
+import com.github.c64lib.retroassembler.charpad_processor.producer.CharsetProducer
+import com.github.c64lib.retroassembler.charpad_processor.producer.TileProducer
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec

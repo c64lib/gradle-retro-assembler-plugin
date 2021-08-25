@@ -20,7 +20,7 @@ This is an open source project hosted on https://github.com/c64lib/gradle-retro-
 In case of any problems when working with the plugin, don't hesitate to create an https://github.com/c64lib/gradle-retro-assembler-plugin/issues[issue].
 Feel free to fork and create pull requests.
 
-== Usage
+== Getting started
 
 === Installation & requirements
 
@@ -74,17 +74,6 @@ As you can see you don't have to download Retro Assembler Plugin, it will be aut
 
 Read a complete installation manual in documentation: https://c64lib.github.io/docu/pages/install[]
 
-=== Customizing your build
-The following properties can be customized:
-
-* `defines` - sets up a list of preprocessor symbols that will de defined during this assembly launch
-* `dialect` - selects Assembler dialect and determines Assembler to be used (possible values: `KickAssembler`)
-* `dialectVersion` - selects version of Assembler binary to be used (see https://github.com/c64lib/asm-ka/releases for available versions)
-* `excludes` - provides array of file patterns that matches source files to be excluded from assembling; default value: `[".ra/\**/*.asm"]`
-* `includes` - provides array of file patterns that contains sources you want to assembly; default value: `["\**/*.asm"]`
-* `libDirs` - provides array of directory locations where your libraries are downloaded; default value: `[]`
-* `srcDirs` - provides array of directory locations where your source code (`asm` files) resides; default value: `["."]`
-
 === Launching your build
 There are two core tasks that can be used from command line:
 
@@ -102,16 +91,224 @@ gradle clean build
 
 This ensures that old files are removed prior assembling process.
 
+=== Using Gradle Wrapper
+Gradle Wrapper is a recommended way to distribute sources of your projects.
+When Gradle Wrapper is installed in your project, other people do not need to have Gradle installed locally.
+Gradle Wrapper takes care on downloading appropriate Gradle version during build and then executing it using `build.gradle` file.
+Actually only Java Environment (JDK) is necessary to build such projects.
+
+With Gradle Wrapper build can be run using `gradlew` command:
+
+[source,bash]
+----
+gradlew clean build
+----
+
+or
+
+[source,bash]
+----
+./gradlew clean build
+----
+
+under linux-like OS.
+
+Read how to install Gradle Wrapper in Gradle documentation: https://docs.gradle.org/current/userguide/gradle_wrapper.html[].
+
+== Assembling
+
+Assembling is a core part of the build tool.
+The idea behind is that the tool should take care of appropriate assembler binary as well as your project structure and just compile source files into binary with minimal effort of the coder.
+This section describes how assembling can be configured and run.
+
+=== Configuration
+
+In order to use assembling part of the build tool you have to specify the `retroProject` section in your build file:
+
+[source,groovy]
+----
+retroProject {
+    dialect = "KickAssembler"
+    dialectVersion = "5.20"
+}
+----
+
+The minimal amount of information you have to provide is:
+
+dialect:: A type of assembler that you want to use (currently only `KickAssembler` is supported).
+dialectVersion:: A version of the selected assembler you want to use. For KickAssembler, see https://github.com/c64lib/asm-ka/releases for list of all available versions.
+
+In this setup, the tool will assemble all files with `asm` extension located in project directory and all subdirectories.
+See <<Customizing your build>> section to see how to modify this default behavior.
+
+=== Tasks
+
+There are two general tasks that are in most cases sufficient to build/rebuild an ASM project:
+
+clean:: Erases all generated/assembled files from your project including PRG files.
+build:: Performs a complete build of your project (including assembling, running tests and running all processors).
+
+The simplest use case is running from command line:
+
+[source,bash]
+----
+gradlew clean build
+----
+
+The `clean` task above is optional.
+You should use it if you want to ensure that all files will be recreated/assembled from scratch.
+This is useful for troubleshooting mainly.
+
+Just to run an assembler use `asm` task:
+
+[source,bash]
+----
+gradlew asm
+----
+
 There are two supplementary tasks that are called automatically when `build` task is performed:
 
-* `resolveDevDeps` - downloads and prepares to use software needed for assembling (i.e. KickAssembler binary)
-* `downloadDeps`  - downloads and unzips libraries (dependencies) that are used by your project.
+resolveDevDeps:: downloads and prepares to use software needed for assembling (i.e. KickAssembler binary)
+downloadDeps:: downloads and unzips libraries (dependencies) that are used by your project.
 
 It is also possible to run supplementary tasks manually:
 
 [source,bash]
 ----
 gradle resolveDevDeps downloadDeps
+----
+
+[NOTE]
+====
+Both `resolveDevDeps` and `downloadDeps` tasks are *ALWAYS* downloading the resources from the net.
+This means that if you are offline the build will fail.
+This is a naive approach because these resources are saved on disk and can be potentially reused.
+There are plans to improve it in the future.
+====
+
+It is possible to exclude any task from execution with following syntax:
+
+[source,bash]
+----
+gradlew build -x resolveDevDeps -x downloadDeps
+----
+
+This was you can avoid redundant downloading or still work while offline.
+
+Similarly, you can exclude running unit tests:
+
+[source,bash]
+----
+gradlew build -x test
+----
+
+=== Customizing your build
+Certain aspects of assembling task can be customized.
+Customization can be done by setting properties in `retroProject` configuration section.
+
+==== Project layout
+
+Project layout means where (in which directories) to look for source files for the assembler to work on.
+The build tool allows to specify both the directories as well as which files to use.
+
+`srcDirs`:: Provides array of directory locations where your source code (`asm` files) resides; default value: `["."]`.
+`excludes`:: Provides array of file patterns that matches source files to be excluded from assembling; default value: `[".ra/\**/*.asm"]`.
+`includes`:: Provides array of file patterns that contains sources you want to assembly; default value: `["\**/*.asm"]`.
+
+Multiple source directories can be specified:
+
+[source,groovy]
+----
+retroProject {
+    dialect = "KickAssembler"
+    dialectVersion = "5.20"
+    srcDirs = ["src", "lib"]
+}
+----
+
+By default, all files with `.asm` extension located in source directories are included.
+You can either specify exact single file to be assembled:
+
+[source,groovy]
+----
+retroProject {
+    dialect = "KickAssembler"
+    dialectVersion = "5.20"
+    srcDirs = ["src"]
+    includes = ["rex.asm"]
+}
+----
+
+or include only files located directly in source directories and not in any subdirectories:
+
+[source,groovy]
+----
+retroProject {
+    dialect = "KickAssembler"
+    dialectVersion = "5.20"
+    srcDirs = ["src", "lib"]
+    includes = ["*.asm"]
+}
+----
+
+You can also exclude certain files, for instance these starting with `_` (underscore) in the name:
+
+[source,groovy]
+----
+retroProject {
+    dialect = "KickAssembler"
+    dialectVersion = "5.20"
+    srcDirs = ["src"]
+    excludes = ["**/_*.asm"]
+}
+----
+
+==== Including external resources
+
+There are certain resources considered as "external" to the project.
+In build tool there are:
+
+* external libraries, downloaded by the tool itself and located in `.ra\deps` "magic" directory;
+* generated `bin` files containing graphics, maps etc, generated by various <<Processors>>.
+
+These are volatile files (not commited to the SCM) but we really would like to import (include) them in our `asm` files.
+For that reason we would like to add certain additional locations to the search path of the assembler.
+This can be easily achieved with `libDirs` parameter.
+
+`libDirs`:: Provides array of directory locations where your libraries are downloaded; default value: `[]`.
+
+If you want to use `c64lib` set of ASM libraries and also use <<Charpad exports>> and <<Spritepad exports>> configured to use `build` directory as a output, use following snippet:
+
+[source,groovy]
+----
+retroProject {
+    dialect = "KickAssembler"
+    dialectVersion = "5.20"
+    libDirs = [".ra/deps/c64lib", "build/charpad", "build/spritepad"]
+
+    libFromGitHub("c64lib/common", "develop")
+    libFromGitHub("c64lib/chipset", "develop")
+    libFromGitHub("c64lib/text", "develop")
+    libFromGitHub("c64lib/copper64", "develop")
+}
+----
+
+==== Preprocessor symbols
+
+Some assemblers (like KickAssembler) allow defining symbols that can be used by preprocessor in order to compile certain parts of the software conditionally.
+These symbols can be also passed to the Assembler from CLI thus via build tool.
+
+`defines`:: Sets up a list of preprocessor symbols that will de defined during this assembly launch.
+
+Use the following snippet to define `ntsc` and `debug` symbol during assembling:
+
+[source,groovy]
+----
+retroProject {
+    dialect = "KickAssembler"
+    dialectVersion = "5.20"
+    defines = ["ntsc", "debug"]
+}
 ----
 
 === Using external ASM dependencies
@@ -127,6 +324,39 @@ retroProject {
 
 Please note, that currently only GitHub is supported as a source for library releases.In future this will be extended.
 
+== Running Unit tests with 64spec
+Version 1.0.0 supports now launching unit tests written in KickAssembler.
+In order to be able to do so, a Vice 3+ must be installed on a machine where tests will be launched.
+It is also assumed that `x64` command is available on the path.
+Also the 64spec library must be added to dependencies, as any other KickAssembler library:
+
+[source,groovy]
+----
+retroProject {
+    libFromGitHub "c64lib/64spec", "0.7.0pr"
+}
+----
+
+Please note, that original version of 64spec does not work with newer versions of KickAssembler, therefore forked version is used.
+
+By default, Gradle Retro Assembler plugin detects whether there are any tests in your projects and if found it tries to launch them.
+It is assumed that tests are located in `spec` directory of project's root (or its
+subdirectories) and that they are included in files ended with `spec.asm`.
+This default behavior can be customized by assigning new dir name and file masks in `build.gradle`:
+
+[source,groovy]
+----
+retroProject {
+    specDirs = ['tests']
+    specIncludes = ['**/*.test.asm']
+}
+----
+
+The following will reconfigure plugin to seek for tests in `tests` directory and execute each test ended with `test.asm`.
+
+
+== Processors
+
 === Charpad exports
 
 Retro assembler build tool supports Charpad CTM file format and provides export of the following elements:
@@ -135,7 +365,8 @@ Retro assembler build tool supports Charpad CTM file format and provides export 
 * charset attributes, colours, screen colours (bitmap only) and materials,
 * tile set,
 * tile set colours and screen colours (bitmap only),
-* maps.
+* maps,
+* CTM file meta data.
 
 Currently supported versions of CTM file are 5, 6, 7 and 8.
 
@@ -219,7 +450,8 @@ The following elements can be specified (multiple times) under `outputs`:
 * `tiles`,
 * `tileColours`,
 * `tileScreenColours`,
-* `map`.
+* `map`,
+* `meta`.
 
 ===== Charset
 Outputs charset data out of the CTM file.
@@ -311,6 +543,17 @@ start:: Number of the first tile screen colour data to be exported (zero-based, 
 end:: Number of the tile screen colour data that follows the last one to be exported (zero-based, default: 65536).
 output:: Output file or transformations (see: <<Output transformations>>).
 
+===== Tile tags
+
+Outputs tile tags if the tile set is included in CTM file.
+
+Each tag is a byte of information assigned to each tile in the tileset.
+
+.Elements of tile tags output
+start:: Number of the first tile tag data to be exported (zero-based, default: 0).
+end:: Number of the tile tag data that follows the last one to be exported (zero-based, default: 65536).
+output:: Output file or transformation (see: <<Output transformations>>).
+
 ===== Map
 Outputs map data out of the CTM file.
 
@@ -325,161 +568,54 @@ right:: Right edge (exclusive) of the map being exported (zero-based, default: 6
 bottom:: Bottom edge (exclusive) of the map being exported (zero-based, default: 65536).
 output:: Output file or transformations (see: <<Output transformations>>).
 
-==== Output transformations
-The Charpad preprocessor produces binary files for each of the element.
-It is possible to apply further filtering to these files when needed.
+===== Meta
+Outputs CTM file meta data such as colour numbers, screen mode, colouring mode in specified Assembly format.
+Such meta data file can be included into ASM code for further usage.
+Meta data are exported in form of Assembly labels.
 
-===== Straight output
-Straight output means there are no filtering applied.
-This option is suitable when produced binary output fits your needs perfectly.
-You are then welcome to include such binary file into your program using appropriate directive (i.e. `LoadBinary` function and `.fill` directive of KickAssembler).
-
-To use straight output specify the `output` property:
-Retro assembler build tool supports Charpad CTM file format and provides export of the following elements:
-
-* charset,
-* charset colours,
-* charset materials,
-* tile set,
-* tile set colours,
-* maps.
-
-Currently supported versions of CTM file are 5, 6 and 7.
-
-Charpad processor is a part of preprocessor and is executed before assembling process is started.
-
-Charpad processor can be launched explicitly with following command:
-
-[source,bash]
-----
-gradle charpad
-----
-
-Charpad processor will be executed only if there is at least one `charpad` pipeline defined in `preprocess` section:
+.Elements of the meta output
+`dialect`:: Assembly dialect to be used. Currently only KickAssembler is supported. This property is mandatory.
+`prefix`:: Prefix for each label being exported. Default value: no prefix / empty.
+`namespace`:: Optional namespace to be declared for exported file. Default: empty / no namespace.
+`includeVersion`:: Whether to generate label with CTM file version. Default: false.
+`includeBgColours`:: Whether to generate labels with background colours. Default: true.
+`includeCharColours`:: Whether to generate labels with colours. Default: true.
+`includeMode`:: Whether to generate labels with screen mode and colouring method. Default: false.
 
 [source,groovy]
+.Example of meta data output.
 ----
-preprocess {
-    charpad {
-        input = file("src/levels/level1/level-background.ctm")
-        outputs {
-            charset {
-                start = 0
-                end = 64
-                output = file("src/levels/level1/charset.bin")
-            }
-        }
-    }
-}
-----
-[source,groovy]
-----
-charpad {
-    input = file("src/levels/level1/level1-background.ctm")
-    outputs {
-        charset {
-            output = file("levels/level1/charset-1.bin")
-        }
-    }
+meta {
+  dialect = "AssemblerType"
+  includeMode = true
+  namespace = "c64lib"
+  prefix = "logo_"
+  output = file("charset/game-logo-meta.asm")
 }
 ----
 
-===== Interleaver
-For most of the data, Charpad uses encoding that takes more than one byte per unit.
-Examples are: tile set (2 bytes per character number) and map data (2 bytes per tile code).
-Usually it is more efficient to have these bytes interleaved (one block for lo byte, one for hi byte).
+The example from above results in generated the following meta data source file:
 
-Or maybe, you know that you use up to 256 characters (usually this is the case), or you use up to 256 tiles at once.
-In such case, you may want to ignore hi bytes completely.
-
-Here is the place, where interleaved output comes with help.
-To split hi and lo bytes into separate outputs, you can use the following:
-
-[source,groovy]
+[source]
 ----
-preprocess {
-    charpad {
-        input = file("src/levels/level1/level1-background.ctm")
-        outputs {
-            map {
-              interleaver {
-                output = file("levels/level1/map-1-lo.bin")
-              }
-              interleaver {
-                output = file("levels/level1/map-1-hi.bin")
-              }
-            }
-        }
-    }
-}
+/*
+  This file is generated by Charpad processor of Retro Build Tool.
+
+  DO NOT MODIFY THIS FILE!
+*/
+
+.filenamespace c64lib
+
+.label logo_backgroundColour0 = 0
+.label logo_backgroundColour1 = 0
+.label logo_backgroundColour2 = 1
+.label logo_backgroundColour3 = 12
+
+.label logo_charColour = 13
+
+.label logo_colouringMethod = 2
+.label logo_screenMode = 0
 ----
-
-In case you just want to ignore either lo or hi part, just keep corresponding part empty:
-
-[source,groovy]
-----
-preprocess {
-    charpad {
-        input = file("src/levels/level1/level1-background.ctm")
-        outputs {
-            map {
-              interleaver {
-                output = file("levels/level1/map-1.bin")
-              }
-              interleaver {
-              }
-            }
-        }
-    }
-}
-----
-
-===== Nybbler
-
-Sometimes Charpad encodes two kind of information into single byte.
-This is the case for charset attributes, which are encoded in form `MMMMCCCC` where hi nybble stands for material code and lo nybble contains color data.
-It may be convenient to split this information into two separate output files.
-In such cases you can use nybbler:
-
-[source,groovy]
-----
-preprocess {
-    charpad {
-        input = file("src/levels/level1/level1-background.ctm")
-        outputs {
-            charsetAttributes {
-                nybbler {
-                    loOutput = file("levels/level1/charset-1-colors.bin")
-                    hiOutput = file("levels/level1/charset-1-material.bin")
-                }
-            }
-        }
-    }
-}
-----
-
-By default, the hi output bytes are normalized (shifted right by 4 bits).
-This mechanism can be disabled with appropriate option:
-
-[source,groovy]
-----
-preprocess {
-    charpad {
-        input = file("src/levels/level1/level1-background.ctm")
-        outputs {
-            charsetAttributes {
-                nybbler {
-                    loOutput = file("levels/level1/charset-1-colors.bin")
-                    hiOutput = file("levels/level1/charset-1-material.bin")
-                    normalizeHi = false
-                }
-            }
-        }
-    }
-}
-----
-
-Either hi or lo part can be ignored by not specifying `loOutput` or `hiOutput` respectively.
 
 ==== Complete example
 
@@ -596,37 +732,127 @@ preprocess {
 The example above exports only second (1) and third (2) sprite definition.
 Omit `start` to start from beginning, omit `end` to export till the end of the file.
 
-=== Running Unit tests with 64spec
-Version 1.0.0 supports now launching unit tests written in KickAssembler.
-In order to be able to do so, a Vice 3+ must be installed on a machine where tests will be launched.
-It is also assumed that `x64` command is available on the path.
-Also the 64spec library must be added to dependencies, as any other KickAssembler library:
+=== Output transformations
+The processors produce binary files for each of the element.
+It is possible to apply further filtering to these files when needed.
+
+==== Straight output
+Straight output means there are no filtering applied.
+This option is suitable when produced binary output fits your needs perfectly.
+You are then welcome to include such binary file into your program using appropriate directive (i.e. `LoadBinary` function and `.fill` directive of KickAssembler).
+
+To use straight output specify the `output` property:
 
 [source,groovy]
 ----
-retroProject {
-    libFromGitHub "c64lib/64spec", "0.7.0pr"
+charpad {
+    input = file("src/levels/level1/level1-background.ctm")
+    outputs {
+        charset {
+            output = file("levels/level1/charset-1.bin")
+        }
+    }
 }
 ----
 
-Please note, that original version of 64spec does not work with newer versions of KickAssembler, therefore forked version is used.
+==== Interleaver
+For most of the data, Charpad uses encoding that takes more than one byte per unit.
+Examples are: tile set (2 bytes per character number) and map data (2 bytes per tile code).
+Usually it is more efficient to have these bytes interleaved (one block for lo byte, one for hi byte).
 
-By default, Gradle Retro Assembler plugin detects whether there are any tests in your projects and if found it tries to launch them.
-It is assumed that tests are located in `spec` directory of project's root (or its
-subdirectories) and that they are included in files ended with `spec.asm`.
-This default behavior can be customized by assigning new dir name and file masks in `build.gradle`:
+Or maybe, you know that you use up to 256 characters (usually this is the case), or you use up to 256 tiles at once.
+In such case, you may want to ignore hi bytes completely.
+
+Here is the place, where interleaved output comes with help.
+To split hi and lo bytes into separate outputs, you can use the following:
 
 [source,groovy]
 ----
-retroProject {
-    specDirs = ['tests']
-    specIncludes = ['**/*.test.asm']
+preprocess {
+    charpad {
+        input = file("src/levels/level1/level1-background.ctm")
+        outputs {
+            map {
+              interleaver {
+                output = file("levels/level1/map-1-lo.bin")
+              }
+              interleaver {
+                output = file("levels/level1/map-1-hi.bin")
+              }
+            }
+        }
+    }
 }
 ----
 
-The following will reconfigure plugin to seek for tests in `tests` directory and execute each test ended with `test.asm`.
+In case you just want to ignore either lo or hi part, just keep corresponding part empty:
 
-== Building Retro Assembler projects on CI environments
+[source,groovy]
+----
+preprocess {
+    charpad {
+        input = file("src/levels/level1/level1-background.ctm")
+        outputs {
+            map {
+              interleaver {
+                output = file("levels/level1/map-1.bin")
+              }
+              interleaver {
+              }
+            }
+        }
+    }
+}
+----
+
+==== Nybbler
+
+Sometimes Charpad encodes two kind of information into single byte.
+This is the case for charset attributes, which are encoded in form `MMMMCCCC` where hi nybble stands for material code and lo nybble contains color data.
+It may be convenient to split this information into two separate output files.
+In such cases you can use nybbler:
+
+[source,groovy]
+----
+preprocess {
+    charpad {
+        input = file("src/levels/level1/level1-background.ctm")
+        outputs {
+            charsetAttributes {
+                nybbler {
+                    loOutput = file("levels/level1/charset-1-colors.bin")
+                    hiOutput = file("levels/level1/charset-1-material.bin")
+                }
+            }
+        }
+    }
+}
+----
+
+By default, the hi output bytes are normalized (shifted right by 4 bits).
+This mechanism can be disabled with appropriate option:
+
+[source,groovy]
+----
+preprocess {
+    charpad {
+        input = file("src/levels/level1/level1-background.ctm")
+        outputs {
+            charsetAttributes {
+                nybbler {
+                    loOutput = file("levels/level1/charset-1-colors.bin")
+                    hiOutput = file("levels/level1/charset-1-material.bin")
+                    normalizeHi = false
+                }
+            }
+        }
+    }
+}
+----
+
+Either hi or lo part can be ignored by not specifying `loOutput` or `hiOutput` respectively.
+
+== Using continuous integration
 Gradle Retro Assembler Plugin can be used in CI builds launched in the Cloud.
 As for now two environments are supported: CircleCI (recommended) and TravisCI.
 
@@ -706,29 +932,5 @@ Travis integrates well with GitHub and builds can be easily activated for each r
 hosted on GitHub.
 
 You have to ensure, that `gradlew` launcher has executable rights on Linux machines, otherwise `run` command will fail.
-
-== Using Gradle Wrapper
-Gradle Wrapper is a recommended way to distribute sources of your projects.
-When Gradle Wrapper is installed in your project, other people do not need to have Gradle installed locally.
-Gradle Wrapper takes care on downloading appropriate Gradle version during build and then executing it using `build.gradle` file.
-Actually only Java Environment (JDK) is necessary to build such projects.
-
-With Gradle Wrapper build can be run using `gradlew` command:
-
-[source,bash]
-----
-gradlew clean build
-----
-
-or
-
-[source,bash]
-----
-./gradlew clean build
-----
-
-under linux-like OS.
-
-Read how to install Gradle Wrapper in Gradle documentation: https://docs.gradle.org/current/userguide/gradle_wrapper.html[].
 
 include::../CHANGES.adoc[leveloffset=+1]

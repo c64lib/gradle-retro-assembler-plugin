@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.preprocess
 
+import com.github.c64lib.processor.commons.BinaryOutput
 import com.github.c64lib.retroassembler.binary_interleaver.BinaryInterleaver
-import com.github.c64lib.retroassembler.domain.processor.BinaryOutput
 import com.github.c64lib.retroassembler.domain.shared.IllegalConfigurationException
 import com.github.c64lib.retroassembler.nybbler.Nybbler
 import io.vavr.collection.List
@@ -66,20 +66,22 @@ abstract class FilterAwareExtension
     get() = interleavers.isNotEmpty()
 
   internal fun resolveOutput(
-      buffers: MutableList<OutputBuffer>, outputToBuildDir: Boolean
+      buffers: MutableList<BinaryOutputBuffer>, outputToBuildDir: Boolean
   ): BinaryOutput =
       when {
         hasOutput -> {
           val fos =
-              FileOutputBuffer(
+              FileBinaryOutputBuffer(
                   normalize(output, outputToBuildDir)
                       ?: throw IllegalConfigurationException("Output is not specified"))
           buffers.add(fos)
           fos
         }
         hasNybbler -> {
-          val lo = normalize(getNybbler().loOutput, outputToBuildDir)?.let { FileOutputBuffer(it) }
-          val hi = normalize(getNybbler().hiOutput, outputToBuildDir)?.let { FileOutputBuffer(it) }
+          val lo =
+              normalize(getNybbler().loOutput, outputToBuildDir)?.let { FileBinaryOutputBuffer(it) }
+          val hi =
+              normalize(getNybbler().hiOutput, outputToBuildDir)?.let { FileBinaryOutputBuffer(it) }
           lo?.let { buffers.add(lo) }
           hi?.let { buffers.add(hi) }
           Nybbler(lo, hi, getNybbler().normalizeHi)
@@ -89,7 +91,7 @@ abstract class FilterAwareExtension
               interleavers.map {
                 val interleaverOutput = normalize(it.output, outputToBuildDir)
                 if (interleaverOutput != null) {
-                  FileOutputBuffer(interleaverOutput)
+                  FileBinaryOutputBuffer(interleaverOutput)
                 } else {
                   DevNull()
                 }

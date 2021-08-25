@@ -23,9 +23,9 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.spritepad_processor
 
-import com.github.c64lib.retroassembler.domain.processor.InputByteStream
-import com.github.c64lib.retroassembler.domain.processor.OutputProducer
-import com.github.c64lib.retroassembler.domain.processor.Processor
+import com.github.c64lib.processor.commons.InputByteStream
+import com.github.c64lib.processor.commons.OutputProducer
+import com.github.c64lib.processor.commons.Processor
 import com.github.c64lib.retroassembler.spritepad_processor.spd4.SPD4Processor
 
 internal interface SPDProcessor : Processor
