@@ -187,8 +187,8 @@ internal fun ScreenMode.getPaletteIndexes(): ScreenMemoryPalette =
     when (this) {
       ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground ->
           ScreenMemoryPalette(0, 0)
-      ScreenMode.BitmapHires -> ScreenMemoryPalette(0, 3)
-      ScreenMode.BitmapMulticolor -> ScreenMemoryPalette(1, 2)
+      ScreenMode.BitmapHires -> ScreenMemoryPalette(3, 0)
+      ScreenMode.BitmapMulticolor -> ScreenMemoryPalette(2, 1)
     }
 
 internal fun ScreenMode.getPrimaryColorIndex(): Int =

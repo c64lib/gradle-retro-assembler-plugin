@@ -1,5 +1,8 @@
 = Change log
 
+1.4.3::
+* Bugfix: `Charpad` Fixing order of colours (nybbles) in screen memory matrix for bitmap export.
+
 1.4.2::
 * `Charpad` Support of tile tags data export.
 * `Charpad` Support of meta data export to the ASM file.
