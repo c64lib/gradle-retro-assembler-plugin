@@ -1,31 +1,31 @@
 = Change log
 
 1.4.2::
-* Charpad: fixing char colour assignment for colouring per char in CTM v.8.
-* Charpad: CTM v.8 will generate char attributes output even if no per-char colouring method is used (for backward compatibility).
-* Charpad: char colours output won't be generated if per-char colouring method is not used.
-* Charpad: support of tile tags data export.
+* `Charpad` Support of tile tags data export.
+* Bugfix: `Charpad` Fixing char colour assignment for colouring per char in CTM v.8.
+* Bugfix: `Charpad` CTM v.8 will generate char attributes output even if no per-char colouring method is used (for backward compatibility).
+* Bugfix: `Charpad` Char colours output won't be generated if per-char colouring method is not used.
 
 1.4.1::
-* Charpad: fixing bitmap mode color layout in palette.
+* Bugfix: `Charpad` Fixing bitmap mode color layout in palette.
 
 1.4.0::
-* Charpad: support for CTM v.8 file format.
-* Charpad: support for producing charset colours, screen colours and charset materials.
-* Charpad: support for producing tile screen colours.
+* `Charpad` Support for CTM v.8 file format.
+* `Charpad` Support for producing charset colours, screen colours and charset materials.
+* `Charpad` Support for producing tile screen colours.
 
 1.3.0::
-* Spritepad support for SPD v.4, 5 file format.
+* `Spritepad` Support for SPD v.4, 5 file format.
 
 1.2.0::
-* Charpad support for CTM v.6, 7 file format.
+* `Charpad` Support for CTM v.6, 7 file format.
 
 1.1.1::
-* Bugfix: #26 charpad: fixed map generation in CTM files without Tileset.
+* Bugfix: #26 `Charpad` Fixed map generation in CTM files without Tileset.
 
 1.1.0::
 * Support for `-define` parameters.
-* Charpad support added (CTM v.5).
+* `Charpad` Support added (CTM v.5).
 * Support for Gradle 7.
 
 1.0.1::
