@@ -10,7 +10,7 @@ Currently, the plugin supports [Kick Assembler](http://theweb.dk/KickAssembler/M
 
 ## Highlights
 
-Current version is 1.4.2.
+Current version is 1.4.3.
 It brings support of [Charpad 3.0](https://subchristsoftware.itch.io/charpad-pro) export of CTM files (bitmap modes related artefacts).
 
 ## User's Manual
