@@ -2,6 +2,7 @@
 
 1.4.2::
 * `Charpad` Support of tile tags data export.
+* `Charpad` Support of meta data export to the ASM file.
 * Bugfix: `Charpad` Fixing char colour assignment for colouring per char in CTM v.8.
 * Bugfix: `Charpad` CTM v.8 will generate char attributes output even if no per-char colouring method is used (for backward compatibility).
 * Bugfix: `Charpad` Char colours output won't be generated if per-char colouring method is not used.

@@ -21,11 +21,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.preprocess
+package com.github.c64lib.gradle.preprocess.charpad
 
-import com.github.c64lib.processor.commons.Output
-import java.io.FileOutputStream
+import com.github.c64lib.gradle.preprocess.FileTextOutputBuffer
+import com.github.c64lib.gradle.preprocess.OutputExtension
+import com.github.c64lib.gradle.preprocess.TextOutputBuffer
+import com.github.c64lib.retroassembler.domain.AssemblerType
+import java.io.File
+import javax.inject.Inject
+import org.gradle.api.file.ProjectLayout
 
-class FosOutput(private val fos: FileOutputStream) : Output<ByteArray> {
-  override fun write(data: ByteArray) = fos.write(data)
+abstract class MetadataExtension @Inject constructor(project: ProjectLayout) :
+    OutputExtension<TextOutputBuffer>(CHARPAD_DIR, project) {
+
+  var dialect = AssemblerType.None
+  var prefix = ""
+  var namespace: String? = null
+  var includeVersion = false
+  var includeBgColours = true
+  var includeCharColours = true
+  var includeMode = false
+
+  override fun createBuffer(output: File): TextOutputBuffer = FileTextOutputBuffer(output)
 }

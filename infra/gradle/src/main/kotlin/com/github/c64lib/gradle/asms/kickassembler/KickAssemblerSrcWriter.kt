@@ -24,21 +24,24 @@ SOFTWARE.
 package com.github.c64lib.gradle.asms.kickassembler
 
 import com.github.c64lib.gradle.asms.AssemblySrcWriter
-import java.io.PrintWriter
+import com.github.c64lib.gradle.preprocess.TextOutputBuffer
 
-class KickAssemblerSrcWriter(private val writer: PrintWriter) : AssemblySrcWriter {
+class KickAssemblerSrcWriter(private val writer: TextOutputBuffer) : AssemblySrcWriter {
+
   override fun comment(vararg value: String) =
       when (value.size) {
         0 -> {}
-        1 -> writer.println("// $value")
+        1 -> writer.writeLn("// $value")
         else -> {
-          writer.println("/*")
-          value.forEach { writer.println("  $it") }
-          writer.println("*/")
+          writer.writeLn("/*")
+          value.forEach { writer.writeLn("  $it") }
+          writer.writeLn("*/")
         }
       }
 
-  override fun separate() = writer.println()
+  override fun separate() = writer.writeLn()
 
-  override fun label(name: String, value: Int) = writer.println(".label $name = $value")
+  override fun label(name: String, value: Int) = writer.writeLn(".label $name = $value")
+
+  override fun namespace(value: String) = writer.writeLn(".filenamespace $value")
 }

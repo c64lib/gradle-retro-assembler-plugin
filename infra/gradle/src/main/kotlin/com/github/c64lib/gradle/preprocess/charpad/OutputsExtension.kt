@@ -30,6 +30,8 @@ import org.gradle.api.model.ObjectFactory
 
 abstract class OutputsExtension @Inject constructor(private val objectFactory: ObjectFactory) {
 
+  internal val meta = LinkedList<MetadataExtension>()
+
   internal val charsets = LinkedList<StartEndExtension>()
 
   internal val charsetAttributes = LinkedList<StartEndExtension>()
@@ -49,6 +51,12 @@ abstract class OutputsExtension @Inject constructor(private val objectFactory: O
   internal val tileScreenColours = LinkedList<StartEndExtension>()
 
   internal val maps = LinkedList<MapExtension>()
+
+  fun meta(action: Action<MetadataExtension>) {
+    val ex = objectFactory.newInstance(MetadataExtension::class.java)
+    action.execute(ex)
+    meta.add(ex)
+  }
 
   fun charset(action: Action<StartEndExtension>) {
     val ex = objectFactory.newInstance(StartEndExtension::class.java)

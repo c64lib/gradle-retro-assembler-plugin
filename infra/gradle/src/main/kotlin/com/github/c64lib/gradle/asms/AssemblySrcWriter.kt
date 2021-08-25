@@ -24,18 +24,19 @@ SOFTWARE.
 package com.github.c64lib.gradle.asms
 
 import com.github.c64lib.gradle.asms.kickassembler.KickAssemblerSrcWriter
+import com.github.c64lib.gradle.preprocess.TextOutputBuffer
 import com.github.c64lib.retroassembler.domain.AssemblerType
-import java.io.PrintWriter
 import org.gradle.api.GradleException
 
 interface AssemblySrcWriter {
+  fun namespace(value: String)
   fun comment(vararg value: String)
   fun separate()
   fun label(name: String, value: Int)
 }
 
 object AssemblySrcWriterFactory {
-  fun of(assembler: AssemblerType, writer: PrintWriter) =
+  fun of(assembler: AssemblerType, writer: TextOutputBuffer) =
       when (assembler) {
         AssemblerType.KickAssembler -> KickAssemblerSrcWriter(writer)
         AssemblerType.None -> throw GradleException("Assembler dialect is not selected.")

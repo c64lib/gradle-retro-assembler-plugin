@@ -24,16 +24,22 @@ SOFTWARE.
 package com.github.c64lib.gradle.preprocess
 
 import com.github.c64lib.processor.commons.BinaryOutput
+import com.github.c64lib.processor.commons.TextOutput
 import java.io.File
 import java.io.FileOutputStream
-import kotlin.io.path.createDirectories
-import kotlin.io.path.createDirectory
+import java.io.FileWriter
+import java.io.PrintWriter
+import java.io.StringWriter
 
-interface OutputBuffer : BinaryOutput {
+interface Flushable {
   fun flush()
 }
 
-class DevNull : OutputBuffer {
+interface BinaryOutputBuffer : BinaryOutput, Flushable
+
+interface TextOutputBuffer : TextOutput, Flushable
+
+class DevNull : BinaryOutputBuffer {
   override fun flush() {
     // nothing to do
   }
@@ -43,7 +49,7 @@ class DevNull : OutputBuffer {
   }
 }
 
-class FileOutputBuffer(private val outputFile: File) : OutputBuffer {
+class FileBinaryOutputBuffer(private val outputFile: File) : BinaryOutputBuffer {
 
   private var buffer: MutableList<ByteArray> = ArrayList()
 
@@ -53,4 +59,13 @@ class FileOutputBuffer(private val outputFile: File) : OutputBuffer {
 
   override fun flush() =
       FileOutputStream(outputFile).use { fos -> buffer.forEach { data -> fos.write(data) } }
+}
+
+class FileTextOutputBuffer(private val outputFile: File) : TextOutputBuffer {
+  private val buffer = StringWriter()
+  private val writer = PrintWriter(buffer)
+
+  override fun writeLn(data: String) = writer.println(data)
+  override fun write(data: String) = writer.print(data)
+  override fun flush() = FileWriter(outputFile).use { fw -> fw.write(buffer.toString()) }
 }
