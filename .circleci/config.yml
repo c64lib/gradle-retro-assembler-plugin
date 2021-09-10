@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/openjdk:11
+      - image: cimg/openjdk:11.0
 
     working_directory: ~/retro-assembler
 
@@ -18,7 +18,7 @@ jobs:
 
   publish:
     docker:
-      - image: cimg/openjdk:11
+      - image: cimg/openjdk:11.0
 
     working_directory: ~/retro-assembler
 
