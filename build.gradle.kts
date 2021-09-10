@@ -15,7 +15,7 @@ java {
 allprojects {
 
     group = "com.github.c64lib"
-    version = "1.5.0-SNAPSHOT"
+    version = "1.4.4-SNAPSHOT"
 
     if (project.hasProperty(tagPropertyName)) {
         version = project.property(tagPropertyName) ?: version
