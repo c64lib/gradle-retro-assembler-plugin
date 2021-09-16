@@ -35,7 +35,10 @@ It would be then sufficient to enter project directory and type:
 gradlew build
 ----
 
-You can use the following project for reference: https://github.com/maciejmalecki/trex64[].
+You can use the following projects for reference:
+
+* https://github.com/maciejmalecki/trex64[]
+* https://github.com/c64lib/ctm-viewer[]
 
 If the project does not use Gradle Wrapper, you have to install Gradle Build Tool by yourself.
 It is pretty straightforward, you'll find instructions here: https://gradle.org/install/[].
