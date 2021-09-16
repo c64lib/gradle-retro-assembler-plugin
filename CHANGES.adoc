@@ -1,7 +1,7 @@
 = Change log
 
 1.4.4::
-* `Charpad`: Support for final CTM file format (as for now both CTM 8 and CTM 8.2 are supported).
+* `Charpad`: Support for final CTM file format (as for now both CTM 8 and CTM 8.2 are supported) - be warned, that this is an interim situation, after 1st Jan, 2021 both versions will be merged into CTM 8 and old "beta" CTM 8 format won't be supported any longer.
 
 1.4.3::
 * Bugfix: `Charpad` Fixing order of colours (nybbles) in screen memory matrix for bitmap export.
