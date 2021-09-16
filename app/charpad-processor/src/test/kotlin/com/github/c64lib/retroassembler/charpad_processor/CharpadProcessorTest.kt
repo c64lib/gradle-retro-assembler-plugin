@@ -72,9 +72,10 @@ class CharpadProcessorTest :
             processor.process(
                 BinaryInputMock(
                     CTMByteArrayMock(
-                        version = 5,
-                        charset = byteArrayOfInts(0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x13),
-                        tiles = ByteArray(16))
+                            version = 5,
+                            charset =
+                                byteArrayOfInts(0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x13),
+                            tiles = ByteArray(16))
                         .bytes))
             Then("charset content is properly produced") {
               charsetOutput.bytes shouldBe
@@ -92,9 +93,9 @@ class CharpadProcessorTest :
             processor.process(
                 BinaryInputMock(
                     CTMByteArrayMock(
-                        version = 5,
-                        charset = char0 concat char1 concat char2,
-                        tiles = ByteArray(16))
+                            version = 5,
+                            charset = char0 concat char1 concat char2,
+                            tiles = ByteArray(16))
                         .bytes))
             Then("subset of charset content is properly produced") {
               charsetOutput.bytes shouldBe char1
@@ -115,10 +116,11 @@ class CharpadProcessorTest :
             processor.process(
                 BinaryInputMock(
                     CTMByteArrayMock(
-                        version = 5,
-                        charset = byteArrayOfInts(0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x13),
-                        charAttributes = byteArrayOfInts(0x00),
-                        tiles = tileData)
+                            version = 5,
+                            charset =
+                                byteArrayOfInts(0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x13),
+                            charAttributes = byteArrayOfInts(0x00),
+                            tiles = tileData)
                         .bytes))
             Then("tiles content is properly produced") { tilesOutput.bytes shouldBe tileData }
           }

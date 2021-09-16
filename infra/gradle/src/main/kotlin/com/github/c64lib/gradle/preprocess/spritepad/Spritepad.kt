@@ -55,7 +55,9 @@ open class Spritepad : DefaultTask() {
   }
 
   private fun processInput(
-      fis: FileInputStream, output: SpritesOutputsExtension, pipeline: SpritepadPipelineExtension
+      fis: FileInputStream,
+      output: SpritesOutputsExtension,
+      pipeline: SpritepadPipelineExtension
   ) {
     val buffers: MutableList<BinaryOutputBuffer> = LinkedList()
     val processor = SpritepadProcessor(producers(output, buffers, pipeline))

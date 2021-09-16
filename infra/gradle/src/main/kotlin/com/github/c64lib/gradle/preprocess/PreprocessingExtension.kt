@@ -32,8 +32,8 @@ import org.gradle.api.model.ObjectFactory
 const val PREPROCESSING_EXTENSION_DSL_NAME = "preprocess"
 
 abstract class PreprocessingExtension
-    @Inject
-    constructor(private val objectFactory: ObjectFactory) {
+@Inject
+constructor(private val objectFactory: ObjectFactory) {
 
   val charpadPipelines = ArrayList<CharpadPipelineExtension>()
 

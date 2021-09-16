@@ -29,8 +29,8 @@ import javax.inject.Inject
 import org.gradle.api.file.ProjectLayout
 
 abstract class OutputExtension<T>
-    @Inject
-    constructor(buildDir: String, private val project: ProjectLayout) {
+@Inject
+constructor(buildDir: String, private val project: ProjectLayout) {
   var output: File? = null
 
   private val buildDir = project.buildDirectory.dir(buildDir).get().asFile.toPath()

@@ -32,8 +32,8 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 
 abstract class CharpadPipelineExtension
-    @Inject
-    constructor(private val objectFactory: ObjectFactory) {
+@Inject
+constructor(private val objectFactory: ObjectFactory) {
   @InputFiles abstract fun getInput(): Property<File>
 
   @Input abstract fun getUseBuildDir(): Property<Boolean>

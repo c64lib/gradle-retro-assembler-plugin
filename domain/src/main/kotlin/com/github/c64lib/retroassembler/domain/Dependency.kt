@@ -27,4 +27,5 @@ data class Dependency(
     val type: DependencyType,
     val name: String,
     val version: DependencyVersion,
-    val prefix: String = "")
+    val prefix: String = ""
+)

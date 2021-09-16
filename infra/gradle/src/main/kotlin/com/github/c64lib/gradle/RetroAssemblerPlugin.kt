@@ -45,8 +45,8 @@ class RetroAssemblerPlugin : Plugin<Project> {
         project.extensions.create(EXTENSION_DSL_NAME, RetroAssemblerPluginExtension::class.java)
 
     val preprocessExtension =
-        project.extensions
-            .create(PREPROCESSING_EXTENSION_DSL_NAME, PreprocessingExtension::class.java)
+        project.extensions.create(
+            PREPROCESSING_EXTENSION_DSL_NAME, PreprocessingExtension::class.java)
 
     project.afterEvaluate {
       // deps

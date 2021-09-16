@@ -35,7 +35,8 @@ import org.gradle.api.tasks.util.PatternSet
 import org.gradle.process.ExecResult
 
 class KickAssemblerFacade(
-    private val project: Project, private val extension: RetroAssemblerPluginExtension
+    private val project: Project,
+    private val extension: RetroAssemblerPluginExtension
 ) : AssemblerFacade {
 
   private val kaFile =
@@ -58,7 +59,8 @@ class KickAssemblerFacade(
   override fun sourceFiles(): FileCollection =
       extension.srcDirs
           .map { srcDir ->
-            project.fileTree(srcDir)
+            project
+                .fileTree(srcDir)
                 .matching(PatternSet().include(*extension.includes).exclude(*extension.excludes))
           }
           .reduce { acc, rightHand -> acc.plus(rightHand) }
@@ -80,11 +82,11 @@ class KickAssemblerFacade(
         spec.main = "-jar"
         spec.args =
             listOf(
-                listOf(kaFile.absolutePath),
-                asLibDirList(extension.libDirs),
-                asDefineList(extension.defines),
-                listOf(*parameters),
-                listOf(sourceFile.path))
+                    listOf(kaFile.absolutePath),
+                    asLibDirList(extension.libDirs),
+                    asDefineList(extension.defines),
+                    listOf(*parameters),
+                    listOf(sourceFile.path))
                 .flatten()
         println(spec.args)
       }

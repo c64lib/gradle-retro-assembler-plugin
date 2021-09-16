@@ -70,7 +70,9 @@ open class Charpad : DefaultTask() {
   }
 
   private fun processInput(
-      fis: FileInputStream, output: OutputsExtension, pipeline: CharpadPipelineExtension
+      fis: FileInputStream,
+      output: OutputsExtension,
+      pipeline: CharpadPipelineExtension
   ) {
     val buffers: MutableList<BinaryOutputBuffer> = LinkedList()
     val textBuffers: MutableList<TextOutputBuffer> = LinkedList()

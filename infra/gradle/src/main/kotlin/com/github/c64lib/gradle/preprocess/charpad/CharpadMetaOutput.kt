@@ -28,7 +28,8 @@ import com.github.c64lib.processor.commons.Output
 import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
 
 class CharpadMetaOutput(
-    private val srcWriter: AssemblySrcWriter, private val metadataExtension: MetadataExtension
+    private val srcWriter: AssemblySrcWriter,
+    private val metadataExtension: MetadataExtension
 ) : Output<CTMHeader> {
   override fun write(data: CTMHeader) {
     srcWriter.comment(

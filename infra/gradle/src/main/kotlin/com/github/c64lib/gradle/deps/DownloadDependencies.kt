@@ -47,10 +47,9 @@ open class DownloadDependencies : DefaultTask() {
     extension.dependencies.forEach { dependency ->
       val dependencyName = dependency.name.replace('/', '-')
       val downloadTask =
-          project.tasks
-              .create(
-                  "_c64lib_download_${dependency.type}-$dependencyName@${dependency.version.version}",
-                  Download::class.java)
+          project.tasks.create(
+              "_c64lib_download_${dependency.type}-$dependencyName@${dependency.version.version}",
+              Download::class.java)
       val archive =
           when (dependency.type) {
             DependencyType.GitHub -> configureGitHub(dependency, downloadTask)

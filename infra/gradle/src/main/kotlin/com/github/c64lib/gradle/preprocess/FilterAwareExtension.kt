@@ -36,8 +36,8 @@ import org.gradle.api.file.ProjectLayout
 import org.gradle.api.tasks.Nested
 
 abstract class FilterAwareExtension
-    @Inject
-    constructor(buildDir: String, private val project: ProjectLayout) {
+@Inject
+constructor(buildDir: String, private val project: ProjectLayout) {
   var output: File? = null
 
   private val charpadBuildDir = project.buildDirectory.dir(buildDir).get().asFile.toPath()
@@ -66,7 +66,8 @@ abstract class FilterAwareExtension
     get() = interleavers.isNotEmpty()
 
   internal fun resolveOutput(
-      buffers: MutableList<BinaryOutputBuffer>, outputToBuildDir: Boolean
+      buffers: MutableList<BinaryOutputBuffer>,
+      outputToBuildDir: Boolean
   ): BinaryOutput =
       when {
         hasOutput -> {

@@ -43,15 +43,14 @@ class TestReport(private val testFiles: List<File>) {
 
   fun generateTestReport(outputFn: (value: String) -> Unit): Boolean {
     val result =
-        testFiles.map { file -> resultFile(file) }
-            .fold(ResultCounters()) { result, fileName ->
-              val file = File(fileName)
-              outputFn(file.name)
-              val testOutput = fromPetscii(file.readBytes())
-              val counts = parseTestOutput(testOutput)
-              outputFn("Tests execution $counts")
-              ResultCounters(result.success + counts.success, result.total + counts.total)
-            }
+        testFiles.map { file -> resultFile(file) }.fold(ResultCounters()) { result, fileName ->
+          val file = File(fileName)
+          outputFn(file.name)
+          val testOutput = fromPetscii(file.readBytes())
+          val counts = parseTestOutput(testOutput)
+          outputFn("Tests execution $counts")
+          ResultCounters(result.success + counts.success, result.total + counts.total)
+        }
     outputFn("Overall test report $result")
     return result.isPositive
   }
@@ -67,7 +66,8 @@ class TestReport(private val testFiles: List<File>) {
   }
 
   private fun fromPetscii(bytes: ByteArray) =
-      bytes.asSequence()
+      bytes
+          .asSequence()
           .map { value ->
             when {
               value == 13.toByte() -> System.lineSeparator()

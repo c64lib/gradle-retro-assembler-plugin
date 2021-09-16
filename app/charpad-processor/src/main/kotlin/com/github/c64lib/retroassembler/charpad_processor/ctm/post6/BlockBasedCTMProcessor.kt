@@ -82,7 +82,9 @@ internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProc
 
   /** Only for v6, v7. */
   protected fun processCharsetAttributesBlock(
-      colouringMethod: ColouringMethod, numChars: Int, inputByteStream: InputByteStream
+      colouringMethod: ColouringMethod,
+      numChars: Int,
+      inputByteStream: InputByteStream
   ) {
     readBlockMarker(inputByteStream)
     if (numChars > 0) {
@@ -119,7 +121,8 @@ internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProc
 
   /** Only for v8. */
   protected fun processCharsetMaterialsBlock(
-      numChars: Int, inputByteStream: InputByteStream
+      numChars: Int,
+      inputByteStream: InputByteStream
   ): ByteArray? {
     readBlockMarker(inputByteStream)
     return if (numChars > 0) {
