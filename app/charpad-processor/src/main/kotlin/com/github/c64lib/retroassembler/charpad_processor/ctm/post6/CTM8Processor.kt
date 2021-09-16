@@ -131,7 +131,8 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor, private val ver
 
     // all data here, process header
     charpadProcessor.processHeader {
-      it.write(header.toHeader(version.toUnsignedByte(), tileWidth, tileHeight, mapWidth, mapHeight))
+      it.write(
+          header.toHeader(version.toUnsignedByte(), tileWidth, tileHeight, mapWidth, mapHeight))
     }
   }
 
@@ -196,7 +197,13 @@ internal data class CTM8Header(
     val flags: Byte
 ) {
 
-  fun toHeader(version: Byte, tileWidth: Byte?, tileHeight: Byte?, mapWidth: Int, mapHeight: Int): CTMHeader =
+  fun toHeader(
+      version: Byte,
+      tileWidth: Byte?,
+      tileHeight: Byte?,
+      mapWidth: Int,
+      mapHeight: Int
+  ): CTMHeader =
       CTMHeader(
           version = version,
           backgroundColour0 = screenColour,
