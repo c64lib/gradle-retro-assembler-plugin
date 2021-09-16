@@ -56,15 +56,28 @@ class OutputMock<T> : Output<T> {
 
 class BinaryInputMock(data: ByteArray) : InputByteStream {
 
+  private var readCounter = 0
   private val stream = ByteArrayInputStream(data)
 
-  override fun read(amount: Int): ByteArray = stream.readNBytes(amount)
+  override fun read(amount: Int): ByteArray {
+    val result = stream.readNBytes(amount)
+    readCounter += result.size
+    return result
+  }
+
+  override fun readCounter(): Int = readCounter
 }
 
 class InputByteStreamAdapter(private val inputStream: InputStream) : InputByteStream {
+
+  private var readCounter = 0
+
   override fun read(amount: Int): ByteArray {
     val buffer = ByteArray(amount)
     val size = inputStream.read(buffer)
+    readCounter += size
     return buffer.copyOfRange(0, size)
   }
+
+  override fun readCounter(): Int = readCounter
 }

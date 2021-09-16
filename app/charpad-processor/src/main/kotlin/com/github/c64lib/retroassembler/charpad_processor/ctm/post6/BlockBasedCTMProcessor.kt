@@ -26,11 +26,13 @@ package com.github.c64lib.retroassembler.charpad_processor.ctm.post6
 import com.github.c64lib.processor.commons.InputByteStream
 import com.github.c64lib.retroassembler.binutils.isolateHiNybbles
 import com.github.c64lib.retroassembler.binutils.isolateLoNybbles
+import com.github.c64lib.retroassembler.binutils.toUnsignedByte
+import com.github.c64lib.retroassembler.binutils.toUnsignedInt
 import com.github.c64lib.retroassembler.binutils.toWord
 import com.github.c64lib.retroassembler.charpad_processor.CTMProcessor
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException
-import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
+import com.github.c64lib.retroassembler.charpad_processor.InvalidCTMFormatException
 import com.github.c64lib.retroassembler.charpad_processor.model.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.model.Dimensions
 import com.github.c64lib.retroassembler.charpad_processor.model.TileSetDimensions
@@ -38,6 +40,8 @@ import kotlin.experimental.and
 
 internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProcessor) :
     CTMProcessor {
+
+  protected var blockCounter = 0
 
   /**
    * Process charset definition block.
@@ -58,11 +62,22 @@ internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProc
     readBlockMarker(inputByteStream)
     val mapWidth = inputByteStream.read(2).toWord().value
     val mapHeight = inputByteStream.read(2).toWord().value
+    ensureMapSizeLimits(mapWidth, mapHeight)
     if (mapHeight > 0 && mapWidth > 0) {
       val mapData = inputByteStream.read(mapWidth * mapHeight * 2)
       charpadProcessor.processMap { it.write(mapWidth, mapHeight, mapData) }
     }
     return Dimensions(mapWidth, mapHeight)
+  }
+
+  private fun ensureMapSizeLimits(mapWidth: Int, mapHeight: Int) {
+    val limit = 8192
+    if (mapWidth > limit) {
+      throw InvalidCTMFormatException("Map width too big: $mapWidth.")
+    }
+    if (mapHeight > limit) {
+      throw InvalidCTMFormatException("Map height too big: $mapHeight.")
+    }
   }
 
   /** Only for v6, v7. */
@@ -139,9 +154,27 @@ internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProc
     return result.toString()
   }
 
-  protected fun readBlockMarker(inputByteStream: InputByteStream): Byte {
-    inputByteStream.readByte()
-    val byte1 = inputByteStream.readByte()
-    return byte1 and 0x0f.toByte()
+  protected fun readBlockMarker(inputByteStream: InputByteStream): Int {
+    val byte0Pos = inputByteStream.readCounter()
+    val byte0 = inputByteStream.readByte().toUnsignedInt()
+    val byte0Mark = 0xDA.toUnsignedByte().toUnsignedInt()
+    if (byte0 != byte0Mark) {
+      throw InvalidCTMFormatException(
+          "Unexpected block marker byte 0 found for block $blockCounter: $byte0 <> $byte0Mark at position #$byte0Pos.")
+    }
+    val byte1Pos = inputByteStream.readCounter()
+    val byte1 = inputByteStream.readByte().toUnsignedInt()
+    if ((byte1 and 0xF0) != 0xB0) {
+      throw InvalidCTMFormatException(
+          "Unexpected block marker byte 1 found for block $blockCounter: $byte1 at position #$byte1Pos.")
+    }
+
+    val count = byte1 and 0x0F
+    if (count != blockCounter) {
+      throw InvalidCTMFormatException(
+          "Unexpected block count found for $blockCounter: $count at position #$byte1Pos.")
+    }
+    ++blockCounter
+    return count
   }
 }

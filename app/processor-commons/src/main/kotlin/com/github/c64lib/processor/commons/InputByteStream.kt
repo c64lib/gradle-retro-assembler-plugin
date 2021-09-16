@@ -27,4 +27,5 @@ package com.github.c64lib.processor.commons
 interface InputByteStream {
   fun read(amount: Int): ByteArray
   fun readByte() = read(1)[0]
+  fun readCounter(): Int
 }
