@@ -32,7 +32,7 @@ jobs:
 
   documentation:
     docker:
-      - image: jruby:2.4.1
+      - image: circleci/jruby:latest
     steps:
       - run: sudo apt install graphviz
       - checkout
