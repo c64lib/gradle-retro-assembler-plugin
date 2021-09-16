@@ -45,7 +45,7 @@ import io.kotest.matchers.shouldBe
 class TextHiresCTMTest :
     BehaviorSpec({
       isolationMode = IsolationMode.InstancePerTest
-      val supportedVersions = listOf(5, 6, 7, 8)
+      val supportedVersions = listOf(5, 6, 7, 8, 82)
 
       supportedVersions.forEach { ctmVersion ->
         val input =
