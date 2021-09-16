@@ -97,9 +97,8 @@ class TextMulticCTMTest :
       supportedVersions.forEach { ctmVersion ->
         val input =
             InputByteStreamAdapter(
-                this.javaClass
-                    .getResourceAsStream(
-                        "/text-multic/text-mc-per-char-notiles-ctm$ctmVersion.ctm")!!)
+                this.javaClass.getResourceAsStream(
+                    "/text-multic/text-mc-per-char-notiles-ctm$ctmVersion.ctm")!!)
 
         Given("[CTM v$ctmVersion] with per char colouring method and no tile set") {
           When("process is called") {
@@ -134,9 +133,8 @@ class TextMulticCTMTest :
       supportedVersions.forEach { ctmVersion ->
         val input =
             InputByteStreamAdapter(
-                this.javaClass
-                    .getResourceAsStream(
-                        "/text-multic/text-mc-per-char-tiles-ctm$ctmVersion.ctm")!!)
+                this.javaClass.getResourceAsStream(
+                    "/text-multic/text-mc-per-char-tiles-ctm$ctmVersion.ctm")!!)
 
         Given("[CTM v$ctmVersion] with per char colouring method and with tile set") {
           When("process is called") {
@@ -167,9 +165,8 @@ class TextMulticCTMTest :
       tileTagsSupportingVersions.forEach { ctmVersion ->
         val input =
             InputByteStreamAdapter(
-                this.javaClass
-                    .getResourceAsStream(
-                        "/text-multic/text-mc-per-char-tiles-ctm$ctmVersion.ctm")!!)
+                this.javaClass.getResourceAsStream(
+                    "/text-multic/text-mc-per-char-tiles-ctm$ctmVersion.ctm")!!)
 
         Given("[CTM v$ctmVersion] with per char colouring method and with tile set") {
           When("process is called") {
@@ -183,8 +180,8 @@ class TextMulticCTMTest :
       supportedVersions.forEach { ctmVersion ->
         val input =
             InputByteStreamAdapter(
-                this.javaClass
-                    .getResourceAsStream("/text-multic/text-mc-per-tile-ctm$ctmVersion.ctm")!!)
+                this.javaClass.getResourceAsStream(
+                    "/text-multic/text-mc-per-tile-ctm$ctmVersion.ctm")!!)
 
         Given("[CTM v$ctmVersion] with per tile colouring method and with tile set") {
           When("process is called") {

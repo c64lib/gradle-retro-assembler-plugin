@@ -29,7 +29,8 @@ import com.github.c64lib.retroassembler.spritepad_processor.SPDProcessor
 import com.github.c64lib.retroassembler.spritepad_processor.SpritepadProcessor
 
 internal class SPD4Processor(
-    private val spritepadProcessor: SpritepadProcessor, private val version: Int
+    private val spritepadProcessor: SpritepadProcessor,
+    private val version: Int
 ) : SPDProcessor {
   override fun process(inputByteStream: InputByteStream) {
     val header = readHeader(inputByteStream)
@@ -78,4 +79,5 @@ internal data class SPD4Header(
     val multiColour1: Byte,
     val multiColour2: Byte,
     val spriteOverlayDistance: Int,
-    val tileOverlayDistance: Int)
+    val tileOverlayDistance: Int
+)

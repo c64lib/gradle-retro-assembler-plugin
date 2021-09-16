@@ -7,7 +7,7 @@ val tagPropertyName = "tag"
 
 plugins {
     kotlin("jvm")
-    id("com.diffplug.gradle.spotless")
+    id("com.diffplug.spotless")
 }
 
 group = "com.github.c64lib.retro-assembler"

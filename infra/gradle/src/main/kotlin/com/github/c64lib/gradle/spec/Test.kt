@@ -63,16 +63,16 @@ open class Test : DefaultTask() {
   private fun launchTest(file: File) =
       Vice(project)
           .run(
-          Action { it ->
-            it.executable = extension.viceExecutable
-            it.warpMode = true
-            it.headless = true
-            it.autostartPrgMode = AutostartPrgMode.VIRTUAL_FS
-            it.jamAction = JamAction.QUIT
-            it.autostart = prgFile(file.absoluteFile)
-            it.monCommands = viceSymbolFile(file)
-            it.chdir = file.parent
-          })
+              Action { it ->
+                it.executable = extension.viceExecutable
+                it.warpMode = true
+                it.headless = true
+                it.autostartPrgMode = AutostartPrgMode.VIRTUAL_FS
+                it.jamAction = JamAction.QUIT
+                it.autostart = prgFile(file.absoluteFile)
+                it.monCommands = viceSymbolFile(file)
+                it.chdir = file.parent
+              })
 
   private fun testFiles() =
       extension.specDirs.flatMap {

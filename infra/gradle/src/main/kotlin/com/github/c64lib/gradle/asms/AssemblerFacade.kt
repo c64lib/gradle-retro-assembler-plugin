@@ -42,7 +42,9 @@ interface AssemblerFacade {
 
 object AssemblerFacadeFactory {
   fun of(
-      assembler: AssemblerType, project: Project, extension: RetroAssemblerPluginExtension
+      assembler: AssemblerType,
+      project: Project,
+      extension: RetroAssemblerPluginExtension
   ): AssemblerFacade =
       when (assembler) {
         AssemblerType.KickAssembler -> KickAssemblerFacade(project, extension)

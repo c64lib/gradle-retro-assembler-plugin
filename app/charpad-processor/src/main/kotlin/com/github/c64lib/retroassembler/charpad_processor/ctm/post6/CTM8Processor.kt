@@ -29,6 +29,7 @@ import com.github.c64lib.retroassembler.binutils.convertToHiNybbles
 import com.github.c64lib.retroassembler.binutils.isolateEachNth
 import com.github.c64lib.retroassembler.binutils.toUnsignedByte
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
+import com.github.c64lib.retroassembler.charpad_processor.InvalidCTMFormatException
 import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
 import com.github.c64lib.retroassembler.charpad_processor.model.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.model.Dimensions
@@ -37,15 +38,29 @@ import com.github.c64lib.retroassembler.charpad_processor.model.colouringMethodF
 import com.github.c64lib.retroassembler.charpad_processor.model.screenModeFrom
 import kotlin.experimental.and
 
-internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
+internal class CTM8Processor(charpadProcessor: CharpadProcessor, private val version: Int) :
     BlockBasedCTMProcessor(charpadProcessor) {
 
   override fun process(inputByteStream: InputByteStream) {
+
+    blockCounter = 0
+
     val header = readHeader(inputByteStream)
     val colouringMethod = colouringMethodFrom(header.colouringMethod)
     val screenMode = screenModeFrom(header.displayMode)
-    val (lo, hi) = screenMode.getPaletteIndexes()
-    val primaryColorIndex = screenMode.getPrimaryColorIndex()
+    val (lo, hi) = screenMode.getPaletteIndexes(version)
+    val primaryColorIndex = screenMode.getPrimaryColorIndex(version)
+
+    val coloursSize =
+        if (version == 8) {
+          4
+        } else {
+          when (screenMode) {
+            ScreenMode.BitmapHires -> 2
+            ScreenMode.BitmapMulticolor -> 3
+            else -> 1
+          }
+        }
 
     // block 0 charset
     val numChars = processCharsetBlock(inputByteStream)
@@ -57,20 +72,22 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
       // block 2 char colours
       readBlockMarker(inputByteStream)
       if (numChars > 0) {
-        val charColoursData = inputByteStream.read(numChars * 4)
+        val charColoursData = inputByteStream.read(numChars * coloursSize)
         charpadProcessor.processCharColours {
-          it.write(isolateEachNth(charColoursData, 4, primaryColorIndex))
+          it.write(isolateEachNth(charColoursData, coloursSize, primaryColorIndex))
         }
         charpadProcessor.processCharScreenColours {
           it.write(
               combineNybbles(
-                  isolateEachNth(charColoursData, 4, lo), isolateEachNth(charColoursData, 4, hi)))
+                  isolateEachNth(charColoursData, coloursSize, lo),
+                  isolateEachNth(charColoursData, coloursSize, hi)))
         }
         if (charMaterialData != null) {
           charpadProcessor.processCharAttributes {
             it.write(
                 combineNybbles(
-                    isolateEachNth(charColoursData, 4, primaryColorIndex), charMaterialData))
+                    isolateEachNth(charColoursData, coloursSize, primaryColorIndex),
+                    charMaterialData))
           }
         }
       }
@@ -86,18 +103,20 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
       val (numTiles, width, height) = processTilesBlock(inputByteStream)
       tileWidth = width
       tileHeight = height
+      ensureTileSizeLimits(tileWidth, tileHeight)
 
       if (colouringMethodFrom(header.colouringMethod) == ColouringMethod.PerTile) {
         // block n tile colours
         readBlockMarker(inputByteStream)
-        val tileColoursData = inputByteStream.read(numTiles * 4)
+        val tileColoursData = inputByteStream.read(numTiles * coloursSize)
         charpadProcessor.processTileColours {
-          it.write(isolateEachNth(tileColoursData, 4, primaryColorIndex))
+          it.write(isolateEachNth(tileColoursData, coloursSize, primaryColorIndex))
         }
         charpadProcessor.processTileScreenColours {
           it.write(
               combineNybbles(
-                  isolateEachNth(tileColoursData, 4, lo), isolateEachNth(tileColoursData, 4, hi)))
+                  isolateEachNth(tileColoursData, coloursSize, lo),
+                  isolateEachNth(tileColoursData, coloursSize, hi)))
         }
       }
 
@@ -112,7 +131,18 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
 
     // all data here, process header
     charpadProcessor.processHeader {
-      it.write(header.toHeader(tileWidth, tileHeight, mapWidth, mapHeight))
+      it.write(
+          header.toHeader(version.toUnsignedByte(), tileWidth, tileHeight, mapWidth, mapHeight))
+    }
+  }
+
+  private fun ensureTileSizeLimits(tileWidth: Byte, tileHeight: Byte) {
+    val limit = 10
+    if (tileWidth > limit) {
+      throw InvalidCTMFormatException("Tile width too big: $tileWidth.")
+    }
+    if (tileHeight > limit) {
+      throw InvalidCTMFormatException("Tile height too big: $tileHeight.")
     }
   }
 
@@ -127,7 +157,12 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor) :
     val colorBase0 = inputByteStream.readByte()
     val colorBase1 = inputByteStream.readByte()
     val colorBase2 = inputByteStream.readByte()
-    val colorBase3 = inputByteStream.readByte()
+    val colorBase3 =
+        if (version == 8) {
+          inputByteStream.readByte()
+        } else {
+          0
+        }
 
     return CTM8Header(
         displayMode = displayMode,
@@ -162,9 +197,15 @@ internal data class CTM8Header(
     val flags: Byte
 ) {
 
-  fun toHeader(tileWidth: Byte?, tileHeight: Byte?, mapWidth: Int, mapHeight: Int): CTMHeader =
+  fun toHeader(
+      version: Byte,
+      tileWidth: Byte?,
+      tileHeight: Byte?,
+      mapWidth: Int,
+      mapHeight: Int
+  ): CTMHeader =
       CTMHeader(
-          version = 8,
+          version = version,
           backgroundColour0 = screenColour,
           backgroundColour1 = multicolour1,
           backgroundColour2 = multicolour2,
@@ -183,17 +224,32 @@ internal data class CTM8Header(
 
 internal data class ScreenMemoryPalette(val lo: Int, val hi: Int)
 
-internal fun ScreenMode.getPaletteIndexes(): ScreenMemoryPalette =
-    when (this) {
-      ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground ->
-          ScreenMemoryPalette(0, 0)
-      ScreenMode.BitmapHires -> ScreenMemoryPalette(3, 0)
-      ScreenMode.BitmapMulticolor -> ScreenMemoryPalette(2, 1)
+internal fun ScreenMode.getPaletteIndexes(version: Int): ScreenMemoryPalette =
+    if (version == 8) {
+      // TODO shall be fixed 1 Jan 2021
+      when (this) {
+        ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground ->
+            ScreenMemoryPalette(0, 0)
+        ScreenMode.BitmapHires -> ScreenMemoryPalette(3, 0)
+        ScreenMode.BitmapMulticolor -> ScreenMemoryPalette(2, 1)
+      }
+    } else {
+      when (this) {
+        ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground ->
+            ScreenMemoryPalette(0, 0)
+        ScreenMode.BitmapHires -> ScreenMemoryPalette(0, 1)
+        ScreenMode.BitmapMulticolor -> ScreenMemoryPalette(1, 2)
+      }
     }
 
-internal fun ScreenMode.getPrimaryColorIndex(): Int =
-    when (this) {
-      ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground -> 3
-      ScreenMode.BitmapMulticolor -> 3
-      ScreenMode.BitmapHires -> 1
+internal fun ScreenMode.getPrimaryColorIndex(version: Int): Int =
+    if (version == 8) {
+      // TODO shall be fixed 1 Jan 2021
+      when (this) {
+        ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground -> 3
+        ScreenMode.BitmapMulticolor -> 3
+        ScreenMode.BitmapHires -> 1
+      }
+    } else {
+      0
     }

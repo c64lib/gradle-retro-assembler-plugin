@@ -27,5 +27,14 @@ import com.github.c64lib.processor.commons.InputByteStream
 import java.io.FileInputStream
 
 class FisInput(private val fis: FileInputStream) : InputByteStream {
-  override fun read(amount: Int): ByteArray = fis.readNBytes(amount)
+
+  private var readCounter = 0
+
+  override fun read(amount: Int): ByteArray {
+    val result = fis.readNBytes(amount)
+    readCounter += result.size
+    return result
+  }
+
+  override fun readCounter(): Int = readCounter
 }

@@ -9,7 +9,7 @@ plugins {
     id("java-gradle-plugin")
     id("maven-publish")
     id("com.gradle.plugin-publish") version "0.14.0"
-    id("com.diffplug.gradle.spotless")
+    id("com.diffplug.spotless")
 }
 
 group = "com.github.c64lib.retro-assembler"

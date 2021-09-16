@@ -29,8 +29,8 @@ import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 
 abstract class SpritesOutputsExtension
-    @Inject
-    constructor(private val objectFactory: ObjectFactory) {
+@Inject
+constructor(private val objectFactory: ObjectFactory) {
 
   internal val sprites = LinkedList<SpritesExtension>()
 

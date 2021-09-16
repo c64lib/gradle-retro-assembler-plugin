@@ -48,10 +48,10 @@ internal class CTM5ByteArrayMock(
           header.toCTM5Flags()) concat
           wordOf(charset.size / 8 - 1).toByteArray() concat
           wordOf(
-              tiles.size /
-                  2 /
-                  (header.tileDimensions?.width ?: 1) /
-                  (header.tileDimensions?.height ?: 1) - 1)
+                  tiles.size /
+                      2 /
+                      (header.tileDimensions?.width ?: 1) /
+                      (header.tileDimensions?.height ?: 1) - 1)
               .toByteArray() concat
           byteArrayOf(header.tileDimensions?.width ?: 1, header.tileDimensions?.height ?: 1) concat
           wordOf(header.mapDimensions.width).toByteArray() concat

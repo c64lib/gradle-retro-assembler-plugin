@@ -40,7 +40,11 @@ class MapProducer(
   override fun write(data: ByteArray) = output.write(data)
 
   private fun cutMap(
-      width: Int, height: Int, leftTop: MapCoord, rightBottom: MapCoord, data: ByteArray
+      width: Int,
+      height: Int,
+      leftTop: MapCoord,
+      rightBottom: MapCoord,
+      data: ByteArray
   ): ByteArray =
       checkInput(width, height, leftTop, rightBottom) { rightBottomAdjusted ->
         cutMapLeftRight(
@@ -84,7 +88,11 @@ class MapProducer(
           })
 
   private tailrec fun cutMapLeftRight(
-      prefix: ByteArray, width: Int, leftMargin: Int, rightMargin: Int, data: ByteArray
+      prefix: ByteArray,
+      width: Int,
+      leftMargin: Int,
+      rightMargin: Int,
+      data: ByteArray
   ): ByteArray =
       if (data.size < width * 2) {
         prefix

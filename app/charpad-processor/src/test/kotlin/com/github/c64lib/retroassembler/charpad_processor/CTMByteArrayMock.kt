@@ -52,12 +52,12 @@ internal class CTMByteArrayMock(
       when (version) {
         5 ->
             CTM5ByteArrayMock(
-                header = header,
-                charset = charset,
-                charAttributes = charAttributes,
-                tiles = tiles,
-                tileColours = tileColours,
-                map = map)
+                    header = header,
+                    charset = charset,
+                    charAttributes = charAttributes,
+                    tiles = tiles,
+                    tileColours = tileColours,
+                    map = map)
                 .bytes
         else -> throw IllegalArgumentException("Unhandled version: $version")
       }

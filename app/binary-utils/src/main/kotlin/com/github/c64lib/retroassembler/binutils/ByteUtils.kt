@@ -33,7 +33,8 @@ fun isolateEachNth(data: ByteArray, size: Int, n: Int): ByteArray =
     data.filterIndexed { subIndex, _ -> subIndex % size == n }.toByteArray()
 
 fun combineNybbles(dataLo: ByteArray, dataHi: ByteArray): ByteArray =
-    dataLo.zip(dataHi)
+    dataLo
+        .zip(dataHi)
         .map { pair -> (pair.first + (pair.second.toInt() shl 4)).toByte() }
         .toByteArray()
 

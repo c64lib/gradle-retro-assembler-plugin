@@ -27,7 +27,6 @@ import com.github.c64lib.retroassembler.domain.AssemblerType
 import com.github.c64lib.retroassembler.domain.Dependency
 import com.github.c64lib.retroassembler.domain.DependencyType
 import com.github.c64lib.retroassembler.domain.DependencyVersion
-import org.gradle.api.Action
 
 const val EXTENSION_DSL_NAME = "retroProject"
 
