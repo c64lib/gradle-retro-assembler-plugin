@@ -1,0 +1,26 @@
+<div id="gdpr" style="display: none;">
+  <p>
+    This web page uses cookies to track anonymous user activities. By continuing using this site
+    or by closing this banner you indicate your consent to use these cookies.
+    You can change settings, i.e. disable user tracking in <a href="#_privacy_disclaimer">privacy</a> section of this page.
+  </p>
+  <button id="gdprClose">Close</button>
+</div>
+<script>
+  var useCookies = localStorage.getItem('useCookies');
+  document.getElementById('gdprClose').addEventListener('click', function() {
+    document.getElementById('gdpr').style.display = 'none';
+    localStorage.setItem('useCookies', 'true');
+  });
+  if (!useCookies) {
+    document.getElementById('gdpr').style.display = 'block';
+  }
+</script>
+<script>
+  var useCookies = localStorage.getItem('useCookies');
+  document.getElementById('enableGA').checked = (useCookies === 'true');
+  var checkbox = document.getElementById('enableGA');
+  checkbox.addEventListener('change', function() {
+    localStorage.setItem('useCookies', this.checked);
+  });
+</script>

@@ -1,0 +1,28 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-113535243-4"></script>
+<script>
+  var useCookies = (localStorage.getItem('useCookies') === 'true');
+  if (useCookies) {
+    window.dataLayer = window.dataLayer || [];
+    function gtag () {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-113535243-4', { 'anonymize_ip': true });
+  }
+</script>
+<style>
+  div#gdpr {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    margin: 1em 1em;
+    padding: 1em;
+    background: whitesmoke;
+    box-shadow: 5px 5px 2px lightgray;
+    text-align: center;
+    z-index: 1010;
+  }
+  div#gdpr>p {
+    margin: 0.1em;
+  }
+</style>

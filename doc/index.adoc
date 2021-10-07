@@ -6,6 +6,7 @@
 :source-highlighter: highlight.js
 :highlightjs-languages: assembly,kotlin,groovy,bash,yaml
 :stem: latexmath
+:docinfo:
 
 Retro assembler build tool brings automation to the C64 software building process.
 It is implemented as a Gradle plugin.
@@ -937,3 +938,29 @@ hosted on GitHub.
 You have to ensure, that `gradlew` launcher has executable rights on Linux machines, otherwise `run` command will fail.
 
 include::../CHANGES.adoc[leveloffset=+1]
+
+== Privacy disclaimer
+
+=== How do we process your data
+
+This website is powered by AsciiDoctor and is hosted on GitHub/GitHub Pages.
+
+AsciiDoctor is not collecting or processing user data in any form.
+
+GitHub however, as any other hosting company, can have full insight in visitor data, like connecting IP addresses, visited pages, etc.
+Note that Github is not known to actively profile visitors.
+By using a VPN you can (try to) prevent this.
+
+=== Google Analytics
+
+This website uses Google Analytics.
+This happens only if you accept third party cookies.
+I have configured Google Analytics so that IP addresses are anonymized.
+
+Use the following option to grant or revoke collecting data and using cookies.
+
+++++
+<p>
+<input type="checkbox" id="enableGA"> Enable Google Analytics
+</p>
+++++
