@@ -44,7 +44,7 @@ class KickAssemblerFacade(
 
   override fun installDevKit() {
     if (!kaFile.exists()) {
-      if (extension.dialectVersion.equals(DIALECT_VERSION_LATEST)) {
+      if (extension.dialectVersion == DIALECT_VERSION_LATEST) {
         throw GradleException(
             "Dialect version ${extension.dialectVersion} is not supported for KickAssemblerFacade")
       }
@@ -79,10 +79,9 @@ class KickAssemblerFacade(
 
   override fun assemble(sourceFile: File, vararg parameters: String): ExecResult =
       project.javaexec { spec ->
-        spec.main = "-jar"
+        spec.classpath = project.files(kaFile.absolutePath)
         spec.args =
             listOf(
-                    listOf(kaFile.absolutePath),
                     asLibDirList(extension.libDirs),
                     asDefineList(extension.defines),
                     listOf(*parameters),

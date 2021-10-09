@@ -23,12 +23,6 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.asms.kickassembler
 
-import java.io.File
-
-class KickAssemblerSpec(private val kaFile: File) {
-
-  fun makeArgs(): List<String> {
-    val cli = mutableListOf(kaFile.absolutePath)
-    return cli.toList()
-  }
+class KickAssemblerSpec() {
+  fun makeArgs(): List<String> = emptyList()
 }
