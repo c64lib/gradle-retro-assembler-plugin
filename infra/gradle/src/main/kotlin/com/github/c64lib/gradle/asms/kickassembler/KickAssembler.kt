@@ -30,10 +30,10 @@ import org.gradle.api.Project
 class KickAssembler(private val project: Project, private val kaFile: File) {
 
   fun run(action: Action<KickAssemblerSpec>) {
-    val spec = KickAssemblerSpec(kaFile)
+    val spec = KickAssemblerSpec()
     action.execute(spec)
     project.javaexec {
-      it.main = "jar"
+      it.classpath = project.files(kaFile)
       it.args = spec.makeArgs()
     }
   }

@@ -26,7 +26,7 @@ package com.github.c64lib.gradle.emu.vice
 import org.gradle.api.Action
 import org.gradle.api.Project
 
-class Vice(private val project: Project) {
+class  Vice(private val project: Project) {
 
   fun run(action: Action<ViceSpec>) {
     val spec = ViceSpec()
