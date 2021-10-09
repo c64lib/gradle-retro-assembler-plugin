@@ -23,8 +23,6 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.asms.kickassembler
 
-import java.io.File
-
 class KickAssemblerSpec() {
   fun makeArgs(): List<String> = emptyList()
 }
