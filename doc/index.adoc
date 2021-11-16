@@ -360,7 +360,7 @@ The following will reconfigure plugin to seek for tests in `tests` directory and
 
 It has been observed that Vice 3.4 and newer are not working properly with Retro Assembler tool.
 If you encounter any problems, please downgrade your Vice to 3.3.
-Appropriate bug issue has been created.
+Appropriate bug issue has been created https://github.com/c64lib/gradle-retro-assembler-plugin/issues/49[here].
 
 == Processors
 
