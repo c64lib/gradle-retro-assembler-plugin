@@ -30,7 +30,6 @@ import com.github.c64lib.gradle.emu.vice.JamAction
 import com.github.c64lib.gradle.emu.vice.Vice
 import com.github.c64lib.retroassembler.domain.AssemblerType
 import java.io.File
-import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
@@ -61,18 +60,16 @@ open class Test : DefaultTask() {
   private fun launchAllTests() = testFiles().forEach { file -> launchTest(file) }
 
   private fun launchTest(file: File) =
-      Vice(project)
-          .run(
-              Action { it ->
-                it.executable = extension.viceExecutable
-                it.warpMode = true
-                it.headless = true
-                it.autostartPrgMode = AutostartPrgMode.VIRTUAL_FS
-                it.jamAction = JamAction.QUIT
-                it.autostart = prgFile(file.absoluteFile)
-                it.monCommands = viceSymbolFile(file)
-                it.chdir = file.parent
-              })
+      Vice(project).run { it ->
+        it.executable = extension.viceExecutable
+        it.warpMode = true
+        it.headless = true
+        it.autostartPrgMode = AutostartPrgMode.VIRTUAL_FS
+        it.jamAction = JamAction.QUIT
+        it.autostart = prgFile(file.absoluteFile)
+        it.monCommands = viceSymbolFile(file)
+        it.chdir = file.parent
+      }
 
   private fun testFiles() =
       extension.specDirs.flatMap {

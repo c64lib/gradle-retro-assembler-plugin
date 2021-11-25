@@ -21,25 +21,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle
+package com.github.c64lib.gradle.preprocess.goattracker
 
-// official tasks
-const val TASK_BUILD = "build"
+import com.github.c64lib.gradle.GROUP_BUILD
+import com.github.c64lib.gradle.preprocess.PreprocessingExtension
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.TaskAction
 
-const val TASK_ASM = "asm"
+open class Goattracker : DefaultTask() {
 
-const val TASK_CLEAN = "clean"
+  init {
+    description = "Converts Goattracker song files (SNG) into SID files."
+    group = GROUP_BUILD
+  }
 
-const val TASK_RESOLVE_DEV_DEPENDENCIES = "resolveDevDeps"
+  @Input lateinit var preprocessingExtension: PreprocessingExtension
 
-const val TASK_DEPENDENCIES = "downloadDeps"
-
-const val TASK_TEST = "test"
-
-const val TASK_ASM_SPEC = "asmSpec"
-
-const val TASK_CHARPAD = "charpad"
-
-const val TASK_SPRITEPAD = "spritepad"
-
-const val TASK_GOATTRACKER = "goattracker"
+  @TaskAction
+  fun process() {
+    val gt2reloc = Gt2Reloc(project)
+    preprocessingExtension.goattrackerPipelines.forEach { pipeline ->
+      pipeline.outputs.forEach { output -> gt2reloc.run(pipeline, output) }
+    }
+  }
+}

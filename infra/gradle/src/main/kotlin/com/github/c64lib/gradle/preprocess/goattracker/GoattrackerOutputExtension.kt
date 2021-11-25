@@ -21,42 +21,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.preprocess
+package com.github.c64lib.gradle.preprocess.goattracker
 
-import com.github.c64lib.gradle.preprocess.charpad.CharpadPipelineExtension
-import com.github.c64lib.gradle.preprocess.goattracker.GoattrackerPipelineExtension
-import com.github.c64lib.gradle.preprocess.spritepad.SpritepadPipelineExtension
+import java.io.File
 import javax.inject.Inject
-import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.OutputFiles
 
-const val PREPROCESSING_EXTENSION_DSL_NAME = "preprocess"
-
-abstract class PreprocessingExtension
+abstract class GoattrackerOutputExtension
 @Inject
 constructor(private val objectFactory: ObjectFactory) {
+  var executable = "gt2reloc"
+  var bufferedSIDWrites: Boolean? = null
+  var sfxSupport: Boolean? = null
+  var volumeChangeSupport: Boolean? = null
+  var storeAuthorInfo: Boolean? = null
+  var zeropageGhostRegisters: Boolean? = null
+  var optimize: Boolean? = null
+  var playerMemoryLocation: Int? = null
+  var sidMemoryLocation: Int? = null
+  var zeroPageLocation: Int? = null
 
-  val charpadPipelines = ArrayList<CharpadPipelineExtension>()
-
-  val spritepadPipelines = ArrayList<SpritepadPipelineExtension>()
-
-  val goattrackerPipelines = ArrayList<GoattrackerPipelineExtension>()
-
-  fun charpad(action: Action<CharpadPipelineExtension>) {
-    val ex = objectFactory.newInstance(CharpadPipelineExtension::class.java)
-    action.execute(ex)
-    charpadPipelines.add(ex)
-  }
-
-  fun spritepad(action: Action<SpritepadPipelineExtension>) {
-    val ex = objectFactory.newInstance(SpritepadPipelineExtension::class.java)
-    action.execute(ex)
-    spritepadPipelines.add(ex)
-  }
-
-  fun goattracker(action: Action<GoattrackerPipelineExtension>) {
-    val ex = objectFactory.newInstance(GoattrackerPipelineExtension::class.java)
-    action.execute(ex)
-    goattrackerPipelines.add(ex)
-  }
+  @OutputFiles abstract fun getOutput(): Property<File>
 }
