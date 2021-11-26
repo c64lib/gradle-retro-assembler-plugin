@@ -1,5 +1,8 @@
 = Change log
 
+1.5.0::
+* `Goattracker`: Support for `gt2reloc` CLI tool as a preprocessor.
+
 1.4.5::
 * Deprecated Gradle API call removed, we're ready for Gradle 8.0 now.
 

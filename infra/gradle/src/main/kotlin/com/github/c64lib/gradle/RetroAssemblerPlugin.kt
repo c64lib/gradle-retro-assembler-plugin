@@ -27,6 +27,7 @@ import com.github.c64lib.gradle.deps.DownloadDependencies
 import com.github.c64lib.gradle.preprocess.PREPROCESSING_EXTENSION_DSL_NAME
 import com.github.c64lib.gradle.preprocess.PreprocessingExtension
 import com.github.c64lib.gradle.preprocess.charpad.Charpad
+import com.github.c64lib.gradle.preprocess.goattracker.Goattracker
 import com.github.c64lib.gradle.preprocess.spritepad.Spritepad
 import com.github.c64lib.gradle.spec.AssembleSpec
 import com.github.c64lib.gradle.spec.Test
@@ -67,11 +68,15 @@ class RetroAssemblerPlugin : Plugin<Project> {
           project.tasks.create(TASK_SPRITEPAD, Spritepad::class.java) { task ->
             task.preprocessingExtension = preprocessExtension
           }
+      val goattracker =
+          project.tasks.create(TASK_GOATTRACKER, Goattracker::class.java) { task ->
+            task.preprocessingExtension = preprocessExtension
+          }
       val assemble =
           project.tasks.create(TASK_ASM, Assemble::class.java) { task ->
             task.extension = extension
           }
-      assemble.dependsOn(resolveDevDeps, downloadDependencies, charpad, spritepad)
+      assemble.dependsOn(resolveDevDeps, downloadDependencies, charpad, spritepad, goattracker)
 
       project.tasks.create(TASK_CLEAN, Clean::class.java) { task -> task.extension = extension }
       // spec

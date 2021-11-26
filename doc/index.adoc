@@ -739,9 +739,74 @@ preprocess {
 The example above exports only second (1) and third (2) sprite definition.
 Omit `start` to start from beginning, omit `end` to export till the end of the file.
 
+=== Goat Tracker exports
+[WARNING]
+.Experimental feature
+====
+This feature should be considered as experimental.
+That is, the DSL syntax may change in the future.
+====
+Support for converting Goat Tracker 2 `SNG` format into the embeddable `SID` format.
+
+This feature requires external native executable to be available on the system's `PATH`: the `gt2reloc` binary.
+This binary is shipped together with Goat Tracker.
+
+This feature can be used by using `goattracker` preprocessor in following way:
+
+[source,groovy]
+----
+preprocess {
+    goattracker {
+        input = file("src/music/soundtrack.sng")
+        useBuildDir = true
+        music {
+            output = file("music/soundtrack.sid")
+        }
+    }
+}
+----
+
+.Elements of the `goattracker` preprocessor
+input:: Input file that should be a `SNG`.
+useBuildDir:: Whether output will use `build` dir of the project as a root or target file should be generated in other location.
+
+.Elements of the `music` generator
+output::
+Output file that the exported music will be written to. The file will be created starting from project root or in build dir, depending on `useBuildDir` setting.
+bufferedSidWrites::
+Set to `true` if SID register buffering should be used (it provides better quality of the sound at the cost of the `SID` file length).
+disableOptimization::
+Set to `true` to disable optimizations.
+executable::
+Name of the native CLI command that is launched by this preprocessor.
+Default value is `gt2reloc`, but it can be changed to i.e., full path if needed.
+playerMemoryLocation::
+If changed it specifies memory location for the player and data.
+Only high byte of the address can be set (low byte is always `$00`).
+sfxSupport::
+Set to `true` if sound effect support of the player is needed.
+sidMemoryLocation::
+High byte of the SID chip base address.
+By default, `$D400` is used.
+It can be changed if multiple SID chips are installed and used.
+storeAuthorInfo::
+Set to `true` if generated `SID` file should contain author information.
+volumeChangeSupport::
+Set to `true` if master volume control support is needed from the generated player.
+zeroPageLocation::
+Sets the starting address (8 bit only) on the zero page that will be used for zero page ghost registers.
+zeropageGhostRegisters::
+Set to `true` if zero page can be used to allocate internal variables of the player.
+It ensures shorter raster time of the play routine.
+
+In result an appropriate `SID` file will be created in build directory (it will be `build/goattracker/music/soundtrack.sid`).
+Conversion will use default settings of all export parameters as specified by `gt2reloc` command.
+It is, however, possible to override them.
+
 === Output transformations
 The processors produce binary files for each of the element.
 It is possible to apply further filtering to these files when needed.
+Output transformations are available for <<Spritepad exports>> and <<Charpad exports>>.
 
 ==== Straight output
 Straight output means there are no filtering applied.

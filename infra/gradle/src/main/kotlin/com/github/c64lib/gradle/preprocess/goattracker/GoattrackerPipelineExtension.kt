@@ -21,42 +21,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.preprocess
+package com.github.c64lib.gradle.preprocess.goattracker
 
-import com.github.c64lib.gradle.preprocess.charpad.CharpadPipelineExtension
-import com.github.c64lib.gradle.preprocess.goattracker.GoattrackerPipelineExtension
-import com.github.c64lib.gradle.preprocess.spritepad.SpritepadPipelineExtension
+import java.io.File
 import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 
-const val PREPROCESSING_EXTENSION_DSL_NAME = "preprocess"
-
-abstract class PreprocessingExtension
+abstract class GoattrackerPipelineExtension
 @Inject
 constructor(private val objectFactory: ObjectFactory) {
+  @InputFiles abstract fun getInput(): Property<File>
 
-  val charpadPipelines = ArrayList<CharpadPipelineExtension>()
+  @Input abstract fun getUseBuildDir(): Property<Boolean>
 
-  val spritepadPipelines = ArrayList<SpritepadPipelineExtension>()
+  internal val outputs = ArrayList<GoattrackerMusicExtension>()
 
-  val goattrackerPipelines = ArrayList<GoattrackerPipelineExtension>()
-
-  fun charpad(action: Action<CharpadPipelineExtension>) {
-    val ex = objectFactory.newInstance(CharpadPipelineExtension::class.java)
+  fun music(action: Action<GoattrackerMusicExtension>) {
+    val ex = objectFactory.newInstance(GoattrackerMusicExtension::class.java)
     action.execute(ex)
-    charpadPipelines.add(ex)
-  }
-
-  fun spritepad(action: Action<SpritepadPipelineExtension>) {
-    val ex = objectFactory.newInstance(SpritepadPipelineExtension::class.java)
-    action.execute(ex)
-    spritepadPipelines.add(ex)
-  }
-
-  fun goattracker(action: Action<GoattrackerPipelineExtension>) {
-    val ex = objectFactory.newInstance(GoattrackerPipelineExtension::class.java)
-    action.execute(ex)
-    goattrackerPipelines.add(ex)
+    outputs.add(ex)
   }
 }
