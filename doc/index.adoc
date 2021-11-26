@@ -7,6 +7,9 @@
 :highlightjs-languages: assembly,kotlin,groovy,bash,yaml
 :stem: latexmath
 :docinfo:
+:actualKickAssVersion: 5.22
+:actualDockerVersion: 0.1.5
+:actualPluginVersion: 1.5.0
 
 Retro assembler build tool brings automation to the C64 software building process.
 It is implemented as a Gradle plugin.
@@ -51,10 +54,10 @@ Please refer <<Using Gradle Wrapper>> for further reading.
 If you have Gradle installed on your machine, you just need to create `build.gradle` file in root folder of your project.
 Fill it with following content:
 
-[source,groovy]
+[source,groovy,subs="attributes"]
 ----
 plugins {
-    id "com.github.c64lib.retro-assembler" version "1.4.1"
+    id "com.github.c64lib.retro-assembler" version "{actualPluginVersion}"
 }
 
 repositories {
@@ -63,7 +66,7 @@ repositories {
 
 retroProject {
     dialect = "KickAssembler"
-    dialectVersion = "5.20"
+    dialectVersion = "{actualKickAssVersion}"
     libDirs = ["..", ".ra/deps/c64lib"]
     srcDirs = ["lib", "spec"]
 
@@ -129,11 +132,11 @@ This section describes how assembling can be configured and run.
 
 In order to use assembling part of the build tool you have to specify the `retroProject` section in your build file:
 
-[source,groovy]
+[source,groovy,subs="attributes"]
 ----
 retroProject {
     dialect = "KickAssembler"
-    dialectVersion = "5.20"
+    dialectVersion = "{actualKickAssVersion}"
 }
 ----
 
@@ -221,11 +224,11 @@ The build tool allows to specify both the directories as well as which files to 
 
 Multiple source directories can be specified:
 
-[source,groovy]
+[source,groovy,subs="attributes"]
 ----
 retroProject {
     dialect = "KickAssembler"
-    dialectVersion = "5.20"
+    dialectVersion = "{actualKickAssVersion}"
     srcDirs = ["src", "lib"]
 }
 ----
@@ -233,11 +236,11 @@ retroProject {
 By default, all files with `.asm` extension located in source directories are included.
 You can either specify exact single file to be assembled:
 
-[source,groovy]
+[source,groovy,subs="attributes"]
 ----
 retroProject {
     dialect = "KickAssembler"
-    dialectVersion = "5.20"
+    dialectVersion = "{actualKickAssVersion}"
     srcDirs = ["src"]
     includes = ["rex.asm"]
 }
@@ -245,11 +248,11 @@ retroProject {
 
 or include only files located directly in source directories and not in any subdirectories:
 
-[source,groovy]
+[source,groovy,subs="attributes"]
 ----
 retroProject {
     dialect = "KickAssembler"
-    dialectVersion = "5.20"
+    dialectVersion = "{actualKickAssVersion}"
     srcDirs = ["src", "lib"]
     includes = ["*.asm"]
 }
@@ -257,11 +260,11 @@ retroProject {
 
 You can also exclude certain files, for instance these starting with `_` (underscore) in the name:
 
-[source,groovy]
+[source,groovy,subs="attributes"]
 ----
 retroProject {
     dialect = "KickAssembler"
-    dialectVersion = "5.20"
+    dialectVersion = "{actualKickAssVersion}"
     srcDirs = ["src"]
     excludes = ["**/_*.asm"]
 }
@@ -283,11 +286,11 @@ This can be easily achieved with `libDirs` parameter.
 
 If you want to use `c64lib` set of ASM libraries and also use <<Charpad exports>> and <<Spritepad exports>> configured to use `build` directory as a output, use following snippet:
 
-[source,groovy]
+[source,groovy,subs="attributes"]
 ----
 retroProject {
     dialect = "KickAssembler"
-    dialectVersion = "5.20"
+    dialectVersion = "{actualKickAssVersion}"
     libDirs = [".ra/deps/c64lib", "build/charpad", "build/spritepad"]
 
     libFromGitHub("c64lib/common", "develop")
@@ -306,11 +309,11 @@ These symbols can be also passed to the Assembler from CLI thus via build tool.
 
 Use the following snippet to define `ntsc` and `debug` symbol during assembling:
 
-[source,groovy]
+[source,groovy,subs="attributes"]
 ----
 retroProject {
     dialect = "KickAssembler"
-    dialectVersion = "5.20"
+    dialectVersion = "{actualKickAssVersion}"
     defines = ["ntsc", "debug"]
 }
 ----
@@ -942,7 +945,7 @@ The file is named `config.yml` and must be located in `.circleci` directory loca
 in the root of your project.
 As for now the file should look similar to the example below:
 
-[source,yaml]
+[source,yaml,subs="attributes"]
 ----
 version: 2
 jobs:
@@ -952,7 +955,7 @@ jobs:
         - master
         - develop
     docker:
-      - image: maciejmalecki/c64libci:0.1.4
+      - image: maciejmalecki/c64libci:{actualDockerVersion}
 
     working_directory: ~/repo
 
@@ -973,7 +976,8 @@ You still can modify few things in this file:
 
 You have to ensure, that `gradlew` launcher has executable rights on Linux machines, otherwise `run` command will fail.
 
-One thing you shouldn't modify is `docker/image` - the `maciejmalecki/c64libci:0.1.4` is a dedicated image based on Debian Buster that has Java 11 and Vice 3.x preinstalled and is needed to run both KickAssembler and 64spec tests.
+One thing you shouldn't modify is `docker/image` - the `maciejmalecki/c64libci:{actualDockerVersion}` is a dedicated image based on Debian Buster that has Java 11 and Vice 3.x preinstalled and is needed to run both KickAssembler and 64spec tests.
+Since version `0.1.5` also Goattracker and Exomizer are available on the image.
 
 === TravisCI
 As for now it is not possible to install Vice 3.x on TravisCI due to outdated Linux images, so that 64spec tests are not working there.
