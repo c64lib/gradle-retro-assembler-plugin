@@ -23,6 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.preprocess.goattracker
 
+import java.io.File
 import org.gradle.api.Project
 
 class Gt2Reloc(private val project: Project) {
@@ -38,7 +39,9 @@ class Gt2Reloc(private val project: Project) {
   ): List<String> {
     val cli = mutableListOf(outputExt.executable)
     cli += inputExt.getInput().get().absolutePath
-    cli += outputExt.getOutput().get().absolutePath
+    cli +=
+        normalize(outputExt.getOutput().get(), inputExt.getUseBuildDir().getOrElse(false))
+            .absolutePath
     outputExt.bufferedSIDWrites?.let { cli += toBooleanFlag("B", it) }
     outputExt.zeropageGhostRegisters?.let { cli += toBooleanFlag("C", it) }
     outputExt.sfxSupport?.let { cli += toBooleanFlag("D", it) }
@@ -61,4 +64,23 @@ class Gt2Reloc(private val project: Project) {
       "-$flagName" + toBooleanValue(flagValue)
 
   private fun toHexFlag(flagName: String, value: Int): String = "-$flagName" + toHexValue(value)
+
+  private fun normalize(output: File, outputToBuildDir: Boolean): File =
+      if (outputToBuildDir) {
+        val outputRelativePath =
+            project.layout.projectDirectory.asFile.toPath().relativize(output.toPath())
+        val resultPath =
+            project
+                .layout
+                .buildDirectory
+                .dir("goattracker")
+                .get()
+                .asFile
+                .toPath()
+                .resolve(outputRelativePath)
+        resultPath.parent?.toFile()?.mkdirs()
+        resultPath.toFile()
+      } else {
+        output
+      }
 }
