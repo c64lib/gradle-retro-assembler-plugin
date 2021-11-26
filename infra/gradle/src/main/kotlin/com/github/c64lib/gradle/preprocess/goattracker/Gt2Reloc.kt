@@ -28,27 +28,29 @@ import org.gradle.api.Project
 
 class Gt2Reloc(private val project: Project) {
 
-  fun run(inputExt: GoattrackerPipelineExtension, outputExt: GoattrackerOutputExtension) {
-    val result = project.exec { it.commandLine = buildCommandLine(inputExt, outputExt) }
+  fun run(inputExt: GoattrackerPipelineExtension, musicExt: GoattrackerMusicExtension) {
+    val result = project.exec { it.commandLine = buildCommandLine(inputExt, musicExt) }
     result.assertNormalExitValue()
   }
 
   private fun buildCommandLine(
       inputExt: GoattrackerPipelineExtension,
-      outputExt: GoattrackerOutputExtension
+      musicExt: GoattrackerMusicExtension
   ): List<String> {
-    val cli = mutableListOf(outputExt.executable)
+    val cli = mutableListOf(musicExt.executable)
     cli += inputExt.getInput().get().absolutePath
     cli +=
-        normalize(outputExt.getOutput().get(), inputExt.getUseBuildDir().getOrElse(false))
+        normalize(musicExt.getOutput().get(), inputExt.getUseBuildDir().getOrElse(false))
             .absolutePath
-    outputExt.bufferedSIDWrites?.let { cli += toBooleanFlag("B", it) }
-    outputExt.zeropageGhostRegisters?.let { cli += toBooleanFlag("C", it) }
-    outputExt.sfxSupport?.let { cli += toBooleanFlag("D", it) }
-    outputExt.volumeChangeSupport?.let { cli += toBooleanFlag("E", it) }
-    outputExt.storeAuthorInfo?.let { cli += toBooleanFlag("H", it) }
-    outputExt.optimize?.let { cli += toBooleanFlag("I", it) }
-    outputExt.playerMemoryLocation?.let { cli += toHexFlag("W", it) }
+    musicExt.bufferedSidWrites?.let { cli += toBooleanFlag("B", it) }
+    musicExt.zeroPageLocation?.let { cli += toHexFlag("Z", it) }
+    musicExt.zeropageGhostRegisters?.let { cli += toBooleanFlag("C", it) }
+    musicExt.sfxSupport?.let { cli += toBooleanFlag("D", it) }
+    musicExt.volumeChangeSupport?.let { cli += toBooleanFlag("E", it) }
+    musicExt.storeAuthorInfo?.let { cli += toBooleanFlag("H", it) }
+    musicExt.disableOptimization?.let { cli += toBooleanFlag("I", it) }
+    musicExt.playerMemoryLocation?.let { cli += toHexFlag("W", it) }
+    musicExt.sidMemoryLocation?.let { cli += toHexFlag("L", it) }
     return cli.toList()
   }
 

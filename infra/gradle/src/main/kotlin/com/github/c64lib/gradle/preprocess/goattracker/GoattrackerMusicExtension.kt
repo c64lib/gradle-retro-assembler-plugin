@@ -29,19 +29,19 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.OutputFiles
 
-abstract class GoattrackerOutputExtension
+abstract class GoattrackerMusicExtension
 @Inject
 constructor(private val objectFactory: ObjectFactory) {
+  var bufferedSidWrites: Boolean? = null
+  var disableOptimization: Boolean? = null
   var executable = "gt2reloc"
-  var bufferedSIDWrites: Boolean? = null
-  var sfxSupport: Boolean? = null
-  var volumeChangeSupport: Boolean? = null
-  var storeAuthorInfo: Boolean? = null
-  var zeropageGhostRegisters: Boolean? = null
-  var optimize: Boolean? = null
   var playerMemoryLocation: Int? = null
+  var sfxSupport: Boolean? = null
   var sidMemoryLocation: Int? = null
+  var storeAuthorInfo: Boolean? = null
+  var volumeChangeSupport: Boolean? = null
   var zeroPageLocation: Int? = null
+  var zeropageGhostRegisters: Boolean? = null
 
   @OutputFiles abstract fun getOutput(): Property<File>
 }

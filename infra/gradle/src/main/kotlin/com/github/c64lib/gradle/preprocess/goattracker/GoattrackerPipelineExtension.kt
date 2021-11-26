@@ -38,10 +38,10 @@ constructor(private val objectFactory: ObjectFactory) {
 
   @Input abstract fun getUseBuildDir(): Property<Boolean>
 
-  internal val outputs = ArrayList<GoattrackerOutputExtension>()
+  internal val outputs = ArrayList<GoattrackerMusicExtension>()
 
-  fun output(action: Action<GoattrackerOutputExtension>) {
-    val ex = objectFactory.newInstance(GoattrackerOutputExtension::class.java)
+  fun music(action: Action<GoattrackerMusicExtension>) {
+    val ex = objectFactory.newInstance(GoattrackerMusicExtension::class.java)
     action.execute(ex)
     outputs.add(ex)
   }

@@ -27,6 +27,5 @@ asciidoctorj {
     modules {
         diagram.use()
         diagram.setVersion("1.5.16")
-
     }
 }
