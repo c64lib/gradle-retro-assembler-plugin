@@ -40,7 +40,7 @@ constructor(private val objectFactory: ObjectFactory) {
 
   internal val outputs = ArrayList<GoattrackerOutputExtension>()
 
-  fun outputs(action: Action<GoattrackerOutputExtension>) {
+  fun output(action: Action<GoattrackerOutputExtension>) {
     val ex = objectFactory.newInstance(GoattrackerOutputExtension::class.java)
     action.execute(ex)
     outputs.add(ex)
