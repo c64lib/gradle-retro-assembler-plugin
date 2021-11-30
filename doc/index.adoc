@@ -69,6 +69,13 @@ How does this tool differ from `make`?
 Well, in Retro Build Tool we rather declare what we want to do than code how to do it.
 This tool builds an abstraction layer around concrete tools and make the whole building process simple and portable.
 
+The Retro Build Tool is Continuous Integration capable.
+It is meant to automate release process, as shown in following example.
+
+image::img/ci-flow.png[]
+
+With Build Tool it is possible to generate executable artifacts and deploy them on demand i.e. as part of GitHub releases.
+
 === Create your first build script
 If you have Gradle installed on your machine, you just need to create `build.gradle` file in root folder of your project.
 Fill it with following content:
