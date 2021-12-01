@@ -7,7 +7,7 @@
 :highlightjs-languages: assembly,kotlin,groovy,bash,yaml
 :stem: latexmath
 :docinfo:
-:actualKickAssVersion: 5.22
+:actualKickAssVersion: 5.23
 :actualDockerVersion: 0.1.5
 :actualPluginVersion: 1.5.0
 
@@ -18,7 +18,6 @@ Gradle is a universal build tool that is used for automation in IT industry.
 It supports Java ecosystem out of the box but is also extensible via plugin system.
 
 This plugin supports Commodore 64 output and KickAssembler only, but there are plans to extend it further.
-If you're interested in development plans of this plugin, you can always refer this link:concept[Concept paper].
 
 This is an open source project hosted on https://github.com/c64lib/gradle-retro-assembler-plugin[GitHub].
 In case of any problems when working with the plugin, don't hesitate to create an https://github.com/c64lib/gradle-retro-assembler-plugin/issues[issue].
@@ -75,6 +74,19 @@ It is meant to automate release process, as shown in following example.
 image::img/ci-flow.png[]
 
 With Build Tool it is possible to generate executable artifacts and deploy them on demand i.e. as part of GitHub releases.
+
+As for now, the Retro Build Tool is not able to provide all dependencies out of the box.
+It depends on some externally available commands (mostly for non-Java based tools) such as:
+
+* Vice C64 emulator,
+* Exomizer,
+* GoatTracker 2.
+
+These tools should be installed and available via `PATH` when running Retro Build Tool.
+The docker image used for Circle CI builds (see <<CircleCI>>) is already supporting all these tools.
+A complete list of external dependencies is presented on the next diagram.
+
+image::img/native-deps.png[]
 
 === Create your first build script
 If you have Gradle installed on your machine, you just need to create `build.gradle` file in root folder of your project.
