@@ -2,6 +2,7 @@
 
 1.5.1::
 * New `preprocess` task will run all preprocessors at once.
+* Bugfix: It is possible to run `clean` task even if assembler dialect is not set.
 
 1.5.0::
 * `Goattracker`: Support for `gt2reloc` CLI tool as a preprocessor.
