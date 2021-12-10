@@ -405,6 +405,16 @@ Appropriate bug issue has been created https://github.com/c64lib/gradle-retro-as
 
 == Processors
 
+Preprocessors are run before assembling is done to ensure that all intermediate data is prepared beforehand.
+
+There are plenty of preprocessors available in build tool, they are described in subsequent chapters.
+To run all of them, use `preprocess` task:
+
+[source,bash]
+----
+gradle preprocess
+----
+
 === Charpad exports
 
 Retro assembler build tool supports Charpad CTM file format and provides export of the following elements:

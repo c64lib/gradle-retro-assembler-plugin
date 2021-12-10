@@ -1,5 +1,8 @@
 = Change log
 
+1.5.1::
+* New `preprocess` task will run all preprocessors at once.
+
 1.5.0::
 * `Goattracker`: Support for `gt2reloc` CLI tool as a preprocessor.
 
