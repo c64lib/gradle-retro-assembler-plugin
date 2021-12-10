@@ -34,6 +34,7 @@ import com.github.c64lib.gradle.spec.Test
 import com.github.c64lib.gradle.tasks.Assemble
 import com.github.c64lib.gradle.tasks.Build
 import com.github.c64lib.gradle.tasks.Clean
+import com.github.c64lib.gradle.tasks.Preprocess
 import com.github.c64lib.gradle.tasks.ResolveDevDeps
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -59,7 +60,7 @@ class RetroAssemblerPlugin : Plugin<Project> {
           project.tasks.create(TASK_DEPENDENCIES, DownloadDependencies::class.java) { task ->
             task.extension = extension
           }
-      // sources
+      // preprocess
       val charpad =
           project.tasks.create(TASK_CHARPAD, Charpad::class.java) { task ->
             task.preprocessingExtension = preprocessExtension
@@ -72,13 +73,19 @@ class RetroAssemblerPlugin : Plugin<Project> {
           project.tasks.create(TASK_GOATTRACKER, Goattracker::class.java) { task ->
             task.preprocessingExtension = preprocessExtension
           }
+      val preprocess = project.tasks.create(TASK_PREPROCESS, Preprocess::class.java)
+
+      preprocess.dependsOn(charpad, spritepad, goattracker)
+
+      // sources
       val assemble =
           project.tasks.create(TASK_ASM, Assemble::class.java) { task ->
             task.extension = extension
           }
-      assemble.dependsOn(resolveDevDeps, downloadDependencies, charpad, spritepad, goattracker)
+      assemble.dependsOn(resolveDevDeps, downloadDependencies, preprocess)
 
       project.tasks.create(TASK_CLEAN, Clean::class.java) { task -> task.extension = extension }
+
       // spec
       val assembleSpec =
           project.tasks.create(TASK_ASM_SPEC, AssembleSpec::class.java) { task ->
@@ -88,6 +95,7 @@ class RetroAssemblerPlugin : Plugin<Project> {
       val runSpec =
           project.tasks.create(TASK_TEST, Test::class.java) { task -> task.extension = extension }
       runSpec.dependsOn(assembleSpec)
+
       // build
       val build = project.tasks.create(TASK_BUILD, Build::class.java)
       build.dependsOn(assemble, runSpec)

@@ -43,3 +43,5 @@ const val TASK_CHARPAD = "charpad"
 const val TASK_SPRITEPAD = "spritepad"
 
 const val TASK_GOATTRACKER = "goattracker"
+
+const val TASK_PREPROCESS = "preprocess"

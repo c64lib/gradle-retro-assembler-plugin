@@ -23,21 +23,13 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.tasks
 
+import com.github.c64lib.gradle.GROUP_BUILD
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFiles
-import org.gradle.api.tasks.TaskAction
 
-abstract class ProcessCharpad : DefaultTask() {
+abstract class Preprocess : DefaultTask() {
 
-  @InputFiles abstract fun getDataFiles(): ConfigurableFileCollection
-
-  @OutputDirectory abstract fun getOutputDirectory(): RegularFileProperty
-
-  @OutputFiles abstract fun getOutputFiles(): ConfigurableFileCollection
-
-  @TaskAction fun perform() {}
+  init {
+    description = "Runs all preprocessors"
+    group = GROUP_BUILD
+  }
 }
