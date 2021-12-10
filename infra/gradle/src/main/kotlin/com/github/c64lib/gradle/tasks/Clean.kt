@@ -26,6 +26,7 @@ package com.github.c64lib.gradle.tasks
 import com.github.c64lib.gradle.GROUP_BUILD
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
+import com.github.c64lib.retroassembler.domain.AssemblerType
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -42,8 +43,10 @@ open class Clean : Delete() {
   @TaskAction
   override fun clean() {
     delete(project.buildDir)
-    val asm = AssemblerFacadeFactory.of(extension.dialect, project, extension)
-    delete(asm.targetFiles())
+    if (extension.dialect != AssemblerType.None) {
+      val asm = AssemblerFacadeFactory.of(extension.dialect, project, extension)
+      delete(asm.targetFiles())
+    }
     super.clean()
   }
 }
