@@ -9,7 +9,7 @@
 :docinfo:
 :actualKickAssVersion: 5.23
 :actualDockerVersion: 0.1.5
-:actualPluginVersion: 1.5.0
+:actualPluginVersion: 1.5.1
 
 Retro assembler build tool brings automation to the C64 software building process.
 It is implemented as a Gradle plugin.
