@@ -1,4 +1,4 @@
-= Retro Assembler build tools: User's Manual
+= Retro Build tool: User's Manual
 :icons: font
 :toc: left
 :sectnums:
@@ -11,7 +11,7 @@
 :actualDockerVersion: 0.1.5
 :actualPluginVersion: 1.5.1
 
-Retro assembler build tool brings automation to the C64 software building process.
+Retro Build Tool brings automation to the C64 software building process.
 It is implemented as a Gradle plugin.
 
 Gradle is a universal build tool that is used for automation in IT industry.
@@ -43,10 +43,10 @@ You can use the following projects for reference:
 * https://github.com/maciejmalecki/trex64[]
 * https://github.com/c64lib/ctm-viewer[]
 
-If the project does not use Gradle Wrapper, you have to install Gradle Build Tool by yourself.
+If the project does not use Gradle Wrapper, you have to install Gradle by yourself.
 It is pretty straightforward, you'll find instructions here: https://gradle.org/install/[].
 
-Having Gradle Build Tool installed is also needed if you want to author Gradle Wrapper capable projects by yourself.
+Having Gradle installed is also needed if you want to author Gradle Wrapper capable projects by yourself.
 Please refer <<Using Gradle Wrapper>> for further reading.
 
 === Functional overview
@@ -73,7 +73,7 @@ It is meant to automate release process, as shown in following example.
 
 image::img/ci-flow.png[]
 
-With Build Tool it is possible to generate executable artifacts and deploy them on demand i.e. as part of GitHub releases.
+With Retro Build Tool it is possible to generate executable artifacts and deploy them on demand i.e. as part of GitHub releases.
 
 As for now, the Retro Build Tool is not able to provide all dependencies out of the box.
 It depends on some externally available commands (mostly for non-Java based tools) such as:
@@ -98,14 +98,10 @@ plugins {
     id "com.github.c64lib.retro-assembler" version "{actualPluginVersion}"
 }
 
-repositories {
-    mavenCentral()
-}
-
 retroProject {
     dialect = "KickAssembler"
     dialectVersion = "{actualKickAssVersion}"
-    libDirs = ["..", ".ra/deps/c64lib"]
+    libDirs = [".ra/deps/c64lib"]
     srcDirs = ["lib", "spec"]
 
     // dependencies
@@ -115,9 +111,8 @@ retroProject {
 
 You can of course adjust all values inside `retroProject` to your needs.
 
-As you can see you don't have to download Retro Assembler Plugin, it will be automatically downloaded and used once `gradle` command is run.The plugin is published into Plugins portal: https://plugins.gradle.org/plugin/com.github.c64lib.retro-assembler[https://plugins.gradle.org] and can be used as any other Gradle plugin.
-
-Read a complete installation manual in documentation: https://c64lib.github.io/docu/pages/install[]
+As you can see you don't have to download Retro Assembler Plugin, it will be automatically downloaded and used once `gradle` command is run.
+The plugin is published into Plugins portal: https://plugins.gradle.org/plugin/com.github.c64lib.retro-assembler[https://plugins.gradle.org] and can be used as any other Gradle plugin.
 
 === Launching your build
 There are two core tasks that can be used from command line:
@@ -644,7 +639,7 @@ Meta data are exported in form of Assembly labels.
 .Example of meta data output.
 ----
 meta {
-  dialect = "AssemblerType"
+  dialect = "KickAssembler"
   includeMode = true
   namespace = "c64lib"
   prefix = "logo_"
