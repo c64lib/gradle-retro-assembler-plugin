@@ -8,10 +8,13 @@ This is a plugin for [Gradle build tool](https://gradle.org/) that adds capabili
 
 Currently, the plugin supports [Kick Assembler](http://theweb.dk/KickAssembler/Main.html#frontpage) as the only ASM dialect.
 
+Retro Build Tool is published at: https://plugins.gradle.org/plugin/com.github.c64lib.retro-assembler
+
 ## Highlights
 
-Current version is 1.4.4.
-It brings support of [Charpad 3.0](https://subchristsoftware.itch.io/charpad-pro) export of CTM files (bitmap modes related artefacts).
+Current version is 1.5.1
+
+It supports most of the tools needed in game dev such as charpad, spritepad and goattracker packer and relocator.
 
 ## User's Manual
 
