@@ -8,7 +8,9 @@ This is a plugin for [Gradle build tool](https://gradle.org/) that adds capabili
 
 Currently, the plugin supports [Kick Assembler](http://theweb.dk/KickAssembler/Main.html#frontpage) as the only ASM dialect.
 
-Retro Build Tool is published at: https://plugins.gradle.org/plugin/com.github.c64lib.retro-assembler
+Retro Build Tool is published at: https://plugins.gradle.org/plugin/com.github.c64lib.retro-assembler.
+
+There is also a Linux-based docker image available: https://github.com/c64lib/c64libci. All functions of Retro Build Tool with work on this image. The image is designed to be used with CI environments (such as CircleCI).
 
 ## Highlights
 
