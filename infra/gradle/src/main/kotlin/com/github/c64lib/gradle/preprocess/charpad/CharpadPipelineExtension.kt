@@ -38,6 +38,8 @@ constructor(private val objectFactory: ObjectFactory) {
 
   @Input abstract fun getUseBuildDir(): Property<Boolean>
 
+  @Input abstract fun getCtm8PrototypeCompatibility(): Property<Boolean>
+
   internal val outputs = ArrayList<OutputsExtension>()
 
   fun outputs(action: Action<OutputsExtension>) {

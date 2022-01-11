@@ -39,7 +39,7 @@ class CharpadProcessorTest :
       isolationMode = IsolationMode.InstancePerTest
 
       Given("CharpadProcessor with empty processors") {
-        val processor = CharpadProcessor(emptyList())
+        val processor = CharpadProcessor(emptyList(), true)
         When("process is called") {
           And("the input stream is empty") {
             val exception =
@@ -67,7 +67,7 @@ class CharpadProcessorTest :
         val charsetOutput = BinaryOutputMock()
         And("whole charset producer is used") {
           val producer = CharsetProducer(output = charsetOutput)
-          val processor = CharpadProcessor(listOf(producer))
+          val processor = CharpadProcessor(listOf(producer), true)
           When("process is called") {
             processor.process(
                 BinaryInputMock(
@@ -85,7 +85,7 @@ class CharpadProcessorTest :
         }
         And("a subset of charset is used") {
           val producer = CharsetProducer(start = 1, end = 2, output = charsetOutput)
-          val processor = CharpadProcessor(listOf(producer))
+          val processor = CharpadProcessor(listOf(producer), true)
           When("process is called") {
             val char0 = byteArrayOfInts(0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07)
             val char1 = byteArrayOfInts(0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17)
@@ -108,7 +108,7 @@ class CharpadProcessorTest :
         val tilesOutput = BinaryOutputMock()
         And("the whole tileset is used") {
           val producer = TileProducer(output = tilesOutput)
-          val processor = CharpadProcessor(listOf(producer))
+          val processor = CharpadProcessor(listOf(producer), true)
           When("process is called") {
             val tileData =
                 byteArrayOfInts(0x00, 0x01, 0x10, 0x11, 0x20, 0x21, 0x30, 0x31) concat

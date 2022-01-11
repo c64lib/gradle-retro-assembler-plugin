@@ -38,8 +38,11 @@ import com.github.c64lib.retroassembler.charpad_processor.model.colouringMethodF
 import com.github.c64lib.retroassembler.charpad_processor.model.screenModeFrom
 import kotlin.experimental.and
 
-internal class CTM8Processor(charpadProcessor: CharpadProcessor, private val version: Int) :
-    BlockBasedCTMProcessor(charpadProcessor) {
+internal class CTM8Processor(
+    charpadProcessor: CharpadProcessor,
+    private val version: Int,
+    private val ctm8PrototypeCompatibility: Boolean
+) : BlockBasedCTMProcessor(charpadProcessor) {
 
   override fun process(inputByteStream: InputByteStream) {
 
@@ -177,6 +180,34 @@ internal class CTM8Processor(charpadProcessor: CharpadProcessor, private val ver
         colouringMethod = colouringMethod,
         flags = flags)
   }
+
+  private fun ScreenMode.getPaletteIndexes(version: Int): ScreenMemoryPalette =
+      if (version == 8 && ctm8PrototypeCompatibility) {
+        when (this) {
+          ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground ->
+              ScreenMemoryPalette(0, 0)
+          ScreenMode.BitmapHires -> ScreenMemoryPalette(3, 0)
+          ScreenMode.BitmapMulticolor -> ScreenMemoryPalette(2, 1)
+        }
+      } else {
+        when (this) {
+          ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground ->
+              ScreenMemoryPalette(0, 0)
+          ScreenMode.BitmapHires -> ScreenMemoryPalette(0, 1)
+          ScreenMode.BitmapMulticolor -> ScreenMemoryPalette(1, 2)
+        }
+      }
+
+  private fun ScreenMode.getPrimaryColorIndex(version: Int): Int =
+      if (version == 8 && ctm8PrototypeCompatibility) {
+        when (this) {
+          ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground -> 3
+          ScreenMode.BitmapMulticolor -> 3
+          ScreenMode.BitmapHires -> 1
+        }
+      } else {
+        0
+      }
 }
 
 internal enum class CTM8Flags(val bit: Byte) {
@@ -223,33 +254,3 @@ internal data class CTM8Header(
 }
 
 internal data class ScreenMemoryPalette(val lo: Int, val hi: Int)
-
-internal fun ScreenMode.getPaletteIndexes(version: Int): ScreenMemoryPalette =
-    if (version == 8) {
-      // TODO shall be fixed 1 Jan 2021
-      when (this) {
-        ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground ->
-            ScreenMemoryPalette(0, 0)
-        ScreenMode.BitmapHires -> ScreenMemoryPalette(3, 0)
-        ScreenMode.BitmapMulticolor -> ScreenMemoryPalette(2, 1)
-      }
-    } else {
-      when (this) {
-        ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground ->
-            ScreenMemoryPalette(0, 0)
-        ScreenMode.BitmapHires -> ScreenMemoryPalette(0, 1)
-        ScreenMode.BitmapMulticolor -> ScreenMemoryPalette(1, 2)
-      }
-    }
-
-internal fun ScreenMode.getPrimaryColorIndex(version: Int): Int =
-    if (version == 8) {
-      // TODO shall be fixed 1 Jan 2021
-      when (this) {
-        ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground -> 3
-        ScreenMode.BitmapMulticolor -> 3
-        ScreenMode.BitmapHires -> 1
-      }
-    } else {
-      0
-    }

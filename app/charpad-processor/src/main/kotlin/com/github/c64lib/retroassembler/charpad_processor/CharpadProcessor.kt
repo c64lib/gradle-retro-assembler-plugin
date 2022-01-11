@@ -44,7 +44,10 @@ import com.github.c64lib.retroassembler.charpad_processor.producer.TileTagsProdu
 
 internal interface CTMProcessor : Processor
 
-class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
+class CharpadProcessor(
+    outputProducers: Collection<OutputProducer<*>>,
+    private val ctm8PrototypeCompatibility: Boolean
+) {
 
   private val charsetProducers: Collection<CharsetProducer> =
       outputProducers.filterIsInstance<CharsetProducer>()
@@ -110,7 +113,7 @@ class CharpadProcessor(outputProducers: Collection<OutputProducer<*>>) {
       5 -> CTM5Processor(this@CharpadProcessor)
       6 -> CTM6Processor(this@CharpadProcessor)
       7 -> CTM7Processor(this@CharpadProcessor)
-      8, 82 -> CTM8Processor(this@CharpadProcessor, version)
+      8, 82 -> CTM8Processor(this@CharpadProcessor, version, ctm8PrototypeCompatibility)
       else -> throw InvalidCTMFormatException("Unsupported version: $version")
     }
   }

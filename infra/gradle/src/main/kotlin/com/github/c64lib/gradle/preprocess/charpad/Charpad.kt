@@ -76,7 +76,10 @@ open class Charpad : DefaultTask() {
   ) {
     val buffers: MutableList<BinaryOutputBuffer> = LinkedList()
     val textBuffers: MutableList<TextOutputBuffer> = LinkedList()
-    val processor = CharpadProcessor(producers(output, buffers, textBuffers, pipeline))
+    val processor =
+        CharpadProcessor(
+            producers(output, buffers, textBuffers, pipeline),
+            pipeline.getCtm8PrototypeCompatibility().getOrElse(false))
     processor.process(FisInput(fis))
     buffers.forEach { it.flush() }
     textBuffers.forEach { it.flush() }

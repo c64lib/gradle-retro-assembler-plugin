@@ -92,7 +92,8 @@ class TextMulticCTMTest :
                   MapProducer(
                       leftTop = MapCoord(0, 0),
                       rightBottom = MapCoord(40, 25),
-                      output = mapOutput)))
+                      output = mapOutput)),
+              true)
 
       supportedVersions.forEach { ctmVersion ->
         val input =

@@ -1,5 +1,8 @@
 = Change log
 
+1.5.2::
+* `Charpad`: Adding CTM8 prototype compatibility flag; support for CTM 8/CTM 8.2 as handled by Charpad Pro 3.10.
+
 1.5.1::
 * New `preprocess` task will run all preprocessors at once.
 * Bugfix: It is possible to run `clean` task even if assembler dialect is not set.
