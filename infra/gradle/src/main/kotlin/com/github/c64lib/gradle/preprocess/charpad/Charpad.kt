@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2018-2021 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2022 c64lib: The Ultimate Commodore 64 Library
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -76,7 +76,10 @@ open class Charpad : DefaultTask() {
   ) {
     val buffers: MutableList<BinaryOutputBuffer> = LinkedList()
     val textBuffers: MutableList<TextOutputBuffer> = LinkedList()
-    val processor = CharpadProcessor(producers(output, buffers, textBuffers, pipeline))
+    val processor =
+        CharpadProcessor(
+            producers(output, buffers, textBuffers, pipeline),
+            pipeline.getCtm8PrototypeCompatibility().getOrElse(false))
     processor.process(FisInput(fis))
     buffers.forEach { it.flush() }
     textBuffers.forEach { it.flush() }

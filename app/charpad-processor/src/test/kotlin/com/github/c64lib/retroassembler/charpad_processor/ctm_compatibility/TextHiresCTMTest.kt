@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2018-2021 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2022 c64lib: The Ultimate Commodore 64 Library
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -73,7 +73,8 @@ class TextHiresCTMTest :
                       MapProducer(
                           leftTop = MapCoord(0, 0),
                           rightBottom = MapCoord(40, 25),
-                          output = mapOutput)))
+                          output = mapOutput)),
+                  false)
 
           When("process is called") {
             processor.process(input)
@@ -136,7 +137,8 @@ class TextHiresCTMTest :
                       MapProducer(
                           leftTop = MapCoord(0, 0),
                           rightBottom = MapCoord(40, 25),
-                          output = mapOutput)))
+                          output = mapOutput)),
+                  false)
 
           When("process is called") {
             processor.process(input)
@@ -202,7 +204,8 @@ class TextHiresCTMTest :
                       MapProducer(
                           leftTop = MapCoord(0, 0),
                           rightBottom = MapCoord(40, 25),
-                          output = mapOutput)))
+                          output = mapOutput)),
+                  false)
 
           When("process is called") {
             processor.process(input)

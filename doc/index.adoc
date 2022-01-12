@@ -23,6 +23,8 @@ This is an open source project hosted on https://github.com/c64lib/gradle-retro-
 In case of any problems when working with the plugin, don't hesitate to create an https://github.com/c64lib/gradle-retro-assembler-plugin/issues[issue].
 Feel free to fork and create pull requests.
 
+The roadmap for the project is fairly dynamic, but it can be accessed and reviewed at any moment at https://github.com/orgs/c64lib/projects/3/views/6[this place].
+
 == Getting started
 
 === Installation & requirements
@@ -489,6 +491,18 @@ Whether to use build dir for output files.
 Accepts boolean values: `true` (default) or `false`.
 If set to `true`, all outputs will be created within `build/charpad` as a parent directory.
 If set to `false`, all outputs will be created within project directory as a parent.
+
+ctm8PrototypeCompatibility::
+This option should be set to `true` for CTM files saved with Charpad Pro version 3.0 beta to 3.9.
+For Charpad Pro v 3.10 or newer, this option should be set to `false` (which is a default value).
+
+[NOTE]
+.Note on compatibility flag
+====
+The reason for this `ctm8PrototypeCompatibility` is that in 3.0 - 3.9 range there were two CTM8 versions supported: CTM8 and CTM8.2.
+The version CTM8 becomes quickly obsolete and was retained just for backward compatibility reasons.
+It is recommended to migrate all your CMT8 files to a 'real' CTM8 with Charpad 3.10 and don't use this compatibility flag any longer.
+====
 
 ==== Outputs
 The `outputs` section brings extensive configuration capabilities regarding what data are extracted from CTM file.

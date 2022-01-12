@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2018-2021 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2022 c64lib: The Ultimate Commodore 64 Library
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,8 @@ constructor(private val objectFactory: ObjectFactory) {
   @InputFiles abstract fun getInput(): Property<File>
 
   @Input abstract fun getUseBuildDir(): Property<Boolean>
+
+  @Input abstract fun getCtm8PrototypeCompatibility(): Property<Boolean>
 
   internal val outputs = ArrayList<OutputsExtension>()
 
