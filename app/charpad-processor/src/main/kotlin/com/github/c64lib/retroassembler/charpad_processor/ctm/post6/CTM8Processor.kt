@@ -55,7 +55,7 @@ internal class CTM8Processor(
     val primaryColorIndex = screenMode.getPrimaryColorIndex(version)
 
     val coloursSize =
-        if (version == 8) {
+        if (version == 8 && ctm8PrototypeCompatibility) {
           4
         } else {
           when (screenMode) {
@@ -161,7 +161,7 @@ internal class CTM8Processor(
     val colorBase1 = inputByteStream.readByte()
     val colorBase2 = inputByteStream.readByte()
     val colorBase3 =
-        if (version == 8) {
+        if (version == 8 && ctm8PrototypeCompatibility) {
           inputByteStream.readByte()
         } else {
           0

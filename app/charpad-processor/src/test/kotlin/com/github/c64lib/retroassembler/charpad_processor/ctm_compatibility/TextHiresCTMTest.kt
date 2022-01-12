@@ -74,7 +74,7 @@ class TextHiresCTMTest :
                           leftTop = MapCoord(0, 0),
                           rightBottom = MapCoord(40, 25),
                           output = mapOutput)),
-                  true)
+                  false)
 
           When("process is called") {
             processor.process(input)
@@ -138,7 +138,7 @@ class TextHiresCTMTest :
                           leftTop = MapCoord(0, 0),
                           rightBottom = MapCoord(40, 25),
                           output = mapOutput)),
-                  true)
+                  false)
 
           When("process is called") {
             processor.process(input)
@@ -205,7 +205,7 @@ class TextHiresCTMTest :
                           leftTop = MapCoord(0, 0),
                           rightBottom = MapCoord(40, 25),
                           output = mapOutput)),
-                  true)
+                  false)
 
           When("process is called") {
             processor.process(input)
