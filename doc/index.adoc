@@ -500,8 +500,14 @@ If set to `false`, all outputs will be created within project directory as a par
 ctm8PrototypeCompatibility::
 This option should be set to `true` for CTM files saved with Charpad Pro version 3.0 beta to 3.9.
 For Charpad Pro v 3.10 or newer, this option should be set to `false` (which is a default value).
-The reason for this option is that in 3.0-3.9 range there were two CTM8 versions supported: CTM8 and CTM8.2. The version CTM8 becomes quickly obsolete and was retained just for backward compatibility reasons.
+
+[NOTE]
+.Note on compatibility flag
+====
+The reason for this `ctm8PrototypeCompatibility` is that in 3.0 - 3.9 range there were two CTM8 versions supported: CTM8 and CTM8.2.
+The version CTM8 becomes quickly obsolete and was retained just for backward compatibility reasons.
 It is recommended to migrate all your CMT8 files to a 'real' CTM8 with Charpad 3.10 and don't use this compatibility flag any longer.
+====
 
 ==== Outputs
 The `outputs` section brings extensive configuration capabilities regarding what data are extracted from CTM file.
