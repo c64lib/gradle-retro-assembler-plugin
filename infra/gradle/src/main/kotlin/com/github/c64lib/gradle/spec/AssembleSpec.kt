@@ -51,6 +51,7 @@ open class AssembleSpec : DefaultTask() {
           "-vicesymbols",
           ":on_exit=jam",
           ":write_final_results_to_file=true",
+          ":change_character_set=true",
           ":result_file_name=" + resultFileName(file))
     }
   }

@@ -26,7 +26,7 @@ package com.github.c64lib.gradle.preprocess.charpad
 import com.github.c64lib.gradle.preprocess.FileTextOutputBuffer
 import com.github.c64lib.gradle.preprocess.OutputExtension
 import com.github.c64lib.gradle.preprocess.TextOutputBuffer
-import com.github.c64lib.retroassembler.domain.AssemblerType
+import com.github.c64lib.rbt.domain.AssemblerType
 import java.io.File
 import javax.inject.Inject
 import org.gradle.api.file.ProjectLayout

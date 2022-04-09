@@ -26,7 +26,7 @@ package com.github.c64lib.gradle.tasks
 import com.github.c64lib.gradle.GROUP_BUILD
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
-import com.github.c64lib.retroassembler.domain.AssemblerType
+import com.github.c64lib.rbt.domain.AssemblerType
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction

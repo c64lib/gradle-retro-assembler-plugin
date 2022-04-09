@@ -26,7 +26,7 @@ package com.github.c64lib.gradle.spec
 import java.io.File
 
 class TestReport(private val testFiles: List<File>) {
-  private class ResultCounters(val success: Int = 0, val total: Int = 0) {
+  private class Result(val outputText: String, val success: Int = 0, val total: Int = 0) {
 
     val isPositive: Boolean
       get() = success == total
@@ -38,30 +38,30 @@ class TestReport(private val testFiles: List<File>) {
           "FAILED"
         }
 
-    override fun toString(): String = "($success/$total) " + tag()
+    override fun toString(): String = "($success/$total) ${tag()}"
   }
 
   fun generateTestReport(outputFn: (value: String) -> Unit): Boolean {
     val result =
-        testFiles.map { file -> resultFile(file) }.fold(ResultCounters()) { result, fileName ->
+        testFiles.map { file -> resultFile(file) }.fold(Result("")) { result, fileName ->
           val file = File(fileName)
           outputFn(file.name)
           val testOutput = fromPetscii(file.readBytes())
           val counts = parseTestOutput(testOutput)
-          outputFn("Tests execution $counts")
-          ResultCounters(result.success + counts.success, result.total + counts.total)
+          outputFn("Tests execution ${counts.outputText}")
+          Result("", result.success + counts.success, result.total + counts.total)
         }
     outputFn("Overall test report $result")
     return result.isPositive
   }
 
-  private fun parseTestOutput(outputText: String): ResultCounters {
+  private fun parseTestOutput(outputText: String): Result {
     val regex = Regex("\\((\\d+)/(\\d+)\\)")
     val matchResult: MatchResult? = regex.find(outputText)
     return if (matchResult != null) {
-      ResultCounters(matchResult.groupValues[1].toInt(), matchResult.groupValues[2].toInt())
+      Result(outputText, matchResult.groupValues[1].toInt(), matchResult.groupValues[2].toInt())
     } else {
-      ResultCounters()
+      Result(outputText)
     }
   }
 

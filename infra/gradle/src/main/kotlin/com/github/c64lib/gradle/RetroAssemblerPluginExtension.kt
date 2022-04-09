@@ -23,10 +23,10 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle
 
-import com.github.c64lib.retroassembler.domain.AssemblerType
-import com.github.c64lib.retroassembler.domain.Dependency
-import com.github.c64lib.retroassembler.domain.DependencyType
-import com.github.c64lib.retroassembler.domain.DependencyVersion
+import com.github.c64lib.rbt.domain.AssemblerType
+import com.github.c64lib.rbt.domain.dependency.Dependency
+import com.github.c64lib.rbt.domain.dependency.DependencyType
+import com.github.c64lib.rbt.domain.dependency.DependencyVersion
 
 const val EXTENSION_DSL_NAME = "retroProject"
 
