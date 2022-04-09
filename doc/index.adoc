@@ -8,8 +8,8 @@
 :stem: latexmath
 :docinfo:
 :actualKickAssVersion: 5.23
-:actualDockerVersion: 0.1.5
-:actualPluginVersion: 1.5.1
+:actualDockerVersion: 0.1.6
+:actualPluginVersion: 1.5.3
 
 Retro Build Tool brings automation to the C64 software building process.
 It is implemented as a Gradle plugin.

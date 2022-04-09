@@ -23,7 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.preprocess
 
-import com.github.c64lib.retroassembler.domain.shared.IllegalConfigurationException
+import com.github.c64lib.rbt.domain.shared.IllegalConfigurationException
 import java.io.File
 import javax.inject.Inject
 import org.gradle.api.file.ProjectLayout

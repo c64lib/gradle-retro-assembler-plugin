@@ -21,6 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.domain.shared
+package com.github.c64lib.rbt.domain.pipeline
 
-class OutOfDataException(message: String) : RuntimeException(message)
+interface Step {
+
+  val inputs: Entries
+
+  val outputs: Entries
+}

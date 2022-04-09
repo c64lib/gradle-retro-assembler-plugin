@@ -21,33 +21,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.asms
+package com.github.c64lib.rbt.domain.dependency
 
-import com.github.c64lib.gradle.RetroAssemblerPluginExtension
-import com.github.c64lib.gradle.asms.kickassembler.KickAssemblerFacade
-import com.github.c64lib.rbt.domain.AssemblerType
-import java.io.File
-import org.gradle.api.GradleException
-import org.gradle.api.Project
-import org.gradle.api.file.FileCollection
-import org.gradle.process.ExecResult
-
-interface AssemblerFacade {
-  fun installDevKit()
-  fun targetFiles(): FileCollection
-  fun sourceFiles(): FileCollection
-  fun testFiles(): FileCollection
-  fun assemble(sourceFile: File, vararg parameters: String): ExecResult
-}
-
-object AssemblerFacadeFactory {
-  fun of(
-      assembler: AssemblerType,
-      project: Project,
-      extension: RetroAssemblerPluginExtension
-  ): AssemblerFacade =
-      when (assembler) {
-        AssemblerType.KickAssembler -> KickAssemblerFacade(project, extension)
-        AssemblerType.None -> throw GradleException("Assembler dialect is not selected")
-      }
-}
+data class DependencyVersion(val version: String)

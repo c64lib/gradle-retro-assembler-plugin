@@ -25,7 +25,7 @@ package com.github.c64lib.retroassembler.spritepad_processor
 
 import com.github.c64lib.processor.commons.BinaryProducer
 import com.github.c64lib.processor.commons.Output
-import com.github.c64lib.retroassembler.domain.shared.OutOfDataException
+import com.github.c64lib.rbt.domain.shared.OutOfDataException
 
 class SpriteProducer(val start: Int = 0, private val end: Int = 65536, output: Output<ByteArray>) :
     BinaryProducer(output) {
