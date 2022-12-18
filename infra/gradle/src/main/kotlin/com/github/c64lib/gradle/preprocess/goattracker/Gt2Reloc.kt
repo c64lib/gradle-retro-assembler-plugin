@@ -23,13 +23,24 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.preprocess.goattracker
 
+import java.io.ByteArrayOutputStream
 import java.io.File
 import org.gradle.api.Project
 
 class Gt2Reloc(private val project: Project) {
 
   fun run(inputExt: GoattrackerPipelineExtension, musicExt: GoattrackerMusicExtension) {
-    val result = project.exec { it.commandLine = buildCommandLine(inputExt, musicExt) }
+    val output = ByteArrayOutputStream()
+    val result =
+        project.exec {
+          it.commandLine = buildCommandLine(inputExt, musicExt)
+          it.standardOutput = output
+
+          println("Executing Gt2Reloc: ${it.commandLine}")
+        }
+    if (result.exitValue != 0) {
+      println("Gt2Reloc returned with error:\n $output")
+    }
     result.assertNormalExitValue()
   }
 
