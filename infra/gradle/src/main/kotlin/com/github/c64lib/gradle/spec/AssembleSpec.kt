@@ -43,7 +43,6 @@ open class AssembleSpec : DefaultTask() {
   fun assemble() {
     val asm = AssemblerFacadeFactory.of(extension.dialect, project, extension)
     asm.testFiles().forEach { file ->
-      println(resultFileName(file))
       asm.assemble(
           file,
           "-o",

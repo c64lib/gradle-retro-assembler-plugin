@@ -24,6 +24,7 @@ SOFTWARE.
 package com.github.c64lib.gradle.asms.kickassembler
 
 import java.io.File
+import java.util.stream.Collectors
 import org.gradle.api.Action
 import org.gradle.api.Project
 
@@ -34,7 +35,9 @@ class KickAssembler(private val project: Project, private val kaFile: File) {
     action.execute(spec)
     project.javaexec {
       it.classpath = project.files(kaFile)
-      it.args = spec.makeArgs()
+      val args = spec.makeArgs()
+      it.args = args
+      println(args.stream().collect(Collectors.joining(" ")))
     }
   }
 }

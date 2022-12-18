@@ -184,15 +184,17 @@ internal class CTM8Processor(
   private fun ScreenMode.getPaletteIndexes(version: Int): ScreenMemoryPalette =
       if (version == 8 && ctm8PrototypeCompatibility) {
         when (this) {
-          ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground ->
-              ScreenMemoryPalette(0, 0)
+          ScreenMode.TextHires,
+          ScreenMode.TextMulticolor,
+          ScreenMode.TextExtendedBackground -> ScreenMemoryPalette(0, 0)
           ScreenMode.BitmapHires -> ScreenMemoryPalette(3, 0)
           ScreenMode.BitmapMulticolor -> ScreenMemoryPalette(2, 1)
         }
       } else {
         when (this) {
-          ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground ->
-              ScreenMemoryPalette(0, 0)
+          ScreenMode.TextHires,
+          ScreenMode.TextMulticolor,
+          ScreenMode.TextExtendedBackground -> ScreenMemoryPalette(0, 0)
           ScreenMode.BitmapHires -> ScreenMemoryPalette(0, 1)
           ScreenMode.BitmapMulticolor -> ScreenMemoryPalette(1, 2)
         }
@@ -201,7 +203,9 @@ internal class CTM8Processor(
   private fun ScreenMode.getPrimaryColorIndex(version: Int): Int =
       if (version == 8 && ctm8PrototypeCompatibility) {
         when (this) {
-          ScreenMode.TextHires, ScreenMode.TextMulticolor, ScreenMode.TextExtendedBackground -> 3
+          ScreenMode.TextHires,
+          ScreenMode.TextMulticolor,
+          ScreenMode.TextExtendedBackground -> 3
           ScreenMode.BitmapMulticolor -> 3
           ScreenMode.BitmapHires -> 1
         }

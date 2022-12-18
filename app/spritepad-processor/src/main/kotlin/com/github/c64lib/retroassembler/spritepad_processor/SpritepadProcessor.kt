@@ -46,7 +46,8 @@ class SpritepadProcessor(outputProducers: Collection<OutputProducer<*>>) {
       throw InvalidSPDFormatException("SPD id is missing")
     }
     return when (val version = inputByteStream.readByte().toInt()) {
-      4, 5 -> SPD4Processor(this, version)
+      4,
+      5 -> SPD4Processor(this, version)
       else -> throw InvalidSPDFormatException("Unsupported version: $version")
     }
   }

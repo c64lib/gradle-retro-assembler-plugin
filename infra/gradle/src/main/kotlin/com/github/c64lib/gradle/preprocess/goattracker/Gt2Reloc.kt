@@ -23,13 +23,26 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.preprocess.goattracker
 
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.util.stream.*
 import org.gradle.api.Project
 
 class Gt2Reloc(private val project: Project) {
 
   fun run(inputExt: GoattrackerPipelineExtension, musicExt: GoattrackerMusicExtension) {
-    val result = project.exec { it.commandLine = buildCommandLine(inputExt, musicExt) }
+    val output = ByteArrayOutputStream()
+    val result =
+        project.exec {
+          it.commandLine = buildCommandLine(inputExt, musicExt)
+          it.standardOutput = output
+
+          val commandLine = it.commandLine.stream().collect(Collectors.joining(" "))
+          println("Executing Gt2Reloc: $commandLine")
+        }
+    if (result.exitValue != 0) {
+      println("Gt2Reloc returned with error:\n $output")
+    }
     result.assertNormalExitValue()
   }
 
@@ -38,10 +51,11 @@ class Gt2Reloc(private val project: Project) {
       musicExt: GoattrackerMusicExtension
   ): List<String> {
     val cli = mutableListOf(musicExt.executable)
-    cli += inputExt.getInput().get().absolutePath
+    cli += relativize(inputExt.getInput().get())
     cli +=
-        normalize(musicExt.getOutput().get(), inputExt.getUseBuildDir().getOrElse(false))
-            .absolutePath
+        relativize(
+            normalize(musicExt.getOutput().get(), inputExt.getUseBuildDir().getOrElse(false)))
+
     musicExt.bufferedSidWrites?.let { cli += toBooleanFlag("B", it) }
     musicExt.zeroPageLocation?.let { cli += toHexFlag("Z", it) }
     musicExt.zeropageGhostRegisters?.let { cli += toBooleanFlag("C", it) }
@@ -72,9 +86,7 @@ class Gt2Reloc(private val project: Project) {
         val outputRelativePath =
             project.layout.projectDirectory.asFile.toPath().relativize(output.toPath())
         val resultPath =
-            project
-                .layout
-                .buildDirectory
+            project.layout.buildDirectory
                 .dir("goattracker")
                 .get()
                 .asFile
@@ -85,4 +97,7 @@ class Gt2Reloc(private val project: Project) {
       } else {
         output
       }
+
+  private fun relativize(file: File): String =
+      project.projectDir.toURI().relativize(file.toURI()).path
 }

@@ -23,6 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.emu.vice
 
+import java.io.ByteArrayOutputStream
+import java.util.stream.*
 import org.gradle.api.Action
 import org.gradle.api.Project
 
@@ -31,6 +33,17 @@ class Vice(private val project: Project) {
   fun run(action: Action<ViceSpec>) {
     val spec = ViceSpec()
     action.execute(spec)
-    project.exec { it.commandLine = spec.makeCommandLine() }
+    val output = ByteArrayOutputStream()
+    project.exec {
+      it.commandLine = spec.makeCommandLine()
+      it.standardOutput = output
+      val commandLine = it.commandLine.stream().collect(Collectors.joining(" "))
+      if (spec.verbose) {
+        println("Executing Vice: $commandLine")
+      }
+    }
+    if (spec.verbose) {
+      println("Vice executed with output:\n $output")
+    }
   }
 }

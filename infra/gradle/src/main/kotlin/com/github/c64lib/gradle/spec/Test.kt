@@ -25,8 +25,6 @@ package com.github.c64lib.gradle.spec
 
 import com.github.c64lib.gradle.GROUP_BUILD
 import com.github.c64lib.gradle.RetroAssemblerPluginExtension
-import com.github.c64lib.gradle.emu.vice.AutostartPrgMode
-import com.github.c64lib.gradle.emu.vice.JamAction
 import com.github.c64lib.gradle.emu.vice.Vice
 import com.github.c64lib.rbt.domain.AssemblerType
 import java.io.File
@@ -61,14 +59,24 @@ open class Test : DefaultTask() {
 
   private fun launchTest(file: File) =
       Vice(project).run { it ->
+        if (extension.verbose) {
+          println("Running $file")
+        }
         it.executable = extension.viceExecutable
         it.warpMode = true
-        it.headless = true
-        it.autostartPrgMode = AutostartPrgMode.VIRTUAL_FS
-        it.jamAction = JamAction.QUIT
+        it.headless = extension.viceHeadless
+        it.trueDrive = false
+        it.virtualDev = true
+        it.fsLongNames = true
+        it.sound = false
+        it.fs8 = file.parent
+        it.autostartHandleTde = false
+        it.autostartPrgMode = extension.viceAutostartPrgMode
+        it.jamAction = extension.viceJamAction
         it.autostart = prgFile(file.absoluteFile)
         it.monCommands = viceSymbolFile(file)
         it.chdir = file.parent
+        it.verbose = extension.verbose
       }
 
   private fun testFiles() =
