@@ -4,7 +4,7 @@ val tagPropertyName = "tag"
 
 plugins {
     kotlin("jvm") version "1.7.0"
-    id("com.diffplug.spotless") version "5.15.0"
+    id("com.diffplug.spotless") version "6.12.0"
 }
 
 java {
@@ -23,6 +23,9 @@ allprojects {
 
     repositories {
         mavenCentral()
+	jcenter {
+	    url = uri("https://jcenter.bintray.com/")
+	}
     }
 }
 

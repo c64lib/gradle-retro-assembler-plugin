@@ -113,7 +113,8 @@ class CharpadProcessor(
       5 -> CTM5Processor(this@CharpadProcessor)
       6 -> CTM6Processor(this@CharpadProcessor)
       7 -> CTM7Processor(this@CharpadProcessor)
-      8, 82 -> CTM8Processor(this@CharpadProcessor, version, ctm8PrototypeCompatibility)
+      8,
+      82 -> CTM8Processor(this@CharpadProcessor, version, ctm8PrototypeCompatibility)
       else -> throw InvalidCTMFormatException("Unsupported version: $version")
     }
   }

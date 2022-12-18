@@ -83,9 +83,7 @@ class Gt2Reloc(private val project: Project) {
         val outputRelativePath =
             project.layout.projectDirectory.asFile.toPath().relativize(output.toPath())
         val resultPath =
-            project
-                .layout
-                .buildDirectory
+            project.layout.buildDirectory
                 .dir("goattracker")
                 .get()
                 .asFile
