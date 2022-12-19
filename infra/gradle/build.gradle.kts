@@ -38,14 +38,14 @@ tasks {
             }
             .map { "../../$it" }
 
-        outputs.files(
-            files(localDependencies.map { "$it/build" })
-                .asFileTree.matching {
-                    include("classes/**")
-                    exclude("**/META-INF/*")
-                }
-                .files.map { "$buildDir/${it.name}" }
-        )
+//        outputs.files(
+//            files(localDependencies.map { "$it/build" })
+//                .asFileTree.matching {
+//                    include("classes/**")
+//                    exclude("**/META-INF/*")
+//                }
+//                .files.map { "$buildDir/${it.name}" }
+//        )
         doLast {
             copy {
                 from(localDependencies.map { "$it/build" })
@@ -56,9 +56,16 @@ tasks {
         }
         group = "build"
     }
-    named("jar") {
-        dependsOn(copySubProjectClasses)
-    }
+//    named("jar") {
+//        dependsOn(copySubProjectClasses)
+//    }
+}
+
+project(":infra:gradle").tasks.jar {
+  dependsOn(tasks.named("copySubProjectClasses"))
+}
+tasks.named("copySubProjectClasses") {
+  mustRunAfter(project(":infra:gradle").tasks.classes)
 }
 
 spotless {
@@ -84,6 +91,7 @@ gradlePlugin {
                 "Embeds various 6502 assemblers and provides basic functionality to have builds for your beloved C64"
             implementationClass = "com.github.c64lib.gradle.RetroAssemblerPlugin"
         }
+
     }
 }
 
@@ -92,13 +100,13 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
     implementation("io.vavr:vavr:$vavrVersion")
-    implementation(project(":domain"))
-    implementation(project(":app:binary-utils"))
-    implementation(project(":app:processor-commons"))
-    implementation(project(":app:charpad-processor"))
-    implementation(project(":app:spritepad-processor"))
-    implementation(project(":app:binary-interleaver"))
-    implementation(project(":app:nybbler"))
+    compileOnly(project(":domain"))
+    compileOnly(project(":app:binary-utils"))
+    compileOnly(project(":app:processor-commons"))
+    compileOnly(project(":app:charpad-processor"))
+    compileOnly(project(":app:spritepad-processor"))
+    compileOnly(project(":app:binary-interleaver"))
+    compileOnly(project(":app:nybbler"))
 }
 
 publishing {
