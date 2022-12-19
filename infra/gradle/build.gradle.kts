@@ -92,13 +92,13 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
     implementation("io.vavr:vavr:$vavrVersion")
-    compileOnly(project(":domain"))
-    compileOnly(project(":app:binary-utils"))
-    compileOnly(project(":app:processor-commons"))
-    compileOnly(project(":app:charpad-processor"))
-    compileOnly(project(":app:spritepad-processor"))
-    compileOnly(project(":app:binary-interleaver"))
-    compileOnly(project(":app:nybbler"))
+    implementation(project(":domain"))
+    implementation(project(":app:binary-utils"))
+    implementation(project(":app:processor-commons"))
+    implementation(project(":app:charpad-processor"))
+    implementation(project(":app:spritepad-processor"))
+    implementation(project(":app:binary-interleaver"))
+    implementation(project(":app:nybbler"))
 }
 
 publishing {
