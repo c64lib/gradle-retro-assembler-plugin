@@ -25,6 +25,7 @@ package com.github.c64lib.gradle.preprocess.goattracker
 
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.util.stream.*
 import org.gradle.api.Project
 
 class Gt2Reloc(private val project: Project) {
@@ -36,7 +37,8 @@ class Gt2Reloc(private val project: Project) {
           it.commandLine = buildCommandLine(inputExt, musicExt)
           it.standardOutput = output
 
-          println("Executing Gt2Reloc: ${it.commandLine}")
+          val commandLine = it.commandLine.stream().collect(Collectors.joining(" "))
+          println("Executing Gt2Reloc: $commandLine")
         }
     if (result.exitValue != 0) {
       println("Gt2Reloc returned with error:\n $output")
@@ -49,10 +51,11 @@ class Gt2Reloc(private val project: Project) {
       musicExt: GoattrackerMusicExtension
   ): List<String> {
     val cli = mutableListOf(musicExt.executable)
-    cli += inputExt.getInput().get().absolutePath
+    cli += relativize(inputExt.getInput().get())
     cli +=
-        normalize(musicExt.getOutput().get(), inputExt.getUseBuildDir().getOrElse(false))
-            .absolutePath
+        relativize(
+            normalize(musicExt.getOutput().get(), inputExt.getUseBuildDir().getOrElse(false)))
+
     musicExt.bufferedSidWrites?.let { cli += toBooleanFlag("B", it) }
     musicExt.zeroPageLocation?.let { cli += toHexFlag("Z", it) }
     musicExt.zeropageGhostRegisters?.let { cli += toBooleanFlag("C", it) }
@@ -94,4 +97,7 @@ class Gt2Reloc(private val project: Project) {
       } else {
         output
       }
+
+  private fun relativize(file: File): String =
+      project.projectDir.toURI().relativize(file.toURI()).path
 }
