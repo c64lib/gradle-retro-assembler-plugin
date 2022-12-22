@@ -61,14 +61,18 @@ open class Test : DefaultTask() {
 
   private fun launchTest(file: File) =
       Vice(project).run { it ->
+        if (extension.verbose) {
+          println("Running $file")
+        }
         it.executable = extension.viceExecutable
         it.warpMode = true
         it.headless = true
-        it.autostartPrgMode = AutostartPrgMode.VIRTUAL_FS
+        it.autostartPrgMode = AutostartPrgMode.INJECT_TO_RAM
         it.jamAction = JamAction.QUIT
         it.autostart = prgFile(file.absoluteFile)
         it.monCommands = viceSymbolFile(file)
         it.chdir = file.parent
+        it.verbose = extension.verbose
       }
 
   private fun testFiles() =

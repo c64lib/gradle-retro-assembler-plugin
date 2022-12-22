@@ -38,9 +38,12 @@ class Vice(private val project: Project) {
       it.commandLine = spec.makeCommandLine()
       it.standardOutput = output
       val commandLine = it.commandLine.stream().collect(Collectors.joining(" "))
-      println("Executing Vice: $commandLine")
+      if (spec.verbose) {
+        println("Executing Vice: $commandLine")
+      }
     }
-
-    println("Vice executed with output:\n $output")
+    if (spec.verbose) {
+      println("Vice executed with output:\n $output")
+    }
   }
 }

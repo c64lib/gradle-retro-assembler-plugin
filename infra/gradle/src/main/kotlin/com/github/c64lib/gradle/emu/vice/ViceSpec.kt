@@ -49,6 +49,7 @@ class ViceSpec {
   var autostartPrgMode = AutostartPrgMode.NONE
   var monCommands = ""
   var chdir = ""
+  var verbose = false
 
   fun makeCommandLine(): List<String> {
     val cli = mutableListOf(executable)

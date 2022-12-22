@@ -42,6 +42,7 @@ open class RetroAssemblerPluginExtension {
   var includes: Array<String> = arrayOf("**/*.asm")
   var excludes: Array<String> = arrayOf("$workDir/**/*.asm")
   var defines: Array<String> = emptyArray()
+  var verbose = false
 
   var viceExecutable = "x64"
   var specDirs = arrayOf("spec")
