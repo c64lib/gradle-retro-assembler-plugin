@@ -26,6 +26,7 @@ package com.github.c64lib.gradle.emu.vice
 import java.io.ByteArrayOutputStream
 import org.gradle.api.Action
 import org.gradle.api.Project
+import java.util.stream.*
 
 class Vice(private val project: Project) {
 
@@ -36,7 +37,8 @@ class Vice(private val project: Project) {
     project.exec {
       it.commandLine = spec.makeCommandLine()
       it.standardOutput = output
-      println("Executing Vice: $it.commandLine")
+      val commandLine = it.commandLine.stream().collect(Collectors.joining(" "))
+      println("Executing Vice: $commandLine")
     }
 
     println("Vice executed with output:\n $output")

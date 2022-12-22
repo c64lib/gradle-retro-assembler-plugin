@@ -1,5 +1,8 @@
 = Change log
 
+1.5.4::
+* `Goattracker`: Using relative paths instead of absolute. Long, absolute path caused gt2reloc to segfault while on Linux.
+
 1.5.3::
 * `64spec`: Dumping output of the 64spec to the build output - exact test results are visible now.
 
