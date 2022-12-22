@@ -24,9 +24,9 @@ SOFTWARE.
 package com.github.c64lib.gradle.emu.vice
 
 import java.io.ByteArrayOutputStream
+import java.util.stream.*
 import org.gradle.api.Action
 import org.gradle.api.Project
-import java.util.stream.*
 
 class Vice(private val project: Project) {
 
