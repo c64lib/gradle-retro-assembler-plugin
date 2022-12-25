@@ -73,7 +73,7 @@ This tool builds an abstraction layer around concrete tools and make the whole b
 The Retro Build Tool is Continuous Integration capable.
 It is meant to automate release process, as shown in following example.
 
-image::img/ci-flow.png[]
+image::img/ci-flow.excalidraw.png[]
 
 With Retro Build Tool it is possible to generate executable artifacts and deploy them on demand i.e. as part of GitHub releases.
 
@@ -396,9 +396,16 @@ retroProject {
 
 The following will reconfigure plugin to seek for tests in `tests` directory and execute each test ended with `test.asm`.
 
-It has been observed that Vice 3.4 and newer are not working properly with Retro Assembler tool.
-If you encounter any problems, please downgrade your Vice to 3.3.
-Appropriate bug issue has been created https://github.com/c64lib/gradle-retro-assembler-plugin/issues/49[here].
+You can change Vice executable from `x64` into `x64sc`, or even change path to the Vice executable completely by using following setting:
+
+[source,groovy]
+----
+retroProject {
+    viceExecutable = 'x64sc'
+}
+----
+
+Note, that as for now, the RBT is unable to determine exact version of Vice it is using nor whether to run `x64` or `x64sc` -- the `x64` is assumed as default.
 
 == Processors
 

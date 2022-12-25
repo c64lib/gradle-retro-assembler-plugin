@@ -2,6 +2,7 @@
 
 1.5.4::
 * `Goattracker`: Using relative paths instead of absolute. Long, absolute path caused gt2reloc to segfault while on Linux.
+* `Test`: Use INJECT_TO_RAM instead of VIRTUAL_FS when running Vice and 64spec; with VIRTUAL_FS and Vice 3.4+ there was ?DEVICE NOT FOUND error thrown in Vice and test execution hanged.
 
 1.5.3::
 * `64spec`: Dumping output of the 64spec to the build output - exact test results are visible now.
