@@ -23,6 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle
 
+import com.github.c64lib.gradle.emu.vice.AutostartPrgMode
+import com.github.c64lib.gradle.emu.vice.JamAction
 import com.github.c64lib.rbt.domain.AssemblerType
 import com.github.c64lib.rbt.domain.dependency.Dependency
 import com.github.c64lib.rbt.domain.dependency.DependencyType
@@ -45,6 +47,8 @@ open class RetroAssemblerPluginExtension {
   var verbose = false
 
   var viceExecutable = "x64"
+  var viceJamAction = JamAction.QUIT
+  var viceAutostartPrgMode = AutostartPrgMode.INJECT_TO_RAM
   var specDirs = arrayOf("spec")
   var specIncludes: Array<String> = arrayOf("**/*.spec.asm")
 
