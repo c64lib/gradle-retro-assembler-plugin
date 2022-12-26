@@ -65,6 +65,11 @@ open class Test : DefaultTask() {
         it.executable = extension.viceExecutable
         it.warpMode = true
         it.headless = true
+        it.trueDrive = false
+        it.virtualDev = true
+        it.fsLongNames = true
+        it.fs8 = file.parent
+        it.autostartHandleTde = false
         it.autostartPrgMode = extension.viceAutostartPrgMode
         it.jamAction = extension.viceJamAction
         it.autostart = prgFile(file.absoluteFile)

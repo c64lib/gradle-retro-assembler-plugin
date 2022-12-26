@@ -40,6 +40,17 @@ enum class AutostartPrgMode(val code: Int) {
   NONE(-1)
 }
 
+fun MutableList<String>.addSwitch(name: String, value: Boolean?) {
+  if (value != null) {
+    this +=
+        if (value) {
+          "-"
+        } else {
+          "+"
+        } + name
+  }
+}
+
 class ViceSpec {
   var executable = "x64"
   var warpMode = false
@@ -50,12 +61,27 @@ class ViceSpec {
   var monCommands = ""
   var chdir = ""
   var verbose = false
+  var trueDrive: Boolean? = null
+  var virtualDev = false
+  var fs8 = ""
+  var autostartHandleTde: Boolean? = null
+  var fsLongNames: Boolean? = null
 
   fun makeCommandLine(): List<String> {
     val cli = mutableListOf(executable)
+    cli += "-default"
     if (warpMode) {
       cli += "-warp"
     }
+    cli.addSwitch("truedrive", trueDrive)
+    cli.addSwitch("virtualdev", virtualDev)
+    cli.addSwitch("autostart-handle-tde", autostartHandleTde)
+    cli.addSwitch("fslongnames", fsLongNames)
+
+    if (fs8.isNotEmpty()) {
+      cli += listOf("-fs8", fs8)
+    }
+
     if (autostart.isNotEmpty()) {
       cli += listOf("-autostart", autostart)
     }
