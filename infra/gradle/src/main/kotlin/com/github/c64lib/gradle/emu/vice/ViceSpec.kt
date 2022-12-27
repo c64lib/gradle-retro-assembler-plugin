@@ -103,6 +103,9 @@ class ViceSpec {
     if (chdir.isNotEmpty()) {
       cli += listOf("-chdir", chdir)
     }
+    if (verbose) {
+      cli += "-verbose"
+    }
     return cli.toList()
   }
 }

@@ -47,6 +47,7 @@ open class RetroAssemblerPluginExtension {
   var verbose = false
 
   var viceExecutable = "x64"
+  var viceHeadless = true
   var viceJamAction = JamAction.QUIT
   var viceAutostartPrgMode = AutostartPrgMode.INJECT_TO_RAM
   var specDirs = arrayOf("spec")

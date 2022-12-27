@@ -64,7 +64,7 @@ open class Test : DefaultTask() {
         }
         it.executable = extension.viceExecutable
         it.warpMode = true
-        it.headless = true
+        it.headless = extension.viceHeadless
         it.trueDrive = false
         it.virtualDev = true
         it.fsLongNames = true
