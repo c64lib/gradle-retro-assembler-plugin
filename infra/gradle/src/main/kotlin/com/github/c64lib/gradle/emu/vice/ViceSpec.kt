@@ -66,6 +66,7 @@ class ViceSpec {
   var fs8 = ""
   var autostartHandleTde: Boolean? = null
   var fsLongNames: Boolean? = null
+  var sound: Boolean? = null
 
   fun makeCommandLine(): List<String> {
     val cli = mutableListOf(executable)
@@ -77,6 +78,7 @@ class ViceSpec {
     cli.addSwitch("virtualdev", virtualDev)
     cli.addSwitch("autostart-handle-tde", autostartHandleTde)
     cli.addSwitch("fslongnames", fsLongNames)
+    cli.addSwitch("sound", sound)
 
     if (fs8.isNotEmpty()) {
       cli += listOf("-fs8", fs8)

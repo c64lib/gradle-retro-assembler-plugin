@@ -68,6 +68,7 @@ open class Test : DefaultTask() {
         it.trueDrive = false
         it.virtualDev = true
         it.fsLongNames = true
+        it.sound = false
         it.fs8 = file.parent
         it.autostartHandleTde = false
         it.autostartPrgMode = extension.viceAutostartPrgMode

@@ -49,7 +49,7 @@ open class RetroAssemblerPluginExtension {
   var viceExecutable = "x64"
   var viceHeadless = true
   var viceJamAction = JamAction.QUIT
-  var viceAutostartPrgMode = AutostartPrgMode.INJECT_TO_RAM
+  var viceAutostartPrgMode = AutostartPrgMode.VIRTUAL_FS
   var specDirs = arrayOf("spec")
   var specIncludes: Array<String> = arrayOf("**/*.spec.asm")
 
