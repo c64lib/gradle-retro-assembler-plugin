@@ -74,8 +74,8 @@ class ViceSpec {
     if (warpMode) {
       cli += "-warp"
     }
-    cli.addSwitch("truedrive", trueDrive)
-    cli.addSwitch("virtualdev", virtualDev)
+    cli.addSwitch("drive8truedrive", trueDrive)
+    cli.addSwitch("virtualdev8", virtualDev)
     cli.addSwitch("autostart-handle-tde", autostartHandleTde)
     cli.addSwitch("fslongnames", fsLongNames)
     cli.addSwitch("sound", sound)

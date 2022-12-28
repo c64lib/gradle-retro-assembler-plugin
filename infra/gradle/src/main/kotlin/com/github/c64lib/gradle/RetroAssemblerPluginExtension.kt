@@ -46,7 +46,7 @@ open class RetroAssemblerPluginExtension {
   var defines: Array<String> = emptyArray()
   var verbose = false
 
-  var viceExecutable = "x64"
+  var viceExecutable = "x64sc"
   var viceHeadless = true
   var viceJamAction = JamAction.QUIT
   var viceAutostartPrgMode = AutostartPrgMode.VIRTUAL_FS
