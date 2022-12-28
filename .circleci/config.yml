@@ -34,7 +34,6 @@ jobs:
     docker:
       - image: circleci/jruby:latest
     steps:
-      - run: sudo apt install graphviz
       - checkout
       - run: ./gradlew asciidoctor
       - deploy:
