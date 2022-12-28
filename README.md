@@ -14,7 +14,7 @@ There is also a Linux-based docker image available: https://github.com/c64lib/c6
 
 ## Highlights
 
-Current version is 1.5.1
+Current version is 1.5.4
 
 It supports most of the tools needed in game dev such as charpad, spritepad and goattracker packer and relocator.
 
