@@ -369,7 +369,7 @@ Please note, that currently only GitHub is supported as a source for library rel
 == Running Unit tests with 64spec
 Version 1.0.0 supports now launching unit tests written in KickAssembler.
 In order to be able to do so, a Vice 3+ must be installed on a machine where tests will be launched.
-It is also assumed that `x64` command is available on the path.
+It is also assumed that `x64sc` command is available on the path.
 Also the 64spec library must be added to dependencies, as any other KickAssembler library:
 
 [source,groovy]
@@ -396,16 +396,17 @@ retroProject {
 
 The following will reconfigure plugin to seek for tests in `tests` directory and execute each test ended with `test.asm`.
 
-You can change Vice executable from `x64` into `x64sc`, or even change path to the Vice executable completely by using following setting:
+You can change Vice executable from `x64sc` into `x64`, or even change path to the Vice executable completely by using following setting:
 
 [source,groovy]
 ----
 retroProject {
-    viceExecutable = 'x64sc'
+    viceExecutable = 'x64'
 }
 ----
 
-Note, that as for now, the RBT is unable to determine exact version of Vice it is using nor whether to run `x64` or `x64sc` -- the `x64` is assumed as default.
+Note, that as for now, the RBT is unable to determine exact version of Vice it is using nor whether to run `x64` or `x64sc` -- the `x64sc` is assumed as default.
+Also note, that currently only Vice 3.7 or above are supported.
 
 == Processors
 
