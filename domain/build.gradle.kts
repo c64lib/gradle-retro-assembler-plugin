@@ -4,8 +4,7 @@ val vavrKotlinVersion: String by project
 val tagPropertyName = "tag"
 
 plugins {
-    kotlin("jvm")
-    id("com.diffplug.spotless")
+    id("rbt.kotlin")
 }
 
 group = "com.github.c64lib.retro-assembler"
@@ -13,14 +12,6 @@ group = "com.github.c64lib.retro-assembler"
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         jvmTarget = "11"
-    }
-}
-
-spotless {
-    kotlin {
-        endWithNewline()
-        ktfmt()
-        licenseHeaderFile(file("../LICENSE"))
     }
 }
 

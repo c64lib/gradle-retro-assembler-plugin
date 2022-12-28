@@ -8,4 +8,8 @@ include(":app:spritepad-processor")
 include(":app:binary-interleaver")
 include(":app:nybbler")
 include(":infra:gradle")
+
+include(":emulators:vice")
+include(":shared:domain")
+
 include(":doc")
