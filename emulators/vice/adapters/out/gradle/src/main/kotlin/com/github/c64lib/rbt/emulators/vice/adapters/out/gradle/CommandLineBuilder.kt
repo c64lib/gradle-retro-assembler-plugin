@@ -63,6 +63,13 @@ internal class CommandLineBuilder(
     return this
   }
 
+  fun toggleSwitchIf(condition: Boolean, name: String, value: Boolean?): CommandLineBuilder {
+    if (condition) {
+      toggleSwitch(name, value)
+    }
+    return this
+  }
+
   fun build(): List<String> = switches.toList()
 
   override fun toString(): String = switches.joinToString(" ")

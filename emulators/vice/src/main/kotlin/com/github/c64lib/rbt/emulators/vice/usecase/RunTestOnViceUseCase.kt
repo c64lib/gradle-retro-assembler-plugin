@@ -24,9 +24,16 @@ SOFTWARE.
 package com.github.c64lib.rbt.emulators.vice.usecase
 
 import com.github.c64lib.rbt.emulators.vice.usecase.port.RunTestOnVicePort
+import com.github.c64lib.rbt.emulators.vice.usecase.port.ViceParameters
 
 class RunTestOnViceUseCase(private val runTestOnVicePort: RunTestOnVicePort) {
   fun apply(command: RunTestOnViceCommand) =
       runTestOnVicePort.run(
-          command.executable, command.autostart, command.monCommands, command.verbose)
+          ViceParameters(
+              executable = command.executable,
+              headless = true,
+              testToRun = command.autostart,
+              monCommandsFile = command.monCommands,
+              autostartPrgMode = command.autostartPrgMode,
+              verbose = command.verbose))
 }

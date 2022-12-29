@@ -23,41 +23,44 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.emulators.vice.adapters.out.gradle
 
-import com.github.c64lib.rbt.emulators.vice.domain.AutostartPrgMode
 import com.github.c64lib.rbt.emulators.vice.domain.JamAction
 import com.github.c64lib.rbt.emulators.vice.usecase.port.RunTestOnVicePort
+import com.github.c64lib.rbt.emulators.vice.usecase.port.ViceParameters
 import java.io.ByteArrayOutputStream
-import java.io.File
 import org.gradle.api.Project
 
 class RunTestOnViceAdapter(private val project: Project) : RunTestOnVicePort {
-  override fun run(executable: String, testToRun: File, monCommandsFile: File, verbose: Boolean) {
+  override fun run(parameters: ViceParameters) {
     val output = ByteArrayOutputStream()
     project.exec {
       val cliBuilder =
-          CommandLineBuilder(executable, true)
+          CommandLineBuilder(parameters.executable, true)
               .switch("warp")
-              .switchIf(verbose, "verbose")
-              .switch("console")
+              .switchIf(parameters.verbose, "verbose")
+              .switchIf(parameters.headless, "console")
+              .toggleSwitchIf(!parameters.headless, "confirmonexit", false)
               .toggleSwitch("drive8truedrive", false)
               .toggleSwitch("virtualdev8", true)
               .toggleSwitch("autostart-handle-tde", false)
               .toggleSwitch("fslongnames", true)
-              .toggleSwitch("sound", false)
-              .switch("fs8", testToRun.parent)
-              .switch("autostart", testToRun.absolutePath)
+              .toggleSwitch("sound", parameters.sound)
+              .switch("fs8", parameters.testToRun.parent)
+              .switch("autostart", parameters.testToRun.absolutePath)
               .switch("jamaction", JamAction.QUIT.code.toString())
-              .switch("autostartprgmode", AutostartPrgMode.VIRTUAL_FS.code.toString())
-              .switch("moncommands", monCommandsFile.absolutePath)
-              .switch("chdir", testToRun.parent)
+              .switchIf(
+                  parameters.autostartPrgMode != null,
+                  "autostartprgmode",
+                  parameters.autostartPrgMode?.code.toString())
+              .switch("moncommands", parameters.monCommandsFile.absolutePath)
+              .switch("chdir", parameters.testToRun.parent)
 
       it.commandLine = cliBuilder.build()
       it.standardOutput = output
-      if (verbose) {
+      if (parameters.verbose) {
         println("Executing Vice: $cliBuilder")
       }
     }
-    if (verbose) {
+    if (parameters.verbose) {
       println("Vice executed with output:\n $output")
     }
   }
