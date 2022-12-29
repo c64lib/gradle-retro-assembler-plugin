@@ -21,15 +21,49 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.emulators.vice.usecase
+package com.github.c64lib.rbt.emulators.vice.adapters.out.gradle
 
-import com.github.c64lib.rbt.emulators.vice.domain.AutostartPrgMode
-import java.io.File
+internal class CommandLineBuilder(
+    private val executable: String,
+    private val startWithDefault: Boolean = true
+) {
 
-data class RunTestOnViceCommand(
-    val executable: String = defaultExecutable,
-    val autostart: File,
-    val monCommands: File,
-    val autostartPrgMode: AutostartPrgMode = AutostartPrgMode.VIRTUAL_FS,
-    val verbose: Boolean = false
-)
+  private val switches: MutableList<String> = mutableListOf(executable)
+
+  init {
+    if (startWithDefault) {
+      switch("default")
+    }
+  }
+
+  fun switch(name: String, value: String? = null): CommandLineBuilder {
+    switches += "-$name"
+    if (value != null) {
+      switches += value
+    }
+    return this
+  }
+
+  fun switchIf(condition: Boolean, name: String, value: String? = null): CommandLineBuilder {
+    if (condition) {
+      switch(name, value)
+    }
+    return this
+  }
+
+  fun toggleSwitch(name: String, value: Boolean?): CommandLineBuilder {
+    if (value != null) {
+      switches +=
+          if (value) {
+            "-"
+          } else {
+            "+"
+          } + name
+    }
+    return this
+  }
+
+  fun build(): List<String> = switches.toList()
+
+  override fun toString(): String = switches.joinToString(" ")
+}

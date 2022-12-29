@@ -26,5 +26,5 @@ package com.github.c64lib.rbt.emulators.vice.usecase.port
 import java.io.File
 
 interface RunTestOnVicePort {
-  fun run(executable: String, testToRun: File, verbose: Boolean)
+  fun run(executable: String, testToRun: File, monCommandsFile: File, verbose: Boolean)
 }

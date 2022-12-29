@@ -27,5 +27,6 @@ import com.github.c64lib.rbt.emulators.vice.usecase.port.RunTestOnVicePort
 
 class RunTestOnViceUseCase(private val runTestOnVicePort: RunTestOnVicePort) {
   fun apply(command: RunTestOnViceCommand) =
-      runTestOnVicePort.run(command.executable, command.autostart, command.verbose)
+      runTestOnVicePort.run(
+          command.executable, command.autostart, command.monCommands, command.verbose)
 }

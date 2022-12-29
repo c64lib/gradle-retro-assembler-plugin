@@ -21,15 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.emulators.vice.usecase
+package com.github.c64lib.rbt.emulators.vice.domain
 
-import com.github.c64lib.rbt.emulators.vice.domain.AutostartPrgMode
-import java.io.File
-
-data class RunTestOnViceCommand(
-    val executable: String = defaultExecutable,
-    val autostart: File,
-    val monCommands: File,
-    val autostartPrgMode: AutostartPrgMode = AutostartPrgMode.VIRTUAL_FS,
-    val verbose: Boolean = false
-)
+enum class JamAction(val code: Int) {
+  SHOW_DIALOG(0),
+  CONTINUE(1),
+  START_MON(2),
+  SOFT_RESET(3),
+  HARD_RESET(4),
+  QUIT(5),
+  NONE(-1)
+}
