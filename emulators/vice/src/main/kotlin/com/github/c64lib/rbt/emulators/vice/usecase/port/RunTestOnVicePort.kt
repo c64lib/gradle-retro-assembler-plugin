@@ -21,11 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.emulators.vice.usecase
+package com.github.c64lib.rbt.emulators.vice.usecase.port
 
-import com.github.c64lib.rbt.emulators.vice.usecase.port.RunTestOnVicePort
+import java.io.File
 
-class RunTestOnViceUseCase(private val runTestOnVicePort: RunTestOnVicePort) {
-  fun apply(command: RunTestOnViceCommand) =
-      runTestOnVicePort.run(command.executable, command.autostart, command.verbose)
+interface RunTestOnVicePort {
+  fun run(executable: String, testToRun: File, verbose: Boolean)
 }

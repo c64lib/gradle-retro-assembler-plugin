@@ -23,6 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.emulators.vice.adapters.out.gradle
 
+import com.github.c64lib.rbt.emulators.vice.domain.ViceException
 import com.github.c64lib.rbt.emulators.vice.usecase.port.QueryForViceVersionPort
 import com.github.c64lib.rbt.shared.domain.SemVer
 import java.io.ByteArrayOutputStream
@@ -31,11 +32,35 @@ import org.gradle.api.Project
 class QueryForViceVersionAdapter(private val project: Project) : QueryForViceVersionPort {
   override fun queryForVersion(executable: String): SemVer {
     val outputCapture = ByteArrayOutputStream()
-    project.exec {
-      it.commandLine = listOf(executable, "-version")
-      it.standardOutput = outputCapture
+    val result =
+        project.exec {
+          it.commandLine = listOf(executable, "-version")
+          it.standardOutput = outputCapture
+        }
+    when (result.exitValue) {
+      255 -> throw ViceException("Unsupported version of $executable.")
+      0 -> Unit
+      else ->
+          throw ViceException("Error when running $executable, return code: ${result.exitValue}.")
     }
-    // TODO parse outputCapture
-    return SemVer(1, 0, 0) // TODO return real value
+    return parse(outputCapture.toString())
+  }
+
+  private fun parse(output: String): SemVer {
+    val pattern = ".*VICE ([0-9]+.[0-9]+.[0-9]*).*"
+    val regex = Regex(pattern)
+    val match = regex.find(output)
+    return if (match != null) {
+      val parts = match.groupValues[1].split(".")
+      val patch =
+          if (parts.size >= 3) {
+            parts[2].toInt()
+          } else {
+            0
+          }
+      SemVer(parts[0].toInt(), parts[1].toInt(), patch)
+    } else {
+      throw ViceException("Cannot determine Vice version from \"$output\"")
+    }
   }
 }
