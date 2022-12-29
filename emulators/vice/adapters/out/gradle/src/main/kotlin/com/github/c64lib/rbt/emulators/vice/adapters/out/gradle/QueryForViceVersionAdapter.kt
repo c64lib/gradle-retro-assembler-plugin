@@ -25,9 +25,17 @@ package com.github.c64lib.rbt.emulators.vice.adapters.out.gradle
 
 import com.github.c64lib.rbt.emulators.vice.usecase.port.QueryForViceVersionPort
 import com.github.c64lib.rbt.shared.domain.SemVer
+import java.io.ByteArrayOutputStream
+import org.gradle.api.Project
 
-class QueryForViceVersionAdapter : QueryForViceVersionPort {
-  override fun queryForVersion(): SemVer {
-    TODO("Not yet implemented")
+class QueryForViceVersionAdapter(private val project: Project) : QueryForViceVersionPort {
+  override fun queryForVersion(executable: String): SemVer {
+    val outputCapture = ByteArrayOutputStream()
+    project.exec {
+      it.commandLine = listOf(executable, "-version")
+      it.standardOutput = outputCapture
+    }
+    // TODO parse outputCapture
+    return SemVer(1, 0, 0) // TODO return real value
   }
 }

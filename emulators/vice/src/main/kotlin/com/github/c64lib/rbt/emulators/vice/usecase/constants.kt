@@ -23,10 +23,4 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.emulators.vice.usecase
 
-import com.github.c64lib.rbt.emulators.vice.usecase.port.QueryForViceVersionPort
-import com.github.c64lib.rbt.shared.domain.SemVer
-
-class QueryForViceVersionUseCase(private val queryForViceVersionPort: QueryForViceVersionPort) {
-  fun queryForVersion(executable: String = defaultExecutable): SemVer =
-      queryForViceVersionPort.queryForVersion(executable)
-}
+val defaultExecutable = "x64sc"

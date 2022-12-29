@@ -26,7 +26,7 @@ package com.github.c64lib.rbt.emulators.vice.usecase
 import java.io.File
 
 data class RunTestOnViceCommand(
-    val executable: String = "x64sc",
+    val executable: String = defaultExecutable,
     val autostart: File,
     val verbose: Boolean = false
 )

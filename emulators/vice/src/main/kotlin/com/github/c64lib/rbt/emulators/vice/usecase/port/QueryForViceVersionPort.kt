@@ -26,5 +26,5 @@ package com.github.c64lib.rbt.emulators.vice.usecase.port
 import com.github.c64lib.rbt.shared.domain.SemVer
 
 interface QueryForViceVersionPort {
-  fun queryForVersion(): SemVer
+  fun queryForVersion(executable: String): SemVer
 }
