@@ -5,7 +5,7 @@ val gradleDownloadTaskVersion: String by project
 val tagPropertyName = "tag"
 
 plugins {
-    kotlin("jvm")
+    id("rbt.kotlin")
     id("java-gradle-plugin")
     id("maven-publish")
     id("com.gradle.plugin-publish") version "0.14.0"
@@ -14,39 +14,33 @@ plugins {
 
 group = "com.github.c64lib.retro-assembler"
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-}
-
 tasks {
-    val copySubProjectClasses by register("copySubProjectClasses") {
+    val copySubProjectClasses by
+        register("copySubProjectClasses") {
+            val localDependencies =
+                project.configurations.compileClasspath
+                    .get()
+                    .resolvedConfiguration
+                    .firstLevelModuleDependencies
+                    .filter { it.moduleGroup == project.group }
+                    .flatMap { it.moduleArtifacts }
+                    .map { it.file.parentFile.parentFile }
 
-        val localDependencies = project.configurations.compileClasspath.get()
-            .resolvedConfiguration.firstLevelModuleDependencies
-            .filter { it.moduleGroup == project.group }
-            .flatMap { it.moduleArtifacts }
-            .map { it.file.parentFile.parentFile }
-
-        doLast {
-            copy {
-                from(localDependencies)
-                into(buildDir)
-                include("classes/**")
-                exclude("**/META-INF/*")
+            doLast {
+                copy {
+                    from(localDependencies)
+                    into(buildDir)
+                    include("classes/**")
+                    exclude("**/META-INF/*")
+                }
             }
+            group = "build"
         }
-        group = "build"
-    }
 }
 
-project(":infra:gradle").tasks.jar {
-  dependsOn(tasks.named("copySubProjectClasses"))
-}
-tasks.named("copySubProjectClasses") {
-  mustRunAfter(project(":infra:gradle").tasks.classes)
-}
+project(":infra:gradle").tasks.jar { dependsOn(tasks.named("copySubProjectClasses")) }
+
+tasks.named("copySubProjectClasses") { mustRunAfter(project(":infra:gradle").tasks.classes) }
 
 spotless {
     kotlin {
@@ -71,7 +65,6 @@ gradlePlugin {
                 "Embeds various 6502 assemblers and provides basic functionality to have builds for your beloved C64"
             implementationClass = "com.github.c64lib.gradle.RetroAssemblerPlugin"
         }
-
     }
 }
 
@@ -80,6 +73,11 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
     implementation("io.vavr:vavr:$vavrVersion")
+    // new
+    compileOnly(project(":shared:domain"))
+    //    compileOnly(project(":emulators:vice"))
+    //    compileOnly(project(":emulators:vice:adapters:out:gradle"))
+    // old
     compileOnly(project(":domain"))
     compileOnly(project(":app:binary-utils"))
     compileOnly(project(":app:processor-commons"))
@@ -89,10 +87,4 @@ dependencies {
     compileOnly(project(":app:nybbler"))
 }
 
-publishing {
-    repositories {
-        maven {
-            url = uri("../../../consuming/maven-repo")
-        }
-    }
-}
+publishing { repositories { maven { url = uri("../../../consuming/maven-repo") } } }

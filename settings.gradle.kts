@@ -9,8 +9,8 @@ include(":app:binary-interleaver")
 include(":app:nybbler")
 include(":infra:gradle")
 
-include(":emulators:vice")
-include(":emulators:vice:adapters:out:gradle")
+//include(":emulators:vice")
+//include(":emulators:vice:adapters:out:gradle")
 include(":shared:domain")
 
 include(":doc")

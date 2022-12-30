@@ -4,15 +4,12 @@ val vavrVersion: String by project
 val vavrKotlinVersion: String by project
 
 plugins {
-    kotlin("jvm")
+    id("rbt.kotlin")
     id("com.diffplug.spotless")
 }
 
 group = "com.github.c64lib.retro-assembler"
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions { jvmTarget = "11" }
-}
 
 spotless {
     kotlin {
