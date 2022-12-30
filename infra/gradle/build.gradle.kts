@@ -23,32 +23,15 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 tasks {
     val copySubProjectClasses by register("copySubProjectClasses") {
 
-        val localDependencies = project.configurations.compileOnly.get().dependencies
-            .filter { it.group == project.group }
-            .map {
-                when (it.name) {
-                    "charpad-processor",
-                    "spritepad-processor",
-                    "nybbler",
-                    "binary-utils",
-                    "processor-commons",
-                    "binary-interleaver" -> "app/${it.name}"
-                    else -> it.name
-                }
-            }
-            .map { "../../$it" }
+        val localDependencies = project.configurations.compileClasspath.get()
+            .resolvedConfiguration.firstLevelModuleDependencies
+            .filter { it.moduleGroup == project.group }
+            .flatMap { it.moduleArtifacts }
+            .map { it.file.parentFile.parentFile }
 
-//        outputs.files(
-//            files(localDependencies.map { "$it/build" })
-//                .asFileTree.matching {
-//                    include("classes/**")
-//                    exclude("**/META-INF/*")
-//                }
-//                .files.map { "$buildDir/${it.name}" }
-//        )
         doLast {
             copy {
-                from(localDependencies.map { "$it/build" })
+                from(localDependencies)
                 into(buildDir)
                 include("classes/**")
                 exclude("**/META-INF/*")
@@ -56,9 +39,6 @@ tasks {
         }
         group = "build"
     }
-//    named("jar") {
-//        dependsOn(copySubProjectClasses)
-//    }
 }
 
 project(":infra:gradle").tasks.jar {
