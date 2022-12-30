@@ -14,33 +14,32 @@ plugins {
 
 group = "com.github.c64lib.retro-assembler"
 
-// tasks {
-//    val copySubProjectClasses by
-//        register("copySubProjectClasses") {
-//            val localDependencies =
-//                project.configurations.compileClasspath
-//                    .get()
-//                    .resolvedConfiguration
-//                    .firstLevelModuleDependencies
-//                    .filter { it.moduleGroup == project.group }
-//                    .flatMap { it.moduleArtifacts }
-//                    .map { it.file.parentFile.parentFile }
-//
-//            doLast {
-//                copy {
-//                    from(localDependencies)
-//                    into(buildDir)
-//                    include("classes/**")
-//                    exclude("**/META-INF/*")
-//                }
-//            }
-//            group = "build"
-//        }
-// }
-//
-// project(":infra:gradle").tasks.jar { dependsOn(tasks.named("copySubProjectClasses")) }
-//
-// tasks.named("copySubProjectClasses") { mustRunAfter(project(":infra:gradle").tasks.classes) }
+ tasks {
+    val copySubProjectClasses by
+        register("copySubProjectClasses") {
+            doLast {
+              val localDependencies =
+                  project.configurations.compileClasspath
+                      .get()
+                      .resolvedConfiguration
+                      .firstLevelModuleDependencies
+                      .filter { it.moduleGroup == project.group }
+                      .flatMap { it.moduleArtifacts }
+                      .map { it.file.parentFile.parentFile }
+                copy {
+                    from(localDependencies)
+                    into(buildDir)
+                    include("classes/**")
+                    exclude("**/META-INF/*")
+                }
+            }
+            group = "build"
+        }
+ }
+
+project(":infra:gradle").tasks.jar { dependsOn(tasks.named("copySubProjectClasses")) }
+
+tasks.named("copySubProjectClasses") { mustRunAfter(project(":infra:gradle").tasks.classes) }
 
 spotless {
     kotlin {
@@ -74,17 +73,17 @@ dependencies {
     implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
     implementation("io.vavr:vavr:$vavrVersion")
     // new
-    implementation(project(":shared:domain"))
-    implementation(project(":emulators:vice"))
-    implementation(project(":emulators:vice:adapters:out:gradle"))
+    compileOnly(project(":shared:domain"))
+    compileOnly(project(":emulators:vice"))
+    compileOnly(project(":emulators:vice:adapters:out:gradle"))
     // old
-    implementation(project(":domain"))
-    implementation(project(":app:binary-utils"))
-    implementation(project(":app:processor-commons"))
-    implementation(project(":app:charpad-processor"))
-    implementation(project(":app:spritepad-processor"))
-    implementation(project(":app:binary-interleaver"))
-    implementation(project(":app:nybbler"))
+    compileOnly(project(":domain"))
+    compileOnly(project(":app:binary-utils"))
+    compileOnly(project(":app:processor-commons"))
+    compileOnly(project(":app:charpad-processor"))
+    compileOnly(project(":app:spritepad-processor"))
+    compileOnly(project(":app:binary-interleaver"))
+    compileOnly(project(":app:nybbler"))
 }
 
 publishing { repositories { maven { url = uri("../../../consuming/maven-repo") } } }
