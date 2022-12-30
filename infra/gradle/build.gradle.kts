@@ -9,7 +9,6 @@ plugins {
     id("java-gradle-plugin")
     id("maven-publish")
     id("com.gradle.plugin-publish") version "0.14.0"
-    id("com.diffplug.spotless")
 }
 
 group = "com.github.c64lib.retro-assembler"
@@ -40,14 +39,6 @@ group = "com.github.c64lib.retro-assembler"
 project(":infra:gradle").tasks.jar { dependsOn(tasks.named("copySubProjectClasses")) }
 
 tasks.named("copySubProjectClasses") { mustRunAfter(project(":infra:gradle").tasks.classes) }
-
-spotless {
-    kotlin {
-        ktfmt()
-        endWithNewline()
-        licenseHeaderFile(file("../../LICENSE"))
-    }
-}
 
 pluginBundle {
     website = "https://c64lib.github.io/gradle-retro-assembler-plugin/"

@@ -4,7 +4,7 @@ val tagPropertyName = "tag"
 
 plugins {
     kotlin("jvm")
-    id("com.diffplug.spotless") version "6.12.0"
+    id("com.diffplug.spotless")
 }
 
 

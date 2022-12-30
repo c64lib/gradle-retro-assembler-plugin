@@ -5,20 +5,9 @@ val vavrKotlinVersion: String by project
 
 plugins {
     id("rbt.kotlin")
-    id("com.diffplug.spotless")
 }
 
 group = "com.github.c64lib.retro-assembler"
-
-
-spotless {
-    kotlin {
-        endWithNewline()
-        trimTrailingWhitespace()
-        ktfmt()
-        licenseHeaderFile(file("../../LICENSE"))
-    }
-}
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")

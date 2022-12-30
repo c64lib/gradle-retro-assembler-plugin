@@ -1,12 +1,12 @@
 plugins {
   id("org.jetbrains.kotlin.jvm")
-//  id("com.diffplug.spotless")
+  id("com.diffplug.spotless")
 }
 
-java {
-  sourceCompatibility = JavaVersion.VERSION_11
-  targetCompatibility = JavaVersion.VERSION_11
-}
+//java {
+//  sourceCompatibility = JavaVersion.VERSION_11
+//  targetCompatibility = JavaVersion.VERSION_11
+//}
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
   kotlinOptions {
@@ -14,15 +14,13 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
   }
 }
 
-
-
-//spotless {
-//  kotlin {
-//    ktfmt()
-//    endWithNewline()
-//    licenseHeaderFile(rootProject.file('LICENSE'))
-//  }
-//}
+spotless {
+  kotlin {
+    ktfmt()
+    endWithNewline()
+    licenseHeaderFile(rootProject.file("LICENSE"))
+  }
+}
 
 repositories {
   mavenCentral()
