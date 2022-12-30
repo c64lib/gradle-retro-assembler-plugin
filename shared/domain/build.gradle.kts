@@ -8,10 +8,10 @@ plugins {
 }
 
 tasks.jar {
-  archiveFileName.set("shared-domain.jar")
+  archiveFileName.set("shared-domain-${project.version}.jar")
 }
 
-group = "com.github.c64lib.retro-assembler"
+group = "com.github.c64lib.retro-assembler.shared"
 
 dependencies {
   implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
