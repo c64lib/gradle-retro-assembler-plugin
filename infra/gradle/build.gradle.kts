@@ -22,7 +22,7 @@ group = "com.github.c64lib.retro-assembler"
                       .get()
                       .resolvedConfiguration
                       .firstLevelModuleDependencies
-                      .filter { it.moduleGroup == project.group }
+                      .filter { it.moduleGroup.startsWith(project.group.toString()) }
                       .flatMap { it.moduleArtifacts }
                       .map { it.file.parentFile.parentFile }
                 copy {
