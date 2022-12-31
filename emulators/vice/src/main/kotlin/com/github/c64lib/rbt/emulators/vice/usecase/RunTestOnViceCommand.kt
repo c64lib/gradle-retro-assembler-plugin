@@ -31,5 +31,6 @@ data class RunTestOnViceCommand(
     val autostart: File,
     val monCommands: File,
     val autostartPrgMode: AutostartPrgMode = AutostartPrgMode.VIRTUAL_FS,
-    val verbose: Boolean = false
+    val verbose: Boolean = false,
+    val headless: Boolean = false
 )

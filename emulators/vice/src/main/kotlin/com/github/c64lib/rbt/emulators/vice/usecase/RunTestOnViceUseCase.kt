@@ -31,7 +31,7 @@ class RunTestOnViceUseCase(private val runTestOnVicePort: RunTestOnVicePort) {
       runTestOnVicePort.run(
           ViceParameters(
               executable = command.executable,
-              headless = true,
+              headless = command.headless,
               testToRun = command.autostart,
               monCommandsFile = command.monCommands,
               autostartPrgMode = command.autostartPrgMode,

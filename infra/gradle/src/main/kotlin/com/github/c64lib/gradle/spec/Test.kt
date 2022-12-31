@@ -58,7 +58,7 @@ open class Test : DefaultTask() {
     }
   }
 
-  private fun launchAllTests() = testFiles().forEach { file -> launchTest(file) }
+  private fun launchAllTests() = testFiles().forEach(::launchTest)
 
   private fun launchTest(file: File) =
       RunTestOnViceUseCase(RunTestOnViceAdapter(project))
@@ -68,28 +68,8 @@ open class Test : DefaultTask() {
                   autostart = File(prgFile(file.absoluteFile)),
                   monCommands = File(viceSymbolFile(file)),
                   autostartPrgMode = AutostartPrgMode.valueOf(extension.viceAutostartPrgMode.name),
-                  verbose = extension.verbose))
-
-  //      Vice(project).run { it ->
-  //        if (extension.verbose) {
-  //          println("Running $file")
-  //        }
-  //        it.executable = extension.viceExecutable
-  //        it.warpMode = true
-  //        it.headless = extension.viceHeadless
-  //        it.trueDrive = false
-  //        it.virtualDev = true
-  //        it.fsLongNames = true
-  //        it.sound = false
-  //        it.fs8 = file.parent
-  //        it.autostartHandleTde = false
-  //        it.autostartPrgMode = extension.viceAutostartPrgMode
-  //        it.jamAction = extension.viceJamAction
-  //        it.autostart = prgFile(file.absoluteFile)
-  //        it.monCommands = viceSymbolFile(file)
-  //        it.chdir = file.parent
-  //        it.verbose = extension.verbose
-  //      }
+                  verbose = extension.verbose,
+                  headless = extension.viceHeadless))
 
   private fun testFiles() =
       extension.specDirs.flatMap {

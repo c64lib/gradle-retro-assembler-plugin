@@ -23,12 +23,11 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle
 
-import com.github.c64lib.gradle.emu.vice.AutostartPrgMode
-import com.github.c64lib.gradle.emu.vice.JamAction
 import com.github.c64lib.rbt.domain.AssemblerType
 import com.github.c64lib.rbt.domain.dependency.Dependency
 import com.github.c64lib.rbt.domain.dependency.DependencyType
 import com.github.c64lib.rbt.domain.dependency.DependencyVersion
+import com.github.c64lib.rbt.emulators.vice.domain.AutostartPrgMode
 
 const val EXTENSION_DSL_NAME = "retroProject"
 
@@ -48,7 +47,6 @@ open class RetroAssemblerPluginExtension {
 
   var viceExecutable = "x64sc"
   var viceHeadless = true
-  var viceJamAction = JamAction.QUIT
   var viceAutostartPrgMode = AutostartPrgMode.VIRTUAL_FS
   var specDirs = arrayOf("spec")
   var specIncludes: Array<String> = arrayOf("**/*.spec.asm")
