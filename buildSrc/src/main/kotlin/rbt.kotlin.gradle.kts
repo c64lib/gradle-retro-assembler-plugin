@@ -32,6 +32,7 @@ repositories {
 dependencies {
   implementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.0")
   testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
+  testImplementation("io.kotest:kotest-runner-junit5:4.5.0")
 }
 
 tasks.withType<Test> { useJUnitPlatform() }

@@ -21,19 +21,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.domain
+package com.github.c64lib.rbt.compilers.kickass.usecase
 
-data class SemVer(val major: Int, val minor: Int, val patch: Int? = null, val suffix: String = "") {
-  override fun toString() =
-      "$major.$minor" +
-          if (patch != null) {
-            ".$patch"
-          } else {
-            ""
-          } +
-          if (suffix.isNotEmpty()) {
-            "-${suffix}"
-          } else {
-            ""
-          }
+import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
+import com.github.c64lib.rbt.compilers.kickass.usecase.port.DownloadFilePort
+import java.io.File
+import java.net.URI
+
+class DownloadKickAssemblerUseCase(private val downloadFilePort: DownloadFilePort) {
+
+  fun apply(command: DownloadKickAssemblerCommand): KickAssemblerSettings {
+    val uri =
+        URI("https://github.com/c64lib/asm-ka/releases/download/${command.version}/KickAss.jar")
+    val target = File("${command.workDir}/asms/ka/${command.version}/KickAss.jar")
+    downloadFilePort.download(uri, target)
+    return KickAssemblerSettings(target, command.version)
+  }
 }

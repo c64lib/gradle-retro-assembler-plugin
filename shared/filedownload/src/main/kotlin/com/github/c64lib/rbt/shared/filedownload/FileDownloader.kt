@@ -21,19 +21,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.domain
+package com.github.c64lib.rbt.shared.filedownload
 
-data class SemVer(val major: Int, val minor: Int, val patch: Int? = null, val suffix: String = "") {
-  override fun toString() =
-      "$major.$minor" +
-          if (patch != null) {
-            ".$patch"
-          } else {
-            ""
-          } +
-          if (suffix.isNotEmpty()) {
-            "-${suffix}"
-          } else {
-            ""
-          }
+import java.io.BufferedInputStream
+import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
+
+class FileDownloader {
+  fun download(url: URL, target: Path) {
+    val connection = url.openConnection()
+    val bufferSize = 4096
+    connection.getInputStream().use { inputStream ->
+      Files.createDirectories(target.parent)
+      Files.copy(
+          BufferedInputStream(inputStream, bufferSize), target, StandardCopyOption.REPLACE_EXISTING)
+    }
+  }
 }

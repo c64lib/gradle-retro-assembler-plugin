@@ -21,19 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.domain
+package com.github.c64lib.rbt.compilers.kickass.usecase.port
 
-data class SemVer(val major: Int, val minor: Int, val patch: Int? = null, val suffix: String = "") {
-  override fun toString() =
-      "$major.$minor" +
-          if (patch != null) {
-            ".$patch"
-          } else {
-            ""
-          } +
-          if (suffix.isNotEmpty()) {
-            "-${suffix}"
-          } else {
-            ""
-          }
+import java.io.File
+
+interface KickAssembleSpecPort {
+  fun assemble(libDirs: List<File>, defines: List<String>, monCommands: File, source: File)
 }

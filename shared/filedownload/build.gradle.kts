@@ -1,0 +1,4 @@
+plugins {
+  id("rbt.kotlin")
+}
+
