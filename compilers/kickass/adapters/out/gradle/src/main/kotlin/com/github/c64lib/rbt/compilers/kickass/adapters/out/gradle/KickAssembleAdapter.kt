@@ -32,7 +32,15 @@ class KickAssembleAdapter(
     private val project: Project,
     private val settings: KickAssemblerSettings
 ) : KickAssemblePort {
-  override fun assemble(libDirs: List<File>, defines: List<String>, sources: List<File>) {
-    TODO("Not yet implemented")
+  override fun assemble(libDirs: List<File>, defines: List<String>, source: File) {
+    project.javaexec {
+      it.classpath = project.files(settings.pathToExecutable)
+      it.args =
+          CommandLineBuilder(settings)
+              .libDirs(libDirs.map { file -> file.toPath() })
+              .defines(defines)
+              .source(source.toPath())
+              .build()
+    }
   }
 }

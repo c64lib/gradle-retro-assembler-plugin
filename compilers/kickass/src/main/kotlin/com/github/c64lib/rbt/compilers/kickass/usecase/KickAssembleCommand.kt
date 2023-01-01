@@ -28,5 +28,5 @@ import java.io.File
 data class KickAssembleCommand(
     val libDirs: List<File>,
     val defines: List<String>,
-    val sources: List<File>
+    val source: File
 )

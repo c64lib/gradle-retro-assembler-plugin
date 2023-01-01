@@ -21,10 +21,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.compilers.kickass.usecase.port
+package com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle
 
 import java.io.File
 
-interface KickAssemblePort {
-  fun assemble(libDirs: List<File>, defines: List<String>, source: File): Unit
-}
+internal fun prgFile(file: File) = fileWithoutExtension(file) + ".prg"
+
+internal fun resultFileName(file: File) = fileNameWithoutExtension(file) + ".specOut"
+
+internal fun resultFile(file: File) = fileWithoutExtension(file) + ".specOut"
+
+internal fun viceSymbolFile(file: File) = fileWithoutExtension(file) + ".vs"
+
+private fun fileWithoutExtension(file: File) =
+    file.canonicalPath.substring(0, file.canonicalPath.lastIndexOf('.'))
+
+private fun fileNameWithoutExtension(file: File) =
+    file.name.substring(0, file.name.lastIndexOf('.'))

@@ -27,5 +27,5 @@ import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssemblePort
 
 class KickAssembleUseCase(private val kickAssemblePort: KickAssemblePort) {
   fun apply(command: KickAssembleCommand) =
-      kickAssemblePort.assemble(command.libDirs, command.defines, command.sources)
+      kickAssemblePort.assemble(command.libDirs, command.defines, command.source)
 }

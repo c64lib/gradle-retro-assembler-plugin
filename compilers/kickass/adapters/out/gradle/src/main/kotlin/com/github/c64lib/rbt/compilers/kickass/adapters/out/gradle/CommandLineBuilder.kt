@@ -24,35 +24,42 @@ SOFTWARE.
 package com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle
 
 import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
-import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssembleSpecPort
-import java.io.File
 import java.nio.file.Path
-import org.gradle.api.Project
+import kotlin.io.path.absolutePathString
 
-class KickAssembleSpecAdapter(
-    private val project: Project,
-    private val settings: KickAssemblerSettings
-) : KickAssembleSpecPort {
-  override fun assemble(
-      libDirs: List<File>,
-      defines: List<String>,
-      monCommands: File,
-      source: File
-  ) {
-    project.javaexec {
-      it.classpath = project.files(settings.pathToExecutable)
-      it.args =
-          CommandLineBuilder(settings)
-              .libDirs(libDirs.map { file -> file.toPath() })
-              .defines(defines)
-              .output(Path.of(prgFile(source)))
-              .viceSymbols()
-              .variable("on_exit", "jam")
-              .variable("write_final_results_to_file", "true")
-              .variable("change_character_set", "true")
-              .variable("result_file_name", resultFileName(source))
-              .source(source.toPath())
-              .build()
-    }
+internal class CommandLineBuilder(private val settings: KickAssemblerSettings) {
+
+  private val args: MutableList<String> = mutableListOf()
+
+  fun libDirs(libDirs: List<Path>): CommandLineBuilder {
+    args.addAll(libDirs.flatMap { libDir -> listOf("-libdir", libDir.absolutePathString()) })
+    return this
   }
+
+  fun defines(defines: List<String>): CommandLineBuilder {
+    args.addAll(defines.flatMap { define -> listOf("-define", define) })
+    return this
+  }
+
+  fun variable(name: String, value: String): CommandLineBuilder {
+    args.addAll(listOf(":$name", value))
+    return this
+  }
+
+  fun source(source: Path): CommandLineBuilder {
+    args.add(source.absolutePathString())
+    return this
+  }
+
+  fun output(output: Path): CommandLineBuilder {
+    args.addAll(listOf("-o", output.absolutePathString()))
+    return this
+  }
+
+  fun viceSymbols(): CommandLineBuilder {
+    args.add("-vicesymbols")
+    return this
+  }
+
+  fun build(): List<String> = args.toList()
 }
