@@ -27,6 +27,7 @@ import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
 import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssembleSpecPort
 import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 import org.gradle.api.Project
 
 class KickAssembleSpecAdapter(
@@ -50,7 +51,7 @@ class KickAssembleSpecAdapter(
               .variable("on_exit", "jam")
               .variable("write_final_results_to_file", "true")
               .variable("change_character_set", "true")
-              .variable("result_file_name", resultFileName(source))
+              .variable("result_file_name", monCommands.toPath().absolutePathString())
               .source(source.toPath())
               .build()
     }
