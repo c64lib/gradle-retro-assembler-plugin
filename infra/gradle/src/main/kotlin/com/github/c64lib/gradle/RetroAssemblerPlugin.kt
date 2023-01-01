@@ -99,12 +99,14 @@ class RetroAssemblerPlugin : Plugin<Project> {
       val assemble =
           project.tasks.create(TASK_ASM, Assemble::class.java) { task ->
             task.extension = extension
+            // TODO fix ka path
             task.kickAssembleUseCase =
                 KickAssembleUseCase(
                     KickAssembleAdapter(
                         project,
                         KickAssemblerSettings(
-                            File(extension.viceExecutable),
+                            File(
+                                "${extension.workDir}/asms/ka/${extension.dialectVersion}/KickAss.jar"),
                             SemVer.fromString(extension.dialectVersion))))
           }
       assemble.dependsOn(resolveDevDeps, downloadDependencies, preprocess)
