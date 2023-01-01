@@ -21,14 +21,19 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.tasks
+package com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle
 
-import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
+import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleCommand
+import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
+import java.io.File
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.util.PatternSet
 
 open class Assemble : DefaultTask() {
 
@@ -39,9 +44,24 @@ open class Assemble : DefaultTask() {
 
   @Input lateinit var extension: RetroAssemblerPluginExtension
 
+  @Internal lateinit var kickAssembleUseCase: KickAssembleUseCase
+
   @TaskAction
-  fun assemble() {
-    val asm = AssemblerFacadeFactory.of(extension.dialect, project, extension)
-    asm.sourceFiles().forEach { file -> asm.assemble(file) }
-  }
+  fun assemble() =
+      sourceFiles().forEach { sourceFile ->
+        kickAssembleUseCase.apply(
+            KickAssembleCommand(
+                libDirs = listOf(*extension.libDirs).map { file -> File(file) },
+                defines = listOf(*extension.defines),
+                source = sourceFile))
+      }
+
+  private fun sourceFiles(): FileCollection =
+      extension.srcDirs
+          .map { srcDir ->
+            project
+                .fileTree(srcDir)
+                .matching(PatternSet().include(*extension.includes).exclude(*extension.excludes))
+          }
+          .reduce { acc, rightHand -> acc.plus(rightHand) }
 }

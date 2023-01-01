@@ -23,9 +23,9 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.asms.kickassembler
 
-import com.github.c64lib.gradle.DIALECT_VERSION_LATEST
-import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.AssemblerFacade
+import com.github.c64lib.rbt.shared.gradle.DIALECT_VERSION_LATEST
+import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
 import de.undercouch.gradle.tasks.download.Download
 import java.io.File
 import org.gradle.api.GradleException

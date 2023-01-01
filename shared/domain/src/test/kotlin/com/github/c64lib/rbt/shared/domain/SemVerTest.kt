@@ -21,27 +21,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.tasks
+package com.github.c64lib.rbt.shared.domain
 
-import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
-import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
-import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
-import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.TaskAction
+import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
 
-open class Assemble : DefaultTask() {
+class SemVerTest :
+    DescribeSpec({
+      describe("SemVer") {
+        describe("parsed from String") {
+          val testCases: List<Pair<String, SemVer>> =
+              listOf(
+                  Pair("2.1", SemVer(2, 1)),
+                  Pair("2.1.3", SemVer(2, 1, 3)),
+                  Pair("2.1.3-rc01", SemVer(2, 1, 3, "rc01")))
 
-  init {
-    description = "Runs assembler over all source files"
-    group = GROUP_BUILD
-  }
-
-  @Input lateinit var extension: RetroAssemblerPluginExtension
-
-  @TaskAction
-  fun assemble() {
-    val asm = AssemblerFacadeFactory.of(extension.dialect, project, extension)
-    asm.sourceFiles().forEach { file -> asm.assemble(file) }
-  }
-}
+          testCases.forEach { testCase ->
+            it("accepts ${testCase.first}") {
+              val semVer = SemVer.fromString(testCase.first)
+              val should = testCase.second
+              semVer.major shouldBe should.major
+              semVer.minor shouldBe should.minor
+              semVer.patch shouldBe should.patch
+              semVer.suffix shouldBe should.suffix
+            }
+          }
+        }
+      }
+    })

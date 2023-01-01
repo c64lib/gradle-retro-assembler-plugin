@@ -31,11 +31,29 @@ import com.github.c64lib.gradle.preprocess.goattracker.Goattracker
 import com.github.c64lib.gradle.preprocess.spritepad.Spritepad
 import com.github.c64lib.gradle.spec.AssembleSpec
 import com.github.c64lib.gradle.spec.Test
-import com.github.c64lib.gradle.tasks.Assemble
 import com.github.c64lib.gradle.tasks.Build
 import com.github.c64lib.gradle.tasks.Clean
 import com.github.c64lib.gradle.tasks.Preprocess
 import com.github.c64lib.gradle.tasks.ResolveDevDeps
+import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.Assemble
+import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.KickAssembleAdapter
+import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
+import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
+import com.github.c64lib.rbt.shared.domain.SemVer
+import com.github.c64lib.rbt.shared.gradle.EXTENSION_DSL_NAME
+import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.shared.gradle.TASK_ASM
+import com.github.c64lib.rbt.shared.gradle.TASK_ASM_SPEC
+import com.github.c64lib.rbt.shared.gradle.TASK_BUILD
+import com.github.c64lib.rbt.shared.gradle.TASK_CHARPAD
+import com.github.c64lib.rbt.shared.gradle.TASK_CLEAN
+import com.github.c64lib.rbt.shared.gradle.TASK_DEPENDENCIES
+import com.github.c64lib.rbt.shared.gradle.TASK_GOATTRACKER
+import com.github.c64lib.rbt.shared.gradle.TASK_PREPROCESS
+import com.github.c64lib.rbt.shared.gradle.TASK_RESOLVE_DEV_DEPENDENCIES
+import com.github.c64lib.rbt.shared.gradle.TASK_SPRITEPAD
+import com.github.c64lib.rbt.shared.gradle.TASK_TEST
+import java.io.File
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -81,6 +99,13 @@ class RetroAssemblerPlugin : Plugin<Project> {
       val assemble =
           project.tasks.create(TASK_ASM, Assemble::class.java) { task ->
             task.extension = extension
+            task.kickAssembleUseCase =
+                KickAssembleUseCase(
+                    KickAssembleAdapter(
+                        project,
+                        KickAssemblerSettings(
+                            File(extension.viceExecutable),
+                            SemVer.fromString(extension.dialectVersion))))
           }
       assemble.dependsOn(resolveDevDeps, downloadDependencies, preprocess)
 

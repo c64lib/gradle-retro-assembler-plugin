@@ -23,9 +23,9 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.tasks
 
-import com.github.c64lib.gradle.GROUP_BUILD
-import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
+import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
+import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction

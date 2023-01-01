@@ -23,9 +23,9 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.asms
 
-import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.kickassembler.KickAssemblerFacade
 import com.github.c64lib.rbt.domain.AssemblerType
+import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
 import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project

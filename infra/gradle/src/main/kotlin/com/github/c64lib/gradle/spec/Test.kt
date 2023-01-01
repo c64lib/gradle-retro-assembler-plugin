@@ -23,13 +23,13 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.spec
 
-import com.github.c64lib.gradle.GROUP_BUILD
-import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.rbt.domain.AssemblerType
 import com.github.c64lib.rbt.emulators.vice.adapters.out.gradle.RunTestOnViceAdapter
 import com.github.c64lib.rbt.emulators.vice.domain.AutostartPrgMode
 import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceCommand
 import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
+import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
+import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException

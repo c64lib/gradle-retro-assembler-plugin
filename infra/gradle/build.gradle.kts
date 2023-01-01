@@ -65,6 +65,10 @@ dependencies {
     implementation("io.vavr:vavr:$vavrVersion")
     // new
     compileOnly(project(":shared:domain"))
+    compileOnly(project(":shared:gradle"))
+    compileOnly(project(":compilers:kickass"))
+    compileOnly(project(":compilers:kickass:adapters:in:gradle"))
+    compileOnly(project(":compilers:kickass:adapters:out:gradle"))
     compileOnly(project(":emulators:vice"))
     compileOnly(project(":emulators:vice:adapters:out:gradle"))
     // old
