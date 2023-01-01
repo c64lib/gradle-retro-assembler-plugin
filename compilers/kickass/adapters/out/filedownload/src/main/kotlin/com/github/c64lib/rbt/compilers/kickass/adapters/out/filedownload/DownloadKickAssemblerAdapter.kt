@@ -21,22 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.compilers.kickass.usecase
+package com.github.c64lib.rbt.compilers.kickass.adapters.out.filedownload
 
-import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
 import com.github.c64lib.rbt.compilers.kickass.usecase.port.DownloadKickAssemblerPort
+import com.github.c64lib.rbt.shared.filedownload.FileDownloader
 import java.io.File
 import java.net.URL
 
-class DownloadKickAssemblerUseCase(
-    private val downloadKickAssemblerPort: DownloadKickAssemblerPort
-) {
-
-  fun apply(command: DownloadKickAssemblerCommand): KickAssemblerSettings {
-    val url =
-        URL("https://github.com/c64lib/asm-ka/releases/download/${command.version}/KickAss.jar")
-    val target = File("${command.workDir}/asms/ka/${command.version}/KickAss.jar")
-    downloadKickAssemblerPort.download(url, target)
-    return KickAssemblerSettings(target, command.version)
-  }
+class DownloadKickAssemblerAdapter(private val downloader: FileDownloader) :
+    DownloadKickAssemblerPort {
+  override fun download(url: URL, target: File) = downloader.download(url, target.toPath())
 }

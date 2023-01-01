@@ -24,8 +24,8 @@ SOFTWARE.
 package com.github.c64lib.rbt.compilers.kickass.usecase.port
 
 import java.io.File
-import java.net.URI
+import java.net.URL
 
-interface DownloadFilePort {
-  fun download(pathToFile: URI, target: File)
+interface DownloadKickAssemblerPort {
+  fun download(url: URL, target: File)
 }

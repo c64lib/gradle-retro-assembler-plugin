@@ -14,6 +14,7 @@ include(":shared:filedownload")
 
 include(":compilers:kickass")
 include(":compilers:kickass:adapters:out:gradle")
+include(":compilers:kickass:adapters:out:filedownload")
 
 include(":emulators:vice")
 include(":emulators:vice:adapters:out:gradle")
