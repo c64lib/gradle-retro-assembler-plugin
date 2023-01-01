@@ -29,7 +29,7 @@ import io.kotest.matchers.shouldBe
 class SemVerTest :
     DescribeSpec({
       describe("SemVer") {
-        describe("parsed from String") {
+        describe("can be parsed from") {
           val testCases: List<Pair<String, SemVer>> =
               listOf(
                   Pair("2.1", SemVer(2, 1)),
@@ -37,13 +37,30 @@ class SemVerTest :
                   Pair("2.1.3-rc01", SemVer(2, 1, 3, "rc01")))
 
           testCases.forEach { testCase ->
-            it("accepts ${testCase.first}") {
+            it(testCase.first) {
               val semVer = SemVer.fromString(testCase.first)
               val should = testCase.second
               semVer.major shouldBe should.major
               semVer.minor shouldBe should.minor
               semVer.patch shouldBe should.patch
               semVer.suffix shouldBe should.suffix
+              semVer.toString() shouldBe should.toString()
+            }
+          }
+        }
+
+        describe("converts to string from") {
+          val testCases =
+              listOf(
+                  Pair(SemVer(2, 1), "2.1"),
+                  Pair(SemVer(2, 1, 3), "2.1.3"),
+                  Pair(SemVer(2, 1, 3, "rc01"), "2.1.3-rc01"))
+
+          testCases.forEach { testCase ->
+            it(testCase.second) {
+              val semVer = testCase.first
+              val textual = testCase.second
+              semVer.toString() shouldBe textual
             }
           }
         }
