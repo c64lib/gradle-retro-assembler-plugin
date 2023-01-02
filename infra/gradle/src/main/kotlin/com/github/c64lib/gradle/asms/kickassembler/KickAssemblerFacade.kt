@@ -27,12 +27,9 @@ import com.github.c64lib.gradle.asms.AssemblerFacade
 import com.github.c64lib.rbt.shared.gradle.DIALECT_VERSION_LATEST
 import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
 import de.undercouch.gradle.tasks.download.Download
-import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.util.PatternSet
-import org.gradle.process.ExecResult
 
 class KickAssemblerFacade(
     private val project: Project,
@@ -56,43 +53,10 @@ class KickAssemblerFacade(
     }
   }
 
-  override fun sourceFiles(): FileCollection =
-      extension.srcDirs
-          .map { srcDir ->
-            project
-                .fileTree(srcDir)
-                .matching(PatternSet().include(*extension.includes).exclude(*extension.excludes))
-          }
-          .reduce { acc, rightHand -> acc.plus(rightHand) }
-
-  override fun testFiles(): FileCollection =
-      extension.specDirs
-          .map { specDir ->
-            project.fileTree(specDir).matching(PatternSet().include(*extension.specIncludes))
-          }
-          .reduce { acc, rightHand -> acc.plus(rightHand) }
-
   override fun targetFiles(): FileCollection =
       project.fileTree(".").matching { pattern ->
         pattern.include("**/*.prg", "**/*.sym", "**/*.vs", "**/*.specOut")
       }
-
-  override fun assemble(sourceFile: File, vararg parameters: String): ExecResult =
-      project.javaexec { spec ->
-        spec.classpath = project.files(kaFile.absolutePath)
-        spec.args =
-            listOf(
-                    asLibDirList(extension.libDirs),
-                    asDefineList(extension.defines),
-                    listOf(*parameters),
-                    listOf(sourceFile.path))
-                .flatten()
-        println(spec.args)
-      }
-
-  private fun asLibDirList(libDirs: Array<String>) = asParamList("-libdir", libDirs)
-
-  private fun asDefineList(defines: Array<String>) = asParamList("-define", defines)
 
   private fun asParamList(paramName: String, values: Array<String>) =
       values.flatMap { value -> listOf(paramName, value) }
