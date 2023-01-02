@@ -27,7 +27,6 @@ import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleCommand
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
-import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
@@ -51,7 +50,7 @@ open class Assemble : DefaultTask() {
       sourceFiles().forEach { sourceFile ->
         kickAssembleUseCase.apply(
             KickAssembleCommand(
-                libDirs = listOf(*extension.libDirs).map { file -> File(file) },
+                libDirs = listOf(*extension.libDirs).map { file -> project.file(file) },
                 defines = listOf(*extension.defines),
                 source = sourceFile))
       }
