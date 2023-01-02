@@ -42,7 +42,7 @@ class KickAssembleSpecAdapter(
   ) {
     project.javaexec {
       it.classpath = project.files(settings.pathToExecutable)
-      it.args =
+      val args =
           CommandLineBuilder(settings)
               .libDirs(libDirs.map { file -> file.toPath() })
               .defines(defines)
@@ -54,6 +54,13 @@ class KickAssembleSpecAdapter(
               .variable("result_file_name", monCommands.toPath().absolutePathString())
               .source(source.toPath())
               .build()
+      it.args = args
+
+      printArgs(args)
     }
+  }
+
+  private fun printArgs(args: List<String>) {
+    println(args.joinToString(" "))
   }
 }

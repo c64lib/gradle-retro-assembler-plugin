@@ -42,7 +42,7 @@ internal class CommandLineBuilder(private val settings: KickAssemblerSettings) {
   }
 
   fun variable(name: String, value: String): CommandLineBuilder {
-    args.addAll(listOf(":$name", value))
+    args.add(":$name=$value")
     return this
   }
 

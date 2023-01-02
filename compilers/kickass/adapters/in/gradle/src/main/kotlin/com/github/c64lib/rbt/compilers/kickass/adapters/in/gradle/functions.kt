@@ -21,37 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.spec
+package com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle
 
-import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
-import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
-import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
-import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.TaskAction
+import java.io.File
 
-open class AssembleSpec : DefaultTask() {
+internal fun resultFileName(file: File) = fileNameWithoutExtension(file) + ".specOut"
 
-  init {
-    description = "Runs assembler over all spec files"
-    group = GROUP_BUILD
-  }
-
-  @Input lateinit var extension: RetroAssemblerPluginExtension
-
-  @TaskAction
-  fun assemble() {
-    val asm = AssemblerFacadeFactory.of(extension.dialect, project, extension)
-    asm.testFiles().forEach { file ->
-      asm.assemble(
-          file,
-          "-o",
-          prgFile(file),
-          "-vicesymbols",
-          ":on_exit=jam",
-          ":write_final_results_to_file=true",
-          ":change_character_set=true",
-          ":result_file_name=" + resultFileName(file))
-    }
-  }
-}
+private fun fileNameWithoutExtension(file: File) =
+    file.name.substring(0, file.name.lastIndexOf('.'))

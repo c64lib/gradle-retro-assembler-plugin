@@ -29,15 +29,17 @@ import com.github.c64lib.gradle.preprocess.PreprocessingExtension
 import com.github.c64lib.gradle.preprocess.charpad.Charpad
 import com.github.c64lib.gradle.preprocess.goattracker.Goattracker
 import com.github.c64lib.gradle.preprocess.spritepad.Spritepad
-import com.github.c64lib.gradle.spec.AssembleSpec
 import com.github.c64lib.gradle.spec.Test
 import com.github.c64lib.gradle.tasks.Build
 import com.github.c64lib.gradle.tasks.Clean
 import com.github.c64lib.gradle.tasks.Preprocess
 import com.github.c64lib.gradle.tasks.ResolveDevDeps
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.Assemble
+import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.AssembleSpec
 import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.KickAssembleAdapter
+import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.KickAssembleSpecAdapter
 import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
+import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.shared.domain.SemVer
 import com.github.c64lib.rbt.shared.gradle.EXTENSION_DSL_NAME
@@ -95,19 +97,17 @@ class RetroAssemblerPlugin : Plugin<Project> {
 
       preprocess.dependsOn(charpad, spritepad, goattracker)
 
+      val settings =
+          KickAssemblerSettings(
+              File("${extension.workDir}/asms/ka/${extension.dialectVersion}/KickAss.jar"),
+              SemVer.fromString(extension.dialectVersion))
+
       // sources
       val assemble =
           project.tasks.create(TASK_ASM, Assemble::class.java) { task ->
             task.extension = extension
-            // TODO fix ka path
-            task.kickAssembleUseCase =
-                KickAssembleUseCase(
-                    KickAssembleAdapter(
-                        project,
-                        KickAssemblerSettings(
-                            File(
-                                "${extension.workDir}/asms/ka/${extension.dialectVersion}/KickAss.jar"),
-                            SemVer.fromString(extension.dialectVersion))))
+
+            task.kickAssembleUseCase = KickAssembleUseCase(KickAssembleAdapter(project, settings))
           }
       assemble.dependsOn(resolveDevDeps, downloadDependencies, preprocess)
 
@@ -117,6 +117,9 @@ class RetroAssemblerPlugin : Plugin<Project> {
       val assembleSpec =
           project.tasks.create(TASK_ASM_SPEC, AssembleSpec::class.java) { task ->
             task.extension = extension
+
+            task.kickAssembleSpecUseCase =
+                KickAssembleSpecUseCase(KickAssembleSpecAdapter(project, settings))
           }
       assembleSpec.dependsOn(resolveDevDeps, downloadDependencies)
       val runSpec =
