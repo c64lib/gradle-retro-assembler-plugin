@@ -1,6 +1,5 @@
 rootProject.name = "retro-assembler"
 
-include(":domain")
 include(":app:binary-utils")
 include(":app:processor-commons")
 include(":app:charpad-processor")
@@ -23,5 +22,9 @@ include(":emulators:vice:adapters:out:gradle")
 
 include(":testing:64spec")
 include(":testing:64spec:adapters:in:gradle")
+
+include(":dependencies")
+include(":dependencies:adapters:in:gradle")
+include(":dependencies:adapters:out:gradle")
 
 include(":doc")

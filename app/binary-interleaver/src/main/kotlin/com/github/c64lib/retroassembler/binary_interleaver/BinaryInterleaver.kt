@@ -24,7 +24,7 @@ SOFTWARE.
 package com.github.c64lib.retroassembler.binary_interleaver
 
 import com.github.c64lib.processor.commons.BinaryOutput
-import com.github.c64lib.rbt.domain.shared.IllegalInputException
+import com.github.c64lib.rbt.shared.domain.IllegalInputException
 import io.vavr.collection.Seq
 
 class BinaryInterleaver(private val outputs: Seq<BinaryOutput>) : BinaryOutput {

@@ -25,7 +25,7 @@ package com.github.c64lib.retroassembler.charpad_processor.producer
 
 import com.github.c64lib.processor.commons.Output
 import com.github.c64lib.processor.commons.OutputProducer
-import com.github.c64lib.rbt.domain.shared.IllegalInputException
+import com.github.c64lib.rbt.shared.domain.IllegalInputException
 import com.github.c64lib.retroassembler.charpad_processor.model.MapCoord
 
 class MapProducer(

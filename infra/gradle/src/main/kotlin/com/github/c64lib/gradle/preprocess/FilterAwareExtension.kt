@@ -24,7 +24,7 @@ SOFTWARE.
 package com.github.c64lib.gradle.preprocess
 
 import com.github.c64lib.processor.commons.BinaryOutput
-import com.github.c64lib.rbt.domain.shared.IllegalConfigurationException
+import com.github.c64lib.rbt.shared.domain.IllegalConfigurationException
 import com.github.c64lib.retroassembler.binary_interleaver.BinaryInterleaver
 import com.github.c64lib.retroassembler.nybbler.Nybbler
 import io.vavr.collection.List
