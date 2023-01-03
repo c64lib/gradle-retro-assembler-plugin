@@ -31,7 +31,6 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 
 interface AssemblerFacade {
-  fun installDevKit()
   fun targetFiles(): FileCollection
 }
 

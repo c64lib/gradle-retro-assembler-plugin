@@ -24,10 +24,7 @@ SOFTWARE.
 package com.github.c64lib.gradle.asms.kickassembler
 
 import com.github.c64lib.gradle.asms.AssemblerFacade
-import com.github.c64lib.rbt.shared.gradle.DIALECT_VERSION_LATEST
 import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
-import de.undercouch.gradle.tasks.download.Download
-import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 
@@ -36,28 +33,8 @@ class KickAssemblerFacade(
     private val extension: RetroAssemblerPluginExtension
 ) : AssemblerFacade {
 
-  private val kaFile =
-      project.file("${extension.workDir}/asms/ka/${extension.dialectVersion}/KickAss.jar")
-
-  override fun installDevKit() {
-    if (!kaFile.exists()) {
-      if (extension.dialectVersion == DIALECT_VERSION_LATEST) {
-        throw GradleException(
-            "Dialect version ${extension.dialectVersion} is not supported for KickAssemblerFacade")
-      }
-      val downloadTask = project.tasks.create("_c64lib_download_ka", Download::class.java)
-      downloadTask.src(
-          "https://github.com/c64lib/asm-ka/releases/download/${extension.dialectVersion}/KickAss.jar")
-      downloadTask.dest(kaFile)
-      downloadTask.download()
-    }
-  }
-
   override fun targetFiles(): FileCollection =
       project.fileTree(".").matching { pattern ->
         pattern.include("**/*.prg", "**/*.sym", "**/*.vs", "**/*.specOut")
       }
-
-  private fun asParamList(paramName: String, values: Array<String>) =
-      values.flatMap { value -> listOf(paramName, value) }
 }
