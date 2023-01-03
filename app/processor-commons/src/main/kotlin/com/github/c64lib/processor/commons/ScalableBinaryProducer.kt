@@ -23,7 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.processor.commons
 
-import com.github.c64lib.rbt.domain.shared.OutOfDataException
+import com.github.c64lib.rbt.shared.domain.OutOfDataException
 
 /**
  * Produces binary output from binary input.

@@ -12,7 +12,7 @@ group = "com.github.c64lib.retro-assembler"
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("io.vavr:vavr:$vavrVersion")
-    implementation(project(":domain"))
+    implementation(project(":shared:domain"))
     implementation(project(":app:binary-utils"))
     implementation(project(":app:processor-commons"))
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")

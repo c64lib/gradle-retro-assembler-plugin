@@ -76,7 +76,6 @@ dependencies {
     compileOnly(project(":testing:64spec"))
     compileOnly(project(":testing:64spec:adapters:in:gradle"))
     // old
-    compileOnly(project(":domain"))
     compileOnly(project(":app:binary-utils"))
     compileOnly(project(":app:processor-commons"))
     compileOnly(project(":app:charpad-processor"))

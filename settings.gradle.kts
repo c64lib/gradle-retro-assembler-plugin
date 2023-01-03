@@ -1,6 +1,5 @@
 rootProject.name = "retro-assembler"
 
-include(":domain")
 include(":app:binary-utils")
 include(":app:processor-commons")
 include(":app:charpad-processor")

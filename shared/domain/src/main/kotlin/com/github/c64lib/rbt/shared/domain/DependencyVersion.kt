@@ -21,11 +21,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.domain.pipeline
+package com.github.c64lib.rbt.shared.domain
 
-class Entries(val values: List<Entry>) {
-
-  private val indexedValues = values.associateBy { it.id }
-
-  fun get(id: String) = indexedValues[id] ?: throw ElementNotFoundException(id)
-}
+data class DependencyVersion(val version: String)

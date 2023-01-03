@@ -23,11 +23,11 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.shared.gradle
 
-import com.github.c64lib.rbt.domain.AssemblerType
-import com.github.c64lib.rbt.domain.dependency.Dependency
-import com.github.c64lib.rbt.domain.dependency.DependencyType
-import com.github.c64lib.rbt.domain.dependency.DependencyVersion
 import com.github.c64lib.rbt.emulators.vice.domain.AutostartPrgMode
+import com.github.c64lib.rbt.shared.domain.AssemblerType
+import com.github.c64lib.rbt.shared.domain.Dependency
+import com.github.c64lib.rbt.shared.domain.DependencyType
+import com.github.c64lib.rbt.shared.domain.DependencyVersion
 
 const val EXTENSION_DSL_NAME = "retroProject"
 

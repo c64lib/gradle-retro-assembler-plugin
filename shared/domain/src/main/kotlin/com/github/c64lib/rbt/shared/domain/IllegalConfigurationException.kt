@@ -21,11 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.domain.dependency
+package com.github.c64lib.rbt.shared.domain
 
-data class Dependency(
-    val type: DependencyType,
-    val name: String,
-    val version: DependencyVersion,
-    val prefix: String = ""
-)
+/** Error that indicates wrong general configuration of the plugin. */
+class IllegalConfigurationException(msg: String) : RuntimeException(msg)

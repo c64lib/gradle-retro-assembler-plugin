@@ -24,7 +24,7 @@ SOFTWARE.
 package com.github.c64lib.gradle.tasks
 
 import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
-import com.github.c64lib.rbt.domain.AssemblerType
+import com.github.c64lib.rbt.shared.domain.AssemblerType
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
 import org.gradle.api.tasks.Delete
