@@ -23,7 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.tasks
 
-import com.github.c64lib.gradle.GROUP_BUILD
+import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import org.gradle.api.DefaultTask
 
 abstract class Preprocess : DefaultTask() {

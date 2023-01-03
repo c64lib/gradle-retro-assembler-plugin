@@ -23,9 +23,41 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.shared.domain
 
-data class SemVer(val major: Int, val minor: Int, val patch: Int, val suffix: String = "") {
+data class SemVer(val major: Int, val minor: Int, val patch: Int? = null, val suffix: String = "") {
+
+  companion object Factory {
+    fun fromString(value: String): SemVer {
+      val pattern = "^(\\d+)\\.(\\d+)(\\.\\d+)?(-.+)?$"
+      val regex = Regex(pattern)
+      val match = regex.find(value)
+      return if (match != null) {
+        val major = match.groupValues[1].toInt()
+        val minor = match.groupValues[2].toInt()
+        val patch =
+            if (match.groupValues[3].isNotEmpty()) {
+              match.groupValues[3].substring(1).toInt()
+            } else {
+              null
+            }
+        val suffix =
+            if (match.groupValues[4].isNotEmpty()) {
+              match.groupValues[4].substring(1)
+            } else {
+              ""
+            }
+        SemVer(major, minor, patch, suffix)
+      } else {
+        throw IllegalArgumentException("Cannot determine version from \"$value\"")
+      }
+    }
+  }
   override fun toString() =
-      "$major.$minor.$patch" +
+      "$major.$minor" +
+          if (patch != null) {
+            ".$patch"
+          } else {
+            ""
+          } +
           if (suffix.isNotEmpty()) {
             "-${suffix}"
           } else {

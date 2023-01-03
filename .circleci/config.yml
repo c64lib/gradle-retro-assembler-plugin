@@ -51,17 +51,22 @@ workflows:
           filters:
             branches:
               only:
+                - main
                 - master
                 - develop
                 - /^([0-9]+)\.([0-9]+)$/
+                - /^[0-9]+-.+$/
       - publish:
           filters:
             branches:
               ignore:
+                - main
                 - master
                 - develop
                 - /^([0-9]+)\.([0-9]+)$/
                 - gh-pages
+                - /^[0-9]+-.*$/
+
             tags:
               only:
                 - /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/

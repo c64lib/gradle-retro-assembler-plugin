@@ -23,77 +23,18 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.asms.kickassembler
 
-import com.github.c64lib.gradle.DIALECT_VERSION_LATEST
-import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.AssemblerFacade
-import de.undercouch.gradle.tasks.download.Download
-import java.io.File
-import org.gradle.api.GradleException
+import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.util.PatternSet
-import org.gradle.process.ExecResult
 
 class KickAssemblerFacade(
     private val project: Project,
     private val extension: RetroAssemblerPluginExtension
 ) : AssemblerFacade {
 
-  private val kaFile =
-      project.file("${extension.workDir}/asms/ka/${extension.dialectVersion}/KickAss.jar")
-
-  override fun installDevKit() {
-    if (!kaFile.exists()) {
-      if (extension.dialectVersion == DIALECT_VERSION_LATEST) {
-        throw GradleException(
-            "Dialect version ${extension.dialectVersion} is not supported for KickAssemblerFacade")
-      }
-      val downloadTask = project.tasks.create("_c64lib_download_ka", Download::class.java)
-      downloadTask.src(
-          "https://github.com/c64lib/asm-ka/releases/download/${extension.dialectVersion}/KickAss.jar")
-      downloadTask.dest(kaFile)
-      downloadTask.download()
-    }
-  }
-
-  override fun sourceFiles(): FileCollection =
-      extension.srcDirs
-          .map { srcDir ->
-            project
-                .fileTree(srcDir)
-                .matching(PatternSet().include(*extension.includes).exclude(*extension.excludes))
-          }
-          .reduce { acc, rightHand -> acc.plus(rightHand) }
-
-  override fun testFiles(): FileCollection =
-      extension.specDirs
-          .map { specDir ->
-            project.fileTree(specDir).matching(PatternSet().include(*extension.specIncludes))
-          }
-          .reduce { acc, rightHand -> acc.plus(rightHand) }
-
   override fun targetFiles(): FileCollection =
       project.fileTree(".").matching { pattern ->
         pattern.include("**/*.prg", "**/*.sym", "**/*.vs", "**/*.specOut")
       }
-
-  override fun assemble(sourceFile: File, vararg parameters: String): ExecResult =
-      project.javaexec { spec ->
-        spec.classpath = project.files(kaFile.absolutePath)
-        spec.args =
-            listOf(
-                    asLibDirList(extension.libDirs),
-                    asDefineList(extension.defines),
-                    listOf(*parameters),
-                    listOf(sourceFile.path))
-                .flatten()
-        println(spec.args)
-      }
-
-  private fun asLibDirList(libDirs: Array<String>) = asParamList("-libdir", libDirs)
-
-  private fun asDefineList(defines: Array<String>) = asParamList("-define", defines)
-
-  private fun asParamList(paramName: String, values: Array<String>) =
-      values.flatMap { value -> listOf(paramName, value) }
 }

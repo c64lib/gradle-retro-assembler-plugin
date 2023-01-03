@@ -7,10 +7,6 @@ plugins {
   id("rbt.kotlin")
 }
 
-tasks.jar {
-  archiveFileName.set("shared-domain-${project.version}.jar")
-}
-
 group = "com.github.c64lib.retro-assembler.shared"
 
 dependencies {

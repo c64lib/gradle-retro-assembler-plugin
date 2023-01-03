@@ -23,21 +23,15 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.asms
 
-import com.github.c64lib.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.gradle.asms.kickassembler.KickAssemblerFacade
 import com.github.c64lib.rbt.domain.AssemblerType
-import java.io.File
+import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.process.ExecResult
 
 interface AssemblerFacade {
-  fun installDevKit()
   fun targetFiles(): FileCollection
-  fun sourceFiles(): FileCollection
-  fun testFiles(): FileCollection
-  fun assemble(sourceFile: File, vararg parameters: String): ExecResult
 }
 
 object AssemblerFacadeFactory {
