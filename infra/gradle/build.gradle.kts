@@ -71,6 +71,8 @@ dependencies {
     compileOnly(project(":compilers:kickass:adapters:out:gradle"))
     compileOnly(project(":emulators:vice"))
     compileOnly(project(":emulators:vice:adapters:out:gradle"))
+    compileOnly(project(":testing:64spec"))
+    compileOnly(project(":testing:64spec:adapters:in:gradle"))
     // old
     compileOnly(project(":domain"))
     compileOnly(project(":app:binary-utils"))

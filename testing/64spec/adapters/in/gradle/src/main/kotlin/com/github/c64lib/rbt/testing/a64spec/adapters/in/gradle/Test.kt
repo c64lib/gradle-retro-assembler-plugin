@@ -21,19 +21,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.spec
+package com.github.c64lib.rbt.testing.a64spec.adapters.`in`.gradle
 
-import com.github.c64lib.rbt.domain.AssemblerType
-import com.github.c64lib.rbt.emulators.vice.adapters.out.gradle.RunTestOnViceAdapter
-import com.github.c64lib.rbt.emulators.vice.domain.AutostartPrgMode
-import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceCommand
-import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.testing.a64spec.usecase.Run64SpecTestUseCase
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.util.PatternSet
 
@@ -46,30 +43,20 @@ open class Test : DefaultTask() {
 
   @Input lateinit var extension: RetroAssemblerPluginExtension
 
+  @Internal lateinit var run64SpecTestUseCase: Run64SpecTestUseCase
+
   @TaskAction
   fun runSpec() {
-    assert(extension.dialect == AssemblerType.KickAssembler) {
-      "The specified dialect ${extension.dialect} cannot be used with 64spec, only ${AssemblerType.KickAssembler} is supported"
-    }
-    launchAllTests()
-    val isPositive = TestReport(testFiles()).generateTestReport { println(it) }
+    val testResults = launchAllTests()
+    val isPositive = TestReport(testResults).generateTestReport { println(it) }
     if (!isPositive) {
       throw GradleException("There are errors in tests.")
     }
   }
 
-  private fun launchAllTests() = testFiles().forEach(::launchTest)
+  private fun launchAllTests() = testFiles().map(::launchTest)
 
-  private fun launchTest(file: File) =
-      RunTestOnViceUseCase(RunTestOnViceAdapter(project))
-          .apply(
-              RunTestOnViceCommand(
-                  executable = extension.viceExecutable,
-                  autostart = File(prgFile(file.absoluteFile)),
-                  monCommands = File(viceSymbolFile(file)),
-                  autostartPrgMode = AutostartPrgMode.valueOf(extension.viceAutostartPrgMode.name),
-                  verbose = extension.verbose,
-                  headless = extension.viceHeadless))
+  private fun launchTest(file: File) = run64SpecTestUseCase.apply(file)
 
   private fun testFiles() =
       extension.specDirs.flatMap {

@@ -21,4 +21,7 @@ include(":compilers:kickass:adapters:out:filedownload")
 include(":emulators:vice")
 include(":emulators:vice:adapters:out:gradle")
 
+include(":testing:64spec")
+include(":testing:64spec:adapters:in:gradle")
+
 include(":doc")

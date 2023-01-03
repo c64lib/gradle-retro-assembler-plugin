@@ -23,14 +23,6 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.emulators.vice.usecase
 
-import com.github.c64lib.rbt.emulators.vice.domain.AutostartPrgMode
 import java.io.File
 
-data class RunTestOnViceCommand(
-    val executable: String = defaultExecutable,
-    val autostart: File,
-    val monCommands: File,
-    val autostartPrgMode: AutostartPrgMode = AutostartPrgMode.VIRTUAL_FS,
-    val verbose: Boolean = false,
-    val headless: Boolean = false
-)
+data class RunTestOnViceCommand(val autostart: File, val monCommands: File)

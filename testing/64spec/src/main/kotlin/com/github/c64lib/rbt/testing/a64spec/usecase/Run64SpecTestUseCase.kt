@@ -21,59 +21,38 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.spec
+package com.github.c64lib.rbt.testing.a64spec.usecase
 
+import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceCommand
+import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
 import java.io.File
 
-class TestReport(private val testFiles: List<File>) {
-  private class Result(val outputText: String, val success: Int = 0, val total: Int = 0) {
-
-    val isPositive: Boolean
-      get() = success == total
-
-    private fun tag() =
-        if (isPositive) {
-          "Success"
-        } else {
-          "FAILED"
-        }
-
-    override fun toString(): String = "($success/$total) ${tag()}"
+class Run64SpecTestUseCase(private val runTestOnViceUseCase: RunTestOnViceUseCase) {
+  fun apply(testSource: File): TestResult {
+    runTestOnViceUseCase.apply(
+        RunTestOnViceCommand(
+            autostart = File(prgFile(testSource.absoluteFile)),
+            monCommands = File(viceSymbolFile(testSource))))
+    val resultFile = File(resultFile(testSource))
+    return parseTestOutput(fromPetscii(resultFile.readBytes()))
   }
 
-  fun generateTestReport(outputFn: (value: String) -> Unit): Boolean {
-    val result =
-        testFiles
-            .map { file -> resultFile(file) }
-            .fold(Result("")) { result, fileName ->
-              val file = File(fileName)
-              outputFn(file.name)
-              val testOutput = fromPetscii(file.readBytes())
-              val counts = parseTestOutput(testOutput)
-              outputFn("Tests execution ${counts.outputText}")
-              Result("", result.success + counts.success, result.total + counts.total)
-            }
-    outputFn("Overall test report $result")
-    return result.isPositive
-  }
-
-  private fun parseTestOutput(outputText: String): Result {
+  private fun parseTestOutput(outputText: String): TestResult {
     val regex = Regex("\\((\\d+)/(\\d+)\\)")
     val matchResult: MatchResult? = regex.find(outputText)
     return if (matchResult != null) {
-      Result(outputText, matchResult.groupValues[1].toInt(), matchResult.groupValues[2].toInt())
+      TestResult(matchResult.groupValues[1].toInt(), matchResult.groupValues[2].toInt(), outputText)
     } else {
-      Result(outputText)
+      TestResult(message = outputText)
     }
   }
-
   private fun fromPetscii(bytes: ByteArray) =
       bytes
           .asSequence()
           .map { value ->
             when {
               value == 13.toByte() -> System.lineSeparator()
-              value >= 0 -> "" + value.toChar()
+              value >= 0 -> "" + (0 + value).toChar()
               else -> "" + (128 + value).toChar()
             }
           }

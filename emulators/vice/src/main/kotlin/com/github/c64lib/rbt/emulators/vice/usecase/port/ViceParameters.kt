@@ -23,17 +23,6 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.emulators.vice.usecase.port
 
-import com.github.c64lib.rbt.emulators.vice.domain.AutostartPrgMode
-import com.github.c64lib.rbt.emulators.vice.domain.JamAction
 import java.io.File
 
-data class ViceParameters(
-    val executable: String,
-    val headless: Boolean = true,
-    val testToRun: File,
-    val monCommandsFile: File,
-    val jamAction: JamAction? = null,
-    val sound: Boolean? = null,
-    val autostartPrgMode: AutostartPrgMode? = null,
-    val verbose: Boolean = false
-)
+data class ViceParameters(val testToRun: File, val monCommandsFile: File)

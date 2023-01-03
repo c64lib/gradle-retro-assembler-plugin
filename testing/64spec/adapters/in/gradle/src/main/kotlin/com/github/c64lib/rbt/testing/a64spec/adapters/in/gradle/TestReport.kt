@@ -21,20 +21,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.spec
+package com.github.c64lib.rbt.testing.a64spec.adapters.`in`.gradle
 
-import java.io.File
+import com.github.c64lib.rbt.testing.a64spec.usecase.TestResult
 
-fun prgFile(file: File) = fileWithoutExtension(file) + ".prg"
+class TestReport(private val testResults: List<TestResult>) {
+  private class Result(val outputText: String, val success: Int = 0, val total: Int = 0) {
 
-fun resultFileName(file: File) = fileNameWithoutExtension(file) + ".specOut"
+    val isPositive: Boolean
+      get() = success == total
 
-fun resultFile(file: File) = fileWithoutExtension(file) + ".specOut"
+    private fun tag() =
+        if (isPositive) {
+          "Success"
+        } else {
+          "FAILED"
+        }
 
-fun viceSymbolFile(file: File) = fileWithoutExtension(file) + ".vs"
+    override fun toString(): String = "($success/$total) ${tag()}"
+  }
 
-private fun fileWithoutExtension(file: File) =
-    file.canonicalPath.substring(0, file.canonicalPath.lastIndexOf('.'))
-
-private fun fileNameWithoutExtension(file: File) =
-    file.name.substring(0, file.name.lastIndexOf('.'))
+  fun generateTestReport(outputFn: (value: String) -> Unit): Boolean {
+    val result =
+        testResults.fold(Result("")) { result, testResult ->
+          outputFn("Tests execution ${testResult.message}")
+          Result("", result.success + result.success, result.total + result.total)
+        }
+    outputFn("Overall test report $result")
+    return result.isPositive
+  }
+}
