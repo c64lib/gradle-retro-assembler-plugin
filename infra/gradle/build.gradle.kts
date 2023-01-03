@@ -61,7 +61,6 @@ gradlePlugin {
 dependencies {
     implementation(gradleApi())
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-    implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
     implementation("io.vavr:vavr:$vavrVersion")
     // new
     compileOnly(project(":shared:domain"))
@@ -75,6 +74,9 @@ dependencies {
     compileOnly(project(":emulators:vice:adapters:out:gradle"))
     compileOnly(project(":testing:64spec"))
     compileOnly(project(":testing:64spec:adapters:in:gradle"))
+    compileOnly(project(":dependencies"))
+    compileOnly(project(":dependencies:adapters:in:gradle"))
+    compileOnly(project(":dependencies:adapters:out:gradle"))
     // old
     compileOnly(project(":app:binary-utils"))
     compileOnly(project(":app:processor-commons"))

@@ -21,16 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.deps
+package com.github.c64lib.rbt.dependencies.adapters.`in`.gradle
 
-import com.github.c64lib.rbt.shared.domain.Dependency
-import com.github.c64lib.rbt.shared.domain.DependencyType
+import com.github.c64lib.rbt.dependencies.usecase.ResolveGitHubDependencyUseCase
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
-import de.undercouch.gradle.tasks.download.Download
-import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 open class DownloadDependencies : DefaultTask() {
@@ -42,46 +40,12 @@ open class DownloadDependencies : DefaultTask() {
 
   @Input lateinit var extension: RetroAssemblerPluginExtension
 
+  @Internal lateinit var resolveGitHubDependencyUseCase: ResolveGitHubDependencyUseCase
+
   @TaskAction
   fun downloadAndUnzip() {
     extension.dependencies.forEach { dependency ->
-      val dependencyName = dependency.name.replace('/', '-')
-      val downloadTask =
-          project.tasks.create(
-              "_c64lib_download_${dependency.type}-$dependencyName@${dependency.version.version}",
-              Download::class.java)
-      val archive =
-          when (dependency.type) {
-            DependencyType.GitHub -> configureGitHub(dependency, downloadTask)
-          }
-      downloadTask.download()
-      unzip(archive, archive.parentFile)
-      archive.delete()
-    }
-  }
-
-  private fun configureGitHub(dependency: Dependency, downloadTask: Download): File {
-    val url = "https://github.com/${dependency.name}/archive/${dependency.version.version}.tar.gz"
-    downloadTask.src(url)
-    val dest = project.file(".ra/deps/${dependency.name}/${dependency.version.version}.tar.gz")
-    downloadTask.dest(dest)
-    return dest
-  }
-
-  private fun unzip(what: File, where: File) {
-    val files = project.tarTree(what)
-    project.copy { spec ->
-      spec.from(files)
-      spec.into(where)
-      spec.eachFile {
-        val index = it.path.indexOf('/')
-        if (index >= 0) {
-          val path = it.path.substring(index + 1)
-          it.path = path
-        } else {
-          it.exclude()
-        }
-      }
+      resolveGitHubDependencyUseCase.apply(dependency.name, dependency.version)
     }
   }
 }

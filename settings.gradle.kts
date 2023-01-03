@@ -23,4 +23,8 @@ include(":emulators:vice:adapters:out:gradle")
 include(":testing:64spec")
 include(":testing:64spec:adapters:in:gradle")
 
+include(":dependencies")
+include(":dependencies:adapters:in:gradle")
+include(":dependencies:adapters:out:gradle")
+
 include(":doc")
