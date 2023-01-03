@@ -21,13 +21,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.tasks
+package com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle
 
-import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
+import com.github.c64lib.rbt.compilers.kickass.usecase.DownloadKickAssemblerCommand
+import com.github.c64lib.rbt.compilers.kickass.usecase.DownloadKickAssemblerUseCase
+import com.github.c64lib.rbt.shared.domain.SemVer
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 open class ResolveDevDeps : DefaultTask() {
@@ -39,6 +42,11 @@ open class ResolveDevDeps : DefaultTask() {
 
   @Input lateinit var extension: RetroAssemblerPluginExtension
 
+  @Internal lateinit var downloadKickAssemblerUseCase: DownloadKickAssemblerUseCase
+
   @TaskAction
-  fun download() = AssemblerFacadeFactory.of(extension.dialect, project, extension).installDevKit()
+  fun download() =
+      downloadKickAssemblerUseCase.apply(
+          DownloadKickAssemblerCommand(
+              SemVer.fromString(extension.dialectVersion), extension.workDir))
 }

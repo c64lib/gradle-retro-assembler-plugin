@@ -27,8 +27,12 @@ import com.github.c64lib.rbt.compilers.kickass.usecase.port.DownloadKickAssemble
 import com.github.c64lib.rbt.shared.filedownload.FileDownloader
 import java.io.File
 import java.net.URL
+import org.gradle.api.Project
 
-class DownloadKickAssemblerAdapter(private val downloader: FileDownloader) :
-    DownloadKickAssemblerPort {
-  override fun download(url: URL, target: File) = downloader.download(url, target.toPath())
+class DownloadKickAssemblerAdapter(
+    private val project: Project,
+    private val downloader: FileDownloader
+) : DownloadKickAssemblerPort {
+  override fun download(url: URL, target: String): File =
+      downloader.download(url, project.file(target).toPath()).toFile()
 }

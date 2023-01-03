@@ -66,9 +66,11 @@ dependencies {
     // new
     compileOnly(project(":shared:domain"))
     compileOnly(project(":shared:gradle"))
+    compileOnly(project(":shared:filedownload"))
     compileOnly(project(":compilers:kickass"))
     compileOnly(project(":compilers:kickass:adapters:in:gradle"))
     compileOnly(project(":compilers:kickass:adapters:out:gradle"))
+    compileOnly(project(":compilers:kickass:adapters:out:filedownload"))
     compileOnly(project(":emulators:vice"))
     compileOnly(project(":emulators:vice:adapters:out:gradle"))
     compileOnly(project(":testing:64spec"))

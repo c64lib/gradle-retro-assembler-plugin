@@ -32,17 +32,20 @@ import com.github.c64lib.gradle.preprocess.spritepad.Spritepad
 import com.github.c64lib.gradle.tasks.Build
 import com.github.c64lib.gradle.tasks.Clean
 import com.github.c64lib.gradle.tasks.Preprocess
-import com.github.c64lib.gradle.tasks.ResolveDevDeps
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.Assemble
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.AssembleSpec
+import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.ResolveDevDeps
+import com.github.c64lib.rbt.compilers.kickass.adapters.out.filedownload.DownloadKickAssemblerAdapter
 import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.KickAssembleAdapter
 import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.KickAssembleSpecAdapter
 import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
+import com.github.c64lib.rbt.compilers.kickass.usecase.DownloadKickAssemblerUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.emulators.vice.adapters.out.gradle.RunTestOnViceAdapter
 import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
 import com.github.c64lib.rbt.shared.domain.SemVer
+import com.github.c64lib.rbt.shared.filedownload.FileDownloader
 import com.github.c64lib.rbt.shared.gradle.EXTENSION_DSL_NAME
 import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.rbt.shared.gradle.TASK_ASM
@@ -78,6 +81,9 @@ class RetroAssemblerPlugin : Plugin<Project> {
       val resolveDevDeps =
           project.tasks.create(TASK_RESOLVE_DEV_DEPENDENCIES, ResolveDevDeps::class.java) { task ->
             task.extension = extension
+            task.downloadKickAssemblerUseCase =
+                DownloadKickAssemblerUseCase(
+                    DownloadKickAssemblerAdapter(project, FileDownloader()))
           }
       val downloadDependencies =
           project.tasks.create(TASK_DEPENDENCIES, DownloadDependencies::class.java) { task ->
@@ -100,6 +106,7 @@ class RetroAssemblerPlugin : Plugin<Project> {
 
       preprocess.dependsOn(charpad, spritepad, goattracker)
 
+      // TODO Somehow, the ResolveDevDeps should give the settings. How!?
       val settings =
           KickAssemblerSettings(
               File("${extension.workDir}/asms/ka/${extension.dialectVersion}/KickAss.jar"),

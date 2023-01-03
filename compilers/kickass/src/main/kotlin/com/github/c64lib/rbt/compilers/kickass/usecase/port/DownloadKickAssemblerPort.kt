@@ -27,5 +27,5 @@ import java.io.File
 import java.net.URL
 
 interface DownloadKickAssemblerPort {
-  fun download(url: URL, target: File)
+  fun download(url: URL, target: String): File
 }

@@ -30,7 +30,7 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
 class FileDownloader {
-  fun download(url: URL, target: Path) {
+  fun download(url: URL, target: Path): Path {
     val connection = url.openConnection()
     val bufferSize = 4096
     connection.getInputStream().use { inputStream ->
@@ -38,5 +38,6 @@ class FileDownloader {
       Files.copy(
           BufferedInputStream(inputStream, bufferSize), target, StandardCopyOption.REPLACE_EXISTING)
     }
+    return target
   }
 }

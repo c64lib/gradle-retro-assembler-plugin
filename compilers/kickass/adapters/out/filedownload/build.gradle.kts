@@ -1,5 +1,5 @@
 plugins {
-  id("rbt.kotlin")
+  id("rbt.adapter.outbound.gradle")
 }
 
 group = "com.github.c64lib.retro-assembler.compilers.kickass.out"

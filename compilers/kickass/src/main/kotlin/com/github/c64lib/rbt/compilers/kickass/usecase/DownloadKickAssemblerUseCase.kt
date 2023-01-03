@@ -25,7 +25,6 @@ package com.github.c64lib.rbt.compilers.kickass.usecase
 
 import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
 import com.github.c64lib.rbt.compilers.kickass.usecase.port.DownloadKickAssemblerPort
-import java.io.File
 import java.net.URL
 
 class DownloadKickAssemblerUseCase(
@@ -35,8 +34,8 @@ class DownloadKickAssemblerUseCase(
   fun apply(command: DownloadKickAssemblerCommand): KickAssemblerSettings {
     val url =
         URL("https://github.com/c64lib/asm-ka/releases/download/${command.version}/KickAss.jar")
-    val target = File("${command.workDir}/asms/ka/${command.version}/KickAss.jar")
-    downloadKickAssemblerPort.download(url, target)
-    return KickAssemblerSettings(target, command.version)
+    val target = "${command.workDir}/asms/ka/${command.version}/KickAss.jar"
+    val targetFile = downloadKickAssemblerPort.download(url, target)
+    return KickAssemblerSettings(targetFile, command.version)
   }
 }
