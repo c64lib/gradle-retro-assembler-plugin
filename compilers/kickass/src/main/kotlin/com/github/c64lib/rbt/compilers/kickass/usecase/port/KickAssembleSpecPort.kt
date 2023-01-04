@@ -26,5 +26,5 @@ package com.github.c64lib.rbt.compilers.kickass.usecase.port
 import java.io.File
 
 interface KickAssembleSpecPort {
-  fun assemble(libDirs: List<File>, defines: List<String>, resultFile: File, source: File)
+  fun assemble(libDirs: List<File>, defines: List<String>, resultFileName: String, source: File)
 }

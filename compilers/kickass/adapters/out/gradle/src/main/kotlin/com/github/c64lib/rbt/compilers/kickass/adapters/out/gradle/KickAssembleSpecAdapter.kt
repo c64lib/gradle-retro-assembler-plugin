@@ -27,7 +27,6 @@ import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
 import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssembleSpecPort
 import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.absolutePathString
 import org.gradle.api.Project
 
 class KickAssembleSpecAdapter(
@@ -35,10 +34,10 @@ class KickAssembleSpecAdapter(
     private val settings: KickAssemblerSettings
 ) : KickAssembleSpecPort {
   override fun assemble(
-    libDirs: List<File>,
-    defines: List<String>,
-    resultFile: File,
-    source: File
+      libDirs: List<File>,
+      defines: List<String>,
+      resultFileName: String,
+      source: File
   ) {
     project.javaexec {
       it.classpath = project.files(settings.pathToExecutable)
@@ -51,7 +50,7 @@ class KickAssembleSpecAdapter(
               .variable("on_exit", "jam")
               .variable("write_final_results_to_file", "true")
               .variable("change_character_set", "true")
-              .variable("result_file_name", resultFile.toPath().absolutePathString())
+              .variable("result_file_name", resultFileName)
               .source(source.toPath())
               .build()
       it.args = args

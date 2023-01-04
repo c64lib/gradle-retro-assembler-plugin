@@ -22,11 +22,3 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 package com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle
-
-import java.io.File
-import kotlin.io.path.nameWithoutExtension
-
-internal fun replaceExtension(file: File, extension: String): File {
-  val path = file.toPath()
-  return path.parent.resolve(path.nameWithoutExtension + extension).toFile()
-}
