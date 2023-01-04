@@ -35,10 +35,10 @@ class KickAssembleSpecAdapter(
     private val settings: KickAssemblerSettings
 ) : KickAssembleSpecPort {
   override fun assemble(
-      libDirs: List<File>,
-      defines: List<String>,
-      monCommands: File,
-      source: File
+    libDirs: List<File>,
+    defines: List<String>,
+    resultFile: File,
+    source: File
   ) {
     project.javaexec {
       it.classpath = project.files(settings.pathToExecutable)
@@ -51,7 +51,7 @@ class KickAssembleSpecAdapter(
               .variable("on_exit", "jam")
               .variable("write_final_results_to_file", "true")
               .variable("change_character_set", "true")
-              .variable("result_file_name", monCommands.toPath().absolutePathString())
+              .variable("result_file_name", resultFile.toPath().absolutePathString())
               .source(source.toPath())
               .build()
       it.args = args

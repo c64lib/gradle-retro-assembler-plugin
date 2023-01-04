@@ -21,12 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.compilers.kickass.usecase
+package com.github.c64lib.rbt.compilers.kickass.usecase.port
 
-import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssembleSpecPort
-
-class KickAssembleSpecUseCase(private val kickAssembleSpecPort: KickAssembleSpecPort) {
-  fun apply(command: KickAssembleSpecCommand) =
-      kickAssembleSpecPort.assemble(
-          command.libDirs, command.defines, command.resultFile, command.source)
+interface DeleteFilesPort {
+  fun deleteFiles(pattern: String)
 }

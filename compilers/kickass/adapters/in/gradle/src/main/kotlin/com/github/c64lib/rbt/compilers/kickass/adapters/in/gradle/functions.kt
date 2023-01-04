@@ -24,8 +24,9 @@ SOFTWARE.
 package com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle
 
 import java.io.File
+import kotlin.io.path.nameWithoutExtension
 
-internal fun resultFileName(file: File) = fileNameWithoutExtension(file) + ".specOut"
-
-private fun fileNameWithoutExtension(file: File) =
-    file.name.substring(0, file.name.lastIndexOf('.'))
+internal fun replaceExtension(file: File, extension: String): File {
+  val path = file.toPath()
+  return path.parent.resolve(path.nameWithoutExtension + extension).toFile()
+}

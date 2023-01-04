@@ -53,7 +53,7 @@ open class AssembleSpec : DefaultTask() {
           KickAssembleSpecCommand(
               libDirs = listOf(*extension.libDirs).map { file -> project.file(file) },
               defines = listOf(*extension.defines),
-              monCommands = project.file(resultFileName(testFile)),
+              resultFile = replaceExtension(testFile, ".specOut"),
               source = testFile))
     }
   }

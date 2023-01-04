@@ -26,8 +26,8 @@ package com.github.c64lib.rbt.compilers.kickass.usecase
 import java.io.File
 
 data class KickAssembleSpecCommand(
-    val libDirs: List<File>,
-    val defines: List<String>,
-    val monCommands: File,
-    val source: File
+  val libDirs: List<File>,
+  val defines: List<String>,
+  val resultFile: File,
+  val source: File
 )

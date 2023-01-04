@@ -23,10 +23,11 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.compilers.kickass.usecase
 
-import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssembleSpecPort
+import com.github.c64lib.rbt.compilers.kickass.usecase.port.DeleteFilesPort
 
-class KickAssembleSpecUseCase(private val kickAssembleSpecPort: KickAssembleSpecPort) {
-  fun apply(command: KickAssembleSpecCommand) =
-      kickAssembleSpecPort.assemble(
-          command.libDirs, command.defines, command.resultFile, command.source)
+class CleanBuildArtefactsUseCase(private val deleteFilesPort: DeleteFilesPort) {
+  fun apply() =
+      listOf("*.prg", "*.specOut", "*.dbg", "*.sym", "*.vs").forEach {
+        deleteFilesPort.deleteFiles(it)
+      }
 }

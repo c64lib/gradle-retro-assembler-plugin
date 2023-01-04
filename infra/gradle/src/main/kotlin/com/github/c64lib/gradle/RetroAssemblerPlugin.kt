@@ -29,15 +29,17 @@ import com.github.c64lib.gradle.preprocess.charpad.Charpad
 import com.github.c64lib.gradle.preprocess.goattracker.Goattracker
 import com.github.c64lib.gradle.preprocess.spritepad.Spritepad
 import com.github.c64lib.gradle.tasks.Build
-import com.github.c64lib.gradle.tasks.Clean
 import com.github.c64lib.gradle.tasks.Preprocess
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.Assemble
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.AssembleSpec
+import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.Clean
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.ResolveDevDeps
 import com.github.c64lib.rbt.compilers.kickass.adapters.out.filedownload.DownloadKickAssemblerAdapter
+import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.DeleteFilesAdapter
 import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.KickAssembleAdapter
 import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.KickAssembleSpecAdapter
 import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
+import com.github.c64lib.rbt.compilers.kickass.usecase.CleanBuildArtefactsUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.DownloadKickAssemblerUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
@@ -123,18 +125,19 @@ class RetroAssemblerPlugin : Plugin<Project> {
       val assemble =
           project.tasks.create(TASK_ASM, Assemble::class.java) { task ->
             task.extension = extension
-
             task.kickAssembleUseCase = KickAssembleUseCase(KickAssembleAdapter(project, settings))
           }
       assemble.dependsOn(resolveDevDeps, downloadDependencies, preprocess)
 
-      project.tasks.create(TASK_CLEAN, Clean::class.java) { task -> task.extension = extension }
+      project.tasks.create(TASK_CLEAN, Clean::class.java) { task ->
+        task.extension = extension
+        task.cleanBuildArtefactsUseCase = CleanBuildArtefactsUseCase(DeleteFilesAdapter(project))
+      }
 
       // spec
       val assembleSpec =
           project.tasks.create(TASK_ASM_SPEC, AssembleSpec::class.java) { task ->
             task.extension = extension
-
             task.kickAssembleSpecUseCase =
                 KickAssembleSpecUseCase(KickAssembleSpecAdapter(project, settings))
           }
