@@ -64,5 +64,21 @@ class SemVerTest :
             }
           }
         }
+
+        describe("can be compared") {
+          val testCases =
+              listOf(
+                  Pair(SemVer(2, 1), SemVer(2, 2)),
+                  Pair(SemVer(2, 1, 2), SemVer(2, 1, 3)),
+                  Pair(SemVer(2, 1, 2, "rc01"), SemVer(2, 1, 3, "rc01")),
+                  Pair(SemVer(2, 1, 3, "rc01"), SemVer(2, 1, 3, "rc02")),
+              )
+
+          testCases.forEach { testCase ->
+            it("${testCase.first} < ${testCase.second}") {
+              (testCase.first < testCase.second) shouldBe true
+            }
+          }
+        }
       }
     })

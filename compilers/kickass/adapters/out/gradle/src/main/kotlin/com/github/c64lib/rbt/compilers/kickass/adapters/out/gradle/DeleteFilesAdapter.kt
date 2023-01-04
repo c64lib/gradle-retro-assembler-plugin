@@ -21,4 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle
+package com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle
+
+import com.github.c64lib.rbt.compilers.kickass.usecase.port.DeleteFilesPort
+import org.gradle.api.Project
+
+class DeleteFilesAdapter(private val project: Project) : DeleteFilesPort {
+
+  override fun deleteFiles(pattern: String) =
+      project.fileTree(".").matching { it.include("**/$pattern") }.forEach { project.delete(it) }
+}

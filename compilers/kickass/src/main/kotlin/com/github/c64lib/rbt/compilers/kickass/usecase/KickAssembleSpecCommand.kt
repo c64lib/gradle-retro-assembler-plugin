@@ -28,6 +28,6 @@ import java.io.File
 data class KickAssembleSpecCommand(
     val libDirs: List<File>,
     val defines: List<String>,
-    val monCommands: File,
+    val resultFileName: String,
     val source: File
 )

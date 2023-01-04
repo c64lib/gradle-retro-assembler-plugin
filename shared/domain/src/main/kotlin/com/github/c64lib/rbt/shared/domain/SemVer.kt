@@ -63,4 +63,24 @@ data class SemVer(val major: Int, val minor: Int, val patch: Int? = null, val su
           } else {
             ""
           }
+
+  operator fun compareTo(other: SemVer): Int {
+    if (major != other.major) {
+      return major.compareTo(other.major)
+    }
+    if (minor != other.minor) {
+      return minor.compareTo(other.minor)
+    }
+    if (patch != null && other.patch != null) {
+      if (patch != other.patch) {
+        return patch.compareTo(other.patch)
+      }
+    }
+    if (suffix.isNotEmpty() && other.suffix.isNotEmpty()) {
+      if (suffix != other.suffix) {
+        return suffix.compareTo(other.suffix)
+      }
+    }
+    return 0
+  }
 }

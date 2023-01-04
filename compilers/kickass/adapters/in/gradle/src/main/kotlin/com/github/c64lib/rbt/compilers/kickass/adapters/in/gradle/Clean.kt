@@ -21,17 +21,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.tasks
+package com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle
 
-import com.github.c64lib.gradle.asms.AssemblerFacadeFactory
-import com.github.c64lib.rbt.shared.domain.AssemblerType
+import com.github.c64lib.rbt.compilers.kickass.usecase.CleanBuildArtefactsUseCase
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
-import org.gradle.api.tasks.Delete
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
-open class Clean : Delete() {
+open class Clean : DefaultTask() {
 
   init {
     description = "Cleans KickAssemblerFacade target files"
@@ -40,13 +40,7 @@ open class Clean : Delete() {
 
   @Input lateinit var extension: RetroAssemblerPluginExtension
 
-  @TaskAction
-  override fun clean() {
-    delete(project.buildDir)
-    if (extension.dialect != AssemblerType.None) {
-      val asm = AssemblerFacadeFactory.of(extension.dialect, project, extension)
-      delete(asm.targetFiles())
-    }
-    super.clean()
-  }
+  @Internal lateinit var cleanBuildArtefactsUseCase: CleanBuildArtefactsUseCase
+
+  @TaskAction fun clean() = cleanBuildArtefactsUseCase.apply()
 }

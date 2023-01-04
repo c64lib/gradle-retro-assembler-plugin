@@ -27,6 +27,8 @@ import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecCommand
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecUseCase
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
+import java.io.File
+import kotlin.io.path.nameWithoutExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
@@ -53,7 +55,7 @@ open class AssembleSpec : DefaultTask() {
           KickAssembleSpecCommand(
               libDirs = listOf(*extension.libDirs).map { file -> project.file(file) },
               defines = listOf(*extension.defines),
-              monCommands = project.file(resultFileName(testFile)),
+              resultFileName = toResultFileName(testFile),
               source = testFile))
     }
   }
@@ -64,4 +66,6 @@ open class AssembleSpec : DefaultTask() {
             project.fileTree(specDir).matching(PatternSet().include(*extension.specIncludes))
           }
           .reduce { acc, rightHand -> acc.plus(rightHand) }
+
+  private fun toResultFileName(file: File) = file.toPath().nameWithoutExtension + ".specOut"
 }
