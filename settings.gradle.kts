@@ -27,4 +27,8 @@ include(":dependencies")
 include(":dependencies:adapters:in:gradle")
 include(":dependencies:adapters:out:gradle")
 
+include(":processors:goattracker")
+include(":processors:goattracker:adapters:in:gradle")
+include(":processors:goattracker:adapters:out:gradle")
+
 include(":doc")
