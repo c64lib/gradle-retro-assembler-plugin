@@ -82,7 +82,6 @@ dependencies {
     compileOnly(project(":processors:goattracker:adapters:out:gradle"))
     // old
     compileOnly(project(":app:binary-utils"))
-    compileOnly(project(":app:processor-commons"))
     compileOnly(project(":app:charpad-processor"))
     compileOnly(project(":app:spritepad-processor"))
 }

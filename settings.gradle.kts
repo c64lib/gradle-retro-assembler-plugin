@@ -1,7 +1,6 @@
 rootProject.name = "retro-assembler"
 
 include(":app:binary-utils")
-include(":app:processor-commons")
 include(":app:charpad-processor")
 include(":app:spritepad-processor")
 include(":infra:gradle")

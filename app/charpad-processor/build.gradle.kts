@@ -18,7 +18,6 @@ dependencies {
     implementation(project(":shared:domain"))
     implementation(project(":shared:gradle"))
     implementation(project(":app:binary-utils"))
-    implementation(project(":app:processor-commons"))
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
 }
