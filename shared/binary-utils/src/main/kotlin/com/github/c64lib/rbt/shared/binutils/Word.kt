@@ -21,31 +21,34 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.binutils
+package com.github.c64lib.rbt.shared.binutils
 
-import io.kotest.core.spec.style.ShouldSpec
-import io.kotest.matchers.shouldBe
+fun wordOf(lo: Int, hi: Int): Word {
+  if (lo < 0 || lo > 255) {
+    throw IllegalArgumentException("lo value beyond byte boundaries: $lo")
+  }
+  if (hi < 0 || hi > 255) {
+    throw IllegalArgumentException("hi value beyond byte boundaries: $hi")
+  }
+  return Word(lo.toUnsignedByte(), hi.toUnsignedByte())
+}
 
-class ToUnsignedIntTest :
-    ShouldSpec({
-      should("0.toUnsignedInt == 0") {
-        val value: Byte = 0x00
-        value.toUnsignedInt() shouldBe 0
-      }
-      should("1.toUnsignedInt == 1") {
-        val value: Byte = 0x01
-        value.toUnsignedInt() shouldBe 1
-      }
-      should("127.toUnsignedInt == 127") {
-        val value: Byte = 127
-        value.toUnsignedInt() shouldBe 127
-      }
-      should("-128.toUnsignedInt = 128") {
-        val value: Byte = -128
-        value.toUnsignedInt() shouldBe 128
-      }
-      should("-1.toUnsignedInt == 255") {
-        val value: Byte = -1
-        value.toUnsignedInt() shouldBe 255
-      }
-    })
+fun wordOf(value: Int): Word {
+  if (value < 0 || value > 65535) {
+    throw IllegalArgumentException("value beyond word boundaries: $value")
+  }
+  return Word(value.toUnsignedByte(), value.toUnsignedByteHi())
+}
+
+fun ByteArray.toWord() = wordOf(this[0].toUnsignedInt(), this[1].toUnsignedInt())
+
+data class Word(val lo: Byte, val hi: Byte) {
+
+  val value = hi.toUnsignedInt() * 256 + lo.toUnsignedInt()
+
+  fun toByteArray() = byteArrayOf(lo, hi)
+
+  override fun toString(): String {
+    return value.toString()
+  }
+}

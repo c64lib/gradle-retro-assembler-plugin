@@ -21,22 +21,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.binutils
+package com.github.c64lib.rbt.shared.binutils
 
-fun isolateHiNybbles(data: ByteArray): ByteArray =
-    data.map { ((it.toInt() and 0xF0) shr 4).toByte() }.toByteArray()
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
 
-fun isolateLoNybbles(data: ByteArray): ByteArray =
-    data.map { (it.toInt() and 0x0F).toByte() }.toByteArray()
-
-fun isolateEachNth(data: ByteArray, size: Int, n: Int): ByteArray =
-    data.filterIndexed { subIndex, _ -> subIndex % size == n }.toByteArray()
-
-fun combineNybbles(dataLo: ByteArray, dataHi: ByteArray): ByteArray =
-    dataLo
-        .zip(dataHi)
-        .map { pair -> (pair.first + (pair.second.toInt() shl 4)).toByte() }
-        .toByteArray()
-
-fun convertToHiNybbles(data: ByteArray): ByteArray =
-    data.map { value -> (value.toInt() shl 4).toByte() }.toByteArray()
+class ToUnsignedIntTest :
+    ShouldSpec({
+      should("0.toUnsignedInt == 0") {
+        val value: Byte = 0x00
+        value.toUnsignedInt() shouldBe 0
+      }
+      should("1.toUnsignedInt == 1") {
+        val value: Byte = 0x01
+        value.toUnsignedInt() shouldBe 1
+      }
+      should("127.toUnsignedInt == 127") {
+        val value: Byte = 127
+        value.toUnsignedInt() shouldBe 127
+      }
+      should("-128.toUnsignedInt = 128") {
+        val value: Byte = -128
+        value.toUnsignedInt() shouldBe 128
+      }
+      should("-1.toUnsignedInt == 255") {
+        val value: Byte = -1
+        value.toUnsignedInt() shouldBe 255
+      }
+    })

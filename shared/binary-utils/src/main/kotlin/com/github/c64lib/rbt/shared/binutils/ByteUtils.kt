@@ -21,6 +21,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.binutils
+package com.github.c64lib.rbt.shared.binutils
 
-fun Byte.toUnsignedInt() = this.toInt() and 0xFF
+fun isolateHiNybbles(data: ByteArray): ByteArray =
+    data.map { ((it.toInt() and 0xF0) shr 4).toByte() }.toByteArray()
+
+fun isolateLoNybbles(data: ByteArray): ByteArray =
+    data.map { (it.toInt() and 0x0F).toByte() }.toByteArray()
+
+fun isolateEachNth(data: ByteArray, size: Int, n: Int): ByteArray =
+    data.filterIndexed { subIndex, _ -> subIndex % size == n }.toByteArray()
+
+fun combineNybbles(dataLo: ByteArray, dataHi: ByteArray): ByteArray =
+    dataLo
+        .zip(dataHi)
+        .map { pair -> (pair.first + (pair.second.toInt() shl 4)).toByte() }
+        .toByteArray()
+
+fun convertToHiNybbles(data: ByteArray): ByteArray =
+    data.map { value -> (value.toInt() shl 4).toByte() }.toByteArray()

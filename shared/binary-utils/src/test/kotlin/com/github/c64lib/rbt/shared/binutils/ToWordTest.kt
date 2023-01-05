@@ -21,8 +21,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.binutils
+package com.github.c64lib.rbt.shared.binutils
 
-fun Int.toUnsignedByte() = (this and 0xFF).toByte()
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
 
-fun Int.toUnsignedByteHi() = ((this and 0xFF00) shr 8).toByte()
+class ToWordTest :
+    ShouldSpec({
+      should("[0,0].toWord == 0") {
+        byteArrayOf(0.toByte(), 0.toByte()).toWord() shouldBe wordOf(0)
+      }
+      should("[1,0].toWord == 1") {
+        byteArrayOf(1.toByte(), 0.toByte()).toWord() shouldBe wordOf(1)
+      }
+      should("(0,1).toWord == 256") {
+        byteArrayOf(0.toByte(), 1.toByte()).toWord() shouldBe wordOf(256)
+      }
+      should("[255,0].toWord == 255") {
+        byteArrayOf((-1).toByte(), 0.toByte()).toWord() shouldBe wordOf(255)
+      }
+      should("[0,255].toWord == 65280") {
+        byteArrayOf(0.toByte(), (-1).toByte()).toWord() shouldBe wordOf(65280)
+      }
+    })

@@ -23,9 +23,9 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor.ctm_compatibility
 
-import com.github.c64lib.retroassembler.binutils.BinaryOutputMock
-import com.github.c64lib.retroassembler.binutils.InputByteStreamAdapter
-import com.github.c64lib.retroassembler.binutils.OutputMock
+import com.github.c64lib.rbt.shared.binutils.BinaryOutputMock
+import com.github.c64lib.rbt.shared.binutils.InputByteStreamAdapter
+import com.github.c64lib.rbt.shared.binutils.OutputMock
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
 import com.github.c64lib.retroassembler.charpad_processor.model.MapCoord

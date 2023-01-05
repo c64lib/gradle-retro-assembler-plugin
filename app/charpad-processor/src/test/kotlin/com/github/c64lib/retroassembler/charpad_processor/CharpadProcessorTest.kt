@@ -23,10 +23,10 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import com.github.c64lib.retroassembler.binutils.BinaryInputMock
-import com.github.c64lib.retroassembler.binutils.BinaryOutputMock
-import com.github.c64lib.retroassembler.binutils.byteArrayOfInts
-import com.github.c64lib.retroassembler.binutils.concat
+import com.github.c64lib.rbt.shared.binutils.BinaryInputMock
+import com.github.c64lib.rbt.shared.binutils.BinaryOutputMock
+import com.github.c64lib.rbt.shared.binutils.byteArrayOfInts
+import com.github.c64lib.rbt.shared.binutils.concat
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharsetProducer
 import com.github.c64lib.retroassembler.charpad_processor.producer.TileProducer
 import io.kotest.assertions.throwables.shouldThrow

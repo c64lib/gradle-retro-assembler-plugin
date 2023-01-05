@@ -23,11 +23,11 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor.ctm.pre6
 
+import com.github.c64lib.rbt.shared.binutils.isolateHiNybbles
+import com.github.c64lib.rbt.shared.binutils.isolateLoNybbles
+import com.github.c64lib.rbt.shared.binutils.toUnsignedByte
+import com.github.c64lib.rbt.shared.binutils.toWord
 import com.github.c64lib.rbt.shared.gradle.processor.InputByteStream
-import com.github.c64lib.retroassembler.binutils.isolateHiNybbles
-import com.github.c64lib.retroassembler.binutils.isolateLoNybbles
-import com.github.c64lib.retroassembler.binutils.toUnsignedByte
-import com.github.c64lib.retroassembler.binutils.toWord
 import com.github.c64lib.retroassembler.charpad_processor.CTMProcessor
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
