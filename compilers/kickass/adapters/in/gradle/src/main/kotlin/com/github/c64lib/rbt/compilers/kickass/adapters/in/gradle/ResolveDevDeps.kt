@@ -27,7 +27,7 @@ import com.github.c64lib.rbt.compilers.kickass.usecase.DownloadKickAssemblerComm
 import com.github.c64lib.rbt.compilers.kickass.usecase.DownloadKickAssemblerUseCase
 import com.github.c64lib.rbt.shared.domain.SemVer
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
-import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal

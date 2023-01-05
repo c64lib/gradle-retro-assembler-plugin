@@ -23,12 +23,12 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor.ctm.post6
 
-import com.github.c64lib.processor.commons.InputByteStream
-import com.github.c64lib.retroassembler.binutils.isolateHiNybbles
-import com.github.c64lib.retroassembler.binutils.isolateLoNybbles
-import com.github.c64lib.retroassembler.binutils.toUnsignedByte
-import com.github.c64lib.retroassembler.binutils.toUnsignedInt
-import com.github.c64lib.retroassembler.binutils.toWord
+import com.github.c64lib.rbt.shared.binutils.isolateHiNybbles
+import com.github.c64lib.rbt.shared.binutils.isolateLoNybbles
+import com.github.c64lib.rbt.shared.binutils.toUnsignedByte
+import com.github.c64lib.rbt.shared.binutils.toUnsignedInt
+import com.github.c64lib.rbt.shared.binutils.toWord
+import com.github.c64lib.rbt.shared.processor.InputByteStream
 import com.github.c64lib.retroassembler.charpad_processor.CTMProcessor
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException
@@ -36,7 +36,6 @@ import com.github.c64lib.retroassembler.charpad_processor.InvalidCTMFormatExcept
 import com.github.c64lib.retroassembler.charpad_processor.model.ColouringMethod
 import com.github.c64lib.retroassembler.charpad_processor.model.Dimensions
 import com.github.c64lib.retroassembler.charpad_processor.model.TileSetDimensions
-import kotlin.experimental.and
 
 internal abstract class BlockBasedCTMProcessor(val charpadProcessor: CharpadProcessor) :
     CTMProcessor {

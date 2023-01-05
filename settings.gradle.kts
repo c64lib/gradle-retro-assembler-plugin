@@ -1,16 +1,14 @@
 rootProject.name = "retro-assembler"
 
-include(":app:binary-utils")
-include(":app:processor-commons")
 include(":app:charpad-processor")
 include(":app:spritepad-processor")
-include(":app:binary-interleaver")
-include(":app:nybbler")
 include(":infra:gradle")
 
 include(":shared:domain")
 include(":shared:filedownload")
 include(":shared:gradle")
+include(":shared:binary-utils")
+include(":shared:processor")
 
 include(":compilers:kickass")
 include(":compilers:kickass:adapters:in:gradle")
@@ -26,5 +24,9 @@ include(":testing:64spec:adapters:in:gradle")
 include(":dependencies")
 include(":dependencies:adapters:in:gradle")
 include(":dependencies:adapters:out:gradle")
+
+include(":processors:goattracker")
+include(":processors:goattracker:adapters:in:gradle")
+include(":processors:goattracker:adapters:out:gradle")
 
 include(":doc")

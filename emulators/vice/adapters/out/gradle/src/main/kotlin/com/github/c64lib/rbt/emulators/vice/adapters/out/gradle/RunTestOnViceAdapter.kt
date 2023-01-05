@@ -26,7 +26,7 @@ package com.github.c64lib.rbt.emulators.vice.adapters.out.gradle
 import com.github.c64lib.rbt.emulators.vice.domain.JamAction
 import com.github.c64lib.rbt.emulators.vice.usecase.port.RunTestOnVicePort
 import com.github.c64lib.rbt.emulators.vice.usecase.port.ViceParameters
-import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
 import java.io.ByteArrayOutputStream
 import org.gradle.api.Project
 

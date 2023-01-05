@@ -62,10 +62,13 @@ dependencies {
     implementation(gradleApi())
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("io.vavr:vavr:$vavrVersion")
-    // new
+
     compileOnly(project(":shared:domain"))
     compileOnly(project(":shared:gradle"))
     compileOnly(project(":shared:filedownload"))
+    compileOnly(project(":shared:binary-utils"))
+    compileOnly(project(":shared:processor"))
+
     compileOnly(project(":compilers:kickass"))
     compileOnly(project(":compilers:kickass:adapters:in:gradle"))
     compileOnly(project(":compilers:kickass:adapters:out:gradle"))
@@ -77,13 +80,12 @@ dependencies {
     compileOnly(project(":dependencies"))
     compileOnly(project(":dependencies:adapters:in:gradle"))
     compileOnly(project(":dependencies:adapters:out:gradle"))
+    compileOnly(project(":processors:goattracker"))
+    compileOnly(project(":processors:goattracker:adapters:in:gradle"))
+    compileOnly(project(":processors:goattracker:adapters:out:gradle"))
     // old
-    compileOnly(project(":app:binary-utils"))
-    compileOnly(project(":app:processor-commons"))
     compileOnly(project(":app:charpad-processor"))
     compileOnly(project(":app:spritepad-processor"))
-    compileOnly(project(":app:binary-interleaver"))
-    compileOnly(project(":app:nybbler"))
 }
 
 publishing { repositories { maven { url = uri("../../../consuming/maven-repo") } } }

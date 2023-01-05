@@ -24,7 +24,7 @@ SOFTWARE.
 package com.github.c64lib.gradle.asms.kickassembler
 
 import com.github.c64lib.gradle.asms.AssemblerFacade
-import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 

@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import com.github.c64lib.retroassembler.binutils.concat
-import com.github.c64lib.retroassembler.binutils.wordOf
+import com.github.c64lib.rbt.shared.binutils.concat
+import com.github.c64lib.rbt.shared.binutils.wordOf
 import com.github.c64lib.retroassembler.charpad_processor.ctm.pre6.toCTM5Flags
 import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
 
