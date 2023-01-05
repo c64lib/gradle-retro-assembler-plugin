@@ -24,7 +24,7 @@ SOFTWARE.
 package com.github.c64lib.gradle.asms.kickassembler
 
 import com.github.c64lib.gradle.asms.AssemblySrcWriter
-import com.github.c64lib.rbt.shared.gradle.processor.TextOutputBuffer
+import com.github.c64lib.rbt.shared.processor.TextOutputBuffer
 
 class KickAssemblerSrcWriter(private val writer: TextOutputBuffer) : AssemblySrcWriter {
 

@@ -67,6 +67,7 @@ dependencies {
     compileOnly(project(":shared:gradle"))
     compileOnly(project(":shared:filedownload"))
     compileOnly(project(":shared:binary-utils"))
+    compileOnly(project(":shared:processor"))
 
     compileOnly(project(":compilers:kickass"))
     compileOnly(project(":compilers:kickass:adapters:in:gradle"))

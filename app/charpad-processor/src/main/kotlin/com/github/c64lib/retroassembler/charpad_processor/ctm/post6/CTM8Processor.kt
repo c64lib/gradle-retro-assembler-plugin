@@ -27,7 +27,7 @@ import com.github.c64lib.rbt.shared.binutils.combineNybbles
 import com.github.c64lib.rbt.shared.binutils.convertToHiNybbles
 import com.github.c64lib.rbt.shared.binutils.isolateEachNth
 import com.github.c64lib.rbt.shared.binutils.toUnsignedByte
-import com.github.c64lib.rbt.shared.gradle.processor.InputByteStream
+import com.github.c64lib.rbt.shared.processor.InputByteStream
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.InvalidCTMFormatException
 import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader

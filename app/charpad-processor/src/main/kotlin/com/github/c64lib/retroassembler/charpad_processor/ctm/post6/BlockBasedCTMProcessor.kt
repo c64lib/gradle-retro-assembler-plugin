@@ -28,7 +28,7 @@ import com.github.c64lib.rbt.shared.binutils.isolateLoNybbles
 import com.github.c64lib.rbt.shared.binutils.toUnsignedByte
 import com.github.c64lib.rbt.shared.binutils.toUnsignedInt
 import com.github.c64lib.rbt.shared.binutils.toWord
-import com.github.c64lib.rbt.shared.gradle.processor.InputByteStream
+import com.github.c64lib.rbt.shared.processor.InputByteStream
 import com.github.c64lib.retroassembler.charpad_processor.CTMProcessor
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.InsufficientDataException

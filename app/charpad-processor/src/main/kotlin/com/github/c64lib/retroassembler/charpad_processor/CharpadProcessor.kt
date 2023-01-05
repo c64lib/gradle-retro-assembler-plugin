@@ -23,9 +23,9 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor
 
-import com.github.c64lib.rbt.shared.gradle.processor.InputByteStream
-import com.github.c64lib.rbt.shared.gradle.processor.OutputProducer
-import com.github.c64lib.rbt.shared.gradle.processor.Processor
+import com.github.c64lib.rbt.shared.processor.InputByteStream
+import com.github.c64lib.rbt.shared.processor.OutputProducer
+import com.github.c64lib.rbt.shared.processor.Processor
 import com.github.c64lib.retroassembler.charpad_processor.ctm.post6.CTM6Processor
 import com.github.c64lib.retroassembler.charpad_processor.ctm.post6.CTM7Processor
 import com.github.c64lib.retroassembler.charpad_processor.ctm.post6.CTM8Processor

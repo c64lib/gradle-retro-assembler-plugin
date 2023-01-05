@@ -23,9 +23,9 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.shared.gradle.filter
 
-import com.github.c64lib.rbt.shared.gradle.processor.BinaryOutput
-import com.github.c64lib.rbt.shared.gradle.processor.InputByteStream
-import com.github.c64lib.rbt.shared.gradle.processor.Output
+import com.github.c64lib.rbt.shared.processor.BinaryOutput
+import com.github.c64lib.rbt.shared.processor.InputByteStream
+import com.github.c64lib.rbt.shared.processor.Output
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.util.*

@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor.producer
 
-import com.github.c64lib.rbt.shared.gradle.processor.Output
-import com.github.c64lib.rbt.shared.gradle.processor.ScalableBinaryProducer
+import com.github.c64lib.rbt.shared.processor.Output
+import com.github.c64lib.rbt.shared.processor.ScalableBinaryProducer
 
 class TileColoursProducer(start: Int = 0, end: Int = 65536, output: Output<ByteArray>) :
     ScalableBinaryProducer(start = start, end = end, output = output)

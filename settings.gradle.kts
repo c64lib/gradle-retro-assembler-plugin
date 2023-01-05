@@ -8,6 +8,7 @@ include(":shared:domain")
 include(":shared:filedownload")
 include(":shared:gradle")
 include(":shared:binary-utils")
+include(":shared:processor")
 
 include(":compilers:kickass")
 include(":compilers:kickass:adapters:in:gradle")

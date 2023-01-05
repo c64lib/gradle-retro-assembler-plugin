@@ -24,8 +24,8 @@ SOFTWARE.
 package com.github.c64lib.rbt.shared.gradle.dsl
 
 import com.github.c64lib.rbt.shared.domain.AssemblerType
-import com.github.c64lib.rbt.shared.gradle.processor.FileTextOutputBuffer
-import com.github.c64lib.rbt.shared.gradle.processor.TextOutputBuffer
+import com.github.c64lib.rbt.shared.processor.FileTextOutputBuffer
+import com.github.c64lib.rbt.shared.processor.TextOutputBuffer
 import java.io.File
 import javax.inject.Inject
 import org.gradle.api.file.ProjectLayout

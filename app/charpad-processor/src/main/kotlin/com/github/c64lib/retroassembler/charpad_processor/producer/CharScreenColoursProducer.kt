@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor.producer
 
-import com.github.c64lib.rbt.shared.gradle.processor.Output
-import com.github.c64lib.rbt.shared.gradle.processor.ScalableBinaryProducer
+import com.github.c64lib.rbt.shared.processor.Output
+import com.github.c64lib.rbt.shared.processor.ScalableBinaryProducer
 
 /**
  * Produces screen ram colors of bitmap modes. In Charpad 3.0 it is always the second and third byte

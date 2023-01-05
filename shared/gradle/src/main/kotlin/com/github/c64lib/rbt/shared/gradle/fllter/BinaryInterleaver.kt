@@ -24,7 +24,7 @@ SOFTWARE.
 package com.github.c64lib.rbt.shared.gradle.fllter
 
 import com.github.c64lib.rbt.shared.domain.IllegalInputException
-import com.github.c64lib.rbt.shared.gradle.processor.BinaryOutput
+import com.github.c64lib.rbt.shared.processor.BinaryOutput
 import io.vavr.collection.Seq
 
 class BinaryInterleaver(private val outputs: Seq<BinaryOutput>) : BinaryOutput {

@@ -21,15 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle.processor
+package com.github.c64lib.rbt.shared.processor
 
-typealias BinaryOutput = Output<ByteArray>
-
-interface TextOutput : Output<String> {
-  fun writeLn(data: String)
-  fun writeLn() = writeLn("")
-}
-
-interface Output<T> {
-  fun write(data: T)
+/** Denotes input data that is always a byte stream. */
+interface InputByteStream {
+  fun read(amount: Int): ByteArray
+  fun readByte() = read(1)[0]
+  fun readCounter(): Int
 }

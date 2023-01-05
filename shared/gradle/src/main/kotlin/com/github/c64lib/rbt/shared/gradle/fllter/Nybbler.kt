@@ -23,7 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.shared.gradle.fllter
 
-import com.github.c64lib.rbt.shared.gradle.processor.BinaryOutput
+import com.github.c64lib.rbt.shared.processor.BinaryOutput
 
 class Nybbler(
     private val low: BinaryOutput?,
