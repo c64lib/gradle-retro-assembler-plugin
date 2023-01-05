@@ -62,10 +62,12 @@ dependencies {
     implementation(gradleApi())
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("io.vavr:vavr:$vavrVersion")
-    // new
+
     compileOnly(project(":shared:domain"))
     compileOnly(project(":shared:gradle"))
     compileOnly(project(":shared:filedownload"))
+    compileOnly(project(":shared:binary-utils"))
+
     compileOnly(project(":compilers:kickass"))
     compileOnly(project(":compilers:kickass:adapters:in:gradle"))
     compileOnly(project(":compilers:kickass:adapters:out:gradle"))
@@ -81,7 +83,6 @@ dependencies {
     compileOnly(project(":processors:goattracker:adapters:in:gradle"))
     compileOnly(project(":processors:goattracker:adapters:out:gradle"))
     // old
-    compileOnly(project(":app:binary-utils"))
     compileOnly(project(":app:charpad-processor"))
     compileOnly(project(":app:spritepad-processor"))
 }

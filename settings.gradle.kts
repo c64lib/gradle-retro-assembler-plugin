@@ -1,6 +1,5 @@
 rootProject.name = "retro-assembler"
 
-include(":app:binary-utils")
 include(":app:charpad-processor")
 include(":app:spritepad-processor")
 include(":infra:gradle")
@@ -8,6 +7,7 @@ include(":infra:gradle")
 include(":shared:domain")
 include(":shared:filedownload")
 include(":shared:gradle")
+include(":shared:binary-utils")
 
 include(":compilers:kickass")
 include(":compilers:kickass:adapters:in:gradle")
