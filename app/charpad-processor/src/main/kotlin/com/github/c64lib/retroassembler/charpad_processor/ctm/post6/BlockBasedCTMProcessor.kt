@@ -23,7 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor.ctm.post6
 
-import com.github.c64lib.processor.commons.InputByteStream
+import com.github.c64lib.rbt.shared.gradle.InputByteStream
 import com.github.c64lib.retroassembler.binutils.isolateHiNybbles
 import com.github.c64lib.retroassembler.binutils.isolateLoNybbles
 import com.github.c64lib.retroassembler.binutils.toUnsignedByte

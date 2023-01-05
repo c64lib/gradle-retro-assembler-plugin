@@ -31,6 +31,8 @@ repositories {
 
 dependencies {
   implementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.0")
+  implementation("io.vavr:vavr:1.0.0-alpha-3")
+  implementation("io.vavr:vavr-kotlin:0.10.2")
   testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
   testImplementation("io.kotest:kotest-runner-junit5:4.5.0")
 }

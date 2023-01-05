@@ -4,8 +4,6 @@ include(":app:binary-utils")
 include(":app:processor-commons")
 include(":app:charpad-processor")
 include(":app:spritepad-processor")
-include(":app:binary-interleaver")
-include(":app:nybbler")
 include(":infra:gradle")
 
 include(":shared:domain")

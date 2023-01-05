@@ -24,7 +24,8 @@ SOFTWARE.
 package com.github.c64lib.gradle.preprocess.charpad
 
 import com.github.c64lib.gradle.asms.AssemblySrcWriter
-import com.github.c64lib.processor.commons.Output
+import com.github.c64lib.rbt.shared.gradle.MetadataExtension
+import com.github.c64lib.rbt.shared.gradle.Output
 import com.github.c64lib.retroassembler.charpad_processor.model.CTMHeader
 
 class CharpadMetaOutput(

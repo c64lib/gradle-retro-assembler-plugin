@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor.producer
 
-import com.github.c64lib.processor.commons.Output
-import com.github.c64lib.processor.commons.ScalableBinaryProducer
+import com.github.c64lib.rbt.shared.gradle.Output
+import com.github.c64lib.rbt.shared.gradle.ScalableBinaryProducer
 
 /**
  * Produces primary color for characters. In Charpad 3.0 it is always the fourth byte (pen 11), it

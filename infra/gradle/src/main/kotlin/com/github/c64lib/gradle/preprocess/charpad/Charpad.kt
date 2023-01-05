@@ -24,11 +24,13 @@ SOFTWARE.
 package com.github.c64lib.gradle.preprocess.charpad
 
 import com.github.c64lib.gradle.asms.AssemblySrcWriterFactory
-import com.github.c64lib.gradle.preprocess.BinaryOutputBuffer
 import com.github.c64lib.gradle.preprocess.FisInput
-import com.github.c64lib.gradle.preprocess.PreprocessingExtension
-import com.github.c64lib.gradle.preprocess.TextOutputBuffer
+import com.github.c64lib.rbt.shared.gradle.BinaryOutputBuffer
+import com.github.c64lib.rbt.shared.gradle.CharpadPipelineExtension
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
+import com.github.c64lib.rbt.shared.gradle.OutputsExtension
+import com.github.c64lib.rbt.shared.gradle.PreprocessingExtension
+import com.github.c64lib.rbt.shared.gradle.TextOutputBuffer
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.model.MapCoord
 import com.github.c64lib.retroassembler.charpad_processor.producer.CharAttributesProducer
@@ -47,8 +49,6 @@ import java.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
-
-internal const val CHARPAD_DIR = "charpad"
 
 open class Charpad : DefaultTask() {
 

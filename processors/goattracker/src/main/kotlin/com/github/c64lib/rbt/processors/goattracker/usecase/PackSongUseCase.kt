@@ -34,6 +34,8 @@ class PackSongUseCase(private val executeGt2RelocPort: ExecuteGt2RelocPort) {
 data class PackSongCommand(
     val source: File,
     val output: File,
+    val executable: String,
+    val useBuildDir: Boolean,
     val bufferedSidWrites: Boolean? = null,
     val disableOptimization: Boolean? = null,
     val playerMemoryLocation: Int? = null,

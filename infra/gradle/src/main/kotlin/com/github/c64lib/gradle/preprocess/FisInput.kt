@@ -23,7 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.preprocess
 
-import com.github.c64lib.processor.commons.InputByteStream
+import com.github.c64lib.rbt.shared.gradle.InputByteStream
 import java.io.FileInputStream
 
 class FisInput(private val fis: FileInputStream) : InputByteStream {
