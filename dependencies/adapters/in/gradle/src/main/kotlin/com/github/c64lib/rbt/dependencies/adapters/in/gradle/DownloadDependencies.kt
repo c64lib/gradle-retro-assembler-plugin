@@ -25,7 +25,7 @@ package com.github.c64lib.rbt.dependencies.adapters.`in`.gradle
 
 import com.github.c64lib.rbt.dependencies.usecase.ResolveGitHubDependencyUseCase
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
-import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal

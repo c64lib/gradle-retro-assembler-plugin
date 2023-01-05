@@ -23,9 +23,9 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.binutils
 
-import com.github.c64lib.rbt.shared.gradle.BinaryOutput
-import com.github.c64lib.rbt.shared.gradle.InputByteStream
-import com.github.c64lib.rbt.shared.gradle.Output
+import com.github.c64lib.rbt.shared.gradle.processor.BinaryOutput
+import com.github.c64lib.rbt.shared.gradle.processor.InputByteStream
+import com.github.c64lib.rbt.shared.gradle.processor.Output
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.util.*

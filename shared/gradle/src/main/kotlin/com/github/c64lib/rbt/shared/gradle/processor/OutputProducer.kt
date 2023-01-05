@@ -21,8 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.processor
 
-open class BinaryProducer(private val output: Output<ByteArray>) : OutputProducer<ByteArray> {
-  override fun write(data: ByteArray) = output.write(data)
+interface OutputProducer<T> {
+  fun write(data: T)
 }

@@ -24,7 +24,7 @@ SOFTWARE.
 package com.github.c64lib.rbt.testing.a64spec.adapters.`in`.gradle
 
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
-import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
 import com.github.c64lib.rbt.testing.a64spec.usecase.Run64SpecTestUseCase
 import java.io.File
 import org.gradle.api.DefaultTask

@@ -21,26 +21,49 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.processor
 
-class Nybbler(
-    private val low: BinaryOutput?,
-    private val hi: BinaryOutput?,
-    private val normalizeHi: Boolean = true
-) : BinaryOutput {
-  override fun write(data: ByteArray) {
-    low?.let { it.write(data.map { value -> lowNibble(value) }.toByteArray()) }
-    hi?.let { it.write(data.map { value -> highNibble(value) }.toByteArray()) }
+import java.io.File
+import java.io.FileOutputStream
+import java.io.FileWriter
+import java.io.PrintWriter
+import java.io.StringWriter
+
+interface Flushable {
+  fun flush()
+}
+
+interface BinaryOutputBuffer : BinaryOutput, Flushable
+
+interface TextOutputBuffer : TextOutput, Flushable
+
+class DevNull : BinaryOutputBuffer {
+  override fun flush() {
+    // nothing to do
   }
 
-  private fun lowNibble(value: Byte): Byte = (value.toInt() and 0x0F).toByte()
+  override fun write(data: ByteArray) {
+    // ignore data
+  }
+}
 
-  private fun highNibble(value: Byte): Byte = optionallyNormalize(value.toInt() and 0xF0).toByte()
+class FileBinaryOutputBuffer(private val outputFile: File) : BinaryOutputBuffer {
 
-  private fun optionallyNormalize(value: Int): Int =
-      if (normalizeHi) {
-        value shr 4
-      } else {
-        value
-      }
+  private var buffer: MutableList<ByteArray> = ArrayList()
+
+  override fun write(data: ByteArray) {
+    buffer.add(data)
+  }
+
+  override fun flush() =
+      FileOutputStream(outputFile).use { fos -> buffer.forEach { data -> fos.write(data) } }
+}
+
+class FileTextOutputBuffer(private val outputFile: File) : TextOutputBuffer {
+  private val buffer = StringWriter()
+  private val writer = PrintWriter(buffer)
+
+  override fun writeLn(data: String) = writer.println(data)
+  override fun write(data: String) = writer.print(data)
+  override fun flush() = FileWriter(outputFile).use { fw -> fw.write(buffer.toString()) }
 }

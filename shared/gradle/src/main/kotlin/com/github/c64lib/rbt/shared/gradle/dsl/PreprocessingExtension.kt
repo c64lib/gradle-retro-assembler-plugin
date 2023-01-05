@@ -21,32 +21,39 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle
+package com.github.c64lib.rbt.shared.gradle.dsl
 
-import com.github.c64lib.rbt.compilers.kickass.usecase.DownloadKickAssemblerCommand
-import com.github.c64lib.rbt.compilers.kickass.usecase.DownloadKickAssemblerUseCase
-import com.github.c64lib.rbt.shared.domain.SemVer
-import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
-import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
-import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.TaskAction
+import javax.inject.Inject
+import org.gradle.api.Action
+import org.gradle.api.model.ObjectFactory
 
-open class ResolveDevDeps : DefaultTask() {
+const val PREPROCESSING_EXTENSION_DSL_NAME = "preprocess"
 
-  init {
-    description = "Downloads KickAssemblerFacade dependency"
-    group = GROUP_BUILD
+abstract class PreprocessingExtension
+@Inject
+constructor(private val objectFactory: ObjectFactory) {
+
+  val charpadPipelines = ArrayList<CharpadPipelineExtension>()
+
+  val spritepadPipelines = ArrayList<SpritepadPipelineExtension>()
+
+  val goattrackerPipelines = ArrayList<GoattrackerPipelineExtension>()
+
+  fun charpad(action: Action<CharpadPipelineExtension>) {
+    val ex = objectFactory.newInstance(CharpadPipelineExtension::class.java)
+    action.execute(ex)
+    charpadPipelines.add(ex)
   }
 
-  @Input lateinit var extension: RetroAssemblerPluginExtension
+  fun spritepad(action: Action<SpritepadPipelineExtension>) {
+    val ex = objectFactory.newInstance(SpritepadPipelineExtension::class.java)
+    action.execute(ex)
+    spritepadPipelines.add(ex)
+  }
 
-  @Internal lateinit var downloadKickAssemblerUseCase: DownloadKickAssemblerUseCase
-
-  @TaskAction
-  fun download() =
-      downloadKickAssemblerUseCase.apply(
-          DownloadKickAssemblerCommand(
-              SemVer.fromString(extension.dialectVersion), extension.workDir))
+  fun goattracker(action: Action<GoattrackerPipelineExtension>) {
+    val ex = objectFactory.newInstance(GoattrackerPipelineExtension::class.java)
+    action.execute(ex)
+    goattrackerPipelines.add(ex)
+  }
 }

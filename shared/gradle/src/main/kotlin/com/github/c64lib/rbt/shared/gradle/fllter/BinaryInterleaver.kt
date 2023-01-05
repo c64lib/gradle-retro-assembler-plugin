@@ -21,23 +21,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.fllter
 
-import com.github.c64lib.rbt.shared.domain.AssemblerType
-import java.io.File
-import javax.inject.Inject
-import org.gradle.api.file.ProjectLayout
+import com.github.c64lib.rbt.shared.domain.IllegalInputException
+import com.github.c64lib.rbt.shared.gradle.processor.BinaryOutput
+import io.vavr.collection.Seq
 
-abstract class MetadataExtension @Inject constructor(project: ProjectLayout) :
-    OutputExtension<TextOutputBuffer>(CHARPAD_DIR, project) {
+class BinaryInterleaver(private val outputs: Seq<BinaryOutput>) : BinaryOutput {
 
-  var dialect = AssemblerType.None
-  var prefix = ""
-  var namespace: String? = null
-  var includeVersion = false
-  var includeBgColours = true
-  var includeCharColours = true
-  var includeMode = false
+  override fun write(data: ByteArray) =
+      checkInput(data) {
+        val outputsLength = outputs.length()
+        outputs.forEachWithIndex { output, index ->
+          val filtered = data.filterIndexed { subIndex, _ -> subIndex % outputsLength == index }
+          output.write(filtered.toByteArray())
+        }
+      }
 
-  override fun createBuffer(output: File): TextOutputBuffer = FileTextOutputBuffer(output)
+  private fun checkInput(data: ByteArray, perform: () -> Unit) =
+      if (data.size % outputs.length() != 0) {
+        throw IllegalInputException(
+            "Input data of size ${data.size} cannot be evenly distributed amongst ${outputs.length()} outputs")
+      } else {
+        perform.invoke()
+      }
 }

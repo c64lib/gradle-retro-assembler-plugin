@@ -21,28 +21,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.fllter
 
-import java.io.File
-import javax.inject.Inject
-import org.gradle.api.Action
-import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
+import com.github.c64lib.rbt.shared.gradle.processor.BinaryOutput
 
-abstract class SpritepadPipelineExtension
-@Inject
-constructor(private val objectFactory: ObjectFactory) {
-  @InputFiles abstract fun getInput(): Property<File>
-
-  @Input abstract fun getUseBuildDir(): Property<Boolean>
-
-  val outputs = ArrayList<SpritesOutputsExtension>()
-
-  fun outputs(action: Action<SpritesOutputsExtension>) {
-    val ex = objectFactory.newInstance(SpritesOutputsExtension::class.java)
-    action.execute(ex)
-    outputs.add(ex)
+class Nybbler(
+    private val low: BinaryOutput?,
+    private val hi: BinaryOutput?,
+    private val normalizeHi: Boolean = true
+) : BinaryOutput {
+  override fun write(data: ByteArray) {
+    low?.let { it.write(data.map { value -> lowNibble(value) }.toByteArray()) }
+    hi?.let { it.write(data.map { value -> highNibble(value) }.toByteArray()) }
   }
+
+  private fun lowNibble(value: Byte): Byte = (value.toInt() and 0x0F).toByte()
+
+  private fun highNibble(value: Byte): Byte = optionallyNormalize(value.toInt() and 0xF0).toByte()
+
+  private fun optionallyNormalize(value: Int): Int =
+      if (normalizeHi) {
+        value shr 4
+      } else {
+        value
+      }
 }

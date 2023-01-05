@@ -21,17 +21,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.dsl
 
-import javax.inject.Inject
-import org.gradle.api.file.ProjectLayout
+import java.io.File
 
-internal const val CHARPAD_DIR = "charpad"
-
-abstract class MapExtension @Inject constructor(project: ProjectLayout) :
-    FilterAwareExtension(CHARPAD_DIR, project) {
-  var left: Int = 0
-  var top: Int = 0
-  var right: Int = 65536
-  var bottom: Int = 65536
+open class NybblerExtension {
+  var loOutput: File? = null
+  var hiOutput: File? = null
+  var normalizeHi: Boolean = true
 }

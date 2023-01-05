@@ -25,7 +25,7 @@ package com.github.c64lib.rbt.dependencies.adapters.out.gradle
 
 import com.github.c64lib.rbt.dependencies.usecase.port.DownloadDependencyPort
 import com.github.c64lib.rbt.shared.filedownload.FileDownloader
-import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
 import java.io.File
 import java.net.URL
 import java.util.*

@@ -25,7 +25,7 @@ package com.github.c64lib.gradle.asms
 
 import com.github.c64lib.gradle.asms.kickassembler.KickAssemblerSrcWriter
 import com.github.c64lib.rbt.shared.domain.AssemblerType
-import com.github.c64lib.rbt.shared.gradle.TextOutputBuffer
+import com.github.c64lib.rbt.shared.gradle.processor.TextOutputBuffer
 import org.gradle.api.GradleException
 
 interface AssemblySrcWriter {

@@ -21,8 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.filter
 
+import com.github.c64lib.rbt.shared.gradle.processor.BinaryOutput
+import com.github.c64lib.rbt.shared.gradle.processor.InputByteStream
+import com.github.c64lib.rbt.shared.gradle.processor.Output
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.util.*

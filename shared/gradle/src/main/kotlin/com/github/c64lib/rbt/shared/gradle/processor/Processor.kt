@@ -21,28 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.processor
 
-import java.io.File
-import javax.inject.Inject
-import org.gradle.api.Action
-import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
-
-abstract class GoattrackerPipelineExtension
-@Inject
-constructor(private val objectFactory: ObjectFactory) {
-  @InputFiles abstract fun getInput(): Property<File>
-
-  @Input abstract fun getUseBuildDir(): Property<Boolean>
-
-  val outputs = ArrayList<GoattrackerMusicExtension>()
-
-  fun music(action: Action<GoattrackerMusicExtension>) {
-    val ex = objectFactory.newInstance(GoattrackerMusicExtension::class.java)
-    action.execute(ex)
-    outputs.add(ex)
-  }
+interface Processor {
+  fun process(inputByteStream: InputByteStream)
 }

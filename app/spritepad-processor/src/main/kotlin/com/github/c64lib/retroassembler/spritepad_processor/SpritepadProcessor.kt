@@ -23,9 +23,9 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.spritepad_processor
 
-import com.github.c64lib.rbt.shared.gradle.InputByteStream
-import com.github.c64lib.rbt.shared.gradle.OutputProducer
-import com.github.c64lib.rbt.shared.gradle.Processor
+import com.github.c64lib.rbt.shared.gradle.processor.InputByteStream
+import com.github.c64lib.rbt.shared.gradle.processor.OutputProducer
+import com.github.c64lib.rbt.shared.gradle.processor.Processor
 import com.github.c64lib.retroassembler.spritepad_processor.spd4.SPD4Processor
 
 internal interface SPDProcessor : Processor

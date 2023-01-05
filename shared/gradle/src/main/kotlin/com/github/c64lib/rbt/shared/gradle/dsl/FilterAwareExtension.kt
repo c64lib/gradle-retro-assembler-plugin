@@ -21,9 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.dsl
 
 import com.github.c64lib.rbt.shared.domain.IllegalConfigurationException
+import com.github.c64lib.rbt.shared.gradle.fllter.BinaryInterleaver
+import com.github.c64lib.rbt.shared.gradle.fllter.Nybbler
+import com.github.c64lib.rbt.shared.gradle.processor.BinaryOutput
+import com.github.c64lib.rbt.shared.gradle.processor.BinaryOutputBuffer
+import com.github.c64lib.rbt.shared.gradle.processor.DevNull
+import com.github.c64lib.rbt.shared.gradle.processor.FileBinaryOutputBuffer
 import io.vavr.collection.List
 import java.io.File
 import java.util.*

@@ -21,27 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.dsl
 
-import com.github.c64lib.rbt.shared.domain.IllegalInputException
-import io.vavr.collection.Seq
+import java.io.File
 
-class BinaryInterleaver(private val outputs: Seq<BinaryOutput>) : BinaryOutput {
+open class InterleaverExtension {
 
-  override fun write(data: ByteArray) =
-      checkInput(data) {
-        val outputsLength = outputs.length()
-        outputs.forEachWithIndex { output, index ->
-          val filtered = data.filterIndexed { subIndex, _ -> subIndex % outputsLength == index }
-          output.write(filtered.toByteArray())
-        }
-      }
-
-  private fun checkInput(data: ByteArray, perform: () -> Unit) =
-      if (data.size % outputs.length() != 0) {
-        throw IllegalInputException(
-            "Input data of size ${data.size} cannot be evenly distributed amongst ${outputs.length()} outputs")
-      } else {
-        perform.invoke()
-      }
+  var output: File? = null
 }

@@ -21,12 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.dsl
 
-import java.io.File
+import javax.inject.Inject
+import org.gradle.api.file.ProjectLayout
 
-open class NybblerExtension {
-  var loOutput: File? = null
-  var hiOutput: File? = null
-  var normalizeHi: Boolean = true
+abstract class StartEndExtension @Inject constructor(project: ProjectLayout) :
+    FilterAwareExtension(CHARPAD_DIR, project) {
+  var start: Int = 0
+  var end: Int = 65536
 }

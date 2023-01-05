@@ -23,8 +23,8 @@ SOFTWARE.
 */
 package com.github.c64lib.retroassembler.charpad_processor.producer
 
-import com.github.c64lib.rbt.shared.gradle.Output
-import com.github.c64lib.rbt.shared.gradle.ScalableBinaryProducer
+import com.github.c64lib.rbt.shared.gradle.processor.Output
+import com.github.c64lib.rbt.shared.gradle.processor.ScalableBinaryProducer
 
 /**
  * Produces pre-3.0 style of charset color encoding: material code as hi nybble, color code as lo

@@ -26,7 +26,7 @@ package com.github.c64lib.rbt.processors.goattracker.adapters.`in`.gradle
 import com.github.c64lib.rbt.processors.goattracker.usecase.PackSongCommand
 import com.github.c64lib.rbt.processors.goattracker.usecase.PackSongUseCase
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
-import com.github.c64lib.rbt.shared.gradle.PreprocessingExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.PreprocessingExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal

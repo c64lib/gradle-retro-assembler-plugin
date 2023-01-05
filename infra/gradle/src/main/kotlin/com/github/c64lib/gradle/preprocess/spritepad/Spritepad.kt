@@ -24,11 +24,11 @@ SOFTWARE.
 package com.github.c64lib.gradle.preprocess.spritepad
 
 import com.github.c64lib.gradle.preprocess.FisInput
-import com.github.c64lib.rbt.shared.gradle.BinaryOutputBuffer
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
-import com.github.c64lib.rbt.shared.gradle.PreprocessingExtension
-import com.github.c64lib.rbt.shared.gradle.SpritepadPipelineExtension
-import com.github.c64lib.rbt.shared.gradle.SpritesOutputsExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.PreprocessingExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.SpritepadPipelineExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.SpritesOutputsExtension
+import com.github.c64lib.rbt.shared.gradle.processor.BinaryOutputBuffer
 import com.github.c64lib.retroassembler.spritepad_processor.SpriteProducer
 import com.github.c64lib.retroassembler.spritepad_processor.SpritepadProcessor
 import java.io.FileInputStream

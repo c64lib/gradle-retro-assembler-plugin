@@ -51,10 +51,6 @@ import com.github.c64lib.rbt.processors.goattracker.adapters.out.gradle.ExecuteG
 import com.github.c64lib.rbt.processors.goattracker.usecase.PackSongUseCase
 import com.github.c64lib.rbt.shared.domain.SemVer
 import com.github.c64lib.rbt.shared.filedownload.FileDownloader
-import com.github.c64lib.rbt.shared.gradle.EXTENSION_DSL_NAME
-import com.github.c64lib.rbt.shared.gradle.PREPROCESSING_EXTENSION_DSL_NAME
-import com.github.c64lib.rbt.shared.gradle.PreprocessingExtension
-import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
 import com.github.c64lib.rbt.shared.gradle.TASK_ASM
 import com.github.c64lib.rbt.shared.gradle.TASK_ASM_SPEC
 import com.github.c64lib.rbt.shared.gradle.TASK_BUILD
@@ -66,6 +62,10 @@ import com.github.c64lib.rbt.shared.gradle.TASK_PREPROCESS
 import com.github.c64lib.rbt.shared.gradle.TASK_RESOLVE_DEV_DEPENDENCIES
 import com.github.c64lib.rbt.shared.gradle.TASK_SPRITEPAD
 import com.github.c64lib.rbt.shared.gradle.TASK_TEST
+import com.github.c64lib.rbt.shared.gradle.dsl.EXTENSION_DSL_NAME
+import com.github.c64lib.rbt.shared.gradle.dsl.PREPROCESSING_EXTENSION_DSL_NAME
+import com.github.c64lib.rbt.shared.gradle.dsl.PreprocessingExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
 import com.github.c64lib.rbt.testing.a64spec.adapters.`in`.gradle.Test
 import com.github.c64lib.rbt.testing.a64spec.usecase.Run64SpecTestUseCase
 import java.io.File

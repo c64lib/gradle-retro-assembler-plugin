@@ -21,39 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.processor
 
-import javax.inject.Inject
-import org.gradle.api.Action
-import org.gradle.api.model.ObjectFactory
-
-const val PREPROCESSING_EXTENSION_DSL_NAME = "preprocess"
-
-abstract class PreprocessingExtension
-@Inject
-constructor(private val objectFactory: ObjectFactory) {
-
-  val charpadPipelines = ArrayList<CharpadPipelineExtension>()
-
-  val spritepadPipelines = ArrayList<SpritepadPipelineExtension>()
-
-  val goattrackerPipelines = ArrayList<GoattrackerPipelineExtension>()
-
-  fun charpad(action: Action<CharpadPipelineExtension>) {
-    val ex = objectFactory.newInstance(CharpadPipelineExtension::class.java)
-    action.execute(ex)
-    charpadPipelines.add(ex)
-  }
-
-  fun spritepad(action: Action<SpritepadPipelineExtension>) {
-    val ex = objectFactory.newInstance(SpritepadPipelineExtension::class.java)
-    action.execute(ex)
-    spritepadPipelines.add(ex)
-  }
-
-  fun goattracker(action: Action<GoattrackerPipelineExtension>) {
-    val ex = objectFactory.newInstance(GoattrackerPipelineExtension::class.java)
-    action.execute(ex)
-    goattrackerPipelines.add(ex)
-  }
+open class BinaryProducer(private val output: Output<ByteArray>) : OutputProducer<ByteArray> {
+  override fun write(data: ByteArray) = output.write(data)
 }

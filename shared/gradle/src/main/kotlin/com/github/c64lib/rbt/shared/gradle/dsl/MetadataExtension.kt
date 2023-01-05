@@ -21,8 +21,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.dsl
 
-interface OutputProducer<T> {
-  fun write(data: T)
+import com.github.c64lib.rbt.shared.domain.AssemblerType
+import com.github.c64lib.rbt.shared.gradle.processor.FileTextOutputBuffer
+import com.github.c64lib.rbt.shared.gradle.processor.TextOutputBuffer
+import java.io.File
+import javax.inject.Inject
+import org.gradle.api.file.ProjectLayout
+
+abstract class MetadataExtension @Inject constructor(project: ProjectLayout) :
+    OutputExtension<TextOutputBuffer>(CHARPAD_DIR, project) {
+
+  var dialect = AssemblerType.None
+  var prefix = ""
+  var namespace: String? = null
+  var includeVersion = false
+  var includeBgColours = true
+  var includeCharColours = true
+  var includeMode = false
+
+  override fun createBuffer(output: File): TextOutputBuffer = FileTextOutputBuffer(output)
 }

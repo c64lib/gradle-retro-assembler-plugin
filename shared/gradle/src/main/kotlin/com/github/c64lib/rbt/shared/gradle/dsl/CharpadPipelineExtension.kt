@@ -21,35 +21,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.dsl
 
-import com.github.c64lib.rbt.shared.domain.OutOfDataException
+import java.io.File
+import javax.inject.Inject
+import org.gradle.api.Action
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 
-/**
- * Produces binary output from binary input.
- *
- * Is capable of working with equal portions of bytes and allows to specify start and end of the
- * window as well as portion size (scale).
- */
-open class ScalableBinaryProducer(
-    private val start: Int,
-    end: Int,
-    private val scale: Int = 1,
-    private val output: Output<ByteArray>
-) : OutputProducer<ByteArray> {
+abstract class CharpadPipelineExtension
+@Inject
+constructor(private val objectFactory: ObjectFactory) {
+  @InputFiles abstract fun getInput(): Property<File>
 
-  private val scaledStart = scale(start)
-  private val scaledEnd = scale(end)
+  @Input abstract fun getUseBuildDir(): Property<Boolean>
 
-  override fun write(data: ByteArray) =
-      output.write(
-          when {
-            scaledStart >= data.size ->
-                throw OutOfDataException(
-                    "Not enough data to support start=$start; data size is ${data.size/scale}.")
-            scaledEnd < data.size -> data.copyOfRange(scaledStart, scaledEnd)
-            else -> data.copyOfRange(scaledStart, data.size)
-          })
+  @Input abstract fun getCtm8PrototypeCompatibility(): Property<Boolean>
 
-  private fun scale(value: Int): Int = value * scale
+  val outputs = ArrayList<OutputsExtension>()
+
+  fun outputs(action: Action<OutputsExtension>) {
+    val ex = objectFactory.newInstance(OutputsExtension::class.java)
+    action.execute(ex)
+    outputs.add(ex)
+  }
 }

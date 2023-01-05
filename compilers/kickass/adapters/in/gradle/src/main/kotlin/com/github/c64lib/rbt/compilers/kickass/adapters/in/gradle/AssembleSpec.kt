@@ -26,7 +26,7 @@ package com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecCommand
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecUseCase
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
-import com.github.c64lib.rbt.shared.gradle.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
 import java.io.File
 import kotlin.io.path.nameWithoutExtension
 import org.gradle.api.DefaultTask

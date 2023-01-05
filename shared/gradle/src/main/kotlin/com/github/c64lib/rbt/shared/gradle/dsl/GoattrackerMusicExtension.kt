@@ -21,11 +21,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.gradle
+package com.github.c64lib.rbt.shared.gradle.dsl
 
 import java.io.File
+import javax.inject.Inject
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.OutputFiles
 
-open class InterleaverExtension {
+abstract class GoattrackerMusicExtension
+@Inject
+constructor(private val objectFactory: ObjectFactory) {
+  var bufferedSidWrites: Boolean? = null
+  var disableOptimization: Boolean? = null
+  var executable = "gt2reloc"
+  var playerMemoryLocation: Int? = null
+  var sfxSupport: Boolean? = null
+  var sidMemoryLocation: Int? = null
+  var storeAuthorInfo: Boolean? = null
+  var volumeChangeSupport: Boolean? = null
+  var zeroPageLocation: Int? = null
+  var zeropageGhostRegisters: Boolean? = null
 
-  var output: File? = null
+  @OutputFiles abstract fun getOutput(): Property<File>
 }
