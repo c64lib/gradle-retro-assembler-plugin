@@ -21,8 +21,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.binutils
+package com.github.c64lib.rbt.shared.testutils
 
+import com.github.c64lib.rbt.shared.binutils.concatByteArray
 import com.github.c64lib.rbt.shared.processor.BinaryOutput
 import com.github.c64lib.rbt.shared.processor.InputByteStream
 import com.github.c64lib.rbt.shared.processor.Output
