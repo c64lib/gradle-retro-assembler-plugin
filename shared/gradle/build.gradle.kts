@@ -8,6 +8,4 @@ dependencies {
   implementation(gradleApi())
   implementation(project(":shared:domain"))
   implementation(project(":shared:processor"))
-  // the one below should go out (move class)
-  implementation(project(":emulators:vice"))
 }

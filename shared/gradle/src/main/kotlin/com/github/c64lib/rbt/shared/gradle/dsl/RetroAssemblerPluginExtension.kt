@@ -23,7 +23,7 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.shared.gradle.dsl
 
-import com.github.c64lib.rbt.emulators.vice.domain.AutostartPrgMode
+import com.github.c64lib.rbt.shared.domain.AutostartPrgMode
 import com.github.c64lib.rbt.shared.domain.Dependency
 import com.github.c64lib.rbt.shared.domain.DependencyType
 import com.github.c64lib.rbt.shared.domain.DependencyVersion
