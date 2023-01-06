@@ -23,7 +23,6 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle
 
-import com.github.c64lib.gradle.preprocess.charpad.Charpad
 import com.github.c64lib.gradle.tasks.Build
 import com.github.c64lib.gradle.tasks.Preprocess
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.Assemble
@@ -45,6 +44,7 @@ import com.github.c64lib.rbt.dependencies.adapters.out.gradle.UntarDependencyAda
 import com.github.c64lib.rbt.dependencies.usecase.ResolveGitHubDependencyUseCase
 import com.github.c64lib.rbt.emulators.vice.adapters.out.gradle.RunTestOnViceAdapter
 import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
+import com.github.c64lib.rbt.processors.charpad.adapters.`in`.gradle.Charpad
 import com.github.c64lib.rbt.processors.goattracker.adapters.`in`.gradle.Goattracker
 import com.github.c64lib.rbt.processors.goattracker.adapters.out.gradle.ExecuteGt2RelocAdapter
 import com.github.c64lib.rbt.processors.goattracker.usecase.PackSongUseCase

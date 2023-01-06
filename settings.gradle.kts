@@ -1,6 +1,5 @@
 rootProject.name = "retro-assembler"
 
-include(":app:charpad-processor")
 include(":infra:gradle")
 
 include(":shared:domain")
@@ -31,5 +30,8 @@ include(":processors:goattracker:adapters:out:gradle")
 
 include(":processors:spritepad")
 include(":processors:spritepad:adapters:in:gradle")
+
+include(":processors:charpad")
+include(":processors:charpad:adapters:in:gradle")
 
 include(":doc")

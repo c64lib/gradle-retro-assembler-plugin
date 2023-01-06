@@ -73,20 +73,26 @@ dependencies {
     compileOnly(project(":compilers:kickass:adapters:in:gradle"))
     compileOnly(project(":compilers:kickass:adapters:out:gradle"))
     compileOnly(project(":compilers:kickass:adapters:out:filedownload"))
+
     compileOnly(project(":emulators:vice"))
     compileOnly(project(":emulators:vice:adapters:out:gradle"))
+
     compileOnly(project(":testing:64spec"))
     compileOnly(project(":testing:64spec:adapters:in:gradle"))
+
     compileOnly(project(":dependencies"))
     compileOnly(project(":dependencies:adapters:in:gradle"))
     compileOnly(project(":dependencies:adapters:out:gradle"))
+
     compileOnly(project(":processors:goattracker"))
     compileOnly(project(":processors:goattracker:adapters:in:gradle"))
     compileOnly(project(":processors:goattracker:adapters:out:gradle"))
+
     compileOnly(project(":processors:spritepad"))
     compileOnly(project(":processors:spritepad:adapters:in:gradle"))
-    // old
-    compileOnly(project(":app:charpad-processor"))
+
+    compileOnly(project(":processors:charpad"))
+    compileOnly(project(":processors:charpad:adapters:in:gradle"))
 }
 
 publishing { repositories { maven { url = uri("../../../consuming/maven-repo") } } }
