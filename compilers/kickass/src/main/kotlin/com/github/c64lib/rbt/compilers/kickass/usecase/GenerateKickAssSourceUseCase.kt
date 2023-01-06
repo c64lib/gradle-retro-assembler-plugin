@@ -23,22 +23,31 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.compilers.kickass.usecase
 
-import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
-import com.github.c64lib.rbt.compilers.kickass.usecase.port.DownloadKickAssemblerPort
-import com.github.c64lib.rbt.shared.domain.SemVer
-import java.net.URL
+import com.github.c64lib.rbt.shared.domain.source.Comment
+import com.github.c64lib.rbt.shared.domain.source.Label
+import com.github.c64lib.rbt.shared.domain.source.Namespace
+import com.github.c64lib.rbt.shared.domain.source.Separator
+import com.github.c64lib.rbt.shared.domain.source.SourceModel
+import com.github.c64lib.rbt.shared.processor.TextOutputBuffer
 
-class DownloadKickAssemblerUseCase(
-    private val downloadKickAssemblerPort: DownloadKickAssemblerPort
-) {
-
-  fun apply(command: DownloadKickAssemblerCommand): KickAssemblerSettings {
-    val url =
-        URL("https://github.com/c64lib/asm-ka/releases/download/${command.version}/KickAss.jar")
-    val target = "${command.workDir}/asms/ka/${command.version}/KickAss.jar"
-    val targetFile = downloadKickAssemblerPort.download(url, target)
-    return KickAssemblerSettings(targetFile, command.version)
+class GenerateKickAssSourceUseCase(private val writer: TextOutputBuffer) {
+  fun apply(sourceModel: SourceModel) {
+    sourceModel.stream { sourceItem ->
+      when (sourceItem) {
+        is Comment ->
+            when (sourceItem.texts.size) {
+              0 -> {}
+              1 -> writer.writeLn("// ${sourceItem.texts[0]}")
+              else -> {
+                writer.writeLn("/*")
+                sourceItem.texts.forEach { writer.writeLn("  $it") }
+                writer.writeLn("*/")
+              }
+            }
+        is Label -> writer.writeLn(".label ${sourceItem.name} = ${sourceItem.value}")
+        is Namespace -> writer.writeLn(".filenamespace ${sourceItem.name}")
+        is Separator -> writer.writeLn()
+      }
+    }
   }
 }
-
-data class DownloadKickAssemblerCommand(val version: SemVer, val workDir: String)

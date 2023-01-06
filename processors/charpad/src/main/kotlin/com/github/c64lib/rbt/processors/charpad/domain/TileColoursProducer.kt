@@ -21,24 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.compilers.kickass.usecase
+package com.github.c64lib.rbt.processors.charpad.domain
 
-import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
-import com.github.c64lib.rbt.compilers.kickass.usecase.port.DownloadKickAssemblerPort
-import com.github.c64lib.rbt.shared.domain.SemVer
-import java.net.URL
+import com.github.c64lib.rbt.shared.processor.Output
+import com.github.c64lib.rbt.shared.processor.ScalableBinaryProducer
 
-class DownloadKickAssemblerUseCase(
-    private val downloadKickAssemblerPort: DownloadKickAssemblerPort
-) {
-
-  fun apply(command: DownloadKickAssemblerCommand): KickAssemblerSettings {
-    val url =
-        URL("https://github.com/c64lib/asm-ka/releases/download/${command.version}/KickAss.jar")
-    val target = "${command.workDir}/asms/ka/${command.version}/KickAss.jar"
-    val targetFile = downloadKickAssemblerPort.download(url, target)
-    return KickAssemblerSettings(targetFile, command.version)
-  }
-}
-
-data class DownloadKickAssemblerCommand(val version: SemVer, val workDir: String)
+class TileColoursProducer(start: Int = 0, end: Int = 65536, output: Output<ByteArray>) :
+    ScalableBinaryProducer(start = start, end = end, output = output)

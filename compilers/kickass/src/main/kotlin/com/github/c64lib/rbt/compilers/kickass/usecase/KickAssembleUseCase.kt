@@ -24,8 +24,15 @@ SOFTWARE.
 package com.github.c64lib.rbt.compilers.kickass.usecase
 
 import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssemblePort
+import java.io.File
 
 class KickAssembleUseCase(private val kickAssemblePort: KickAssemblePort) {
   fun apply(command: KickAssembleCommand) =
       kickAssemblePort.assemble(command.libDirs, command.defines, command.source)
 }
+
+data class KickAssembleCommand(
+    val libDirs: List<File>,
+    val defines: List<String>,
+    val source: File
+)
