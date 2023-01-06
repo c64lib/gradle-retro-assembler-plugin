@@ -28,6 +28,7 @@ import com.github.c64lib.rbt.compilers.kickass.usecase.DownloadKickAssemblerUseC
 import com.github.c64lib.rbt.shared.domain.SemVer
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.shared.gradle.getBooleanProperty
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -48,5 +49,7 @@ open class ResolveDevDeps : DefaultTask() {
   fun download() =
       downloadKickAssemblerUseCase.apply(
           DownloadKickAssemblerCommand(
-              SemVer.fromString(extension.dialectVersion), extension.workDir))
+              version = SemVer.fromString(extension.dialectVersion),
+              workDir = extension.workDir,
+              force = project.getBooleanProperty("forceDownload") ?: false))
 }

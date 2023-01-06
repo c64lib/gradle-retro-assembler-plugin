@@ -33,6 +33,8 @@ import com.github.c64lib.rbt.compilers.kickass.adapters.out.filedownload.Downloa
 import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.DeleteFilesAdapter
 import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.KickAssembleAdapter
 import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.KickAssembleSpecAdapter
+import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.ReadVersionAdapter
+import com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle.SaveVersionAdapter
 import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
 import com.github.c64lib.rbt.compilers.kickass.usecase.CleanBuildArtefactsUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.DownloadKickAssemblerUseCase
@@ -40,6 +42,8 @@ import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.dependencies.adapters.`in`.gradle.DownloadDependencies
 import com.github.c64lib.rbt.dependencies.adapters.out.gradle.DownloadDependencyAdapter
+import com.github.c64lib.rbt.dependencies.adapters.out.gradle.ReadDependencyVersionAdapter
+import com.github.c64lib.rbt.dependencies.adapters.out.gradle.SaveDependencyVersionAdapter
 import com.github.c64lib.rbt.dependencies.adapters.out.gradle.UntarDependencyAdapter
 import com.github.c64lib.rbt.dependencies.usecase.ResolveGitHubDependencyUseCase
 import com.github.c64lib.rbt.emulators.vice.adapters.out.gradle.RunTestOnViceAdapter
@@ -90,7 +94,9 @@ class RetroAssemblerPlugin : Plugin<Project> {
             task.extension = extension
             task.downloadKickAssemblerUseCase =
                 DownloadKickAssemblerUseCase(
-                    DownloadKickAssemblerAdapter(project, FileDownloader()))
+                    DownloadKickAssemblerAdapter(project, FileDownloader()),
+                    ReadVersionAdapter(project),
+                    SaveVersionAdapter(project))
           }
       val downloadDependencies =
           project.tasks.create(TASK_DEPENDENCIES, DownloadDependencies::class.java) { task ->
@@ -98,7 +104,9 @@ class RetroAssemblerPlugin : Plugin<Project> {
             task.resolveGitHubDependencyUseCase =
                 ResolveGitHubDependencyUseCase(
                     DownloadDependencyAdapter(project, extension, FileDownloader()),
-                    UntarDependencyAdapter(project))
+                    UntarDependencyAdapter(project),
+                    ReadDependencyVersionAdapter(project),
+                    SaveDependencyVersionAdapter(project))
           }
       // preprocess
       val charpad =

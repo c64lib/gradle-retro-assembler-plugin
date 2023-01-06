@@ -24,23 +24,40 @@ SOFTWARE.
 package com.github.c64lib.rbt.dependencies.usecase
 
 import com.github.c64lib.rbt.dependencies.usecase.port.DownloadDependencyPort
+import com.github.c64lib.rbt.dependencies.usecase.port.ReadDependencyVersionPort
+import com.github.c64lib.rbt.dependencies.usecase.port.SaveDependencyVersionPort
 import com.github.c64lib.rbt.dependencies.usecase.port.UntarDependencyPort
 import com.github.c64lib.rbt.shared.domain.DependencyVersion
 import java.net.URL
 
 class ResolveGitHubDependencyUseCase(
     private val downloadDependencyPort: DownloadDependencyPort,
-    private val untarDependencyPort: UntarDependencyPort
+    private val untarDependencyPort: UntarDependencyPort,
+    private val readDependencyVersionPort: ReadDependencyVersionPort,
+    private val saveDependencyVersionPort: SaveDependencyVersionPort
 ) {
-  fun apply(dependencyName: String, dependencyVersion: DependencyVersion) {
-    val libFile =
-        downloadDependencyPort.download(
-            URL("https://github.com/${dependencyName}/archive/${dependencyVersion.version}.tar.gz"),
-            dependencyName)
-    try {
-      untarDependencyPort.untar(libFile)
-    } finally {
-      libFile.delete()
+  fun apply(command: ResolveGitHubDependencyCommand) {
+    val versionFile = "${command.workDir}/depvers/${command.dependencyName}/version"
+    if (command.force ||
+        command.dependencyVersion.version != readDependencyVersionPort.readVersion(versionFile)) {
+      val libFile =
+          downloadDependencyPort.download(
+              URL(
+                  "https://github.com/${command.dependencyName}/archive/${command.dependencyVersion.version}.tar.gz"),
+              command.dependencyName)
+      try {
+        untarDependencyPort.untar(libFile)
+        saveDependencyVersionPort.saveVersion(versionFile, command.dependencyVersion.version)
+      } finally {
+        libFile.delete()
+      }
     }
   }
 }
+
+data class ResolveGitHubDependencyCommand(
+    val dependencyName: String,
+    val dependencyVersion: DependencyVersion,
+    val force: Boolean,
+    val workDir: String
+)
