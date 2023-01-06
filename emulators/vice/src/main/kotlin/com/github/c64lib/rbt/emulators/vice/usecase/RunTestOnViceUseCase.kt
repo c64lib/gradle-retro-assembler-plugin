@@ -25,6 +25,9 @@ package com.github.c64lib.rbt.emulators.vice.usecase
 
 import com.github.c64lib.rbt.emulators.vice.usecase.port.RunTestOnVicePort
 import com.github.c64lib.rbt.emulators.vice.usecase.port.ViceParameters
+import java.io.File
+
+data class RunTestOnViceCommand(val autostart: File, val monCommands: File)
 
 class RunTestOnViceUseCase(private val runTestOnVicePort: RunTestOnVicePort) {
   fun apply(command: RunTestOnViceCommand) =

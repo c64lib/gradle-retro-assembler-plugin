@@ -25,6 +25,7 @@ package com.github.c64lib.rbt.compilers.kickass.usecase
 
 import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
 import com.github.c64lib.rbt.compilers.kickass.usecase.port.DownloadKickAssemblerPort
+import com.github.c64lib.rbt.shared.domain.SemVer
 import java.net.URL
 
 class DownloadKickAssemblerUseCase(
@@ -39,3 +40,5 @@ class DownloadKickAssemblerUseCase(
     return KickAssemblerSettings(targetFile, command.version)
   }
 }
+
+data class DownloadKickAssemblerCommand(val version: SemVer, val workDir: String)
