@@ -12,12 +12,6 @@ Retro Build Tool is published at: https://plugins.gradle.org/plugin/com.github.c
 
 There is also a Linux-based docker image available: https://github.com/c64lib/c64libci. All functions of Retro Build Tool with work on this image. The image is designed to be used with CI environments (such as CircleCI).
 
-## Highlights
-
-Current version is 1.5.4
-
-It supports most of the tools needed in game dev such as charpad, spritepad and goattracker packer and relocator.
-
 ## User's Manual
 
 A complete User's Manual is available at the following address:
