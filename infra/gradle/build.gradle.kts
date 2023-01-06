@@ -87,7 +87,6 @@ dependencies {
     compileOnly(project(":processors:spritepad:adapters:in:gradle"))
     // old
     compileOnly(project(":app:charpad-processor"))
-    compileOnly(project(":app:spritepad-processor"))
 }
 
 publishing { repositories { maven { url = uri("../../../consuming/maven-repo") } } }

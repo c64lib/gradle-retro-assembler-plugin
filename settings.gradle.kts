@@ -1,7 +1,6 @@
 rootProject.name = "retro-assembler"
 
 include(":app:charpad-processor")
-include(":app:spritepad-processor")
 include(":infra:gradle")
 
 include(":shared:domain")
