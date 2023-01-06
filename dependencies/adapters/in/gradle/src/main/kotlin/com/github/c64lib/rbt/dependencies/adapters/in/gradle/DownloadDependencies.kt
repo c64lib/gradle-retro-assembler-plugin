@@ -23,9 +23,11 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.dependencies.adapters.`in`.gradle
 
+import com.github.c64lib.rbt.dependencies.usecase.ResolveGitHubDependencyCommand
 import com.github.c64lib.rbt.dependencies.usecase.ResolveGitHubDependencyUseCase
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.shared.gradle.getBooleanProperty
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -45,7 +47,12 @@ open class DownloadDependencies : DefaultTask() {
   @TaskAction
   fun downloadAndUnzip() {
     extension.dependencies.forEach { dependency ->
-      resolveGitHubDependencyUseCase.apply(dependency.name, dependency.version)
+      resolveGitHubDependencyUseCase.apply(
+          ResolveGitHubDependencyCommand(
+              dependencyName = dependency.name,
+              dependencyVersion = dependency.version,
+              force = project.getBooleanProperty("forceDownload") ?: false,
+              workDir = extension.workDir))
     }
   }
 }

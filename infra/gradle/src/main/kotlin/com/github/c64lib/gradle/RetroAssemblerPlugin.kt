@@ -42,6 +42,8 @@ import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.dependencies.adapters.`in`.gradle.DownloadDependencies
 import com.github.c64lib.rbt.dependencies.adapters.out.gradle.DownloadDependencyAdapter
+import com.github.c64lib.rbt.dependencies.adapters.out.gradle.ReadDependencyVersionAdapter
+import com.github.c64lib.rbt.dependencies.adapters.out.gradle.SaveDependencyVersionAdapter
 import com.github.c64lib.rbt.dependencies.adapters.out.gradle.UntarDependencyAdapter
 import com.github.c64lib.rbt.dependencies.usecase.ResolveGitHubDependencyUseCase
 import com.github.c64lib.rbt.emulators.vice.adapters.out.gradle.RunTestOnViceAdapter
@@ -102,7 +104,9 @@ class RetroAssemblerPlugin : Plugin<Project> {
             task.resolveGitHubDependencyUseCase =
                 ResolveGitHubDependencyUseCase(
                     DownloadDependencyAdapter(project, extension, FileDownloader()),
-                    UntarDependencyAdapter(project))
+                    UntarDependencyAdapter(project),
+                    ReadDependencyVersionAdapter(project),
+                    SaveDependencyVersionAdapter(project))
           }
       // preprocess
       val charpad =
