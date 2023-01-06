@@ -45,7 +45,7 @@ class TestReport(private val testResults: List<TestResult>) {
     val result =
         testResults.fold(Result("")) { result, testResult ->
           outputFn("Tests execution ${testResult.message}")
-          Result("", result.success + result.success, result.total + result.total)
+          Result("", result.success + testResult.successCount, result.total + testResult.totalCount)
         }
     outputFn("Overall test report $result")
     return result.isPositive

@@ -21,6 +21,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.spritepad_processor
+package com.c64lib.rbt.processors.spritepad.domain
 
-class InvalidSPDFormatException(msg: String) : RuntimeException(msg)
+import com.github.c64lib.rbt.shared.domain.OutOfDataException
+import com.github.c64lib.rbt.shared.processor.BinaryProducer
+import com.github.c64lib.rbt.shared.processor.Output
+
+class SpriteProducer(val start: Int = 0, private val end: Int = 65536, output: Output<ByteArray>) :
+    BinaryProducer(output) {
+
+  private val scaledStart = scale(start)
+  private val scaledEnd = scale(end)
+
+  override fun write(data: ByteArray) =
+      super.write(
+          when {
+            scaledStart >= data.size ->
+                throw OutOfDataException("Not enough characters to support start=$start")
+            scaledEnd < data.size -> data.copyOfRange(scaledStart, scaledEnd)
+            else -> data.copyOfRange(scaledStart, data.size)
+          })
+
+  private fun scale(value: Int) = value * 64
+}

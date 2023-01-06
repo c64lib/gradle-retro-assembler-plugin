@@ -21,27 +21,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.retroassembler.spritepad_processor
+package com.c64lib.rbt.processors.spritepad.usecase
 
+import com.c64lib.rbt.processors.spritepad.domain.InvalidSPDFormatException
+import com.c64lib.rbt.processors.spritepad.domain.SpriteProducer
+import com.c64lib.rbt.processors.spritepad.usecase.spd4.SPD4Processor
 import com.github.c64lib.rbt.shared.processor.InputByteStream
 import com.github.c64lib.rbt.shared.processor.OutputProducer
 import com.github.c64lib.rbt.shared.processor.Processor
-import com.github.c64lib.retroassembler.spritepad_processor.spd4.SPD4Processor
 
 internal interface SPDProcessor : Processor
 
-class SpritepadProcessor(outputProducers: Collection<OutputProducer<*>>) {
+class ProcessSpritepadUseCase(outputProducers: Collection<OutputProducer<*>>) {
 
   private val spriteProducers: Collection<SpriteProducer> =
       outputProducers.filterIsInstance<SpriteProducer>()
 
-  fun process(inputByteStream: InputByteStream) =
+  fun apply(inputByteStream: InputByteStream) =
       getProcessor(inputByteStream).process(inputByteStream)
 
   internal fun processSprites(action: (SpriteProducer) -> Unit) = spriteProducers.forEach(action)
 
   private fun getProcessor(inputByteStream: InputByteStream): SPDProcessor {
-    val id = inputByteStream.read(3).map { it.toChar() }.joinToString(separator = "")
+    val id = inputByteStream.read(3).map { it.toInt().toChar() }.joinToString(separator = "")
     if (id != "SPD") {
       throw InvalidSPDFormatException("SPD id is missing")
     }
