@@ -24,12 +24,12 @@ SOFTWARE.
 package com.github.c64lib.gradle.preprocess.charpad
 
 import com.github.c64lib.gradle.asms.AssemblySrcWriterFactory
-import com.github.c64lib.gradle.preprocess.FisInput
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.dsl.CharpadPipelineExtension
 import com.github.c64lib.rbt.shared.gradle.dsl.OutputsExtension
 import com.github.c64lib.rbt.shared.gradle.dsl.PreprocessingExtension
 import com.github.c64lib.rbt.shared.processor.BinaryOutputBuffer
+import com.github.c64lib.rbt.shared.processor.FisInput
 import com.github.c64lib.rbt.shared.processor.TextOutputBuffer
 import com.github.c64lib.retroassembler.charpad_processor.CharpadProcessor
 import com.github.c64lib.retroassembler.charpad_processor.model.MapCoord

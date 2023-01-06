@@ -30,4 +30,7 @@ include(":processors:goattracker")
 include(":processors:goattracker:adapters:in:gradle")
 include(":processors:goattracker:adapters:out:gradle")
 
+include(":processors:spritepad")
+include(":processors:spritepad:adapters:in:gradle")
+
 include(":doc")

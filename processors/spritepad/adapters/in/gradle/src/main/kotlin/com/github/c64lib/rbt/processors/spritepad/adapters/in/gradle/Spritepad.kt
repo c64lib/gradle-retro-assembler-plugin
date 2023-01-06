@@ -21,16 +21,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.gradle.preprocess.spritepad
+package com.github.c64lib.rbt.processors.spritepad.adapters.`in`.gradle
 
-import com.github.c64lib.gradle.preprocess.FisInput
+import com.c64lib.rbt.processors.spritepad.domain.SpriteProducer
+import com.c64lib.rbt.processors.spritepad.usecase.ProcessSpritepadUseCase
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.dsl.PreprocessingExtension
 import com.github.c64lib.rbt.shared.gradle.dsl.SpritepadPipelineExtension
 import com.github.c64lib.rbt.shared.gradle.dsl.SpritesOutputsExtension
 import com.github.c64lib.rbt.shared.processor.BinaryOutputBuffer
-import com.github.c64lib.retroassembler.spritepad_processor.SpriteProducer
-import com.github.c64lib.retroassembler.spritepad_processor.SpritepadProcessor
+import com.github.c64lib.rbt.shared.processor.FisInput
 import java.io.FileInputStream
 import java.util.*
 import org.gradle.api.DefaultTask
@@ -62,8 +62,8 @@ open class Spritepad : DefaultTask() {
       pipeline: SpritepadPipelineExtension
   ) {
     val buffers: MutableList<BinaryOutputBuffer> = LinkedList()
-    val processor = SpritepadProcessor(producers(output, buffers, pipeline))
-    processor.process(FisInput(fis))
+    val processor = ProcessSpritepadUseCase(producers(output, buffers, pipeline))
+    processor.apply(FisInput(fis))
     buffers.forEach { it.flush() }
   }
 
