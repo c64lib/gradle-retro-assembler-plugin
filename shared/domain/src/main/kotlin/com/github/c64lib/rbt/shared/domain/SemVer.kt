@@ -26,7 +26,11 @@ package com.github.c64lib.rbt.shared.domain
 data class SemVer(val major: Int, val minor: Int, val patch: Int? = null, val suffix: String = "") {
 
   companion object Factory {
-    fun fromString(value: String): SemVer {
+    fun fromString(value: String): SemVer =
+        fromStringOrNull(value)
+            ?: throw IllegalArgumentException("Cannot determine version from \"$value\"")
+
+    fun fromStringOrNull(value: String): SemVer? {
       val pattern = "^(\\d+)\\.(\\d+)(\\.\\d+)?(-.+)?$"
       val regex = Regex(pattern)
       val match = regex.find(value)
@@ -47,7 +51,7 @@ data class SemVer(val major: Int, val minor: Int, val patch: Int? = null, val su
             }
         SemVer(major, minor, patch, suffix)
       } else {
-        throw IllegalArgumentException("Cannot determine version from \"$value\"")
+        null
       }
     }
   }

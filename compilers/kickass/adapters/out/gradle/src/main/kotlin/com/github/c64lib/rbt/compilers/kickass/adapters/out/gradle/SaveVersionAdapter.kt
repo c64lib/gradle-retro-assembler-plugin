@@ -21,34 +21,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.compilers.kickass.usecase
+package com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle
 
-import com.github.c64lib.rbt.compilers.kickass.usecase.port.DownloadKickAssemblerPort
-import com.github.c64lib.rbt.compilers.kickass.usecase.port.ReadVersionPort
 import com.github.c64lib.rbt.compilers.kickass.usecase.port.SaveVersionPort
 import com.github.c64lib.rbt.shared.domain.SemVer
-import java.net.URL
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
+import org.gradle.api.Project
 
-class DownloadKickAssemblerUseCase(
-    private val downloadKickAssemblerPort: DownloadKickAssemblerPort,
-    private val readVersionPort: ReadVersionPort,
-    private val saveVersionPort: SaveVersionPort
-) {
-
-  fun apply(command: DownloadKickAssemblerCommand) {
-    val url =
-        URL("https://github.com/c64lib/asm-ka/releases/download/${command.version}/KickAss.jar")
-    val target = "${command.workDir}/asms/ka/${command.version}/KickAss.jar"
-    val versionFile = "${command.workDir}/asms/ka/version"
-    if (command.force || command.version != readVersionPort.readVersion(versionFile)) {
-      downloadKickAssemblerPort.download(url, target)
-      saveVersionPort.saveVersion(versionFile, command.version)
-    }
+class SaveVersionAdapter(private val project: Project) : SaveVersionPort {
+  override fun saveVersion(file: String, version: SemVer) {
+    val versionFile = project.file(file)
+    Files.createDirectories(versionFile.parentFile.toPath())
+    Files.writeString(
+        versionFile.toPath(),
+        version.toString(),
+        StandardOpenOption.WRITE,
+        StandardOpenOption.CREATE,
+        StandardOpenOption.TRUNCATE_EXISTING)
   }
 }
-
-data class DownloadKickAssemblerCommand(
-    val version: SemVer,
-    val workDir: String,
-    val force: Boolean = false
-)
