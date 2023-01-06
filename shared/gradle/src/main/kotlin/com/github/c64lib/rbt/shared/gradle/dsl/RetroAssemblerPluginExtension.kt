@@ -24,10 +24,10 @@ SOFTWARE.
 package com.github.c64lib.rbt.shared.gradle.dsl
 
 import com.github.c64lib.rbt.emulators.vice.domain.AutostartPrgMode
-import com.github.c64lib.rbt.shared.domain.AssemblerType
 import com.github.c64lib.rbt.shared.domain.Dependency
 import com.github.c64lib.rbt.shared.domain.DependencyType
 import com.github.c64lib.rbt.shared.domain.DependencyVersion
+import com.github.c64lib.retroassembler.domain.AssemblerType
 
 const val EXTENSION_DSL_NAME = "retroProject"
 
