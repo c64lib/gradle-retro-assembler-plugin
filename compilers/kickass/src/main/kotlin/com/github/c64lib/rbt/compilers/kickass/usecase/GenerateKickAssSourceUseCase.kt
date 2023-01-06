@@ -32,23 +32,22 @@ import com.github.c64lib.rbt.shared.domain.source.SourceModel
 import com.github.c64lib.rbt.shared.processor.TextOutputBuffer
 
 class GenerateKickAssSourceUseCase(private val writer: TextOutputBuffer) {
-  fun apply(sourceModel: SourceModel) {
-    sourceModel.stream { sourceItem ->
-      when (sourceItem) {
-        is Comment ->
-            when (sourceItem.texts.size) {
-              0 -> {}
-              1 -> writer.writeLn("// ${sourceItem.texts[0]}")
-              else -> {
-                writer.writeLn("/*")
-                sourceItem.texts.forEach { writer.writeLn("  $it") }
-                writer.writeLn("*/")
+  fun apply(sourceModel: SourceModel) =
+      sourceModel.stream { sourceItem ->
+        when (sourceItem) {
+          is Comment ->
+              when (sourceItem.texts.size) {
+                0 -> {}
+                1 -> writer.writeLn("// ${sourceItem.texts[0]}")
+                else -> {
+                  writer.writeLn("/*")
+                  sourceItem.texts.forEach { writer.writeLn("  $it") }
+                  writer.writeLn("*/")
+                }
               }
-            }
-        is Label -> writer.writeLn(".label ${sourceItem.name} = ${sourceItem.value}")
-        is Namespace -> writer.writeLn(".filenamespace ${sourceItem.name}")
-        is Separator -> writer.writeLn()
+          is Label -> writer.writeLn(".label ${sourceItem.name} = ${sourceItem.value}")
+          is Namespace -> writer.writeLn(".filenamespace ${sourceItem.name}")
+          is Separator -> writer.writeLn()
+        }
       }
-    }
-  }
 }
