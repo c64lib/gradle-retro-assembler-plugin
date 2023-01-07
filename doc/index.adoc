@@ -7,9 +7,9 @@
 :highlightjs-languages: assembly,kotlin,groovy,bash,yaml
 :stem: latexmath
 :docinfo:
-:actualKickAssVersion: 5.24
+:actualKickAssVersion: 5.25
 :actualDockerVersion: 0.1.7
-:actualPluginVersion: 1.5.4
+:actualPluginVersion: 1.6.0
 
 Retro Build Tool brings automation to the C64 software building process.
 It is implemented as a Gradle plugin.
@@ -80,7 +80,7 @@ With Retro Build Tool it is possible to generate executable artifacts and deploy
 As for now, the Retro Build Tool is not able to provide all dependencies out of the box.
 It depends on some externally available commands (mostly for non-Java based tools) such as:
 
-* Vice C64 emulator,
+* Vice C64 emulator (at least 3.7),
 * Exomizer,
 * GoatTracker 2.
 
@@ -220,24 +220,15 @@ It is also possible to run supplementary tasks manually:
 gradle resolveDevDeps downloadDeps
 ----
 
-[NOTE]
-====
-Both `resolveDevDeps` and `downloadDeps` tasks are *ALWAYS* downloading the resources from the net.
-This means that if you are offline the build will fail.
-This is a naive approach because these resources are saved on disk and can be potentially reused.
-There are plans to improve it in the future.
-====
-
-It is possible to exclude any task from execution with following syntax:
+Note, that `downloadDeps` and `resolveDevDeps` task will download relevant assets only if version has been changed, or they weren't downloaded earlier.
+If, by any reason, you would like to force downloading of these assets, you can use `forceDownload` project flag to do it:
 
 [source,bash]
 ----
-gradlew build -x resolveDevDeps -x downloadDeps
+gradle build -PforceDownload=true
 ----
 
-This was you can avoid redundant downloading or still work while offline.
-
-Similarly, you can exclude running unit tests:
+You can exclude running unit tests if you don't have appropriate Vice version installed but still want to run the build:
 
 [source,bash]
 ----
@@ -251,7 +242,7 @@ Customization can be done by setting properties in `retroProject` configuration 
 ==== Project layout
 
 Project layout means where (in which directories) to look for source files for the assembler to work on.
-The build tool allows to specify both the directories as well as which files to use.
+The build tool allows to specify both the directories and which files to use.
 
 `srcDirs`:: Provides array of directory locations where your source code (`asm` files) resides; default value: `["."]`.
 `excludes`:: Provides array of file patterns that matches source files to be excluded from assembling; default value: `[".ra/\**/*.asm"]`.
@@ -368,7 +359,7 @@ Please note, that currently only GitHub is supported as a source for library rel
 
 == Running Unit tests with 64spec
 Version 1.0.0 supports now launching unit tests written in KickAssembler.
-In order to be able to do so, a Vice 3+ must be installed on a machine where tests will be launched.
+In order to be able to do so, a Vice 3.7+ must be installed on a machine where tests will be launched.
 It is also assumed that `x64sc` command is available on the path.
 Also the 64spec library must be added to dependencies, as any other KickAssembler library:
 

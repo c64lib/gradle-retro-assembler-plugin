@@ -1,7 +1,8 @@
 /*
 MIT License
 
-Copyright (c) 2018-2022 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2023 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2023 Maciej Małecki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +24,7 @@ SOFTWARE.
 */
 package com.github.c64lib.gradle.tasks
 
-import com.github.c64lib.gradle.GROUP_BUILD
+import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import org.gradle.api.DefaultTask
 
 open class Build : DefaultTask() {

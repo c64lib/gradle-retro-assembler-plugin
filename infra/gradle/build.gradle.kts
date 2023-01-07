@@ -5,76 +5,40 @@ val gradleDownloadTaskVersion: String by project
 val tagPropertyName = "tag"
 
 plugins {
-    kotlin("jvm")
+    id("rbt.kotlin")
     id("java-gradle-plugin")
     id("maven-publish")
     id("com.gradle.plugin-publish") version "0.14.0"
-    id("com.diffplug.spotless")
 }
 
 group = "com.github.c64lib.retro-assembler"
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-}
-
-tasks {
-    val copySubProjectClasses by register("copySubProjectClasses") {
-
-        val localDependencies = project.configurations.compileOnly.get().dependencies
-            .filter { it.group == project.group }
-            .map {
-                when (it.name) {
-                    "charpad-processor",
-                    "spritepad-processor",
-                    "nybbler",
-                    "binary-utils",
-                    "processor-commons",
-                    "binary-interleaver" -> "app/${it.name}"
-                    else -> it.name
+ tasks {
+    val copySubProjectClasses by
+        register("copySubProjectClasses") {
+            doLast {
+              val localDependencies =
+                  project.configurations.compileClasspath
+                      .get()
+                      .resolvedConfiguration
+                      .firstLevelModuleDependencies
+                      .filter { it.moduleGroup.startsWith(project.group.toString()) }
+                      .flatMap { it.moduleArtifacts }
+                      .map { it.file.parentFile.parentFile }
+                copy {
+                    from(localDependencies)
+                    into(buildDir)
+                    include("classes/**")
+                    exclude("**/META-INF/*")
                 }
             }
-            .map { "../../$it" }
-
-//        outputs.files(
-//            files(localDependencies.map { "$it/build" })
-//                .asFileTree.matching {
-//                    include("classes/**")
-//                    exclude("**/META-INF/*")
-//                }
-//                .files.map { "$buildDir/${it.name}" }
-//        )
-        doLast {
-            copy {
-                from(localDependencies.map { "$it/build" })
-                into(buildDir)
-                include("classes/**")
-                exclude("**/META-INF/*")
-            }
+            group = "build"
         }
-        group = "build"
-    }
-//    named("jar") {
-//        dependsOn(copySubProjectClasses)
-//    }
-}
+ }
 
-project(":infra:gradle").tasks.jar {
-  dependsOn(tasks.named("copySubProjectClasses"))
-}
-tasks.named("copySubProjectClasses") {
-  mustRunAfter(project(":infra:gradle").tasks.classes)
-}
+project(":infra:gradle").tasks.jar { dependsOn(tasks.named("copySubProjectClasses")) }
 
-spotless {
-    kotlin {
-        ktfmt()
-        endWithNewline()
-        licenseHeaderFile(file("../../LICENSE"))
-    }
-}
+tasks.named("copySubProjectClasses") { mustRunAfter(project(":infra:gradle").tasks.classes) }
 
 pluginBundle {
     website = "https://c64lib.github.io/gradle-retro-assembler-plugin/"
@@ -91,28 +55,44 @@ gradlePlugin {
                 "Embeds various 6502 assemblers and provides basic functionality to have builds for your beloved C64"
             implementationClass = "com.github.c64lib.gradle.RetroAssemblerPlugin"
         }
-
     }
 }
 
 dependencies {
     implementation(gradleApi())
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-    implementation("de.undercouch:gradle-download-task:$gradleDownloadTaskVersion")
     implementation("io.vavr:vavr:$vavrVersion")
-    compileOnly(project(":domain"))
-    compileOnly(project(":app:binary-utils"))
-    compileOnly(project(":app:processor-commons"))
-    compileOnly(project(":app:charpad-processor"))
-    compileOnly(project(":app:spritepad-processor"))
-    compileOnly(project(":app:binary-interleaver"))
-    compileOnly(project(":app:nybbler"))
+
+    compileOnly(project(":shared:domain"))
+    compileOnly(project(":shared:gradle"))
+    compileOnly(project(":shared:filedownload"))
+    compileOnly(project(":shared:binary-utils"))
+    compileOnly(project(":shared:processor"))
+
+    compileOnly(project(":compilers:kickass"))
+    compileOnly(project(":compilers:kickass:adapters:in:gradle"))
+    compileOnly(project(":compilers:kickass:adapters:out:gradle"))
+    compileOnly(project(":compilers:kickass:adapters:out:filedownload"))
+
+    compileOnly(project(":emulators:vice"))
+    compileOnly(project(":emulators:vice:adapters:out:gradle"))
+
+    compileOnly(project(":testing:64spec"))
+    compileOnly(project(":testing:64spec:adapters:in:gradle"))
+
+    compileOnly(project(":dependencies"))
+    compileOnly(project(":dependencies:adapters:in:gradle"))
+    compileOnly(project(":dependencies:adapters:out:gradle"))
+
+    compileOnly(project(":processors:goattracker"))
+    compileOnly(project(":processors:goattracker:adapters:in:gradle"))
+    compileOnly(project(":processors:goattracker:adapters:out:gradle"))
+
+    compileOnly(project(":processors:spritepad"))
+    compileOnly(project(":processors:spritepad:adapters:in:gradle"))
+
+    compileOnly(project(":processors:charpad"))
+    compileOnly(project(":processors:charpad:adapters:in:gradle"))
 }
 
-publishing {
-    repositories {
-        maven {
-            url = uri("../../../consuming/maven-repo")
-        }
-    }
-}
+publishing { repositories { maven { url = uri("../../../consuming/maven-repo") } } }

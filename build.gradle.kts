@@ -3,19 +3,15 @@ val gradleDownloadTaskVersion: String by project
 val tagPropertyName = "tag"
 
 plugins {
-    kotlin("jvm") version "1.7.0"
-    id("com.diffplug.spotless") version "6.12.0"
+    kotlin("jvm")
+    id("com.diffplug.spotless")
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-}
 
 allprojects {
 
     group = "com.github.c64lib"
-    version = "1.5.4"
+    version = "1.6.0"
 
     if (project.hasProperty(tagPropertyName)) {
         version = project.property(tagPropertyName) ?: version
@@ -28,6 +24,7 @@ allprojects {
 	}
     }
 }
+
 
 tasks {
     val collectTestResults by register("collectTestResults") {
@@ -45,4 +42,8 @@ tasks {
         }
     }
     collectTestResults.dependsOn(named("test"))
+}
+
+dependencies {
+  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10")
 }

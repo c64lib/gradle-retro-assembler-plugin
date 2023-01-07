@@ -1,5 +1,10 @@
 = Change log
 
+1.6.0::
+* KickAssembler are now longer downloaded if there is no need to do so.
+* Dependencies are no longer downloaded if there is no need to do so.
+* Download mechanism has been reimplemented. Additional external dependency to download files is no longer needed.
+
 1.5.4::
 * `Goattracker`: Using relative paths instead of absolute. Long, absolute path caused gt2reloc to segfault while on Linux.
 * `Test`: Update vice start parameters to be compatible with x64sc v 3.7. Older versions of Vice are not supported.
