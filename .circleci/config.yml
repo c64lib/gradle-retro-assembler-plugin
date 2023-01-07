@@ -32,7 +32,7 @@ jobs:
 
   documentation:
     docker:
-      - image: circleci/jruby:latest
+      - image: cimg/openjdk:11.0
     steps:
       - checkout
       - run: ./gradlew asciidoctor
