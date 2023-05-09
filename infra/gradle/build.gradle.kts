@@ -93,6 +93,10 @@ dependencies {
 
     compileOnly(project(":processors:charpad"))
     compileOnly(project(":processors:charpad:adapters:in:gradle"))
+
+    compileOnly(project(":processors:image"))
+    compileOnly(project(":processors:image:adapters:in:gradle"))
+    compileOnly(project(":processors:image:adapters:out:png"))
 }
 
 publishing { repositories { maven { url = uri("../../../consuming/maven-repo") } } }

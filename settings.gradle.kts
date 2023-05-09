@@ -34,4 +34,8 @@ include(":processors:spritepad:adapters:in:gradle")
 include(":processors:charpad")
 include(":processors:charpad:adapters:in:gradle")
 
+include(":processors:image")
+include(":processors:image:adapters:in:gradle")
+include(":processors:image:adapters:out:png")
+
 include(":doc")
