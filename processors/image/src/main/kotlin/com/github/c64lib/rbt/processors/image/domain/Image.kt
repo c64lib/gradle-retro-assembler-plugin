@@ -81,4 +81,19 @@ class Image(val width: Int, val height: Int) {
 
     return newImage
   }
+
+  fun dump() {
+    for (y in 0 until height) {
+      for (x in 0 until width) {
+        print(
+            if (pixels[y][x] == Color(0, 0, 0, 255)) {
+              "."
+            } else {
+              "#"
+            },
+        )
+      }
+      println()
+    }
+  }
 }
