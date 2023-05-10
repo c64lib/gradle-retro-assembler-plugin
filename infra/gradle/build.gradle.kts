@@ -97,6 +97,7 @@ dependencies {
     compileOnly(project(":processors:image"))
     compileOnly(project(":processors:image:adapters:in:gradle"))
     compileOnly(project(":processors:image:adapters:out:png"))
+    compileOnly(project(":processors:image:adapters:out:file"))
 }
 
 publishing { repositories { maven { url = uri("../../../consuming/maven-repo") } } }
