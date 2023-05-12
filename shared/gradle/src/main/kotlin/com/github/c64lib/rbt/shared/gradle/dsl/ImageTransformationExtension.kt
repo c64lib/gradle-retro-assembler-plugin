@@ -26,43 +26,48 @@ package com.github.c64lib.rbt.shared.gradle.dsl
 
 import javax.inject.Inject
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.model.ObjectFactory
 
-const val PREPROCESSING_EXTENSION_DSL_NAME = "preprocess"
-
-abstract class PreprocessingExtension
+abstract class ImageTransformationExtension
 @Inject
-constructor(private val objectFactory: ObjectFactory) {
+constructor(protected val objectFactory: ObjectFactory) {
+  private var spriteWriter: ImageWriterExtension? = null
 
-  val charpadPipelines = ArrayList<CharpadPipelineExtension>()
+  private var bitmapWriter: ImageWriterExtension? = null
 
-  val spritepadPipelines = ArrayList<SpritepadPipelineExtension>()
+  private var cut: ImageCutExtension? = null
 
-  val goattrackerPipelines = ArrayList<GoattrackerPipelineExtension>()
+  private var split: ImageSplitExtension? = null
 
-  val imagePipelines = ArrayList<ImagePipelineExtension>()
+  private var extend: ImageExtendExtension? = null
 
-  fun charpad(action: Action<CharpadPipelineExtension>) {
-    val ex = objectFactory.newInstance(CharpadPipelineExtension::class.java)
-    action.execute(ex)
-    charpadPipelines.add(ex)
+  fun sprite(action: Action<ImageWriterExtension>) {
+    spriteWriter = execute(spriteWriter, action, ImageWriterExtension::class.java)
   }
 
-  fun spritepad(action: Action<SpritepadPipelineExtension>) {
-    val ex = objectFactory.newInstance(SpritepadPipelineExtension::class.java)
-    action.execute(ex)
-    spritepadPipelines.add(ex)
+  fun bitmap(action: Action<ImageWriterExtension>) {
+    bitmapWriter = execute(bitmapWriter, action, ImageWriterExtension::class.java)
   }
 
-  fun goattracker(action: Action<GoattrackerPipelineExtension>) {
-    val ex = objectFactory.newInstance(GoattrackerPipelineExtension::class.java)
-    action.execute(ex)
-    goattrackerPipelines.add(ex)
+  fun cut(action: Action<ImageCutExtension>) {
+    cut = execute(cut, action, ImageCutExtension::class.java)
   }
 
-  fun image(action: Action<ImagePipelineExtension>) {
-    val ex = objectFactory.newInstance(ImagePipelineExtension::class.java)
+  fun split(action: Action<ImageSplitExtension>) {
+    split = execute(split, action, ImageSplitExtension::class.java)
+  }
+
+  fun extend(action: Action<ImageExtendExtension>) {
+    extend = execute(extend, action, ImageExtendExtension::class.java)
+  }
+
+  private fun <T> execute(value: T?, action: Action<T>, clazz: Class<T>): T {
+    if (value != null) {
+      throw GradleException("This action can be called only once (${clazz.name}).")
+    }
+    val ex = requireNotNull(objectFactory.newInstance(clazz))
     action.execute(ex)
-    imagePipelines.add(ex)
+    return ex
   }
 }

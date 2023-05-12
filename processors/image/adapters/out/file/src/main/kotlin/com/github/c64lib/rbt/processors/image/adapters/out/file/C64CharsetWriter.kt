@@ -24,9 +24,9 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.processors.image.adapters.out.file
 
-import com.github.c64lib.rbt.processors.image.domain.Color
 import com.github.c64lib.rbt.processors.image.domain.Image
 import com.github.c64lib.rbt.processors.image.usecase.port.WriteCharsetPort
+import com.github.c64lib.rbt.shared.domain.Color
 import java.io.File
 import java.io.FileOutputStream
 

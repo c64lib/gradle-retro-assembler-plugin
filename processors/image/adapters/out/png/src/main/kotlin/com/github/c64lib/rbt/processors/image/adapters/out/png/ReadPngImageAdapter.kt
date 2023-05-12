@@ -30,9 +30,9 @@ import ar.com.hjg.pngj.ImageLineHelper
 import ar.com.hjg.pngj.ImageLineInt
 import ar.com.hjg.pngj.PngReader
 import ar.com.hjg.pngj.chunks.PngChunkPLTE
-import com.github.c64lib.rbt.processors.image.domain.Color
 import com.github.c64lib.rbt.processors.image.domain.Image
 import com.github.c64lib.rbt.processors.image.usecase.port.ReadImagePort
+import com.github.c64lib.rbt.shared.domain.Color
 import java.io.File
 
 class ReadPngImageAdapter : ReadImagePort {

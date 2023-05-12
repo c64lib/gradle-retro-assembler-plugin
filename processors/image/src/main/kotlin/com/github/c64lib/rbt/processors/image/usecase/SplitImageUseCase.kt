@@ -25,16 +25,33 @@ SOFTWARE.
 package com.github.c64lib.rbt.processors.image.usecase
 
 import com.github.c64lib.rbt.processors.image.domain.Image
-import com.github.c64lib.rbt.shared.domain.Color
 
-data class ExtendImageCommand(
-    val image: Image,
-    val newWidth: Int,
-    val newHeight: Int,
-    val fillColor: Color = Color(0, 0, 0, 0)
-)
+data class SplitImageCommand(val image: Image, val subImageWidth: Int, val subImageHeight: Int)
 
-class ExtendImageUseCase {
-  fun apply(command: ExtendImageCommand): Image =
-      command.image.extend(command.newWidth, command.newHeight, command.fillColor)
+class SplitImageUseCase {
+  fun apply(command: SplitImageCommand): Array<Image> {
+    require(command.subImageWidth > 0) { "Subimage width must be greater than 0" }
+    require(command.subImageHeight > 0) { "Subimage height must be greater than 0" }
+    require(command.image.width % command.subImageWidth == 0) {
+      "Image width must be a multiple of subimage width"
+    }
+    require(command.image.height % command.subImageHeight == 0) {
+      "Image height must be a multiple of subimage height"
+    }
+
+    val numRows = command.image.height / command.subImageHeight
+    val numCols = command.image.width / command.subImageWidth
+    val subImages = mutableListOf<Image>()
+
+    for (row in 0 until numRows) {
+      for (col in 0 until numCols) {
+        val left = col * command.subImageWidth
+        val top = row * command.subImageHeight
+        subImages.add(
+            command.image.subImage(top, left, command.subImageWidth, command.subImageHeight))
+      }
+    }
+
+    return subImages.toTypedArray()
+  }
 }

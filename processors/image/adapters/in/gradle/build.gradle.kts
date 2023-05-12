@@ -10,4 +10,5 @@ dependencies {
   implementation(project(":shared:gradle"))
   implementation(project(":shared:binary-utils"))
   implementation(project(":shared:processor"))
+  implementation(project(":shared:domain"))
 }

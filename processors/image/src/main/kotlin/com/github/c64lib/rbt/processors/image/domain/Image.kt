@@ -24,7 +24,7 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.processors.image.domain
 
-data class Color(val red: Int, val green: Int, val blue: Int, val alpha: Int)
+import com.github.c64lib.rbt.shared.domain.Color
 
 class Image(val width: Int, val height: Int) {
 

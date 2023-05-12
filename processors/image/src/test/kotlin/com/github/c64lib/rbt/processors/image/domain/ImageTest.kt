@@ -24,6 +24,7 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.processors.image.domain
 
+import com.github.c64lib.rbt.shared.domain.Color
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe

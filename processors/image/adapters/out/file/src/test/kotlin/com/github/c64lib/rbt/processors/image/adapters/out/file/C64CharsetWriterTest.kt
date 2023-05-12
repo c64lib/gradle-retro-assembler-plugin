@@ -24,8 +24,8 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.processors.image.adapters.out.file
 
-import com.github.c64lib.rbt.processors.image.domain.Color
 import com.github.c64lib.rbt.processors.image.domain.Image
+import com.github.c64lib.rbt.shared.domain.Color
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import java.io.File

@@ -24,17 +24,17 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.processors.image.usecase
 
-import com.github.c64lib.rbt.processors.image.domain.Color
 import com.github.c64lib.rbt.processors.image.domain.Image
+import com.github.c64lib.rbt.shared.domain.Color
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 
-class CutImageUseCaseTest :
+class SplitImageUseCaseTest :
     BehaviorSpec({
       Given("A CutImageUseCase instance") {
-        val cutImageUseCase = CutImageUseCase()
+        val splitImageUseCase = SplitImageUseCase()
 
         And("An Image instance with dimensions 100x50") {
           val image =
@@ -47,8 +47,8 @@ class CutImageUseCaseTest :
               }
 
           When("a CutImageCommand with valid parameters is provided") {
-            val command = CutImageCommand(image, 20, 25)
-            val subImages = cutImageUseCase.apply(command)
+            val command = SplitImageCommand(image, 20, 25)
+            val subImages = splitImageUseCase.apply(command)
 
             Then("it should return an array of Image objects with the correct dimensions") {
               subImages shouldHaveSize 10
@@ -75,8 +75,8 @@ class CutImageUseCaseTest :
 
           When("a CutImageCommand with invalid parameters is provided") {
             Then("it should throw an exception") {
-              val invalidCommand = CutImageCommand(image, 0, 50)
-              shouldThrow<IllegalArgumentException> { cutImageUseCase.apply(invalidCommand) }
+              val invalidCommand = SplitImageCommand(image, 0, 50)
+              shouldThrow<IllegalArgumentException> { splitImageUseCase.apply(invalidCommand) }
             }
           }
         }

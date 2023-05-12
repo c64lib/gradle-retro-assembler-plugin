@@ -24,9 +24,9 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.processors.image.usecase
 
-import com.github.c64lib.rbt.processors.image.domain.Color
 import com.github.c64lib.rbt.processors.image.domain.Image
 import com.github.c64lib.rbt.processors.image.usecase.port.ReadImagePort
+import com.github.c64lib.rbt.shared.domain.Color
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize

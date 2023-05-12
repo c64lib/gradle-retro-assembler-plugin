@@ -4,4 +4,5 @@ plugins {
 
 dependencies {
     implementation(project(":processors:image"))
+    implementation(project(":shared:domain"))
 }
