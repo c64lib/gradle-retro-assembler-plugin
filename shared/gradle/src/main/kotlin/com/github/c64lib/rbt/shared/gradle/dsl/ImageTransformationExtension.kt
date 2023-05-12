@@ -32,15 +32,15 @@ import org.gradle.api.model.ObjectFactory
 abstract class ImageTransformationExtension
 @Inject
 constructor(protected val objectFactory: ObjectFactory) {
-  private var spriteWriter: ImageWriterExtension? = null
+  var spriteWriter: ImageWriterExtension? = null
 
-  private var bitmapWriter: ImageWriterExtension? = null
+  var bitmapWriter: ImageWriterExtension? = null
 
-  private var cut: ImageCutExtension? = null
+  var cut: ImageCutExtension? = null
 
-  private var split: ImageSplitExtension? = null
+  var split: ImageSplitExtension? = null
 
-  private var extend: ImageExtendExtension? = null
+  var extend: ImageExtendExtension? = null
 
   fun sprite(action: Action<ImageWriterExtension>) {
     spriteWriter = execute(spriteWriter, action, ImageWriterExtension::class.java)

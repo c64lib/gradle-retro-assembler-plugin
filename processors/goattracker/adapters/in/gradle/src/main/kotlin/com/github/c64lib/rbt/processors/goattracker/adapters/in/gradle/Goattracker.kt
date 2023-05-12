@@ -45,25 +45,24 @@ open class Goattracker : DefaultTask() {
   @Internal lateinit var packSongUseCase: PackSongUseCase
 
   @TaskAction
-  fun process() {
-    preprocessingExtension.goattrackerPipelines.forEach { pipeline ->
-      pipeline.outputs.forEach { output ->
-        packSongUseCase.apply(
-            PackSongCommand(
-                source = pipeline.getInput().get(),
-                output = output.getOutput().get(),
-                executable = output.executable,
-                useBuildDir = pipeline.getUseBuildDir().getOrElse(false),
-                bufferedSidWrites = output.bufferedSidWrites,
-                disableOptimization = output.disableOptimization,
-                playerMemoryLocation = output.playerMemoryLocation,
-                sfxSupport = output.sfxSupport,
-                sidMemoryLocation = output.sidMemoryLocation,
-                storeAuthorInfo = output.storeAuthorInfo,
-                volumeChangeSupport = output.volumeChangeSupport,
-                zeroPageLocation = output.zeroPageLocation,
-                zeropageGhostRegisters = output.zeropageGhostRegisters))
+  fun process() =
+      preprocessingExtension.goattrackerPipelines.forEach { pipeline ->
+        pipeline.outputs.forEach { output ->
+          packSongUseCase.apply(
+              PackSongCommand(
+                  source = pipeline.getInput().get(),
+                  output = output.getOutput().get(),
+                  executable = output.executable,
+                  useBuildDir = pipeline.getUseBuildDir().getOrElse(false),
+                  bufferedSidWrites = output.bufferedSidWrites,
+                  disableOptimization = output.disableOptimization,
+                  playerMemoryLocation = output.playerMemoryLocation,
+                  sfxSupport = output.sfxSupport,
+                  sidMemoryLocation = output.sidMemoryLocation,
+                  storeAuthorInfo = output.storeAuthorInfo,
+                  volumeChangeSupport = output.volumeChangeSupport,
+                  zeroPageLocation = output.zeroPageLocation,
+                  zeropageGhostRegisters = output.zeropageGhostRegisters))
+        }
       }
-    }
-  }
 }
