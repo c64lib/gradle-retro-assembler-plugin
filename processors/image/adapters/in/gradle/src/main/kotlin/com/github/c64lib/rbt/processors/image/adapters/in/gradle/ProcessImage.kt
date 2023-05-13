@@ -49,7 +49,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
-class ProcessImage : DefaultTask() {
+open class ProcessImage : DefaultTask() {
 
   init {
     description = "Processes PNG Image and convert it into hardware or software sprite shape(s)."

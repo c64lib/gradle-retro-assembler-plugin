@@ -25,10 +25,13 @@ SOFTWARE.
 package com.github.c64lib.rbt.shared.gradle.dsl
 
 import com.github.c64lib.rbt.shared.domain.Color
+import javax.inject.Inject
 import org.gradle.api.model.ObjectFactory
 
-class ImageExtendExtension(objectFactory: ObjectFactory) :
-    ImageTransformationExtension(objectFactory) {
+abstract class ImageExtendExtension : ImageTransformationExtension {
+
+  @Inject constructor(objectFactory: ObjectFactory) : super(objectFactory)
+
   var newWidth: Int? = null
   var newHeight: Int? = null
   var fillColor: Color = Color(0, 0, 0, 255)

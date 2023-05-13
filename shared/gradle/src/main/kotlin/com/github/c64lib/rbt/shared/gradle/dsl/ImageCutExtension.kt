@@ -24,10 +24,12 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.shared.gradle.dsl
 
+import javax.inject.Inject
 import org.gradle.api.model.ObjectFactory
 
-abstract class ImageCutExtension(objectFactory: ObjectFactory) :
-    ImageTransformationExtension(objectFactory) {
+abstract class ImageCutExtension : ImageTransformationExtension {
+
+  @Inject constructor(objectFactory: ObjectFactory) : super(objectFactory)
 
   var left: Int = 0
   var top: Int = 0

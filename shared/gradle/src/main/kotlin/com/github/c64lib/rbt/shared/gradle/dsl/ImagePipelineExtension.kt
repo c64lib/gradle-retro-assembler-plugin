@@ -25,13 +25,15 @@ SOFTWARE.
 package com.github.c64lib.rbt.shared.gradle.dsl
 
 import java.io.File
+import javax.inject.Inject
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 
-abstract class ImagePipelineExtension(objectFactory: ObjectFactory) :
-    ImageTransformationExtension(objectFactory) {
+abstract class ImagePipelineExtension : ImageTransformationExtension {
+
+  @Inject constructor(objectFactory: ObjectFactory) : super(objectFactory)
 
   @InputFiles abstract fun getInput(): Property<File>
 
