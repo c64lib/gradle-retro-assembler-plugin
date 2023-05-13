@@ -30,6 +30,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.nio.file.Files
+import org.gradle.api.Project
+import org.mockito.Mockito
 
 class C64CharsetWriterTest :
     BehaviorSpec({
@@ -49,14 +51,15 @@ class C64CharsetWriterTest :
       }
 
       Given("a C64CharsetWriter instance") {
-        val writer = C64CharsetWriter()
+        val project = Mockito.mock(Project::class.java)
+        val writer = C64CharsetWriter(project)
 
         When("writing a valid image to a file") {
           val image = createTestImage()
           val outputFile = File.createTempFile("charset_", ".bin")
           outputFile.deleteOnExit()
 
-          writer.write(image, outputFile)
+          writer.write(image, outputFile, false)
 
           Then("the resulting file should have the correct size and data") {
             val charsetData = readCharsetData(outputFile)

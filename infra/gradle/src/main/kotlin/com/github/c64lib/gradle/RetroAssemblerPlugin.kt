@@ -137,7 +137,8 @@ class RetroAssemblerPlugin : Plugin<Project> {
           project.tasks.create(TASK_IMAGE, ProcessImage::class.java) { task ->
             task.preprocessingExtension = preprocessExtension
             task.readSourceImageUseCase = ReadSourceImageUseCase(ReadPngImageAdapter())
-            task.writeImageUseCase = WriteImageUseCase(C64SpriteWriter(), C64CharsetWriter())
+            task.writeImageUseCase =
+                WriteImageUseCase(C64SpriteWriter(project), C64CharsetWriter(project))
             task.cutImageUseCase = CutImageUseCase()
             task.extendImageUseCase = ExtendImageUseCase()
             task.splitImageUseCase = SplitImageUseCase()

@@ -28,5 +28,5 @@ import com.github.c64lib.rbt.processors.image.domain.Image
 import java.io.File
 
 interface WriteCharsetPort {
-  fun write(image: Image, toFile: File)
+  fun write(image: Image, toFile: File, useBuildDir: Boolean)
 }

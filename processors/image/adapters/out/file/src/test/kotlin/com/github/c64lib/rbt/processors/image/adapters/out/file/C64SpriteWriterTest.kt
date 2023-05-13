@@ -30,6 +30,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.nio.file.Files
+import org.gradle.api.Project
+import org.mockito.Mockito
 
 class C64SpriteWriterTest :
     BehaviorSpec({
@@ -49,14 +51,15 @@ class C64SpriteWriterTest :
       }
 
       Given("a C64SpriteWriter instance") {
-        val writer = C64SpriteWriter()
+        val project = Mockito.mock(Project::class.java)
+        val writer = C64SpriteWriter(project)
 
         When("writing a valid image to a file") {
           val image = createTestImage()
           val outputFile = File.createTempFile("sprite_", ".bin")
           outputFile.deleteOnExit()
 
-          writer.write(image, outputFile)
+          writer.write(image, outputFile, false)
 
           Then("the resulting file should have the correct size and data") {
             val spriteData = readSpriteData(outputFile)

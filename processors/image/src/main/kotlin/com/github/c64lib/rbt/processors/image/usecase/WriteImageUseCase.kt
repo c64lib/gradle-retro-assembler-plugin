@@ -34,7 +34,12 @@ enum class WriteMethod {
   BITMAP
 }
 
-data class WriteImageCommand(val image: Image, val method: WriteMethod, val output: File)
+data class WriteImageCommand(
+    val image: Image,
+    val method: WriteMethod,
+    val output: File,
+    val useBuildDir: Boolean
+)
 
 class WriteImageUseCase(
     private val writeSpritePort: WriteSpritePort,
@@ -42,7 +47,9 @@ class WriteImageUseCase(
 ) {
   fun apply(command: WriteImageCommand) =
       when (command.method) {
-        WriteMethod.SPRITE -> writeSpritePort.write(command.image, command.output)
-        WriteMethod.BITMAP -> writeCharsetPort.write(command.image, command.output)
+        WriteMethod.SPRITE ->
+            writeSpritePort.write(command.image, command.output, command.useBuildDir)
+        WriteMethod.BITMAP ->
+            writeCharsetPort.write(command.image, command.output, command.useBuildDir)
       }
 }

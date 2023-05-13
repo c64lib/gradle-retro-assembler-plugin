@@ -36,6 +36,7 @@ import com.github.c64lib.rbt.processors.image.usecase.SplitImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.WriteImageCommand
 import com.github.c64lib.rbt.processors.image.usecase.WriteImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.WriteMethod
+import com.github.c64lib.rbt.shared.domain.Color
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.dsl.ImageCutExtension
 import com.github.c64lib.rbt.shared.gradle.dsl.ImageExtendExtension
@@ -73,10 +74,14 @@ open class ProcessImage : DefaultTask() {
       preprocessingExtension.imagePipelines.forEach { pipeline ->
         val inputFile = requireNotNull(pipeline.getInput().get())
         val image = readSourceImageUseCase.apply(ReadSourceImageCommand(inputFile))
-        process(arrayOf(image), pipeline)
+        process(arrayOf(image), pipeline, pipeline.getUseBuildDir().get() ?: true)
       }
 
-  private fun process(images: Array<Image>, extension: ImageTransformationExtension) {
+  private fun process(
+      images: Array<Image>,
+      extension: ImageTransformationExtension,
+      useBuildDir: Boolean
+  ) {
 
     val postImages: Array<Image> =
         images
@@ -101,7 +106,7 @@ open class ProcessImage : DefaultTask() {
                                 image = it,
                                 newWidth = extension.newWidth ?: it.width,
                                 newHeight = extension.newHeight ?: it.height,
-                            ),
+                                fillColor = extension.fillColor ?: Color(0, 0, 0, 255)),
                         ),
                     )
                 is ImageSplitExtension ->
@@ -119,30 +124,30 @@ open class ProcessImage : DefaultTask() {
             }
             .toTypedArray()
 
-    extension.cut?.let { process(postImages, it) }
-    extension.split?.let { process(postImages, it) }
-    extension.extend?.let { process(postImages, it) }
+    extension.cut?.let { process(postImages, it, useBuildDir) }
+    extension.split?.let { process(postImages, it, useBuildDir) }
+    extension.extend?.let { process(postImages, it, useBuildDir) }
 
     extension.spriteWriter?.let {
-      images.forEachIndexed { i, image ->
+      postImages.forEachIndexed { i, image ->
         writeImageUseCase.apply(
             WriteImageCommand(
                 image,
                 WriteMethod.SPRITE,
                 toIndexedName(it.getOutput().get(), i, images),
-            ),
+                useBuildDir),
         )
       }
     }
 
     extension.bitmapWriter?.let {
-      images.forEachIndexed { i, image ->
+      postImages.forEachIndexed { i, image ->
         writeImageUseCase.apply(
             WriteImageCommand(
                 image,
                 WriteMethod.BITMAP,
                 toIndexedName(it.getOutput().get(), i, images),
-            ),
+                useBuildDir),
         )
       }
     }
@@ -152,6 +157,6 @@ open class ProcessImage : DefaultTask() {
       when (array.size) {
         1 -> file
         0 -> throw GradleException("No images to process")
-        else -> File("${file.nameWithoutExtension}_${index}.${file.extension}")
+        else -> File(file.parent, "${file.nameWithoutExtension}_${index}.${file.extension}")
       }
 }

@@ -22,11 +22,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.processors.image.usecase.port
-
-import com.github.c64lib.rbt.processors.image.domain.Image
 import java.io.File
+import org.gradle.api.Project
 
-interface WriteSpritePort {
-  fun write(image: Image, toFile: File, useBuildDir: Boolean)
-}
+internal fun normalize(project: Project, output: File?, outputToBuildDir: Boolean): File? =
+    if (output != null && outputToBuildDir) {
+      // TODO refactor!
+
+      val outputRelativePath =
+          project.layout.projectDirectory.asFile.toPath().relativize(output.toPath())
+      val resultPath =
+          project.layout.buildDirectory
+              .dir(project.buildDir.absolutePath)
+              .get()
+              .asFile
+              .toPath()
+              .resolve(outputRelativePath)
+      resultPath.parent?.toFile()?.mkdirs()
+      resultPath.toFile()
+    } else {
+      output
+    }

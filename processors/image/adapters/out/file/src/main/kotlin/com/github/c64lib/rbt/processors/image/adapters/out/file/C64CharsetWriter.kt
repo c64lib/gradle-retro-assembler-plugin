@@ -29,9 +29,12 @@ import com.github.c64lib.rbt.processors.image.usecase.port.WriteCharsetPort
 import com.github.c64lib.rbt.shared.domain.Color
 import java.io.File
 import java.io.FileOutputStream
+import normalize
+import org.gradle.api.Project
 
-class C64CharsetWriter : WriteCharsetPort {
-  override fun write(image: Image, toFile: File) {
+class C64CharsetWriter(private val project: Project) : WriteCharsetPort {
+
+  override fun write(image: Image, toFile: File, useBuildDir: Boolean) {
     require(image.width % 8 == 0) {
       "Image width must be a multiple of 8 for Commodore 64 hires charset"
     }
@@ -65,7 +68,7 @@ class C64CharsetWriter : WriteCharsetPort {
       }
     }
 
-    FileOutputStream(toFile).use { it.write(charsetData) }
+    FileOutputStream(normalize(project, toFile, useBuildDir)).use { it.write(charsetData) }
   }
 
   private fun pixelValue(color: Color) = if (color != Color(0, 0, 0, 255)) 1 else 0

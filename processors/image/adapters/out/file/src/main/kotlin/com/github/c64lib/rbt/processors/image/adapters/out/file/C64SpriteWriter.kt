@@ -29,9 +29,13 @@ import com.github.c64lib.rbt.processors.image.usecase.port.WriteSpritePort
 import com.github.c64lib.rbt.shared.domain.Color
 import java.io.File
 import java.io.FileOutputStream
+import normalize
+import org.gradle.api.Project
 
-class C64SpriteWriter : WriteSpritePort {
-  override fun write(image: Image, toFile: File) {
+class C64SpriteWriter(
+    private val project: Project,
+) : WriteSpritePort {
+  override fun write(image: Image, toFile: File, useBuildDir: Boolean) {
     require(image.width == 24) { "Sprite width must be 24 pixels for Commodore 64 hires sprites" }
     require(image.height == 21) { "Sprite height must be 21 pixels for Commodore 64 hires sprites" }
 
@@ -53,7 +57,7 @@ class C64SpriteWriter : WriteSpritePort {
       }
     }
 
-    FileOutputStream(toFile).use { it.write(spriteData) }
+    FileOutputStream(normalize(project, toFile, useBuildDir)).use { it.write(spriteData) }
   }
 
   private fun pixelValue(color: Color): Int {

@@ -2,7 +2,9 @@ val kotlinVersion: String by project
 val vavrVersion: String by project
 val vavrKotlinVersion: String by project
 val gradleDownloadTaskVersion: String by project
+val pngjVersion: String by project
 val tagPropertyName = "tag"
+
 
 plugins {
     id("rbt.kotlin")
@@ -12,6 +14,15 @@ plugins {
 }
 
 group = "com.github.c64lib.retro-assembler"
+
+configurations {
+  // Create a new configuration that extends from 'implementation'
+  create("resolvableImplementation") {
+    extendsFrom(project.configurations.implementation.get())
+    isCanBeResolved = true
+  }
+}
+
 
  tasks {
     val copySubProjectClasses by
@@ -25,6 +36,8 @@ group = "com.github.c64lib.retro-assembler"
                       .filter { it.moduleGroup.startsWith(project.group.toString()) }
                       .flatMap { it.moduleArtifacts }
                       .map { it.file.parentFile.parentFile }
+
+
                 copy {
                     from(localDependencies)
                     into(buildDir)
@@ -62,6 +75,7 @@ dependencies {
     implementation(gradleApi())
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("io.vavr:vavr:$vavrVersion")
+    implementation("ar.com.hjg:pngj:$pngjVersion")
 
     compileOnly(project(":shared:domain"))
     compileOnly(project(":shared:gradle"))
