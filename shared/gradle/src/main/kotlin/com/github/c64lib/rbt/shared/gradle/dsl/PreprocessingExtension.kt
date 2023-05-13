@@ -40,6 +40,8 @@ constructor(private val objectFactory: ObjectFactory) {
 
   val goattrackerPipelines = ArrayList<GoattrackerPipelineExtension>()
 
+  val imagePipelines = ArrayList<ImagePipelineExtension>()
+
   fun charpad(action: Action<CharpadPipelineExtension>) {
     val ex = objectFactory.newInstance(CharpadPipelineExtension::class.java)
     action.execute(ex)
@@ -56,5 +58,11 @@ constructor(private val objectFactory: ObjectFactory) {
     val ex = objectFactory.newInstance(GoattrackerPipelineExtension::class.java)
     action.execute(ex)
     goattrackerPipelines.add(ex)
+  }
+
+  fun image(action: Action<ImagePipelineExtension>) {
+    val ex = objectFactory.newInstance(ImagePipelineExtension::class.java)
+    action.execute(ex)
+    imagePipelines.add(ex)
   }
 }

@@ -35,6 +35,7 @@ dependencies {
   implementation("io.vavr:vavr-kotlin:0.10.2")
   testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
   testImplementation("io.kotest:kotest-runner-junit5:4.5.0")
+  testImplementation("org.mockito:mockito-core:3.11.2")
 }
 
 tasks.withType<Test> { useJUnitPlatform() }
