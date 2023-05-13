@@ -53,6 +53,15 @@ import com.github.c64lib.rbt.processors.charpad.adapters.`in`.gradle.Charpad
 import com.github.c64lib.rbt.processors.goattracker.adapters.`in`.gradle.Goattracker
 import com.github.c64lib.rbt.processors.goattracker.adapters.out.gradle.ExecuteGt2RelocAdapter
 import com.github.c64lib.rbt.processors.goattracker.usecase.PackSongUseCase
+import com.github.c64lib.rbt.processors.image.adapters.`in`.gradle.ProcessImage
+import com.github.c64lib.rbt.processors.image.adapters.out.file.C64CharsetWriter
+import com.github.c64lib.rbt.processors.image.adapters.out.file.C64SpriteWriter
+import com.github.c64lib.rbt.processors.image.adapters.out.png.ReadPngImageAdapter
+import com.github.c64lib.rbt.processors.image.usecase.CutImageUseCase
+import com.github.c64lib.rbt.processors.image.usecase.ExtendImageUseCase
+import com.github.c64lib.rbt.processors.image.usecase.ReadSourceImageUseCase
+import com.github.c64lib.rbt.processors.image.usecase.SplitImageUseCase
+import com.github.c64lib.rbt.processors.image.usecase.WriteImageUseCase
 import com.github.c64lib.rbt.processors.spritepad.adapters.`in`.gradle.Spritepad
 import com.github.c64lib.rbt.shared.domain.SemVer
 import com.github.c64lib.rbt.shared.filedownload.FileDownloader
@@ -63,6 +72,7 @@ import com.github.c64lib.rbt.shared.gradle.TASK_CHARPAD
 import com.github.c64lib.rbt.shared.gradle.TASK_CLEAN
 import com.github.c64lib.rbt.shared.gradle.TASK_DEPENDENCIES
 import com.github.c64lib.rbt.shared.gradle.TASK_GOATTRACKER
+import com.github.c64lib.rbt.shared.gradle.TASK_IMAGE
 import com.github.c64lib.rbt.shared.gradle.TASK_PREPROCESS
 import com.github.c64lib.rbt.shared.gradle.TASK_RESOLVE_DEV_DEPENDENCIES
 import com.github.c64lib.rbt.shared.gradle.TASK_SPRITEPAD
@@ -123,9 +133,18 @@ class RetroAssemblerPlugin : Plugin<Project> {
             task.preprocessingExtension = preprocessExtension
             task.packSongUseCase = PackSongUseCase(ExecuteGt2RelocAdapter(project))
           }
+      val image =
+          project.tasks.create(TASK_IMAGE, ProcessImage::class.java) { task ->
+            task.preprocessingExtension = preprocessExtension
+            task.readSourceImageUseCase = ReadSourceImageUseCase(ReadPngImageAdapter())
+            task.writeImageUseCase = WriteImageUseCase(C64SpriteWriter(), C64CharsetWriter())
+            task.cutImageUseCase = CutImageUseCase()
+            task.extendImageUseCase = ExtendImageUseCase()
+            task.splitImageUseCase = SplitImageUseCase()
+          }
       val preprocess = project.tasks.create(TASK_PREPROCESS, Preprocess::class.java)
 
-      preprocess.dependsOn(charpad, spritepad, goattracker)
+      preprocess.dependsOn(charpad, spritepad, goattracker, image)
 
       // TODO Somehow, the ResolveDevDeps should give the settings. How!?
       val settings =
