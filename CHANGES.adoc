@@ -1,5 +1,11 @@
 = Change log
 
+1.7.1::
+* `Image`: Flipping on X, Y or both axes added to image preprocessor.
+
+1.7.0::
+* `Image`: Adding PNG image processor to transform it into sprites or charsets. Currently cutting, splitting and extending are available.
+
 1.6.0::
 * KickAssembler are now longer downloaded if there is no need to do so.
 * Dependencies are no longer downloaded if there is no need to do so.
