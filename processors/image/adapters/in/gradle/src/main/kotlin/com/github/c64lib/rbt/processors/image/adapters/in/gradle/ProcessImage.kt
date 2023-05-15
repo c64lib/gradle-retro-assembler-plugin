@@ -29,6 +29,8 @@ import com.github.c64lib.rbt.processors.image.usecase.CutImageCommand
 import com.github.c64lib.rbt.processors.image.usecase.CutImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.ExtendImageCommand
 import com.github.c64lib.rbt.processors.image.usecase.ExtendImageUseCase
+import com.github.c64lib.rbt.processors.image.usecase.FlipImageCommand
+import com.github.c64lib.rbt.processors.image.usecase.FlipImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.ReadSourceImageCommand
 import com.github.c64lib.rbt.processors.image.usecase.ReadSourceImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.SplitImageCommand
@@ -36,10 +38,10 @@ import com.github.c64lib.rbt.processors.image.usecase.SplitImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.WriteImageCommand
 import com.github.c64lib.rbt.processors.image.usecase.WriteImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.WriteMethod
-import com.github.c64lib.rbt.shared.domain.Color
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.dsl.ImageCutExtension
 import com.github.c64lib.rbt.shared.gradle.dsl.ImageExtendExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.ImageFlipExtension
 import com.github.c64lib.rbt.shared.gradle.dsl.ImageSplitExtension
 import com.github.c64lib.rbt.shared.gradle.dsl.ImageTransformationExtension
 import com.github.c64lib.rbt.shared.gradle.dsl.PreprocessingExtension
@@ -69,6 +71,8 @@ open class ProcessImage : DefaultTask() {
 
   @Internal lateinit var splitImageUseCase: SplitImageUseCase
 
+  @Internal lateinit var flipImageUseCase: FlipImageUseCase
+
   @TaskAction
   fun process() =
       preprocessingExtension.imagePipelines.forEach { pipeline ->
@@ -87,6 +91,9 @@ open class ProcessImage : DefaultTask() {
         images
             .flatMap {
               when (extension) {
+                is ImageFlipExtension ->
+                    listOf(
+                        flipImageUseCase.apply(FlipImageCommand(image = it, axis = extension.axis)))
                 is ImageCutExtension ->
                     listOf(
                         cutImageUseCase.apply(
@@ -106,8 +113,7 @@ open class ProcessImage : DefaultTask() {
                                 image = it,
                                 newWidth = extension.newWidth ?: it.width,
                                 newHeight = extension.newHeight ?: it.height,
-                                fillColor = extension.fillColor ?: Color(0, 0, 0, 255)),
-                        ),
+                                fillColor = extension.fillColor)),
                     )
                 is ImageSplitExtension ->
                     splitImageUseCase
@@ -127,6 +133,7 @@ open class ProcessImage : DefaultTask() {
     extension.cut?.let { process(postImages, it, useBuildDir) }
     extension.split?.let { process(postImages, it, useBuildDir) }
     extension.extend?.let { process(postImages, it, useBuildDir) }
+    extension.flip?.let { process(postImages, it, useBuildDir) }
 
     extension.spriteWriter?.let {
       postImages.forEachIndexed { i, image ->

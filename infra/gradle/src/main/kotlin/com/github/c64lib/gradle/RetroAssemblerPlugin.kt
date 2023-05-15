@@ -59,6 +59,7 @@ import com.github.c64lib.rbt.processors.image.adapters.out.file.C64SpriteWriter
 import com.github.c64lib.rbt.processors.image.adapters.out.png.ReadPngImageAdapter
 import com.github.c64lib.rbt.processors.image.usecase.CutImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.ExtendImageUseCase
+import com.github.c64lib.rbt.processors.image.usecase.FlipImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.ReadSourceImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.SplitImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.WriteImageUseCase
@@ -142,6 +143,7 @@ class RetroAssemblerPlugin : Plugin<Project> {
             task.cutImageUseCase = CutImageUseCase()
             task.extendImageUseCase = ExtendImageUseCase()
             task.splitImageUseCase = SplitImageUseCase()
+            task.flipImageUseCase = FlipImageUseCase()
           }
       val preprocess = project.tasks.create(TASK_PREPROCESS, Preprocess::class.java)
 
