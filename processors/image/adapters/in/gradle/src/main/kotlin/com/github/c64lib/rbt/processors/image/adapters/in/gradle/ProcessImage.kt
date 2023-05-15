@@ -133,6 +133,7 @@ open class ProcessImage : DefaultTask() {
     extension.cut?.let { process(postImages, it, useBuildDir) }
     extension.split?.let { process(postImages, it, useBuildDir) }
     extension.extend?.let { process(postImages, it, useBuildDir) }
+    extension.flip?.let { process(postImages, it, useBuildDir) }
 
     extension.spriteWriter?.let {
       postImages.forEachIndexed { i, image ->
