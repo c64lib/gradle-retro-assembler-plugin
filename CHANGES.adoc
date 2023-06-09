@@ -1,5 +1,8 @@
 = Change log
 
+1.7.2::
+* `Image`: Reducting resolution in both X and Y axes added to the image preprocessor.
+
 1.7.1::
 * `Image`: Flipping on X, Y or both axes added to image preprocessor.
 

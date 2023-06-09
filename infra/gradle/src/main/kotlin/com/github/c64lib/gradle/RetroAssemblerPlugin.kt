@@ -61,6 +61,7 @@ import com.github.c64lib.rbt.processors.image.usecase.CutImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.ExtendImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.FlipImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.ReadSourceImageUseCase
+import com.github.c64lib.rbt.processors.image.usecase.ReduceResolutionUseCase
 import com.github.c64lib.rbt.processors.image.usecase.SplitImageUseCase
 import com.github.c64lib.rbt.processors.image.usecase.WriteImageUseCase
 import com.github.c64lib.rbt.processors.spritepad.adapters.`in`.gradle.Spritepad
@@ -144,6 +145,7 @@ class RetroAssemblerPlugin : Plugin<Project> {
             task.extendImageUseCase = ExtendImageUseCase()
             task.splitImageUseCase = SplitImageUseCase()
             task.flipImageUseCase = FlipImageUseCase()
+            task.reduceResolutionUseCase = ReduceResolutionUseCase()
           }
       val preprocess = project.tasks.create(TASK_PREPROCESS, Preprocess::class.java)
 
