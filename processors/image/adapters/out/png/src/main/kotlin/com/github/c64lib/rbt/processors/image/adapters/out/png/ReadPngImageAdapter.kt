@@ -39,8 +39,20 @@ class ReadPngImageAdapter : ReadImagePort {
   override fun read(file: File): Image {
     val pngReader = PngReader(file)
     val imageInfo: ImageInfo = pngReader.imgInfo
-    val paletteChunks = pngReader.chunksList.getById(PngChunkPLTE.ID)
-    val paletteChunk = paletteChunks.first() as PngChunkPLTE
+    val image = handlePNG(pngReader, imageInfo)
+    pngReader.end()
+
+    return image
+  }
+
+  private fun handlePNG(pngReader: PngReader, imageInfo: ImageInfo): Image =
+      if (imageInfo.channels < 3) {
+        handlePalettePNG(pngReader, imageInfo)
+      } else {
+        handleRgbaPNG(pngReader, imageInfo)
+      }
+
+  private fun handleRgbaPNG(pngReader: PngReader, imageInfo: ImageInfo): Image {
     val width = imageInfo.cols
     val height = imageInfo.rows
     val image = Image(width, height)
@@ -51,7 +63,8 @@ class ReadPngImageAdapter : ReadImagePort {
         val color =
             when (row) {
               is ImageLineInt -> {
-                val triples = toTriples(ImageLineHelper.palette2rgb(row, paletteChunk, null))
+                val scanline = row.scanline
+                val triples = toTuples(scanline, 4)
                 val r = triples[x][0]
                 val g = triples[x][1]
                 val b = triples[x][2]
@@ -65,21 +78,49 @@ class ReadPngImageAdapter : ReadImagePort {
         image[x, y] = color
       }
     }
-    pngReader.end()
-
     return image
   }
 
-  private fun toTriples(array: IntArray): Array<IntArray> {
-    if (array.size % 3 != 0) {
-      throw IllegalArgumentException("Input array size must be a multiple of 3")
+  private fun handlePalettePNG(pngReader: PngReader, imageInfo: ImageInfo): Image {
+    val paletteChunks = pngReader.chunksList.getById(PngChunkPLTE.ID)
+    val paletteChunk = paletteChunks.first() as PngChunkPLTE
+    val width = imageInfo.cols
+    val height = imageInfo.rows
+    val image = Image(width, height)
+
+    for (y in 0 until height) {
+      val row = pngReader.readRow(y)
+      for (x in 0 until width) {
+        val color =
+            when (row) {
+              is ImageLineInt -> {
+                val triples = toTuples(ImageLineHelper.palette2rgb(row, paletteChunk, null))
+                val r = triples[x][0]
+                val g = triples[x][1]
+                val b = triples[x][2]
+                val a = 255
+                Color(r, g, b, a)
+              }
+              is ImageLineByte ->
+                  throw IllegalStateException("Unsupported row type: ${row.javaClass}")
+              else -> throw IllegalStateException("Unsupported row type: ${row.javaClass}")
+            }
+        image[x, y] = color
+      }
+    }
+    return image
+  }
+
+  private fun toTuples(array: IntArray, size: Int = 3): Array<IntArray> {
+    if (array.size % size != 0) {
+      throw IllegalArgumentException("Input array size must be a multiple of $size")
     }
 
-    val tripleArraySize = array.size / 3
-    val result = Array(tripleArraySize) { IntArray(3) }
+    val tripleArraySize = array.size / size
+    val result = Array(tripleArraySize) { IntArray(size) }
 
     for (i in 0 until tripleArraySize) {
-      result[i] = intArrayOf(array[3 * i], array[3 * i + 1], array[3 * i + 2])
+      result[i] = array.sliceArray(i * size until (i + 1) * size)
     }
 
     return result

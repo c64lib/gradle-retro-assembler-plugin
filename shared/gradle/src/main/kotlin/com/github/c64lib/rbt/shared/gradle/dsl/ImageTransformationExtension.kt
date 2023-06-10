@@ -44,6 +44,8 @@ constructor(protected val objectFactory: ObjectFactory) {
 
   var flip: ImageFlipExtension? = null
 
+  var reduceResolution: ImageReduceResolutionExtension? = null
+
   fun sprite(action: Action<ImageWriterExtension>) {
     spriteWriter = execute(spriteWriter, action, ImageWriterExtension::class.java)
   }
@@ -66,6 +68,10 @@ constructor(protected val objectFactory: ObjectFactory) {
 
   fun flip(action: Action<ImageFlipExtension>) {
     flip = execute(flip, action, ImageFlipExtension::class.java)
+  }
+
+  fun reduceResolution(action: Action<ImageReduceResolutionExtension>) {
+    reduceResolution = execute(reduceResolution, action, ImageReduceResolutionExtension::class.java)
   }
 
   private fun <T> execute(value: T?, action: Action<T>, clazz: Class<T>): T {
