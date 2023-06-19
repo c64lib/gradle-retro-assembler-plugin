@@ -36,12 +36,13 @@ import org.mockito.Mockito
 class C64CharsetWriterTest :
     BehaviorSpec({
       fun createTestImage(): Image {
-        val image = Image(16, 8)
+        val image = Image(16, 16)
 
         // Draw some example pixels
         image[0, 0] = Color(255, 255, 255, 255)
         image[7, 0] = Color(255, 255, 255, 255)
         image[15, 7] = Color(255, 255, 255, 255)
+        image[15, 15] = Color(255, 255, 255, 255)
 
         return image
       }
@@ -64,9 +65,10 @@ class C64CharsetWriterTest :
           Then("the resulting file should have the correct size and data") {
             val charsetData = readCharsetData(outputFile)
 
-            charsetData.size shouldBe 16
+            charsetData.size shouldBe 32
             charsetData[0] shouldBe 0b10000001.toByte()
             charsetData[15] shouldBe 0b00000001.toByte()
+            charsetData[31] shouldBe 0b00000001.toByte()
           }
         }
       }

@@ -50,7 +50,7 @@ class C64CharsetWriter(private val project: Project) : WriteCharsetPort {
     for (blockY in 0 until numBlocksY) {
       for (blockX in 0 until numBlocksX) {
         for (y in 0 until 8) {
-          val yOffset = (blockY * 8) * numBlocksX * 8
+          val yOffset = blockY * 8
           val xOffset = blockX * 8
 
           val byte =
