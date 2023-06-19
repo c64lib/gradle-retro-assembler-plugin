@@ -31,14 +31,14 @@ class Image(val width: Int, val height: Int) {
   private val pixels = Array(height) { Array(width) { Color(0, 0, 0, 255) } }
 
   operator fun get(x: Int, y: Int): Color {
-    require(x in 0 until width) { "x coordinate out of bounds" }
-    require(y in 0 until height) { "y coordinate out of bounds" }
+    require(x in 0 until width) { "x coordinate out of bounds: $x >= $width" }
+    require(y in 0 until height) { "y coordinate out of bounds: $y >= $height" }
     return pixels[y][x]
   }
 
   operator fun set(x: Int, y: Int, color: Color) {
-    require(x in 0 until width) { "x coordinate out of bounds" }
-    require(y in 0 until height) { "y coordinate out of bounds" }
+    require(x in 0 until width) { "x coordinate out of bounds: $x >= $width" }
+    require(y in 0 until height) { "y coordinate out of bounds: $y >= $height" }
     pixels[y][x] = color
   }
 
