@@ -29,11 +29,12 @@ import java.io.File
 
 class KickAssembleUseCase(private val kickAssemblePort: KickAssemblePort) {
   fun apply(command: KickAssembleCommand) =
-      kickAssemblePort.assemble(command.libDirs, command.defines, command.source)
+      kickAssemblePort.assemble(command.libDirs, command.defines, command.values, command.source)
 }
 
 data class KickAssembleCommand(
     val libDirs: List<File>,
     val defines: List<String>,
+    val values: Map<String, String>,
     val source: File
 )
