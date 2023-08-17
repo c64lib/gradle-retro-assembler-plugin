@@ -51,6 +51,7 @@ open class RetroAssemblerPluginExtension {
   var viceAutostartPrgMode = AutostartPrgMode.VIRTUAL_FS
   var specDirs = arrayOf("spec")
   var specIncludes: Array<String> = arrayOf("**/*.spec.asm")
+  var values: Map<String, String> = mapOf()
 
   val dependencies: List<Dependency>
     get() = _dependencies

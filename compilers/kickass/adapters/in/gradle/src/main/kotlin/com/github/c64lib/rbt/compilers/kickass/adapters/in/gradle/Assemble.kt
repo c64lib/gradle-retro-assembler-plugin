@@ -53,6 +53,7 @@ open class Assemble : DefaultTask() {
             KickAssembleCommand(
                 libDirs = listOf(*extension.libDirs).map { file -> project.file(file) },
                 defines = listOf(*extension.defines),
+                values = extension.values,
                 source = sourceFile))
       }
 

@@ -47,6 +47,11 @@ internal class CommandLineBuilder(private val settings: KickAssemblerSettings) {
     return this
   }
 
+  fun variables(values: Map<String, String>): CommandLineBuilder {
+    values.entries.forEach { variable(it.key, it.value) }
+    return this
+  }
+
   fun source(source: Path): CommandLineBuilder {
     args.add(source.absolutePathString())
     return this

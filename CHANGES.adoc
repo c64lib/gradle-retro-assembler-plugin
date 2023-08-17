@@ -1,5 +1,8 @@
 = Change log
 
+1.7.4::
+* A map of values can be now passed to the KickAssembler.
+
 1.7.3::
 * `Image`: Fixing bitmap writer.
 
