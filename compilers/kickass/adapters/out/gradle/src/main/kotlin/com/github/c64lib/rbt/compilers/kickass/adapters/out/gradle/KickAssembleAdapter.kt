@@ -45,6 +45,7 @@ class KickAssembleAdapter(
           CommandLineBuilder(settings)
               .libDirs(libDirs.map { file -> file.toPath() })
               .defines(defines)
+              .variables(values)
               .source(source.toPath())
               .build()
       it.args = args
