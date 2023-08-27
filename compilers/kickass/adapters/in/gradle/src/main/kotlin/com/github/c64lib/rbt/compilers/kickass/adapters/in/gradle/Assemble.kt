@@ -54,7 +54,8 @@ open class Assemble : DefaultTask() {
                 libDirs = listOf(*extension.libDirs).map { file -> project.file(file) },
                 defines = listOf(*extension.defines),
                 values = extension.values,
-                source = sourceFile))
+                source = sourceFile,
+                outputFormat = extension.outputFormat))
       }
 
   private fun sourceFiles(): FileCollection =

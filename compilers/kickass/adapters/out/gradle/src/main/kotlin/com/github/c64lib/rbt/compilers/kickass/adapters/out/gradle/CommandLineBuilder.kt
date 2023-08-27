@@ -25,6 +25,7 @@ SOFTWARE.
 package com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle
 
 import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
+import com.github.c64lib.rbt.shared.domain.OutputFormat
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
@@ -44,6 +45,13 @@ internal class CommandLineBuilder(private val settings: KickAssemblerSettings) {
 
   fun variable(name: String, value: String): CommandLineBuilder {
     args.add(":$name=$value")
+    return this
+  }
+
+  fun outputFormat(outputFormat: OutputFormat): CommandLineBuilder {
+    if (outputFormat == OutputFormat.BIN) {
+      args.add("-binfile")
+    }
     return this
   }
 
