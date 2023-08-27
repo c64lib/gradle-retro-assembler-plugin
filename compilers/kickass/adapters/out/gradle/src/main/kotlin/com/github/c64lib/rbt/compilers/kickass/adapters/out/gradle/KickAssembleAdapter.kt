@@ -26,6 +26,7 @@ package com.github.c64lib.rbt.compilers.kickass.adapters.out.gradle
 
 import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
 import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssemblePort
+import com.github.c64lib.rbt.shared.domain.OutputFormat
 import java.io.File
 import org.gradle.api.Project
 
@@ -37,7 +38,8 @@ class KickAssembleAdapter(
       libDirs: List<File>,
       defines: List<String>,
       values: Map<String, String>,
-      source: File
+      source: File,
+      outputFormat: OutputFormat
   ) {
     project.javaexec {
       it.classpath = project.files(settings.pathToExecutable)
@@ -47,6 +49,7 @@ class KickAssembleAdapter(
               .defines(defines)
               .variables(values)
               .source(source.toPath())
+              .outputFormat(outputFormat)
               .build()
       it.args = args
       printArgs(args)

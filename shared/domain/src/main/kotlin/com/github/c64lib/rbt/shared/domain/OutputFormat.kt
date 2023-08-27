@@ -22,22 +22,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.compilers.kickass.usecase
+package com.github.c64lib.rbt.shared.domain
 
-import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssemblePort
-import com.github.c64lib.rbt.shared.domain.OutputFormat
-import java.io.File
-
-class KickAssembleUseCase(private val kickAssemblePort: KickAssemblePort) {
-  fun apply(command: KickAssembleCommand) =
-      kickAssemblePort.assemble(
-          command.libDirs, command.defines, command.values, command.source, command.outputFormat)
+enum class OutputFormat {
+  PRG,
+  BIN
 }
-
-data class KickAssembleCommand(
-    val libDirs: List<File>,
-    val defines: List<String>,
-    val values: Map<String, String>,
-    val source: File,
-    val outputFormat: OutputFormat
-)

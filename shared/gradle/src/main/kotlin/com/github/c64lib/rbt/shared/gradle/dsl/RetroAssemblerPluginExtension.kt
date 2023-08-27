@@ -28,6 +28,7 @@ import com.github.c64lib.rbt.shared.domain.AutostartPrgMode
 import com.github.c64lib.rbt.shared.domain.Dependency
 import com.github.c64lib.rbt.shared.domain.DependencyType
 import com.github.c64lib.rbt.shared.domain.DependencyVersion
+import com.github.c64lib.rbt.shared.domain.OutputFormat
 import com.github.c64lib.retroassembler.domain.AssemblerType
 
 const val EXTENSION_DSL_NAME = "retroProject"
@@ -52,6 +53,7 @@ open class RetroAssemblerPluginExtension {
   var specDirs = arrayOf("spec")
   var specIncludes: Array<String> = arrayOf("**/*.spec.asm")
   var values: Map<String, String> = mapOf()
+  var outputFormat = OutputFormat.PRG
 
   val dependencies: List<Dependency>
     get() = _dependencies

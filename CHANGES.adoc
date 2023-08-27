@@ -1,5 +1,8 @@
 = Change log
 
+1.7.5::
+* Possibility to set BIN or PRG as output format from KickAssembler.
+
 1.7.4::
 * A map of values can be now passed to the KickAssembler.
 

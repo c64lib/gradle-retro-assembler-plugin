@@ -24,6 +24,7 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.compilers.kickass.usecase.port
 
+import com.github.c64lib.rbt.shared.domain.OutputFormat
 import java.io.File
 
 interface KickAssemblePort {
@@ -31,6 +32,7 @@ interface KickAssemblePort {
       libDirs: List<File>,
       defines: List<String>,
       values: Map<String, String>,
-      source: File
+      source: File,
+      outputFormat: OutputFormat
   ): Unit
 }
