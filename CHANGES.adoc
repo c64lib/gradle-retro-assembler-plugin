@@ -1,5 +1,8 @@
 = Change log
 
+1.7.6::
+* `Charpad`: Support for CTM 9 file format.
+
 1.7.5::
 * Possibility to set BIN or PRG as output format from KickAssembler.
 
