@@ -39,6 +39,7 @@ import com.github.c64lib.rbt.processors.charpad.domain.TileTagsProducer
 import com.github.c64lib.rbt.processors.charpad.usecase.post6.CTM6Processor
 import com.github.c64lib.rbt.processors.charpad.usecase.post6.CTM7Processor
 import com.github.c64lib.rbt.processors.charpad.usecase.post6.CTM8Processor
+import com.github.c64lib.rbt.processors.charpad.usecase.post6.CTM9Processor
 import com.github.c64lib.rbt.processors.charpad.usecase.pre6.CTM5Processor
 import com.github.c64lib.rbt.shared.processor.InputByteStream
 import com.github.c64lib.rbt.shared.processor.OutputProducer
@@ -117,6 +118,7 @@ class ProcessCharpadUseCase(
       7 -> CTM7Processor(this@ProcessCharpadUseCase)
       8,
       82 -> CTM8Processor(this@ProcessCharpadUseCase, version, ctm8PrototypeCompatibility)
+      9 -> CTM9Processor(this@ProcessCharpadUseCase)
       else -> throw InvalidCTMFormatException("Unsupported version: $version")
     }
   }

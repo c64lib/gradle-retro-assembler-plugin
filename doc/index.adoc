@@ -9,7 +9,7 @@
 :docinfo:
 :actualKickAssVersion: 5.25
 :actualDockerVersion: 0.1.7
-:actualPluginVersion: 1.6.0
+:actualPluginVersion: 1.7.6
 
 Retro Build Tool brings automation to the C64 software building process.
 It is implemented as a Gradle plugin.
@@ -422,7 +422,7 @@ Retro assembler build tool supports Charpad CTM file format and provides export 
 * maps,
 * CTM file meta data.
 
-Currently supported versions of CTM file are 5, 6, 7 and 8.
+Currently supported versions of CTM file are 5, 6, 7, 8 and 9.
 
 Charpad processor is a part of preprocessor and is executed before assembling process is started.
 
