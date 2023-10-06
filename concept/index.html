@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>Retro Assembler build tools</title>
+<style>
+/* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+
+@import url("//fonts.googleapis.com/css?family=Noto+Sans:300,600italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700");
+@import url(https://cdn.jsdelivr.net/gh/asciidoctor/asciidoctor@2.0/data/stylesheets/asciidoctor-default.css); /* Default asciidoc style framework - important */
+
+/* CUSTOMISATIONS */
+/* Change the values in root for quick customisation. If you want even more fine grain... venture further. */
+
+:root{
+--maincolor:#FFFFFF;
+--primarycolor:#2c3e50;
+--secondarycolor:#ba3925;
+--tertiarycolor: #186d7a;
+--sidebarbackground:#CCC;
+--linkcolor:#b71c1c;
+--linkcoloralternate:#f44336;
+--white:#FFFFFF;
+--black:#000000;
+}
+
+/* Text styles */
+h1{color:var(--primarycolor) !important;}
+h2,h3,h4,h5,h6{color:var(--secondarycolor) !important;}
+.title{color:var(--tertiarycolor) !important; font-family:"Noto Sans",sans-serif !important;font-style: normal !important; font-weight: normal !important;}
+p{font-family: "Noto Sans",sans-serif !important}
+
+/* Table styles */
+th{font-family: "Noto Sans",sans-serif !important}
+
+/* Responsiveness fixes */
+video {
+  max-width: 100%;
+}
+
+@media all and (max-width: 600px) {
+table {
+  width: 55vw!important;
+  font-size: 3vw;
+}
+
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Retro Assembler build tools</h1>
+<div class="details">
+<span id="revnumber">version 1.7.6</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_overview">1. Overview</a>
+<ul class="sectlevel2">
+<li><a href="#_retro_assembler_project_model">1.1. Retro assembler project model</a></li>
+</ul>
+</li>
+<li><a href="#_processes">2. Processes</a>
+<ul class="sectlevel2">
+<li><a href="#_simple_assembling_process">2.1. Simple assembling process</a></li>
+<li><a href="#_resolving_external_dependencies">2.2. Resolving external dependencies</a></li>
+<li><a href="#_converting_resource_files_into_assembly">2.3. Converting resource files into assembly</a></li>
+</ul>
+</li>
+<li><a href="#_requirements">3. Requirements</a>
+<ul class="sectlevel2">
+<li><a href="#_portability">3.1. Portability</a></li>
+<li><a href="#_resource_processors">3.2. Resource processors</a></li>
+<li><a href="#_generic_processors">3.3. Generic processors</a></li>
+<li><a href="#_postprocessors">3.4. Postprocessors</a></li>
+</ul>
+</li>
+<li><a href="#_architecture">4. Architecture</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+This document is under development!
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This is initial concept paper of Retro Build Tool - an automation device to build various 8-bit targeted assembly projects.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_overview">1. Overview</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_retro_assembler_project_model">1.1. Retro assembler project model</h3>
+<div class="paragraph">
+<p>The source model of any retro assembler (MOS 6502 based) project is very simplified.
+There is no interim form of compilation process and there is no linker.
+The only means to reuse shared code is to use import directive therefore for the project it is sufficient to know all entry point files and assembly them one by one into executables (i.e. PRG files).
+All internal dependencies are specified within source files.
+All external dependencies must be handled externally (via retro assembler build tool).</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="img/domain-asm-project-model.svg" alt="domain asm project model"></span></p>
+</div>
+<div class="paragraph">
+<p>There are other kind of files kept in the project:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>data files of Charpad or similar software for developing tiled-based backgrounds,</p>
+</li>
+<li>
+<p>data files of Spritepad or similar software for developing sprites,</p>
+</li>
+<li>
+<p>source files of GoatTracker for SID music sources,</p>
+</li>
+<li>
+<p>plain images in any format to be displayed.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>All these files should be kept in source form and then convert via processors to embeddable form (i.e. binary).
+It should be possible to compress binary form if needed, i.e. via Exomizer.</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="img/domain-processors.svg" alt="domain processors"></span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_processes">2. Processes</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_simple_assembling_process">2.1. Simple assembling process</h3>
+<div class="paragraph">
+<p>In its simplest form we take a single <code>asm</code> file (an entry file) and compile it with Assembler (i.e. with KickAssembler) to get an output file (in this case this is an executable <code>prg</code> file).
+There can be plenty of additional files that are included implicitly to the entry file via <code>import</code> directive.
+For these "includes" files no separate output files are generated.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="img/process-simple-assembling.svg" alt="process simple assembling">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_resolving_external_dependencies">2.2. Resolving external dependencies</h3>
+<div class="paragraph">
+<p>Include files can be delivered as external dependencies.
+In this case these dependencies must be resolved before assembling.
+Resolving usually means: downloading them into some volatile place to enable contained <code>asm</code> files to be included by project sources.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="img/process-assembling-deps.svg" alt="process assembling deps">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_converting_resource_files_into_assembly">2.3. Converting resource files into assembly</h3>
+<div class="paragraph">
+<p>Third party software can be used to produce meaningful resources such as graphical or musical data.
+These resources require further processing in order to be embedded into the assembly program.
+Dedicated processors can be used to accomplish this conversion task.
+These processors produce <code>asm</code> files that can be included into the main program.
+Alternatively, processors can produce binary data that can also be embedded into assembly as data blocks.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="img/process-converter.svg" alt="process converter">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_requirements">3. Requirements</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_portability">3.1. Portability</h3>
+<div class="paragraph">
+<p>The Build Tool should basically run everywhere where Java runs.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_resource_processors">3.2. Resource processors</h3>
+<div class="paragraph">
+<p>These processors are intended for pre-assembling usage.</p>
+</div>
+<div class="sect3">
+<h4 id="_charpad_converter">3.2.1. Charpad converter</h4>
+<div class="paragraph">
+<p>Converts Charpad source file into the following outcomes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>charset file,</p>
+</li>
+<li>
+<p>block definition,</p>
+</li>
+<li>
+<p>map definition.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Any of the outcome is optional.
+Any of the outcome can be either and assembly file or binary file.
+Each of the outcome can result in more than one file (i.e. big map can be divided into few smaller maps using coordinates).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_spritepad_converter">3.2.2. Spritepad converter</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_goattracker_converter">3.2.3. GoatTracker converter</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_png_converter">3.2.4. PNG converter</h4>
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="_generic_processors">3.3. Generic processors</h3>
+<div class="paragraph">
+<p>These processors can be used at any stage of building.</p>
+</div>
+<div class="sect3">
+<h4 id="_cruncherpacker">3.3.1. Cruncher/packer</h4>
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="_postprocessors">3.4. Postprocessors</h3>
+<div class="paragraph">
+<p>These processors are intended for post-assembling usage.</p>
+</div>
+<div class="sect3">
+<h4 id="_1541_disk_maker">3.4.1. 1541 disk maker</h4>
+<div class="paragraph">
+<p>Produces one or more 1541 disk images with:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>given directory structure,</p>
+</li>
+<li>
+<p>converted binary files,</p>
+</li>
+<li>
+<p>assembled binary files,</p>
+</li>
+<li>
+<p>source binary files.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_tap_maker">3.4.2. TAP maker</h4>
+<div class="paragraph">
+<p>Produces a TAP file with blocks originated from:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>converted binary files,</p>
+</li>
+<li>
+<p>assembled binary files,</p>
+</li>
+<li>
+<p>source binary files.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_architecture">4. Architecture</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This tool is following a hexagonal architecture principle that is depicted on the following picture.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="img/overall-hexagon.svg" alt="overall hexagon">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.7.6<br>
+Last updated 2023-10-06 18:37:33 UTC
+</div>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/assembly.min.js"></script>
+<script>hljs.initHighlighting()</script>
+</body>
+</html>
