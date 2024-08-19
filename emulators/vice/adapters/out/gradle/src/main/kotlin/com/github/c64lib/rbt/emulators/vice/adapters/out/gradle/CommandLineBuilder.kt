@@ -38,8 +38,10 @@ internal class CommandLineBuilder(
   }
 
   fun switch(name: String, value: String? = null): CommandLineBuilder {
+    require(name.isNotBlank()) { "Switch name cannot be blank" }
     switches += "-$name"
     if (value != null) {
+      require(value.isNotBlank()) { "Switch value cannot be blank" }
       switches += value
     }
     return this
