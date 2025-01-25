@@ -1,0 +1,23 @@
+{
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "file": "doc/kb/architecture.md"
+        },
+        {
+            "file": "doc/kb/domain.md"
+        }
+    ],
+    "github.copilot.chat.testGeneration.instructions": [
+        {
+            "file": "doc/kb/testing.md"
+        }
+    ],
+    "github.copilot.chat.reviewSelection.instructions": [
+
+    ],
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "file": "doc/kb/commit.md"
+        }
+    ]
+}
