@@ -5,11 +5,17 @@
         },
         {
             "file": "doc/kb/domain.md"
+        },
+        {
+            "file": "doc/kb/copilot-instructions.md"
         }
     ],
     "github.copilot.chat.testGeneration.instructions": [
         {
             "file": "doc/kb/testing.md"
+        },
+        {
+            "file": "doc/kb/copilot-instructions.md"
         }
     ],
     "github.copilot.chat.reviewSelection.instructions": [
