@@ -1,8 +1,8 @@
 /*
 MIT License
 
-Copyright (c) 2018-2023 c64lib: The Ultimate Commodore 64 Library
-Copyright (c) 2018-2023 Maciej Małecki
+Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2025 Maciej Małecki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,10 +27,8 @@ package com.github.c64lib.rbt.compilers.kickass.usecase
 import com.github.c64lib.rbt.compilers.kickass.usecase.port.DeleteFilesPort
 
 class CleanBuildArtefactsUseCase(private val deleteFilesPort: DeleteFilesPort) {
-  
-  /**
-   * Deletes build artefacts with specified extensions.
-   */
+
+  /** Deletes build artefacts with specified extensions. */
   fun apply() =
       listOf("*.prg", "*.specOut", "*.dbg", "*.sym", "*.vs").forEach {
         deleteFilesPort.deleteFiles(it)

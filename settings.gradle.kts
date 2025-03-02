@@ -9,6 +9,8 @@ include(":shared:binary-utils")
 include(":shared:processor")
 include(":shared:testutils")
 
+include(":flows")
+
 include(":compilers:kickass")
 include(":compilers:kickass:adapters:in:gradle")
 include(":compilers:kickass:adapters:out:gradle")
