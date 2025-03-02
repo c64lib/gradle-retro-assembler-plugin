@@ -22,6 +22,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.flows.domain
+package com.github.c64lib.rbt.flows.usecase.port
 
-data class FlowStep(val content: FlowStepContent, val modifiers: List<FlowStepModifier>)
+import com.github.c64lib.rbt.flows.domain.Flow
+
+data class ExecuteFlowCommand(val flow: Flow)
+
+class ExecuteFlowUseCase {
+  fun apply(command: ExecuteFlowCommand) {
+    val flow = command.flow
+    flow.steps.forEach { step ->
+      val outcomes = step.content.executor().execute()
+    }
+  }
+}

@@ -24,4 +24,9 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
-data class FlowStep(val content: FlowStepContent, val modifiers: List<FlowStepModifier>)
+enum class ModifierScenario {
+  ALL,
+  SOME
+}
+
+data class FlowStepModifier(val modifier: Modifier, val scenario: ModifierScenario)

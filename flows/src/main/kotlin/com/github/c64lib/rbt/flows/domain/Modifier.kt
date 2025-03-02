@@ -24,4 +24,4 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
-data class FlowStep(val content: FlowStepContent, val modifiers: List<FlowStepModifier>)
+interface Modifier {}
