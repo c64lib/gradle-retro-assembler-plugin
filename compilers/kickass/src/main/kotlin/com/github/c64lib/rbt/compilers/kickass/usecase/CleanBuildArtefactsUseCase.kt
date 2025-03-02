@@ -27,6 +27,10 @@ package com.github.c64lib.rbt.compilers.kickass.usecase
 import com.github.c64lib.rbt.compilers.kickass.usecase.port.DeleteFilesPort
 
 class CleanBuildArtefactsUseCase(private val deleteFilesPort: DeleteFilesPort) {
+  
+  /**
+   * Deletes build artefacts with specified extensions.
+   */
   fun apply() =
       listOf("*.prg", "*.specOut", "*.dbg", "*.sym", "*.vs").forEach {
         deleteFilesPort.deleteFiles(it)

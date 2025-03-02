@@ -19,6 +19,9 @@ Use case class should be named so that it always ends with `UseCase.kt` suffix.
 Method should always consume payload parameter and be named apply.
 Method can return an use case result object.
 
+### Ports
+Any technology specific code should be hidden behind a port.
+
 # Technology stack
 Programming language of this project is Kotlin.
 This project is a gradle plugin code.
