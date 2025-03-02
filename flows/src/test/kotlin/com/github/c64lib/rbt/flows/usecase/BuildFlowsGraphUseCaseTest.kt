@@ -23,8 +23,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import com.github.c64lib.rbt.flows.domain.Flow
-import com.github.c64lib.rbt.flows.usecase.port.BuildFlowsGraphCommand
-import com.github.c64lib.rbt.flows.usecase.port.BuildFlowsGraphUseCase
+import com.github.c64lib.rbt.flows.usecase.BuildFlowsGraphCommand
+import com.github.c64lib.rbt.flows.usecase.BuildFlowsGraphUseCase
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe

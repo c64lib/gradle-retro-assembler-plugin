@@ -22,11 +22,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.flows.domain
+package com.github.c64lib.rbt.flows.usecase.port
 
-interface FlowStepContent {
+import com.github.c64lib.rbt.flows.domain.FlowStepOutcome
 
-  fun name(): String
-
-  fun executor(): FlowStepExecutor
+interface ExecuteStepPort {
+  fun execute(stepName: String, action: () -> Set<FlowStepOutcome>): Set<FlowStepOutcome>
 }
