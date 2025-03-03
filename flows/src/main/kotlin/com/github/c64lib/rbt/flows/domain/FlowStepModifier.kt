@@ -24,9 +24,25 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
-enum class ModifierScenario {
-  ALL,
-  SOME
+/**
+ * Represents a modifier scenario.
+ * @param matchAll if true, all values must match, otherwise at least one value must match
+ * @param values the values to match
+ */
+open class ModifierScenario(val matchAll: Boolean = true, val values: Set<String> = emptySet()) {
+  /**
+   * Checks if the flow step matches the scenario.
+   * @param flowStepId the flow step to check
+   * @return true if the flow step matches the scenario, false otherwise
+   */
+  fun matches(flowStepId: String): Boolean =
+      if (matchAll) {
+        true
+      } else {
+        values.any { it in flowStepId }
+      }
 }
 
-data class FlowStepModifier(val modifier: Modifier, val scenario: ModifierScenario)
+object MatchAllModifierScenario : ModifierScenario(matchAll = true)
+
+data class FlowStepModifier(val modifierExecutor: ModifierExecutor, val scenario: ModifierScenario)

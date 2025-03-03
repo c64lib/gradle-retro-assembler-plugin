@@ -29,12 +29,28 @@ import com.github.c64lib.rbt.flows.usecase.port.ExecuteStepPort
 
 data class ExecuteFlowCommand(val flow: Flow)
 
+/**
+ * Executes flow by executing each step and applying modifiers to outcomes.
+ * @param executeStepPort port to execute steps
+ */
 class ExecuteFlowUseCase(val executeStepPort: ExecuteStepPort) {
-  fun apply(command: ExecuteFlowCommand) {
+  /**
+   * Executes flow by executing each step and applying modifiers to outcomes.
+   * @param command command to execute flow
+   */
+  fun apply(command: ExecuteFlowCommand): Unit {
     val flow = command.flow
     flow.steps.forEach { step ->
       val outcomes =
           executeStepPort.execute(step.content.name()) { step.content.executor().execute() }
+      val modifiers = step.modifiers
+      outcomes.forEach { outcome ->
+        modifiers.forEach { modifier ->
+          if (modifier.scenario.matches(outcome.id)) {
+            modifier.modifierExecutor.execute(outcome.fileName)
+          }
+        }
+      }
     }
   }
 }

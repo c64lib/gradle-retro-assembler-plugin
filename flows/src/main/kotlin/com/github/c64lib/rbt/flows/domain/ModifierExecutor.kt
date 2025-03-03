@@ -24,4 +24,8 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
-interface Modifier {}
+import java.io.File
+
+interface ModifierExecutor {
+  fun execute(artefactFileName: File)
+}
