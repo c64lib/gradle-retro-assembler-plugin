@@ -28,19 +28,16 @@ import com.github.c64lib.rbt.flows.domain.Flow
 
 data class FlowGraphNode(val flow: Flow, val followUps: List<FlowGraphNode>)
 
-data class BuildFlowsGraphCommand(val flows: List<Flow>)
-
-class BuildFlowsGraphUseCase {
+class BuildFlowsGraphService {
   /**
    * Builds a graph of flows. Only flows that are not followed up by any other flow are considered
    * as roots. Cycles are not allowed.
    *
-   * @param command command with flows to build a graph from
+   * @param flows list of flows
    * @return list of nodes representing flows and their follow-ups
    * @throws IllegalArgumentException if a flow is not found
    */
-  fun apply(command: BuildFlowsGraphCommand): List<FlowGraphNode> {
-    val flows = command.flows
+  fun build(flows: List<Flow>): List<FlowGraphNode> {
     val flowMap = flows.associateBy { it.name }
     val stack = mutableSetOf<Flow>()
 

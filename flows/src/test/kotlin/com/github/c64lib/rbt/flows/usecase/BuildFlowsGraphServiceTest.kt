@@ -23,25 +23,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import com.github.c64lib.rbt.flows.domain.Flow
-import com.github.c64lib.rbt.flows.usecase.BuildFlowsGraphCommand
-import com.github.c64lib.rbt.flows.usecase.BuildFlowsGraphUseCase
+import com.github.c64lib.rbt.flows.usecase.BuildFlowsGraphService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 
-class BuildFlowsGraphUseCaseTest :
+class BuildFlowsGraphServiceTest :
     BehaviorSpec(
         {
-          Given("a BuildFlowsGraphUseCase") {
-            val useCase = BuildFlowsGraphUseCase()
+          Given("a BuildFlowsGraphService") {
+            val useCase = BuildFlowsGraphService()
 
             When("apply is called with valid flows") {
               Then("it builds graph successfully") {
                 val flow1 = Flow("flow1", listOf("flow2"), emptyList())
                 val flow2 = Flow("flow2", emptyList(), emptyList())
-                val command = BuildFlowsGraphCommand(listOf(flow1, flow2))
 
-                val result = useCase.apply(command)
+                val result = useCase.build(listOf(flow1, flow2))
 
                 result.size shouldBe 1
                 result[0].flow.name shouldBe "flow1"
@@ -51,9 +49,7 @@ class BuildFlowsGraphUseCaseTest :
 
             When("apply is called with empty flows") {
               Then("it returns an empty list") {
-                val command = BuildFlowsGraphCommand(emptyList())
-
-                val result = useCase.apply(command)
+                val result = useCase.build(emptyList())
 
                 result.isEmpty() shouldBe true
               }
@@ -62,9 +58,9 @@ class BuildFlowsGraphUseCaseTest :
             When("apply is called with non-existent follow-up") {
               Then("it throws IllegalArgumentException") {
                 val flow1 = Flow("flow1", listOf("flow2"), emptyList())
-                val command = BuildFlowsGraphCommand(listOf(flow1))
 
-                val exception = shouldThrow<IllegalArgumentException> { useCase.apply(command) }
+                val exception =
+                    shouldThrow<IllegalArgumentException> { useCase.build(listOf(flow1)) }
 
                 exception.message shouldBe "Flow flow2 not found"
               }
@@ -75,9 +71,8 @@ class BuildFlowsGraphUseCaseTest :
                 val flow1 = Flow("flow1", listOf("flow2", "flow3"), emptyList())
                 val flow2 = Flow("flow2", emptyList(), emptyList())
                 val flow3 = Flow("flow3", emptyList(), emptyList())
-                val command = BuildFlowsGraphCommand(listOf(flow1, flow2, flow3))
 
-                val result = useCase.apply(command)
+                val result = useCase.build(listOf(flow1, flow2, flow3))
 
                 result.size shouldBe 1
                 result[0].flow.name shouldBe "flow1"
@@ -92,9 +87,8 @@ class BuildFlowsGraphUseCaseTest :
                 val flow1 = Flow("flow1", listOf("flow2"), emptyList())
                 val flow2 = Flow("flow2", listOf("flow3"), emptyList())
                 val flow3 = Flow("flow3", emptyList(), emptyList())
-                val command = BuildFlowsGraphCommand(listOf(flow1, flow2, flow3))
 
-                val result = useCase.apply(command)
+                val result = useCase.build(listOf(flow1, flow2, flow3))
 
                 result.size shouldBe 1
                 result[0].flow.name shouldBe "flow1"
@@ -109,9 +103,9 @@ class BuildFlowsGraphUseCaseTest :
               Then("it throws IllegalArgumentException") {
                 val flow1 = Flow("flow1", listOf("flow2"), emptyList())
                 val flow2 = Flow("flow2", listOf("flow1"), emptyList())
-                val command = BuildFlowsGraphCommand(listOf(flow1, flow2))
 
-                val exception = shouldThrow<IllegalArgumentException> { useCase.apply(command) }
+                val exception =
+                    shouldThrow<IllegalArgumentException> { useCase.build(listOf(flow1, flow2)) }
 
                 exception.message shouldBe "Cycle detected at flow flow1"
               }

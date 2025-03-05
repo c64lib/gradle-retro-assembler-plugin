@@ -38,14 +38,14 @@ import io.mockk.mockk
 import io.mockk.verify
 import java.io.File
 
-class ExecuteFlowUseCaseTest :
+class ExecuteFlowServiceTest :
     BehaviorSpec(
         {
-          Given("an ExecuteFlowUseCase") {
+          Given("an ExecuteFlowService") {
             When("apply is called with a flow containing steps and modifiers") {
               Then("it executes each step and applies modifiers to outcomes") {
                 val executeStepPort = mockk<ExecuteStepPort>()
-                val useCase = ExecuteFlowUseCase(executeStepPort)
+                val useCase = ExecuteFlowService(executeStepPort)
 
                 val stepContent = mockk<FlowStepContent>()
                 val modifierExecutor = mockk<ModifierExecutor>()
@@ -74,7 +74,7 @@ class ExecuteFlowUseCaseTest :
             When("apply is called with a flow containing no steps") {
               Then("it does nothing") {
                 val executeStepPort = mockk<ExecuteStepPort>()
-                val useCase = ExecuteFlowUseCase(executeStepPort)
+                val useCase = ExecuteFlowService(executeStepPort)
 
                 val flow = Flow("flow1", emptyList(), emptyList())
                 val command = ExecuteFlowCommand(flow)
@@ -88,7 +88,7 @@ class ExecuteFlowUseCaseTest :
             When("apply is called with a step that has no modifiers") {
               Then("it executes the step without applying any modifiers") {
                 val executeStepPort = mockk<ExecuteStepPort>()
-                val useCase = ExecuteFlowUseCase(executeStepPort)
+                val useCase = ExecuteFlowService(executeStepPort)
 
                 val step = mockk<FlowStep>()
                 val flow = Flow("flow1", emptyList(), listOf(step))
