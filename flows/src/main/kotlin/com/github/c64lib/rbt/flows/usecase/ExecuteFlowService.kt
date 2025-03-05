@@ -33,7 +33,7 @@ data class ExecuteFlowCommand(val flow: Flow)
  * Executes flow by executing each step and applying modifiers to outcomes.
  * @param executeStepPort port to execute steps
  */
-class ExecuteFlowService(private val executeStepPort: ExecuteStepPort) {
+internal class ExecuteFlowService(private val executeStepPort: ExecuteStepPort) {
   /**
    * Executes flow by executing each step and applying modifiers to outcomes.
    * @param command command to execute flow

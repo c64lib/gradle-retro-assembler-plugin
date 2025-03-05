@@ -26,6 +26,7 @@ package com.github.c64lib.rbt.flows.usecase.port
 
 import com.github.c64lib.rbt.flows.domain.FlowStepOutcome
 
+@Deprecated("Perhaps not needed, remove!")
 interface ExecuteStepPort {
   fun execute(stepName: String, action: () -> Set<FlowStepOutcome>): Set<FlowStepOutcome>
 }

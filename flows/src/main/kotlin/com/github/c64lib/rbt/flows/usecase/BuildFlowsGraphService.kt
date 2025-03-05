@@ -28,7 +28,7 @@ import com.github.c64lib.rbt.flows.domain.Flow
 
 data class FlowGraphNode(val flow: Flow, val followUps: List<FlowGraphNode>)
 
-class BuildFlowsGraphService {
+internal class BuildFlowsGraphService {
   /**
    * Builds a graph of flows. Only flows that are not followed up by any other flow are considered
    * as roots. Cycles are not allowed.
