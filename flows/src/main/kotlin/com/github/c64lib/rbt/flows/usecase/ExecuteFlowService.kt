@@ -28,8 +28,6 @@ import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.usecase.port.ExecuteTaskPort
 import com.github.c64lib.rbt.flows.usecase.port.TaskOutcome
 
-data class ExecuteFlowCommand(val flow: Flow)
-
 /**
  * Executes flow by executing each step and applying modifiers to outcomes.
  * @param executeTaskPort port to execute steps
@@ -37,10 +35,10 @@ data class ExecuteFlowCommand(val flow: Flow)
 internal class ExecuteFlowService(private val executeTaskPort: ExecuteTaskPort) {
   /**
    * Executes flow by executing each step and applying modifiers to outcomes.
-   * @param command command to execute flow
+   * @param flow flow to execute
    */
-  fun apply(command: ExecuteFlowCommand): TaskOutcome {
-    command.flow.steps.forEach { step ->
+  fun execute(flow: Flow): TaskOutcome {
+    flow.steps.forEach { step ->
       val outcome =
           executeTaskPort.execute(step.content.name()) { step.content.executor().execute() }
       if (outcome == TaskOutcome.FAILURE) {

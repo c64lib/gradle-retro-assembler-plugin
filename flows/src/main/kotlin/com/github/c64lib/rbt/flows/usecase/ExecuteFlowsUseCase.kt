@@ -40,7 +40,7 @@ class ExecuteFlowsUseCase(
     flowsGraph.forEach { flowGraphNode ->
       val outcome =
           executeTaskPort.execute(flowGraphNode.flow.name) {
-            executeFlowService.apply(ExecuteFlowCommand(flowGraphNode.flow))
+            executeFlowService.execute(flowGraphNode.flow)
           }
       when (outcome) {
         TaskOutcome.SUCCESS -> {

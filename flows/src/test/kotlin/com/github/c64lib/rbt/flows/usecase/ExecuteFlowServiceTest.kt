@@ -48,13 +48,12 @@ class ExecuteFlowServiceTest :
                 val step = FlowStep(content = stepContent)
 
                 val flow = Flow("flow1", emptyList(), listOf(step))
-                val command = ExecuteFlowCommand(flow)
 
                 every { step.content.name() } returns "step1"
                 every { step.content.executor().execute() } returns TaskOutcome.SUCCESS
                 every { executeTaskPort.execute("step1", any()) } returns TaskOutcome.SUCCESS
 
-                useCase.apply(command)
+                useCase.execute(flow)
 
                 verify { executeTaskPort.execute("step1", any()) }
               }
@@ -66,9 +65,8 @@ class ExecuteFlowServiceTest :
                 val useCase = ExecuteFlowService(executeTaskPort)
 
                 val flow = Flow("flow1", emptyList(), emptyList())
-                val command = ExecuteFlowCommand(flow)
 
-                useCase.apply(command)
+                useCase.execute(flow)
 
                 verify(exactly = 0) { executeTaskPort.execute(any(), any()) }
               }
@@ -81,13 +79,12 @@ class ExecuteFlowServiceTest :
 
                 val step = mockk<FlowStep>()
                 val flow = Flow("flow1", emptyList(), listOf(step))
-                val command = ExecuteFlowCommand(flow)
 
                 every { step.content.name() } returns "step1"
                 every { step.content.executor().execute() } returns TaskOutcome.SUCCESS
                 every { executeTaskPort.execute("step1", any()) } returns TaskOutcome.SUCCESS
 
-                useCase.apply(command)
+                useCase.execute(flow)
 
                 verify { executeTaskPort.execute("step1", any()) }
               }
