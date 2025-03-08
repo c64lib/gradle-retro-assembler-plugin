@@ -22,34 +22,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.flows.usecase
+package com.github.c64lib.rbt.shared.gradle.dsl
 
-import com.github.c64lib.rbt.flows.domain.Flow
-import com.github.c64lib.rbt.flows.usecase.port.ExecuteTaskPort
-import com.github.c64lib.rbt.flows.usecase.port.TaskOutcome
+import javax.inject.Inject
+import org.gradle.api.Action
+import org.gradle.api.model.ObjectFactory
 
-data class ExecuteFlowsCommand(val flows: List<Flow>)
+const val RBTExtension_DSL_NAME = "rbt"
 
-class ExecuteFlowsUseCase(
-    private val executeTaskPort: ExecuteTaskPort,
-) {
+abstract class RBTExtension @Inject constructor(private val objectFactory: ObjectFactory) {
+  val flows = ArrayList<FlowExtension>()
 
-  fun apply(command: ExecuteFlowsCommand) {
-    val flowsGraph = BuildFlowsGraphService().build(command.flows)
-    val executeFlowService = ExecuteFlowService(executeTaskPort)
-    flowsGraph.forEach { flowGraphNode ->
-      val outcome =
-          executeTaskPort.execute(flowGraphNode.flow.name) {
-            executeFlowService.execute(flowGraphNode.flow)
-          }
-      when (outcome) {
-        TaskOutcome.SUCCESS -> {
-          // do nothing
-        }
-        TaskOutcome.FAILURE -> {
-          // do nothing
-        }
-      }
-    }
+  fun flow(action: Action<FlowExtension>) {
+    val flow = objectFactory.newInstance(FlowExtension::class.java)
+    action.execute(flow)
+    flows.add(flow)
   }
 }

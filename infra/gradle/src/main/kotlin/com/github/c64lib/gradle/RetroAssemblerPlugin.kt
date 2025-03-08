@@ -82,6 +82,8 @@ import com.github.c64lib.rbt.shared.gradle.TASK_TEST
 import com.github.c64lib.rbt.shared.gradle.dsl.EXTENSION_DSL_NAME
 import com.github.c64lib.rbt.shared.gradle.dsl.PREPROCESSING_EXTENSION_DSL_NAME
 import com.github.c64lib.rbt.shared.gradle.dsl.PreprocessingExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.RBTExtension
+import com.github.c64lib.rbt.shared.gradle.dsl.RBTExtension_DSL_NAME
 import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
 import com.github.c64lib.rbt.testing.a64spec.adapters.`in`.gradle.Test
 import com.github.c64lib.rbt.testing.a64spec.usecase.Run64SpecTestUseCase
@@ -98,7 +100,11 @@ class RetroAssemblerPlugin : Plugin<Project> {
 
     val preprocessExtension =
         project.extensions.create(
-            PREPROCESSING_EXTENSION_DSL_NAME, PreprocessingExtension::class.java)
+            PREPROCESSING_EXTENSION_DSL_NAME,
+            PreprocessingExtension::class.java,
+        )
+
+    val rbtExtension = project.extensions.create(RBTExtension_DSL_NAME, RBTExtension::class.java)
 
     project.afterEvaluate {
       // deps
@@ -109,7 +115,8 @@ class RetroAssemblerPlugin : Plugin<Project> {
                 DownloadKickAssemblerUseCase(
                     DownloadKickAssemblerAdapter(project, FileDownloader()),
                     ReadVersionAdapter(project),
-                    SaveVersionAdapter(project))
+                    SaveVersionAdapter(project),
+                )
           }
       val downloadDependencies =
           project.tasks.create(TASK_DEPENDENCIES, DownloadDependencies::class.java) { task ->
@@ -119,7 +126,8 @@ class RetroAssemblerPlugin : Plugin<Project> {
                     DownloadDependencyAdapter(project, extension, FileDownloader()),
                     UntarDependencyAdapter(project),
                     ReadDependencyVersionAdapter(project),
-                    SaveDependencyVersionAdapter(project))
+                    SaveDependencyVersionAdapter(project),
+                )
           }
       // preprocess
       val charpad =
@@ -155,7 +163,8 @@ class RetroAssemblerPlugin : Plugin<Project> {
       val settings =
           KickAssemblerSettings(
               File("${extension.workDir}/asms/ka/${extension.dialectVersion}/KickAss.jar"),
-              SemVer.fromString(extension.dialectVersion))
+              SemVer.fromString(extension.dialectVersion),
+          )
 
       // sources
       val assemble =

@@ -22,34 +22,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.flows.usecase
+package com.github.c64lib.rbt.shared.gradle.dsl
 
-import com.github.c64lib.rbt.flows.domain.Flow
-import com.github.c64lib.rbt.flows.usecase.port.ExecuteTaskPort
-import com.github.c64lib.rbt.flows.usecase.port.TaskOutcome
+import java.util.*
 
-data class ExecuteFlowsCommand(val flows: List<Flow>)
-
-class ExecuteFlowsUseCase(
-    private val executeTaskPort: ExecuteTaskPort,
-) {
-
-  fun apply(command: ExecuteFlowsCommand) {
-    val flowsGraph = BuildFlowsGraphService().build(command.flows)
-    val executeFlowService = ExecuteFlowService(executeTaskPort)
-    flowsGraph.forEach { flowGraphNode ->
-      val outcome =
-          executeTaskPort.execute(flowGraphNode.flow.name) {
-            executeFlowService.execute(flowGraphNode.flow)
-          }
-      when (outcome) {
-        TaskOutcome.SUCCESS -> {
-          // do nothing
-        }
-        TaskOutcome.FAILURE -> {
-          // do nothing
-        }
-      }
-    }
-  }
+open class FlowExtension {
+  var name: String = UUID.randomUUID().toString()
+  var dependsOn = emptyList<String>()
 }
