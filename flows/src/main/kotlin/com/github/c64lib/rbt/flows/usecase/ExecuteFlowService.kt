@@ -41,7 +41,11 @@ internal class ExecuteFlowService(private val executeTaskPort: ExecuteTaskPort) 
    */
   fun apply(command: ExecuteFlowCommand): TaskOutcome {
     command.flow.steps.forEach { step ->
-      executeTaskPort.execute(step.content.name()) { step.content.executor().execute() }
+      val outcome =
+          executeTaskPort.execute(step.content.name()) { step.content.executor().execute() }
+      if (outcome == TaskOutcome.FAILURE) {
+        return TaskOutcome.FAILURE
+      }
     }
     return TaskOutcome.SUCCESS
   }
