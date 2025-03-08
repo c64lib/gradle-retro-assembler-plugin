@@ -25,33 +25,24 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.usecase
 
 import com.github.c64lib.rbt.flows.domain.Flow
-import com.github.c64lib.rbt.flows.usecase.port.ExecuteStepPort
-import com.github.c64lib.rbt.flows.usecase.port.FlowOutcome
+import com.github.c64lib.rbt.flows.usecase.port.ExecuteTaskPort
+import com.github.c64lib.rbt.flows.usecase.port.TaskOutcome
 
 data class ExecuteFlowCommand(val flow: Flow)
 
 /**
  * Executes flow by executing each step and applying modifiers to outcomes.
- * @param executeStepPort port to execute steps
+ * @param executeTaskPort port to execute steps
  */
-internal class ExecuteFlowService(private val executeStepPort: ExecuteStepPort) {
+internal class ExecuteFlowService(private val executeTaskPort: ExecuteTaskPort) {
   /**
    * Executes flow by executing each step and applying modifiers to outcomes.
    * @param command command to execute flow
    */
-  fun apply(command: ExecuteFlowCommand): FlowOutcome {
+  fun apply(command: ExecuteFlowCommand): TaskOutcome {
     command.flow.steps.forEach { step ->
-      val outcomes =
-          executeStepPort.execute(step.content.name()) { step.content.executor().execute() }
-      val modifiers = step.modifiers
-      outcomes.forEach { outcome ->
-        modifiers.forEach { modifier ->
-          if (modifier.scenario.matches(outcome.id)) {
-            modifier.modifierExecutor.execute(outcome.fileName)
-          }
-        }
-      }
+      executeTaskPort.execute(step.content.name()) { step.content.executor().execute() }
     }
-    return FlowOutcome.SUCCESS
+    return TaskOutcome.SUCCESS
   }
 }

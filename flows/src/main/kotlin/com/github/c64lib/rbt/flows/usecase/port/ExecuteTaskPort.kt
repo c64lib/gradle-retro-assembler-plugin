@@ -22,27 +22,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.flows.domain
+package com.github.c64lib.rbt.flows.usecase.port
 
-/**
- * Represents a modifier scenario.
- * @param matchAll if true, all values must match, otherwise at least one value must match
- * @param values the values to match
- */
-open class ModifierScenario(val matchAll: Boolean = true, val values: Set<String> = emptySet()) {
-  /**
-   * Checks if the flow step matches the scenario.
-   * @param flowStepId the flow step to check
-   * @return true if the flow step matches the scenario, false otherwise
-   */
-  fun matches(flowStepId: String): Boolean =
-      if (matchAll) {
-        true
-      } else {
-        values.any { it in flowStepId }
-      }
+enum class TaskOutcome {
+  SUCCESS,
+  FAILURE
 }
 
-object MatchAllModifierScenario : ModifierScenario(matchAll = true)
-
-data class FlowStepModifier(val modifierExecutor: ModifierExecutor, val scenario: ModifierScenario)
+interface ExecuteTaskPort {
+  fun execute(name: String, action: () -> TaskOutcome): TaskOutcome
+}

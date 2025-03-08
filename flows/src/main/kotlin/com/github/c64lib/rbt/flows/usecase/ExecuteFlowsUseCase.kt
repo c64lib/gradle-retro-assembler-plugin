@@ -25,30 +25,28 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.usecase
 
 import com.github.c64lib.rbt.flows.domain.Flow
-import com.github.c64lib.rbt.flows.usecase.port.ExecuteFlowPort
-import com.github.c64lib.rbt.flows.usecase.port.ExecuteStepPort
-import com.github.c64lib.rbt.flows.usecase.port.FlowOutcome
+import com.github.c64lib.rbt.flows.usecase.port.ExecuteTaskPort
+import com.github.c64lib.rbt.flows.usecase.port.TaskOutcome
 
 data class ExecuteFlowsCommand(val flows: List<Flow>)
 
 class ExecuteFlowsUseCase(
-    private val executeFlowPort: ExecuteFlowPort,
-    private val executeStepPort: ExecuteStepPort,
+    private val executeTaskPort: ExecuteTaskPort,
 ) {
 
   fun apply(command: ExecuteFlowsCommand) {
-    val executeFlowService = ExecuteFlowService(executeStepPort)
+    val executeFlowService = ExecuteFlowService(executeTaskPort)
     val flowsGraph = BuildFlowsGraphService().build(command.flows)
     flowsGraph.forEach { flowGraphNode ->
       val outcome =
-          executeFlowPort.execute(flowGraphNode.flow.name) {
+          executeTaskPort.execute(flowGraphNode.flow.name) {
             executeFlowService.apply(ExecuteFlowCommand(flowGraphNode.flow))
           }
       when (outcome) {
-        FlowOutcome.SUCCESS -> {
+        TaskOutcome.SUCCESS -> {
           // do nothing
         }
-        FlowOutcome.FAILURE -> {
+        TaskOutcome.FAILURE -> {
           // do nothing
         }
       }

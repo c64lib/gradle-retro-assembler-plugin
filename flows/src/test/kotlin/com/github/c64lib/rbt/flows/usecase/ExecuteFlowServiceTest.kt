@@ -27,16 +27,12 @@ package com.github.c64lib.rbt.flows.usecase
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowStep
 import com.github.c64lib.rbt.flows.domain.FlowStepContent
-import com.github.c64lib.rbt.flows.domain.FlowStepModifier
-import com.github.c64lib.rbt.flows.domain.FlowStepOutcome
-import com.github.c64lib.rbt.flows.domain.MatchAllModifierScenario
-import com.github.c64lib.rbt.flows.domain.ModifierExecutor
-import com.github.c64lib.rbt.flows.usecase.port.ExecuteStepPort
+import com.github.c64lib.rbt.flows.usecase.port.ExecuteTaskPort
+import com.github.c64lib.rbt.flows.usecase.port.TaskOutcome
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.io.File
 
 class ExecuteFlowServiceTest :
     BehaviorSpec(
@@ -44,64 +40,56 @@ class ExecuteFlowServiceTest :
           Given("an ExecuteFlowService") {
             When("apply is called with a flow containing steps and modifiers") {
               Then("it executes each step and applies modifiers to outcomes") {
-                val executeStepPort = mockk<ExecuteStepPort>()
-                val useCase = ExecuteFlowService(executeStepPort)
+                val executeTaskPort = mockk<ExecuteTaskPort>()
+                val useCase = ExecuteFlowService(executeTaskPort)
 
                 val stepContent = mockk<FlowStepContent>()
-                val modifierExecutor = mockk<ModifierExecutor>()
-                val modifier =
-                    FlowStepModifier(
-                        modifierExecutor = modifierExecutor, scenario = MatchAllModifierScenario)
 
-                val step = FlowStep(content = stepContent, modifiers = listOf(modifier))
-                val outcome = FlowStepOutcome("id", File("foobar.txt"))
+                val step = FlowStep(content = stepContent)
 
                 val flow = Flow("flow1", emptyList(), listOf(step))
                 val command = ExecuteFlowCommand(flow)
 
                 every { step.content.name() } returns "step1"
-                every { step.content.executor().execute() } returns setOf(outcome)
-                every { executeStepPort.execute("step1", any()) } returns setOf(outcome)
-                every { modifierExecutor.execute(any()) } returns Unit
+                every { step.content.executor().execute() } returns TaskOutcome.SUCCESS
+                every { executeTaskPort.execute("step1", any()) } returns TaskOutcome.SUCCESS
 
                 useCase.apply(command)
 
-                verify { executeStepPort.execute("step1", any()) }
-                verify { modifierExecutor.execute(any()) }
+                verify { executeTaskPort.execute("step1", any()) }
               }
             }
 
             When("apply is called with a flow containing no steps") {
               Then("it does nothing") {
-                val executeStepPort = mockk<ExecuteStepPort>()
-                val useCase = ExecuteFlowService(executeStepPort)
+                val executeTaskPort = mockk<ExecuteTaskPort>()
+                val useCase = ExecuteFlowService(executeTaskPort)
 
                 val flow = Flow("flow1", emptyList(), emptyList())
                 val command = ExecuteFlowCommand(flow)
 
                 useCase.apply(command)
 
-                verify(exactly = 0) { executeStepPort.execute(any(), any()) }
+                verify(exactly = 0) { executeTaskPort.execute(any(), any()) }
               }
             }
 
             When("apply is called with a step that has no modifiers") {
               Then("it executes the step without applying any modifiers") {
-                val executeStepPort = mockk<ExecuteStepPort>()
-                val useCase = ExecuteFlowService(executeStepPort)
+                val executeTaskPort = mockk<ExecuteTaskPort>()
+                val useCase = ExecuteFlowService(executeTaskPort)
 
                 val step = mockk<FlowStep>()
                 val flow = Flow("flow1", emptyList(), listOf(step))
                 val command = ExecuteFlowCommand(flow)
 
                 every { step.content.name() } returns "step1"
-                every { step.content.executor().execute() } returns emptySet()
-                every { executeStepPort.execute("step1", any()) } returns emptySet()
-                every { step.modifiers } returns emptyList()
+                every { step.content.executor().execute() } returns TaskOutcome.SUCCESS
+                every { executeTaskPort.execute("step1", any()) } returns TaskOutcome.SUCCESS
 
                 useCase.apply(command)
 
-                verify { executeStepPort.execute("step1", any()) }
+                verify { executeTaskPort.execute("step1", any()) }
               }
             }
           }

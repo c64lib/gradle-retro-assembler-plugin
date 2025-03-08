@@ -24,6 +24,8 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
+import com.github.c64lib.rbt.flows.usecase.port.TaskOutcome
+
 interface FlowStepExecutor {
-  fun execute(): Set<FlowStepOutcome>
+  fun execute(): TaskOutcome
 }
