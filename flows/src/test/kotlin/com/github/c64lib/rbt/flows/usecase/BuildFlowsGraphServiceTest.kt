@@ -22,8 +22,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+package com.github.c64lib.rbt.flows.usecase
+
 import com.github.c64lib.rbt.flows.domain.Flow
-import com.github.c64lib.rbt.flows.usecase.BuildFlowsGraphService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -36,14 +37,14 @@ class BuildFlowsGraphServiceTest :
 
             When("apply is called with valid flows") {
               Then("it builds graph successfully") {
-                val flow1 = Flow("flow1", listOf("flow2"), emptyList())
-                val flow2 = Flow("flow2", emptyList(), emptyList())
+                val flow1 = Flow("flow1", emptyList(), emptyList())
+                val flow2 = Flow("flow2", listOf("flow1"), emptyList())
 
                 val result = useCase.build(listOf(flow1, flow2))
 
                 result.size shouldBe 1
                 result[0].flow.name shouldBe "flow1"
-                result[0].followUps[0].flow.name shouldBe "flow2"
+                result[0].dependants[0].flow.name shouldBe "flow2"
               }
             }
 
@@ -68,46 +69,49 @@ class BuildFlowsGraphServiceTest :
 
             When("apply is called with multiple follow-ups") {
               Then("it builds graph successfully") {
-                val flow1 = Flow("flow1", listOf("flow2", "flow3"), emptyList())
-                val flow2 = Flow("flow2", emptyList(), emptyList())
-                val flow3 = Flow("flow3", emptyList(), emptyList())
+                val flow1 = Flow("flow1", emptyList(), emptyList())
+                val flow2 = Flow("flow2", listOf("flow1"), emptyList())
+                val flow3 = Flow("flow3", listOf("flow1"), emptyList())
 
                 val result = useCase.build(listOf(flow1, flow2, flow3))
 
                 result.size shouldBe 1
                 result[0].flow.name shouldBe "flow1"
-                result[0].followUps.size shouldBe 2
-                result[0].followUps[0].flow.name shouldBe "flow2"
-                result[0].followUps[1].flow.name shouldBe "flow3"
+                result[0].dependants.size shouldBe 2
+                result[0].dependants[0].flow.name shouldBe "flow2"
+                result[0].dependants[1].flow.name shouldBe "flow3"
               }
             }
 
             When("apply is called with three layers of follow-ups") {
               Then("it builds graph successfully") {
-                val flow1 = Flow("flow1", listOf("flow2"), emptyList())
-                val flow2 = Flow("flow2", listOf("flow3"), emptyList())
-                val flow3 = Flow("flow3", emptyList(), emptyList())
+                val flow1 = Flow("flow1", emptyList(), emptyList())
+                val flow2 = Flow("flow2", listOf("flow1"), emptyList())
+                val flow3 = Flow("flow3", listOf("flow2"), emptyList())
 
                 val result = useCase.build(listOf(flow1, flow2, flow3))
 
                 result.size shouldBe 1
                 result[0].flow.name shouldBe "flow1"
-                result[0].followUps.size shouldBe 1
-                result[0].followUps[0].flow.name shouldBe "flow2"
-                result[0].followUps[0].followUps.size shouldBe 1
-                result[0].followUps[0].followUps[0].flow.name shouldBe "flow3"
+                result[0].dependants.size shouldBe 1
+                result[0].dependants[0].flow.name shouldBe "flow2"
+                result[0].dependants[0].dependants.size shouldBe 1
+                result[0].dependants[0].dependants[0].flow.name shouldBe "flow3"
               }
             }
 
             When("apply is called with cyclic flows") {
               Then("it throws IllegalArgumentException") {
                 val flow1 = Flow("flow1", listOf("flow2"), emptyList())
-                val flow2 = Flow("flow2", listOf("flow1"), emptyList())
+                val flow2 = Flow("flow2", listOf("flow1", "flow3"), emptyList())
+                val flow3 = Flow("flow3", emptyList(), emptyList())
 
                 val exception =
-                    shouldThrow<IllegalArgumentException> { useCase.build(listOf(flow1, flow2)) }
+                    shouldThrow<IllegalArgumentException> {
+                      useCase.build(listOf(flow1, flow2, flow3))
+                    }
 
-                exception.message shouldBe "Cycle detected at flow flow1"
+                exception.message shouldBe "Cycle detected at flow flow2"
               }
             }
           }

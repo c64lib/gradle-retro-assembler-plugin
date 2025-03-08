@@ -27,15 +27,31 @@ package com.github.c64lib.rbt.flows.usecase
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.usecase.port.ExecuteFlowPort
 import com.github.c64lib.rbt.flows.usecase.port.ExecuteStepPort
+import com.github.c64lib.rbt.flows.usecase.port.FlowOutcome
 
 data class ExecuteFlowsCommand(val flows: List<Flow>)
 
 class ExecuteFlowsUseCase(
     private val executeFlowPort: ExecuteFlowPort,
-    private val executeStepPort: ExecuteStepPort
+    private val executeStepPort: ExecuteStepPort,
 ) {
 
   fun apply(command: ExecuteFlowsCommand) {
+    val executeFlowService = ExecuteFlowService(executeStepPort)
     val flowsGraph = BuildFlowsGraphService().build(command.flows)
+    flowsGraph.forEach { flowGraphNode ->
+      val outcome =
+          executeFlowPort.execute(flowGraphNode.flow.name) {
+            executeFlowService.apply(ExecuteFlowCommand(flowGraphNode.flow))
+          }
+      when (outcome) {
+        FlowOutcome.SUCCESS -> {
+          // do nothing
+        }
+        FlowOutcome.FAILURE -> {
+          // do nothing
+        }
+      }
+    }
   }
 }

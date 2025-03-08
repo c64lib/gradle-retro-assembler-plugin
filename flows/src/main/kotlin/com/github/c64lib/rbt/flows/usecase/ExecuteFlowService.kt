@@ -26,6 +26,7 @@ package com.github.c64lib.rbt.flows.usecase
 
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.usecase.port.ExecuteStepPort
+import com.github.c64lib.rbt.flows.usecase.port.FlowOutcome
 
 data class ExecuteFlowCommand(val flow: Flow)
 
@@ -38,17 +39,19 @@ internal class ExecuteFlowService(private val executeStepPort: ExecuteStepPort) 
    * Executes flow by executing each step and applying modifiers to outcomes.
    * @param command command to execute flow
    */
-  fun apply(command: ExecuteFlowCommand) =
-      command.flow.steps.forEach { step ->
-        val outcomes =
-            executeStepPort.execute(step.content.name()) { step.content.executor().execute() }
-        val modifiers = step.modifiers
-        outcomes.forEach { outcome ->
-          modifiers.forEach { modifier ->
-            if (modifier.scenario.matches(outcome.id)) {
-              modifier.modifierExecutor.execute(outcome.fileName)
-            }
+  fun apply(command: ExecuteFlowCommand): FlowOutcome {
+    command.flow.steps.forEach { step ->
+      val outcomes =
+          executeStepPort.execute(step.content.name()) { step.content.executor().execute() }
+      val modifiers = step.modifiers
+      outcomes.forEach { outcome ->
+        modifiers.forEach { modifier ->
+          if (modifier.scenario.matches(outcome.id)) {
+            modifier.modifierExecutor.execute(outcome.fileName)
           }
         }
       }
+    }
+    return FlowOutcome.SUCCESS
+  }
 }

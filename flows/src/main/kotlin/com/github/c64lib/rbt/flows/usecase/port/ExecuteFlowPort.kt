@@ -24,11 +24,11 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.usecase.port
 
-enum class FlowStepOutcome {
+enum class FlowOutcome {
   SUCCESS,
   FAILURE
 }
 
 interface ExecuteFlowPort {
-  fun execute(flowName: String, action: () -> FlowStepOutcome): FlowStepOutcome
+  fun execute(flowName: String, action: () -> FlowOutcome): FlowOutcome
 }

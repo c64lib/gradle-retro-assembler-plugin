@@ -24,4 +24,4 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
-data class Flow(val name: String, val feed: List<String>, val steps: List<FlowStep>)
+data class Flow(val name: String, val dependsOn: List<String>, val steps: List<FlowStep>)
