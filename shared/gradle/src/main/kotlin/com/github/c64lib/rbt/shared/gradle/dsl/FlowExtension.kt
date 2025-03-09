@@ -57,4 +57,10 @@ open class FlowExtension @Inject constructor(private val objectFactory: ObjectFa
     action.execute(image)
     extensions.add(image)
   }
+
+  fun kickAssemble(action: Action<KickAssemblerExtension>) {
+    val kickAssembler = objectFactory.newInstance(KickAssemblerExtension::class.java)
+    action.execute(kickAssembler)
+    extensions.add(kickAssembler)
+  }
 }
