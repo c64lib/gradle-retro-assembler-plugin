@@ -25,8 +25,36 @@ SOFTWARE.
 package com.github.c64lib.rbt.shared.gradle.dsl
 
 import java.util.*
+import javax.inject.Inject
+import org.gradle.api.Action
+import org.gradle.api.model.ObjectFactory
 
-open class FlowExtension {
+open class FlowExtension @Inject constructor(private val objectFactory: ObjectFactory) {
   var name: String = UUID.randomUUID().toString()
   var dependsOn = emptyList<String>()
+  val extensions = ArrayList<FlowStepExtension>()
+
+  fun goattracker(action: Action<GoattrackerPipelineExtension>) {
+    val goatTracker = objectFactory.newInstance(GoattrackerPipelineExtension::class.java)
+    action.execute(goatTracker)
+    extensions.add(goatTracker)
+  }
+
+  fun charpad(action: Action<CharpadPipelineExtension>) {
+    val charpad = objectFactory.newInstance(CharpadPipelineExtension::class.java)
+    action.execute(charpad)
+    extensions.add(charpad)
+  }
+
+  fun spritepad(action: Action<SpritepadPipelineExtension>) {
+    val spritepad = objectFactory.newInstance(SpritepadPipelineExtension::class.java)
+    action.execute(spritepad)
+    extensions.add(spritepad)
+  }
+
+  fun image(action: Action<ImagePipelineExtension>) {
+    val image = objectFactory.newInstance(ImagePipelineExtension::class.java)
+    action.execute(image)
+    extensions.add(image)
+  }
 }

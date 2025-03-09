@@ -24,28 +24,4 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.shared.gradle.dsl
 
-import java.io.File
-import javax.inject.Inject
-import org.gradle.api.Action
-import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
-
-abstract class CharpadPipelineExtension
-@Inject
-constructor(private val objectFactory: ObjectFactory) : FlowStepExtension {
-  @InputFiles abstract fun getInput(): Property<File>
-
-  @Input abstract fun getUseBuildDir(): Property<Boolean>
-
-  @Input abstract fun getCtm8PrototypeCompatibility(): Property<Boolean>
-
-  val outputs = ArrayList<OutputsExtension>()
-
-  fun outputs(action: Action<OutputsExtension>) {
-    val ex = objectFactory.newInstance(OutputsExtension::class.java)
-    action.execute(ex)
-    outputs.add(ex)
-  }
-}
+interface FlowStepExtension

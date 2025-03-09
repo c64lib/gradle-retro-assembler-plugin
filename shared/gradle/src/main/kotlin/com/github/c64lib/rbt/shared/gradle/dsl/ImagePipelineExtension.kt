@@ -31,9 +31,8 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 
-abstract class ImagePipelineExtension : ImageTransformationExtension {
-
-  @Inject constructor(objectFactory: ObjectFactory) : super(objectFactory)
+abstract class ImagePipelineExtension @Inject constructor(objectFactory: ObjectFactory) :
+    ImageTransformationExtension(objectFactory), FlowStepExtension {
 
   @InputFiles abstract fun getInput(): Property<File>
 

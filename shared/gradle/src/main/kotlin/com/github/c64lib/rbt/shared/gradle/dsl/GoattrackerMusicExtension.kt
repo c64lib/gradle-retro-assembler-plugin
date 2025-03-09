@@ -25,14 +25,11 @@ SOFTWARE.
 package com.github.c64lib.rbt.shared.gradle.dsl
 
 import java.io.File
-import javax.inject.Inject
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.OutputFiles
 
-abstract class GoattrackerMusicExtension
-@Inject
-constructor(private val objectFactory: ObjectFactory) {
+abstract class GoattrackerMusicExtension {
+
   var bufferedSidWrites: Boolean? = null
   var disableOptimization: Boolean? = null
   var executable = "gt2reloc"

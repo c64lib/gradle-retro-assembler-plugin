@@ -34,7 +34,7 @@ import org.gradle.api.tasks.InputFiles
 
 abstract class GoattrackerPipelineExtension
 @Inject
-constructor(private val objectFactory: ObjectFactory) {
+constructor(private val objectFactory: ObjectFactory) : FlowStepExtension {
   @InputFiles abstract fun getInput(): Property<File>
 
   @Input abstract fun getUseBuildDir(): Property<Boolean>
