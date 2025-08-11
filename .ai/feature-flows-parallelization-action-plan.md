@@ -4,14 +4,15 @@
 Currently, all tasks in the Retro Assembler Plugin are executed sequentially, not leveraging Gradle's parallelization features. This results in very long build times for complex projects that execute compilation, preprocessing, and postprocessing. The existing `flows` bounded context exists but lacks implementation. We need to enhance it with a new DSL syntax that allows organizing tasks into chains (flows) that can depend on each other, where outputs of one flow can feed inputs of another flows, enabling parallel execution.
 
 ## Relevant Codebase Parts
-1. **flows/** - Empty bounded context directory that needs to be populated with domain logic and adapters
-2. **infra/gradle/src/main/kotlin/com/github/c64lib/gradle/RetroAssemblerPlugin.kt** - Main plugin where tasks are currently registered sequentially
-3. **shared/gradle/** - Contains existing DSL extensions and task utilities that need to be enhanced
-4. **compilers/kickass/** - Kick Assembler integration that represents the main compilation flow
-5. **processors/** - Various processor modules (charpad, goattracker, image, spritepad) that can be parallelized
-6. **dependencies/** - Dependency resolution that can run in parallel with other tasks
-7. **emulators/vice/** - Testing execution that depends on compilation outputs
-8. **buildSrc/** - Contains Gradle plugin definitions that need enhancement for flow support
+1. **flows/src/main/kotlin/** - Domain layer for flow business logic (Flow, FlowStep, FlowArtifact entities)
+2. **flows/adapters/in/gradle/** - Gradle integration adapters (FlowsExtension, FlowDsl) - **UPDATED LOCATION**
+3. **infra/gradle/src/main/kotlin/com/github/c64lib/gradle/RetroAssemblerPlugin.kt** - Main plugin where tasks are currently registered sequentially
+4. **shared/gradle/** - Contains existing DSL extensions and task utilities that need to be enhanced
+5. **compilers/kickass/** - Kick Assembler integration that represents the main compilation flow
+6. **processors/** - Various processor modules (charpad, goattracker, image, spritepad) that can be parallelized
+7. **dependencies/** - Dependency resolution that can run in parallel with other tasks
+8. **emulators/vice/** - Testing execution that depends on compilation outputs
+9. **buildSrc/** - Contains Gradle plugin definitions that need enhancement for flow support
 
 ## Root Cause Hypothesis
 The current architecture treats each task as an independent Gradle task with simple dependencies, but doesn't leverage Gradle's built-in parallelization capabilities. The missing piece is:
@@ -34,12 +35,13 @@ The current architecture treats each task as an independent Gradle task with sim
 
 ## Next Steps
 
-### Phase 1: Domain Model Design (Steps 1-3)
-1. **Design Flow Domain Model** - Create core domain entities for Flow, FlowStep, FlowDependency, and FlowExecutor in the flows domain
-   - Rationale: Establishes the foundational business logic for flow management
+### Phase 1: Domain Model Design (Steps 1-3) - **COMPLETED**
+1. ✅ **Identify and Explore Relevant Codebase Parts** - Analyzed current sequential task registration and empty flows context
+   - Rationale: Understanding current architecture is essential for designing parallel flows
 
-2. **Define Flow DSL Syntax** - Design the Kotlin DSL syntax for defining flows in build.gradle.kts files
+2. ✅ **Define Flow DSL Syntax** - Created Kotlin DSL syntax for defining flows in build.gradle.kts files in `flows/adapters/in/gradle/`
    - Rationale: Users need an intuitive way to define parallel execution flows
+   - **Implementation**: FlowDsl.kt, FlowsExtension.kt, and examples located in adapters/in/gradle following hexagonal architecture
 
 3. **Create Flow Dependency Graph** - Implement logic to build and validate dependency graphs between flows
    - Rationale: Essential for determining which flows can execute in parallel

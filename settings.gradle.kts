@@ -10,6 +10,7 @@ include(":shared:processor")
 include(":shared:testutils")
 
 include(":flows")
+include(":flows:adapters:in:gradle")
 
 include(":compilers:kickass")
 include(":compilers:kickass:adapters:in:gradle")

@@ -1,0 +1,208 @@
+/*
+MIT License
+
+Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2025 Maciej Małecki
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+package com.github.c64lib.rbt.flows.adapters.`in`.gradle
+
+import com.github.c64lib.rbt.flows.domain.ArtifactType
+import com.github.c64lib.rbt.flows.domain.Flow
+import com.github.c64lib.rbt.flows.domain.FlowArtifact
+import com.github.c64lib.rbt.flows.domain.FlowStep
+import java.io.File
+
+/**
+ * DSL builder for creating Flow definitions in build.gradle.kts files.
+ *
+ * Example usage:
+ * ```
+ * flows {
+ *     flow("preprocessing") {
+ *         description = "Process all assets in parallel"
+ *
+ *         parallel {
+ *             step("charpad") {
+ *                 from("src/assets/charset")
+ *                 to("build/processed/charset")
+ *             }
+ *             step("spritepad") {
+ *                 from("src/assets/sprites")
+ *                 to("build/processed/sprites")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("compilation") {
+ *         dependsOn("preprocessing")
+ *
+ *         step("assemble") {
+ *             from("src/main/asm")
+ *             to("build/compiled")
+ *         }
+ *     }
+ * }
+ * ```
+ */
+class FlowDslBuilder {
+  private val flows = mutableListOf<Flow>()
+
+  fun flow(name: String, configure: FlowBuilder.() -> Unit): FlowDslBuilder {
+    val flowBuilder = FlowBuilder(name)
+    flowBuilder.configure()
+    flows.add(flowBuilder.build())
+    return this
+  }
+
+  internal fun build(): List<Flow> = flows.toList()
+}
+
+/** Builder for individual Flow definitions. */
+class FlowBuilder(private val name: String) {
+  var description: String = ""
+  private val steps = mutableListOf<FlowStep>()
+  private val inputs = mutableListOf<FlowArtifact>()
+  private val outputs = mutableListOf<FlowArtifact>()
+  private val dependencies = mutableListOf<String>()
+
+  /** Adds a dependency on another flow. */
+  fun dependsOn(flowName: String) {
+    dependencies.add(flowName)
+  }
+
+  /** Adds multiple dependencies on other flows. */
+  fun dependsOn(vararg flowNames: String) {
+    dependencies.addAll(flowNames)
+  }
+
+  /** Creates a single step in this flow. */
+  fun step(stepName: String, configure: StepBuilder.() -> Unit) {
+    val stepBuilder = StepBuilder(stepName)
+    stepBuilder.configure()
+    val (step, stepInputs, stepOutputs) = stepBuilder.build()
+    steps.add(step)
+    inputs.addAll(stepInputs)
+    outputs.addAll(stepOutputs)
+  }
+
+  /**
+   * Creates multiple steps that can run in parallel within this flow. Note: This is for
+   * documentation purposes - actual parallelization happens at the flow level, not step level.
+   */
+  fun parallel(configure: ParallelStepsBuilder.() -> Unit) {
+    val parallelBuilder = ParallelStepsBuilder()
+    parallelBuilder.configure()
+    val (parallelSteps, parallelInputs, parallelOutputs) = parallelBuilder.build()
+    steps.addAll(parallelSteps)
+    inputs.addAll(parallelInputs)
+    outputs.addAll(parallelOutputs)
+  }
+
+  internal fun build(): Flow =
+      Flow(
+          name = name,
+          description = description,
+          steps = steps,
+          inputs = inputs,
+          outputs = outputs,
+          dependencies = dependencies)
+}
+
+/** Builder for steps within a parallel block. */
+class ParallelStepsBuilder {
+  private val steps = mutableListOf<FlowStep>()
+  private val inputs = mutableListOf<FlowArtifact>()
+  private val outputs = mutableListOf<FlowArtifact>()
+
+  fun step(stepName: String, configure: StepBuilder.() -> Unit) {
+    val stepBuilder = StepBuilder(stepName)
+    stepBuilder.configure()
+    val (step, stepInputs, stepOutputs) = stepBuilder.build()
+    steps.add(step)
+    inputs.addAll(stepInputs)
+    outputs.addAll(stepOutputs)
+  }
+
+  internal fun build(): Triple<List<FlowStep>, List<FlowArtifact>, List<FlowArtifact>> =
+      Triple(steps, inputs, outputs)
+}
+
+/** Builder for individual steps. */
+class StepBuilder(private val name: String) {
+  private val config = mutableMapOf<String, Any>()
+  private val inputs = mutableListOf<FlowArtifact>()
+  private val outputs = mutableListOf<FlowArtifact>()
+
+  /** Specifies input sources for this step. */
+  fun from(path: String, type: ArtifactType = ArtifactType.SOURCE_FILE) {
+    inputs.add(FlowArtifact("${name}_input", File(path), type))
+    config["inputPath"] = path
+  }
+
+  /** Specifies multiple input sources for this step. */
+  fun from(vararg paths: String, type: ArtifactType = ArtifactType.SOURCE_FILE) {
+    paths.forEach { path ->
+      inputs.add(FlowArtifact("${name}_input_${inputs.size}", File(path), type))
+    }
+    config["inputPaths"] = paths.toList()
+  }
+
+  /** Specifies output destination for this step. */
+  fun to(path: String, type: ArtifactType = ArtifactType.COMPILED_BINARY) {
+    outputs.add(FlowArtifact("${name}_output", File(path), type))
+    config["outputPath"] = path
+  }
+
+  /** Specifies multiple output destinations for this step. */
+  fun to(vararg paths: String, type: ArtifactType = ArtifactType.COMPILED_BINARY) {
+    paths.forEach { path ->
+      outputs.add(FlowArtifact("${name}_output_${outputs.size}", File(path), type))
+    }
+    config["outputPaths"] = paths.toList()
+  }
+
+  /** Adds custom configuration for this step. */
+  fun configure(key: String, value: Any) {
+    config[key] = value
+  }
+
+  /** Adds custom configuration using a map. */
+  fun configure(configuration: Map<String, Any>) {
+    config.putAll(configuration)
+  }
+
+  internal fun build(): Triple<FlowStep, List<FlowArtifact>, List<FlowArtifact>> {
+    val step = FlowStep(name = name, taskType = inferTaskType(), configuration = config.toMap())
+    return Triple(step, inputs, outputs)
+  }
+
+  private fun inferTaskType(): String =
+      when {
+        name.contains("charpad", ignoreCase = true) -> "charpad"
+        name.contains("spritepad", ignoreCase = true) -> "spritepad"
+        name.contains("goattracker", ignoreCase = true) -> "goattracker"
+        name.contains("image", ignoreCase = true) -> "image"
+        name.contains("assemble", ignoreCase = true) -> "assemble"
+        name.contains("test", ignoreCase = true) -> "test"
+        name.contains("dependencies", ignoreCase = true) -> "dependencies"
+        else -> "generic"
+      }
+}
