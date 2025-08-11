@@ -5,6 +5,8 @@
 4. Top level directories denote bounded context, each having internal hexagonal structure.
 5. There are dedicated at-hoc gradle plugins declared for each kind of module, all being located in the `buildSrc` folder.
 6. Each module should have its own `build.gradle.kts` file, with the root `build.gradle.kts` file aggregating all modules and applying the necessary plugins.
+7. There is an end user documentation stored in `doc` folder that is implemented in AsciiDoctor, keep it up to date with the code changes.
+8. There is `CHANGES.adoc` file in the root of the project that contains the change log for the project, keep it up to date with the code changes.
 
 # Testing guidelines
 1. This application uses Kotest as testing library for unit and integration tests.
@@ -26,7 +28,7 @@ At the beginning of each task, prepare a plan for the task. If not specified in 
 2. Hypothesize Root Cause: Based on the information gathered, list potential causes for the issue. Then, choose the most likely cause and explain your reasoning.
 3. Identify Potential Contacts: List names or roles mentioned in the documents that might be helpful to contact for assistance with this issue. For each contact, explain why they would be valuable to consult.
 4. Self-Reflection Questions: Generate a list of questions that should be asked to further investigate and understand the issue. Include both self-reflective questions and questions for others. Number each question as you write it.
-5. Next Steps: Outline the next steps for addressing this issue, including specific actions for logging and debugging. Provide a clear, actionable plan. Number each step and provide a brief rationale for why it's necessary.
+5. Next Steps: Outline the next steps for addressing this issue, including specific actions for logging, debugging and documenting. Provide a clear, actionable plan. Number each step and provide a brief rationale for why it's necessary.
 
 After completing your analysis, create a Markdown document with the following structure:
 ```markdown
