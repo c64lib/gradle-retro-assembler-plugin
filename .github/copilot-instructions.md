@@ -18,6 +18,7 @@
 2. Use `gradle build` to quickly compile the client code
 3. Use `gradle test` to run all tests in the client code
 4. use `gradle spotlessApply` to format the code according to the coding style
+5. always run `gradle spotlessApply` after creating or editing any source files to ensure the code is formatted correctly
 
 ## Prepare plan
 Always use this approach when user asks in agent mode to create an action plan.

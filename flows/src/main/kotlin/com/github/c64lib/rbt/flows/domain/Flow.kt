@@ -24,49 +24,53 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
-import java.io.File
-
-/**
- * Represents a named flow that can contain multiple steps executed in sequence. Flows can run in
- * parallel with other flows if they don't have conflicting dependencies.
- */
+/** Represents a flow - a chain of related tasks that can be executed as a unit */
 data class Flow(
     val name: String,
-    val description: String = "",
     val steps: List<FlowStep> = emptyList(),
-    val inputs: List<FlowArtifact> = emptyList(),
-    val outputs: List<FlowArtifact> = emptyList(),
-    val dependencies: List<String> = emptyList() // Names of other flows this flow depends on
+    val dependsOn: List<String> = emptyList(), // Names of other flows this flow depends on
+    val produces: List<FlowArtifact> = emptyList(), // Artifacts produced by this flow
+    val consumes: List<FlowArtifact> = emptyList(), // Artifacts consumed by this flow
+    val description: String = ""
 ) {
-  /**
-   * Returns true if this flow can run in parallel with the other flow. Flows can run in parallel if
-   * neither depends on the other and they don't share conflicting artifacts.
-   */
-  fun canRunInParallelWith(other: Flow): Boolean {
-    val hasDirectDependency = dependencies.contains(other.name) || other.dependencies.contains(name)
-    val hasConflictingArtifacts =
-        outputs.any { output ->
-          other.outputs.any { otherOutput -> output.path == otherOutput.path }
-        }
-    return !hasDirectDependency && !hasConflictingArtifacts
-  }
+  /** Adds a step to this flow */
+  fun addStep(step: FlowStep): Flow = copy(steps = steps + step)
+
+  /** Adds a dependency on another flow */
+  fun dependsOn(flowName: String): Flow = copy(dependsOn = dependsOn + flowName)
+
+  /** Adds an artifact that this flow produces */
+  fun produces(artifact: FlowArtifact): Flow = copy(produces = produces + artifact)
+
+  /** Adds an artifact that this flow consumes */
+  fun consumes(artifact: FlowArtifact): Flow = copy(consumes = consumes + artifact)
 }
 
-/** Represents a step within a flow that performs a specific action. */
+/** Represents a single step within a flow */
 data class FlowStep(
     val name: String,
-    val taskType: String, // e.g., "assemble", "preprocess", "test"
+    val taskType: String, // e.g., "kickass", "charpad", "spritepad"
+    val inputs: List<String> = emptyList(),
+    val outputs: List<String> = emptyList(),
     val configuration: Map<String, Any> = emptyMap()
 )
 
-/** Represents an artifact (file or directory) that is input to or output from a flow. */
-data class FlowArtifact(val name: String, val path: File, val type: ArtifactType)
+/** Represents an artifact (file or resource) that flows between different flows */
+data class FlowArtifact(
+    val name: String,
+    val path: String,
+    val type: ArtifactType,
+    val description: String = ""
+)
 
+/** Types of artifacts that can be produced/consumed by flows */
 enum class ArtifactType {
-  SOURCE_FILE,
-  COMPILED_BINARY,
-  PROCESSED_ASSET,
-  DEPENDENCY_ARCHIVE,
-  TEST_RESULT,
-  BUILD_REPORT
+  SOURCE_FILE, // .asm source files
+  COMPILED_BINARY, // .prg compiled binaries
+  CHARSET_DATA, // Character set data from charpad
+  SPRITE_DATA, // Sprite data from spritepad
+  MUSIC_DATA, // Music data from goattracker
+  IMAGE_DATA, // Processed image data
+  DEPENDENCY_FILE, // Dependency metadata
+  TEST_RESULT // Test execution results
 }

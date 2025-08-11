@@ -24,268 +24,230 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
-import io.kotest.assertions.throwables.shouldNotThrowAny
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
-import java.io.File
+import io.kotest.matchers.types.shouldBeInstanceOf
 
 class FlowDependencyGraphTest :
     BehaviorSpec({
-      Given("a flow dependency graph with valid flows") {
+      given("an empty flow dependency graph") {
+        val graph = FlowDependencyGraph()
+
+        `when`("validating the empty graph") {
+          val result = graph.validate()
+
+          then("it should be valid") {
+            result.isValid shouldBe true
+            result.issues shouldHaveSize 0
+          }
+        }
+
+        `when`("getting parallel execution order") {
+          val executionOrder = graph.getParallelExecutionOrder()
+
+          then("it should return empty list") { executionOrder shouldHaveSize 0 }
+        }
+      }
+
+      given("a flow dependency graph with independent flows") {
+        val graph = FlowDependencyGraph()
+        val spriteArtifact =
+            FlowArtifact("sprites.dat", "build/sprites.dat", ArtifactType.SPRITE_DATA)
+        val charsetArtifact =
+            FlowArtifact("charset.dat", "build/charset.dat", ArtifactType.CHARSET_DATA)
+
+        val spriteFlow =
+            Flow(
+                name = "processSprites",
+                steps = listOf(FlowStep("spritepad", "spritepad")),
+                produces = listOf(spriteArtifact))
+
+        val charsetFlow =
+            Flow(
+                name = "processCharset",
+                steps = listOf(FlowStep("charpad", "charpad")),
+                produces = listOf(charsetArtifact))
+
+        graph.addFlow(spriteFlow)
+        graph.addFlow(charsetFlow)
+
+        `when`("validating the graph") {
+          val result = graph.validate()
+
+          then("it should be valid with orphaned flow warnings") {
+            result.hasErrors shouldBe false
+            result.hasWarnings shouldBe true
+            result.issues shouldHaveSize 2 // Two orphaned flows
+            result.issues.forEach { issue ->
+              issue.shouldBeInstanceOf<FlowValidationIssue.OrphanedFlow>()
+            }
+          }
+        }
+
+        `when`("getting parallel execution order") {
+          val executionOrder = graph.getParallelExecutionOrder()
+
+          then("both flows should execute in the same level (parallel)") {
+            executionOrder shouldHaveSize 1
+            executionOrder[0] shouldHaveSize 2
+            executionOrder[0] shouldContain "processSprites"
+            executionOrder[0] shouldContain "processCharset"
+          }
+        }
+
+        `when`("checking parallel candidates for sprite flow") {
+          val candidates = graph.getParallelCandidates("processSprites")
+
+          then("charset flow should be a parallel candidate") {
+            candidates shouldContain "processCharset"
+          }
+        }
+      }
+
+      given("a flow dependency graph with sequential dependencies") {
+        val graph = FlowDependencyGraph()
+        val spriteArtifact =
+            FlowArtifact("sprites.dat", "build/sprites.dat", ArtifactType.SPRITE_DATA)
+        val binaryArtifact =
+            FlowArtifact("game.prg", "build/game.prg", ArtifactType.COMPILED_BINARY)
+
+        val spriteFlow = Flow(name = "processSprites", produces = listOf(spriteArtifact))
+
         val compileFlow =
             Flow(
                 name = "compile",
-                description = "Compile source files",
-                steps = listOf(FlowStep("assemble", "kickass")),
-                inputs =
-                    listOf(FlowArtifact("source", File("src/main.asm"), ArtifactType.SOURCE_FILE)),
-                outputs =
-                    listOf(
-                        FlowArtifact(
-                            "binary", File("build/main.prg"), ArtifactType.COMPILED_BINARY)))
+                consumes = listOf(spriteArtifact),
+                produces = listOf(binaryArtifact))
 
-        val preprocessFlow =
+        val testFlow = Flow(name = "test", consumes = listOf(binaryArtifact))
+
+        graph.addFlow(spriteFlow)
+        graph.addFlow(compileFlow)
+        graph.addFlow(testFlow)
+
+        `when`("validating the graph") {
+          val result = graph.validate()
+
+          then("it should be valid") { result.isValid shouldBe true }
+        }
+
+        `when`("getting parallel execution order") {
+          val executionOrder = graph.getParallelExecutionOrder()
+
+          then("flows should execute in sequential order") {
+            executionOrder shouldHaveSize 3
+            executionOrder[0] shouldBe listOf("processSprites")
+            executionOrder[1] shouldBe listOf("compile")
+            executionOrder[2] shouldBe listOf("test")
+          }
+        }
+
+        `when`("checking parallel candidates for sprite flow") {
+          val candidates = graph.getParallelCandidates("processSprites")
+
+          then("no other flows should be parallel candidates") { candidates shouldHaveSize 0 }
+        }
+      }
+
+      given("a flow dependency graph with circular dependencies") {
+        val graph = FlowDependencyGraph()
+        val artifact1 = FlowArtifact("data1.dat", "build/data1.dat", ArtifactType.SOURCE_FILE)
+        val artifact2 = FlowArtifact("data2.dat", "build/data2.dat", ArtifactType.SOURCE_FILE)
+
+        val flow1 = Flow(name = "flow1", produces = listOf(artifact1), consumes = listOf(artifact2))
+
+        val flow2 = Flow(name = "flow2", produces = listOf(artifact2), consumes = listOf(artifact1))
+
+        graph.addFlow(flow1)
+        graph.addFlow(flow2)
+
+        `when`("validating the graph") {
+          val result = graph.validate()
+
+          then("it should detect circular dependency") {
+            result.isValid shouldBe false
+            result.hasErrors shouldBe true
+            result.issues shouldHaveSize 1
+            val issue = result.issues[0]
+            issue.shouldBeInstanceOf<FlowValidationIssue.CircularDependency>()
+          }
+        }
+      }
+
+      given("a flow dependency graph with missing artifact producers") {
+        val graph = FlowDependencyGraph()
+        val missingArtifact =
+            FlowArtifact("missing.dat", "build/missing.dat", ArtifactType.SOURCE_FILE)
+
+        val consumerFlow = Flow(name = "consumer", consumes = listOf(missingArtifact))
+
+        graph.addFlow(consumerFlow)
+
+        `when`("validating the graph") {
+          val result = graph.validate()
+
+          then("it should detect missing artifact producer") {
+            result.isValid shouldBe false
+            result.hasErrors shouldBe true
+            result.issues shouldHaveSize 1
+            val issue = result.issues[0]
+            issue.shouldBeInstanceOf<FlowValidationIssue.MissingArtifactProducer>()
+          }
+        }
+      }
+
+      given("a flow dependency graph with complex parallel structure") {
+        val graph = FlowDependencyGraph()
+
+        // Create artifacts
+        val spriteArtifact =
+            FlowArtifact("sprites.dat", "build/sprites.dat", ArtifactType.SPRITE_DATA)
+        val charsetArtifact =
+            FlowArtifact("charset.dat", "build/charset.dat", ArtifactType.CHARSET_DATA)
+        val musicArtifact = FlowArtifact("music.dat", "build/music.dat", ArtifactType.MUSIC_DATA)
+        val binaryArtifact =
+            FlowArtifact("game.prg", "build/game.prg", ArtifactType.COMPILED_BINARY)
+
+        // Create flows
+        val spriteFlow = Flow("processSprites", produces = listOf(spriteArtifact))
+        val charsetFlow = Flow("processCharset", produces = listOf(charsetArtifact))
+        val musicFlow = Flow("processMusic", produces = listOf(musicArtifact))
+        val compileFlow =
             Flow(
-                name = "preprocess",
-                description = "Preprocess assets",
-                steps = listOf(FlowStep("process", "charpad")),
-                inputs =
-                    listOf(
-                        FlowArtifact(
-                            "charset", File("assets/chars.ctm"), ArtifactType.SOURCE_FILE)),
-                outputs =
-                    listOf(
-                        FlowArtifact(
-                            "processed", File("build/chars.bin"), ArtifactType.PROCESSED_ASSET)))
+                "compile",
+                consumes = listOf(spriteArtifact, charsetArtifact, musicArtifact),
+                produces = listOf(binaryArtifact))
+        val testFlow = Flow("test", consumes = listOf(binaryArtifact))
 
-        val testFlow =
-            Flow(
-                name = "test",
-                description = "Run tests",
-                steps = listOf(FlowStep("execute", "vice")),
-                dependencies = listOf("compile"),
-                inputs =
-                    listOf(
-                        FlowArtifact(
-                            "binary", File("build/main.prg"), ArtifactType.COMPILED_BINARY)),
-                outputs =
-                    listOf(
-                        FlowArtifact(
-                            "results", File("build/test-results.xml"), ArtifactType.TEST_RESULT)))
+        graph.addFlow(spriteFlow)
+        graph.addFlow(charsetFlow)
+        graph.addFlow(musicFlow)
+        graph.addFlow(compileFlow)
+        graph.addFlow(testFlow)
 
-        val flows = listOf(compileFlow, preprocessFlow, testFlow)
-        val graph = FlowDependencyGraph(flows)
+        `when`("getting parallel execution order") {
+          val executionOrder = graph.getParallelExecutionOrder()
 
-        When("validating the dependency graph") {
-          Then("it should not throw any exception") { shouldNotThrowAny { graph.validate() } }
-        }
-
-        When("getting execution levels") {
-          val levels = graph.getExecutionLevels()
-
-          Then("it should organize flows into correct levels") {
-            levels shouldHaveSize 2
-            levels[0] shouldContainExactlyInAnyOrder listOf(compileFlow, preprocessFlow)
-            levels[1] shouldContainExactly listOf(testFlow)
+          then("preprocessing flows should run in parallel, then compile, then test") {
+            executionOrder shouldHaveSize 3
+            executionOrder[0] shouldHaveSize 3 // All preprocessing in parallel
+            executionOrder[0] shouldContain "processSprites"
+            executionOrder[0] shouldContain "processCharset"
+            executionOrder[0] shouldContain "processMusic"
+            executionOrder[1] shouldBe listOf("compile")
+            executionOrder[2] shouldBe listOf("test")
           }
         }
 
-        When("getting parallel flows for compile") {
-          val parallelFlows = graph.getParallelFlows("compile")
+        `when`("checking parallel candidates for sprite processing") {
+          val candidates = graph.getParallelCandidates("processSprites")
 
-          Then("it should return flows that can run in parallel") {
-            parallelFlows shouldContainExactly listOf(preprocessFlow)
-          }
-        }
-
-        When("getting topological order") {
-          val order = graph.getTopologicalOrder()
-
-          Then("it should return flows in dependency order") {
-            order shouldHaveSize 3
-            // Compile and preprocess should come before test
-            val compileIndex = order.indexOf(compileFlow)
-            val preprocessIndex = order.indexOf(preprocessFlow)
-            val testIndex = order.indexOf(testFlow)
-
-            compileIndex shouldBe 0
-            preprocessIndex shouldBe 1
-            testIndex shouldBe 2
-          }
-        }
-
-        When("getting all dependencies for test flow") {
-          val dependencies = graph.getAllDependencies("test")
-
-          Then("it should return all direct dependencies") {
-            dependencies shouldContainExactly setOf("compile")
-          }
-        }
-
-        When("getting dependents of compile flow") {
-          val dependents = graph.getDependents("compile")
-
-          Then("it should return flows that depend on it") {
-            dependents shouldContainExactly setOf("test")
-          }
-        }
-      }
-
-      Given("a flow dependency graph with circular dependencies") {
-        val flowA = Flow(name = "flowA", dependencies = listOf("flowB"))
-        val flowB = Flow(name = "flowB", dependencies = listOf("flowC"))
-        val flowC = Flow(name = "flowC", dependencies = listOf("flowA"))
-
-        val flows = listOf(flowA, flowB, flowC)
-        val graph = FlowDependencyGraph(flows)
-
-        When("validating the dependency graph") {
-          Then("it should throw FlowDependencyException") {
-            val exception = shouldThrow<FlowDependencyException> { graph.validate() }
-            exception.message shouldContain "Circular dependency detected"
-          }
-        }
-
-        When("getting execution levels") {
-          Then("it should throw FlowDependencyException") {
-            val exception = shouldThrow<FlowDependencyException> { graph.getExecutionLevels() }
-            exception.message shouldContain "Circular dependency detected"
-          }
-        }
-      }
-
-      Given("a flow dependency graph with missing dependencies") {
-        val flowWithMissingDep = Flow(name = "flowA", dependencies = listOf("nonExistentFlow"))
-
-        val flows = listOf(flowWithMissingDep)
-        val graph = FlowDependencyGraph(flows)
-
-        When("validating the dependency graph") {
-          Then("it should throw FlowDependencyException") {
-            val exception = shouldThrow<FlowDependencyException> { graph.validate() }
-            exception.message shouldContain "depends on unknown flow: 'nonExistentFlow'"
-          }
-        }
-      }
-
-      Given("a flow dependency graph with complex dependencies") {
-        val sourceFlow = Flow(name = "source")
-        val compileFlow = Flow(name = "compile", dependencies = listOf("source"))
-        val preprocessFlow = Flow(name = "preprocess", dependencies = listOf("source"))
-        val packageFlow = Flow(name = "package", dependencies = listOf("compile", "preprocess"))
-        val testFlow = Flow(name = "test", dependencies = listOf("package"))
-        val deployFlow = Flow(name = "deploy", dependencies = listOf("test"))
-
-        val flows =
-            listOf(sourceFlow, compileFlow, preprocessFlow, packageFlow, testFlow, deployFlow)
-        val graph = FlowDependencyGraph(flows)
-
-        When("getting execution levels") {
-          val levels = graph.getExecutionLevels()
-
-          Then("it should organize flows into correct hierarchical levels") {
-            levels shouldHaveSize 5
-            levels[0] shouldContainExactly listOf(sourceFlow)
-            levels[1] shouldContainExactlyInAnyOrder listOf(compileFlow, preprocessFlow)
-            levels[2] shouldContainExactly listOf(packageFlow)
-            levels[3] shouldContainExactly listOf(testFlow)
-            levels[4] shouldContainExactly listOf(deployFlow)
-          }
-        }
-
-        When("getting all dependencies for deploy flow") {
-          val dependencies = graph.getAllDependencies("deploy")
-
-          Then("it should return all transitive dependencies") {
-            dependencies shouldContainExactlyInAnyOrder
-                setOf("test", "package", "compile", "preprocess", "source")
-          }
-        }
-
-        When("getting dependents of source flow") {
-          val dependents = graph.getDependents("source")
-
-          Then("it should return all flows that transitively depend on it") {
-            dependents shouldContainExactlyInAnyOrder
-                setOf("compile", "preprocess", "package", "test", "deploy")
-          }
-        }
-      }
-
-      Given("a flow dependency graph with conflicting artifacts") {
-        val flow1 =
-            Flow(
-                name = "flow1",
-                outputs =
-                    listOf(
-                        FlowArtifact(
-                            "output", File("build/shared.bin"), ArtifactType.COMPILED_BINARY)))
-        val flow2 =
-            Flow(
-                name = "flow2",
-                outputs =
-                    listOf(
-                        FlowArtifact(
-                            "output", File("build/shared.bin"), ArtifactType.COMPILED_BINARY)))
-
-        val flows = listOf(flow1, flow2)
-        val graph = FlowDependencyGraph(flows)
-
-        When("getting parallel flows for flow1") {
-          val parallelFlows = graph.getParallelFlows("flow1")
-
-          Then("it should not include flow2 due to conflicting artifacts") {
-            parallelFlows shouldHaveSize 0
-          }
-        }
-      }
-
-      Given("an empty flow dependency graph") {
-        val graph = FlowDependencyGraph(emptyList())
-
-        When("getting execution levels") {
-          val levels = graph.getExecutionLevels()
-
-          Then("it should return empty list") { levels shouldHaveSize 0 }
-        }
-
-        When("getting topological order") {
-          val order = graph.getTopologicalOrder()
-
-          Then("it should return empty list") { order shouldHaveSize 0 }
-        }
-      }
-
-      Given("a flow dependency graph with non-existent flow queries") {
-        val flow = Flow(name = "existingFlow")
-        val graph = FlowDependencyGraph(listOf(flow))
-
-        When("getting parallel flows for non-existent flow") {
-          Then("it should throw FlowDependencyException") {
-            val exception =
-                shouldThrow<FlowDependencyException> { graph.getParallelFlows("nonExistentFlow") }
-            exception.message shouldContain "Flow not found: nonExistentFlow"
-          }
-        }
-
-        When("getting dependencies for non-existent flow") {
-          Then("it should throw FlowDependencyException") {
-            val exception =
-                shouldThrow<FlowDependencyException> { graph.getAllDependencies("nonExistentFlow") }
-            exception.message shouldContain "Flow not found: nonExistentFlow"
-          }
-        }
-
-        When("getting dependents for non-existent flow") {
-          Then("it should throw FlowDependencyException") {
-            val exception =
-                shouldThrow<FlowDependencyException> { graph.getDependents("nonExistentFlow") }
-            exception.message shouldContain "Flow not found: nonExistentFlow"
+          then("charset and music processing should be parallel candidates") {
+            candidates shouldHaveSize 2
+            candidates shouldContain "processCharset"
+            candidates shouldContain "processMusic"
           }
         }
       }
