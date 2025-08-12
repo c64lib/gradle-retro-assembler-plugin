@@ -49,6 +49,8 @@ import com.github.c64lib.rbt.dependencies.adapters.out.gradle.UntarDependencyAda
 import com.github.c64lib.rbt.dependencies.usecase.ResolveGitHubDependencyUseCase
 import com.github.c64lib.rbt.emulators.vice.adapters.out.gradle.RunTestOnViceAdapter
 import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowsExtension
+import com.github.c64lib.rbt.flows.adapters.out.gradle.FlowTasksGenerator
 import com.github.c64lib.rbt.processors.charpad.adapters.`in`.gradle.Charpad
 import com.github.c64lib.rbt.processors.goattracker.adapters.`in`.gradle.Goattracker
 import com.github.c64lib.rbt.processors.goattracker.adapters.out.gradle.ExecuteGt2RelocAdapter
@@ -99,6 +101,9 @@ class RetroAssemblerPlugin : Plugin<Project> {
     val preprocessExtension =
         project.extensions.create(
             PREPROCESSING_EXTENSION_DSL_NAME, PreprocessingExtension::class.java)
+
+    // Register flows DSL extension
+    val flowsExtension = project.extensions.create("flows", FlowsExtension::class.java)
 
     project.afterEvaluate {
       // deps
@@ -189,6 +194,9 @@ class RetroAssemblerPlugin : Plugin<Project> {
       // build
       val build = project.tasks.create(TASK_BUILD, Build::class.java)
       build.dependsOn(assemble, runSpec)
+
+      // Register generated flow tasks leveraging Gradle parallelization
+      FlowTasksGenerator(project, flowsExtension.getFlows()).registerTasks()
 
       if (project.defaultTasks.isEmpty()) {
         project.defaultTasks.add(TASK_BUILD)
