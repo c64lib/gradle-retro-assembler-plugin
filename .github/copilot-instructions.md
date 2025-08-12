@@ -57,5 +57,7 @@ Ensure that your action plan is comprehensive, follows a step-by-step approach, 
 ## Execute plan
 1. When developer asks for executing plan step, it is always meant to be a step from the *next steps* section of the action plan.
 2. When developer asks for complete plan execution, execute the plan step by step but stop and ask for confirmation before executing each step
-2. When developer asks for single step execution, execute only that step
-3. When developer asks additionally for some changes, update existing plan with the changes being made
+3. When developer asks for single step execution, execute only that step
+4. When developer asks additionally for some changes, update existing plan with the changes being made
+5. Once finishing executing of the step, always mark the step as completed in the action plan by adding a ✅ right before step name.
+6. Once finishing executing the whole phase, always mark the phase as completed in the action plan by adding a ✅ right before phase name.
