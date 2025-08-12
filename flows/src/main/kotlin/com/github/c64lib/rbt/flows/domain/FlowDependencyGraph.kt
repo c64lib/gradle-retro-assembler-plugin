@@ -139,19 +139,14 @@ class FlowDependencyGraph {
     fun visitFlow(flowName: String, path: List<String>): Boolean {
       if (flowName in visiting) {
         val cycleStart = path.indexOf(flowName)
-        val cycle =
-            if (cycleStart >= 0) {
-              path.drop(cycleStart) + flowName
-            } else {
-              // If flowName is not in path, it means we found a direct cycle
-              listOf(flowName)
-            }
-
-        // Only report this cycle if we haven't seen it before
-        val cycleSet = cycle.toSet()
-        if (cycleSet !in reportedCycles) {
-          reportedCycles.add(cycleSet)
-          issues.add(FlowValidationIssue.CircularDependency(cycle))
+        if (cycleStart >= 0) {
+          val cycle = path.drop(cycleStart) + flowName
+          // Only report this cycle if we haven't seen it before and if we're at the start node
+          val cycleSet = cycle.toSet()
+          if (cycleSet !in reportedCycles && flowName == cycle.first()) {
+            reportedCycles.add(cycleSet)
+            issues.add(FlowValidationIssue.CircularDependency(cycle))
+          }
         }
         return true
       }
@@ -163,7 +158,7 @@ class FlowDependencyGraph {
 
       val dependencies = getAllDependencies(flowName)
       for (dep in dependencies) {
-        if (visitFlow(dep, newPath)) return true
+        visitFlow(dep, newPath)
       }
 
       visiting.remove(flowName)
