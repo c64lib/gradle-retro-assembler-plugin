@@ -25,7 +25,6 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
 import com.github.c64lib.rbt.flows.domain.Flow
-import org.gradle.api.Project
 
 /**
  * Gradle extension that provides the flows DSL to build.gradle.kts files.
@@ -79,7 +78,7 @@ import org.gradle.api.Project
  * }
  * ```
  */
-open class FlowsExtension(private val project: Project) {
+open class FlowsExtension {
   private val definedFlows = mutableListOf<Flow>()
 
   /** Defines flows using the DSL syntax. */
@@ -99,7 +98,7 @@ open class FlowsExtension(private val project: Project) {
 
     // Check that all dependencies exist
     definedFlows.forEach { flow ->
-      flow.dependencies.forEach { dependency ->
+      flow.dependsOn.forEach { dependency ->
         if (dependency !in flowNames) {
           errors.add("Flow '${flow.name}' depends on non-existent flow '$dependency'")
         }
@@ -127,7 +126,7 @@ open class FlowsExtension(private val project: Project) {
     while (processed.size < definedFlows.size) {
       val readyFlows =
           definedFlows.filter { flow ->
-            flow.name !in processed && flow.dependencies.all { it in processed }
+            flow.name !in processed && flow.dependsOn.all { it in processed }
           }
 
       if (readyFlows.isEmpty()) {
@@ -135,12 +134,8 @@ open class FlowsExtension(private val project: Project) {
       }
 
       // Group flows that can run in parallel
-      val parallelGroup = mutableListOf<Flow>()
-      readyFlows.forEach { flow ->
-        if (parallelGroup.all { it.canRunInParallelWith(flow) }) {
-          parallelGroup.add(flow)
-        }
-      }
+      // All ready flows run in parallel
+      val parallelGroup = readyFlows.toList()
 
       if (parallelGroup.isNotEmpty()) {
         result.add(parallelGroup)
@@ -169,7 +164,7 @@ open class FlowsExtension(private val project: Project) {
     recursionStack.add(flowName)
 
     val flow = flows.find { it.name == flowName }
-    flow?.dependencies?.forEach { dependency ->
+    flow?.dependsOn?.forEach { dependency ->
       if (hasCircularDependency(dependency, visited, recursionStack, flows)) {
         return true
       }

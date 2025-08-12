@@ -28,7 +28,6 @@ import com.github.c64lib.rbt.flows.domain.ArtifactType
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowArtifact
 import com.github.c64lib.rbt.flows.domain.FlowStep
-import java.io.File
 
 /**
  * DSL builder for creating Flow definitions in build.gradle.kts files.
@@ -119,11 +118,11 @@ class FlowBuilder(private val name: String) {
   internal fun build(): Flow =
       Flow(
           name = name,
-          description = description,
           steps = steps,
-          inputs = inputs,
-          outputs = outputs,
-          dependencies = dependencies)
+          dependsOn = dependencies,
+          produces = outputs,
+          consumes = inputs,
+          description = description)
 }
 
 /** Builder for steps within a parallel block. */
@@ -153,28 +152,26 @@ class StepBuilder(private val name: String) {
 
   /** Specifies input sources for this step. */
   fun from(path: String, type: ArtifactType = ArtifactType.SOURCE_FILE) {
-    inputs.add(FlowArtifact("${name}_input", File(path), type))
+    inputs.add(FlowArtifact("${name}_input", path, type))
     config["inputPath"] = path
   }
 
   /** Specifies multiple input sources for this step. */
   fun from(vararg paths: String, type: ArtifactType = ArtifactType.SOURCE_FILE) {
-    paths.forEach { path ->
-      inputs.add(FlowArtifact("${name}_input_${inputs.size}", File(path), type))
-    }
+    paths.forEach { path -> inputs.add(FlowArtifact("${name}_input_${inputs.size}", path, type)) }
     config["inputPaths"] = paths.toList()
   }
 
   /** Specifies output destination for this step. */
   fun to(path: String, type: ArtifactType = ArtifactType.COMPILED_BINARY) {
-    outputs.add(FlowArtifact("${name}_output", File(path), type))
+    outputs.add(FlowArtifact("${name}_output", path, type))
     config["outputPath"] = path
   }
 
   /** Specifies multiple output destinations for this step. */
   fun to(vararg paths: String, type: ArtifactType = ArtifactType.COMPILED_BINARY) {
     paths.forEach { path ->
-      outputs.add(FlowArtifact("${name}_output_${outputs.size}", File(path), type))
+      outputs.add(FlowArtifact("${name}_output_${outputs.size}", path, type))
     }
     config["outputPaths"] = paths.toList()
   }

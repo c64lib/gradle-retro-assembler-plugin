@@ -55,6 +55,7 @@ After completing your analysis, create a Markdown document with the following st
 Ensure that your action plan is comprehensive, follows a step-by-step approach, and is presented in an easy-to-read Markdown format. The final document should be named .ai/feature-{feature name}-action-plan.md
 ```
 ## Execute plan
-1. When developer asks for complete plan execution, execute the plan step by step but stop and ask for confirmation before executing each step
+1. When developer asks for executing plan step, it is always meant to be a step from the *next steps* section of the action plan.
+2. When developer asks for complete plan execution, execute the plan step by step but stop and ask for confirmation before executing each step
 2. When developer asks for single step execution, execute only that step
 3. When developer asks additionally for some changes, update existing plan with the changes being made
