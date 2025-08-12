@@ -1,42 +1,29 @@
-# Action Plan for Flows Parallelization Enhancement
+# Action Plan for Flows Parallelization
 
 ## Issue Description
-Currently, all tasks in the Retro Assembler Plugin are executed sequentially, not leveraging Gradle's parallelization features. This results in very long build times for complex projects that execute compilation, preprocessing, and postprocessing. The existing `flows` bounded context exists but lacks implementation. We need to enhance it with a new DSL syntax that allows organizing tasks into chains (flows) that can depend on each other, where outputs of one flow can feed inputs of another flows, enabling parallel execution.
+Implement parallel execution of build flows in the gradle-retro-assembler-plugin to improve build performance by allowing independent tasks to run concurrently while respecting dependencies.
 
 ## Relevant Codebase Parts
-1. **flows/src/main/kotlin/** - Domain layer for flow business logic (Flow, FlowStep, FlowArtifact entities)
-2. **flows/adapters/in/gradle/** - Gradle integration adapters (FlowsExtension, FlowDsl) - **UPDATED LOCATION**
-3. **infra/gradle/src/main/kotlin/com/github/c64lib/gradle/RetroAssemblerPlugin.kt** - Main plugin where tasks are currently registered sequentially
-4. **shared/gradle/** - Contains existing DSL extensions and task utilities that need to be enhanced
-5. **compilers/kickass/** - Kick Assembler integration that represents the main compilation flow
-6. **processors/** - Various processor modules (charpad, goattracker, image, spritepad) that can be parallelized
-7. **dependencies/** - Dependency resolution that can run in parallel with other tasks
-8. **emulators/vice/** - Testing execution that depends on compilation outputs
-9. **buildSrc/** - Contains Gradle plugin definitions that need enhancement for flow support
+1. **flows/** - Main bounded context for flow management following hexagonal architecture
+2. **flows/adapters/in/gradle/** - Contains FlowDsl.kt and FlowsExtension.kt for Gradle DSL integration
+3. **flows/src/main/kotlin/domain/** - Core domain logic for flow execution and dependency management
+4. **buildSrc/** - Contains custom Gradle plugins for different module types
+5. **RetroAssemblerPlugin** - Main plugin class that needs to be updated for flow registration
 
 ## Root Cause Hypothesis
-The current architecture treats each task as an independent Gradle task with simple dependencies, but doesn't leverage Gradle's built-in parallelization capabilities. The missing piece is:
-1. **Flow Definition DSL** - A way to define task chains with explicit input/output relationships
-2. **Dependency Graph Analysis** - Logic to analyze which flows can run in parallel
-3. **Task Orchestration** - Enhanced task registration that respects parallel execution capabilities
-4. **Resource Management** - Proper handling of shared resources and output artifacts
+The current implementation lacks a proper mechanism to leverage Gradle's built-in parallelization capabilities. The solution requires generating actual Gradle tasks that can be parallelized by Gradle's execution engine, rather than implementing custom parallelization logic in the domain layer.
 
 ## Investigation Questions
-1. What are the current bottlenecks in build execution time?
-2. Which tasks are independent and can run in parallel (e.g., different processors)?
-3. What are the input/output dependencies between different task types?
-4. How should the new DSL syntax look to be intuitive for users?
-5. What Gradle features should we leverage for parallel execution?
-6. How do we maintain backward compatibility with existing build scripts?
-7. What validation is needed to prevent circular dependencies in flows?
-8. How do we handle error propagation in parallel flows?
-9. What monitoring/logging is needed for parallel execution debugging?
-10. How do we test the parallel execution scenarios effectively?
+1. How can we leverage Gradle's task parallelization instead of implementing custom threading?
+2. What is the best way to generate Gradle tasks dynamically from flow definitions?
+3. How should the outbound adapter communicate with Gradle's task system?
+4. What information needs to be passed between the domain layer and generated tasks?
+5. How do we ensure proper dependency setup between generated tasks?
 
 ## Next Steps
 
-### Phase 1: Domain Model Design (Steps 1-3) - **COMPLETED**
-1. ✅ **Identify and Explore Relevant Codebase Parts** - Analyzed current sequential task registration and empty flows context
+### Phase 1: Foundation (Steps 1-3) ✅ COMPLETED
+1. ✅ **Analyze Current Architecture** - Understanding current flows structure and hexagonal architecture
    - Rationale: Understanding current architecture is essential for designing parallel flows
 
 2. ✅ **Define Flow DSL Syntax** - Created Kotlin DSL syntax for defining flows in build.gradle.kts files in `flows/adapters/in/gradle/`
@@ -48,48 +35,39 @@ The current architecture treats each task as an independent Gradle task with sim
 
 ### Phase 2: Core Implementation (Steps 4-7)
 4. **Implement Flow Domain Layer** - Build the core business logic for flow execution and dependency management
-   - Rationale: Contains the parallelization logic independent of Gradle specifics
+   - **CORRECTED APPROACH**: Focus on logical flow representation and dependency resolution, NOT custom parallelization
+   - Rationale: Domain should contain pure business logic for flow definitions and dependencies, leaving parallelization to Gradle
+   - Implementation: Create domain models for Flow, FlowDependency, and FlowGraph without threading concerns
 
-5. **Create Gradle Adapter Layer** - Build adapters that integrate flow domain with Gradle's task system
-   - Rationale: Bridges domain logic with Gradle's parallel execution capabilities
+5. **Create Outbound Gradle Adapter** - Build adapter that generates actual Gradle tasks from flow definitions
+   - **NEW APPROACH**: Create outbound adapter in `flows/adapters/out/gradle/` that:
+     - Takes flow definitions from domain layer
+     - Generates corresponding Gradle tasks dynamically
+     - Sets up proper task dependencies based on flow dependencies
+     - Passes references to logical flow execution to generated tasks
+   - Rationale: Leverages Gradle's native parallelization instead of custom threading
 
-6. **Enhance Plugin Registration** - Update RetroAssemblerPlugin to register flows instead of individual tasks
-   - Rationale: Enables the plugin to orchestrate parallel execution
+6. **Enhance Plugin Registration** - Update RetroAssemblerPlugin to use the outbound adapter for task generation
+   - Implementation: Plugin calls outbound adapter to generate tasks instead of registering flows directly
+   - Rationale: Integrates flow-based task generation into main plugin lifecycle
 
-7. **Implement Flow DSL Extension** - Create Gradle extensions that provide the flow DSL to build scripts
-   - Rationale: Provides user-facing API for defining flows
+7. **Implement Task Execution Bridge** - Create mechanism to execute logical flows within generated Gradle tasks
+   - Implementation: Generated tasks receive references to domain flow objects and execute them
+   - Rationale: Bridges between Gradle's task execution and domain logic
 
-### Phase 3: Integration and Testing (Steps 8-10)
-8. **Create Integration Tests** - Build comprehensive tests for parallel flow execution scenarios
-   - Rationale: Ensures parallel execution works correctly and safely
+### Phase 3: Integration & Testing (Steps 8-10)
+8. **Integration Testing** - Test flow execution with various dependency scenarios
+   - Rationale: Ensure parallelization works correctly with complex dependency graphs
 
-9. **Update Existing Task Implementations** - Migrate existing processors and compilers to use flow system
-   - Rationale: Leverages new parallelization for existing functionality
+9. **Performance Validation** - Measure and validate performance improvements
+   - Rationale: Confirm that parallelization actually improves build times
 
-10. **Performance Benchmarking** - Implement benchmarks to measure parallelization improvements
-    - Rationale: Validates that the changes actually improve build performance
-
-### Phase 4: Documentation and Release (Steps 11-13)
-11. **Update Documentation** - Enhance AsciiDoctor documentation with flow DSL examples and migration guide
-    - Rationale: Users need clear guidance on using the new parallelization features
-
-12. **Update CHANGES.adoc** - Document the new flow parallelization feature and breaking changes
-    - Rationale: Maintains project change log as per guidelines
-
-13. **Create Migration Examples** - Build example projects showing before/after flow definitions
-    - Rationale: Helps users adopt the new parallelization features
-
-### Phase 5: Advanced Features (Steps 14-15)
-14. **Implement Flow Monitoring** - Add logging and metrics for parallel execution debugging
-    - Rationale: Essential for troubleshooting parallel execution issues
-
-15. **Add Flow Validation** - Implement compile-time validation for flow definitions and dependencies
-    - Rationale: Prevents runtime errors from misconfigured flows
+10. **Documentation Update** - Update user documentation and examples
+    - Rationale: Users need clear guidance on defining and using parallel flows
 
 ## Additional Notes
-- **Backward Compatibility**: The implementation should maintain compatibility with existing build scripts while providing migration path to flows
-- **Error Handling**: Parallel execution requires robust error handling and propagation mechanisms
-- **Resource Contention**: Consider file system and memory resource management for parallel tasks
-- **Testing Strategy**: Focus on BDD-style tests using Kotest's Given/When/Then DSL as per project guidelines
-- **Gradle Integration**: Leverage Gradle's built-in parallel execution features rather than implementing custom threading
-- **Performance Monitoring**: Include metrics collection to validate performance improvements and identify bottlenecks
+- **Key Architectural Change**: Instead of implementing custom parallelization in the domain layer, we leverage Gradle's built-in task parallelization by generating tasks dynamically
+- **Outbound Adapter Pattern**: The new outbound Gradle adapter follows hexagonal architecture principles by adapting domain concepts to Gradle's task system
+- **Task Generation Strategy**: Flow definitions are transformed into actual Gradle tasks with proper dependencies, allowing Gradle's execution engine to handle parallelization
+- **Reference Passing**: Generated tasks maintain references to domain flow objects to execute the actual business logic
+- **Dependency Mapping**: Flow dependencies are translated to Gradle task dependencies to maintain execution order
