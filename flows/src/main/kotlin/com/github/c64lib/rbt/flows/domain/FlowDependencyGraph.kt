@@ -179,7 +179,8 @@ class FlowDependencyGraph {
     val issues = mutableListOf<FlowValidationIssue>()
 
     artifactConsumers.forEach { (artifact, consumers) ->
-      if (artifact !in artifactProducers) {
+      // Skip validation for source files - they don't need producers
+      if (artifact !in artifactProducers && !artifact.isSourceFile) {
         issues.add(FlowValidationIssue.MissingArtifactProducer(artifact, consumers.toList()))
       }
     }

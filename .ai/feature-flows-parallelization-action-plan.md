@@ -64,7 +64,7 @@ The current implementation lacks a proper mechanism to leverage Gradle's built-i
 11. ✅ **Fix Flow DSL nesting issue (o4-mini)** - Revise FlowDsl.kt and FlowsExtension.kt to prevent unnecessary nested DSL elements in the flows DSL (simplify DSL structure and avoid redundant nesting)
 12. ✅ **Fix error message interpolation (o4-mini)** - Update error message generation in Gradle tasks to correctly evaluate string templates (use proper Kotlin string interpolation or Gradle logging APIs to display validation issues instead of literal syntax)
 13. ✅ **Remove explicit parallel DSL support (o4-mini)** - Removed `parallel` function and `ParallelStepsBuilder`, updated Flow DSL and examples to derive parallel execution from dependencies
-14. **Fix Source File Input Validation** - Modify validation logic to distinguish between source file inputs and produced artifacts
+14. ✅ **Fix Source File Input Validation (GitHub Copilot)** - Modify validation logic to distinguish between source file inputs and produced artifacts
    - **Issue**: Current validation flags all consumed artifacts without producers as errors, but source files (e.g., .asm, .ctm, .spd files) don't need producers
    - **Solution**: Enhance FlowArtifact with source file indicators and update validation to exclude source files from missing producer checks
    - **Files to modify**: 
