@@ -63,7 +63,14 @@ The current implementation lacks a proper mechanism to leverage Gradle's built-i
 ## Next Steps
 11. ✅ **Fix Flow DSL nesting issue (o4-mini)** - Revise FlowDsl.kt and FlowsExtension.kt to prevent unnecessary nested DSL elements in the flows DSL (simplify DSL structure and avoid redundant nesting)
 12. ✅ **Fix error message interpolation (o4-mini)** - Update error message generation in Gradle tasks to correctly evaluate string templates (use proper Kotlin string interpolation or Gradle logging APIs to display validation issues instead of literal syntax)
-13. ✅ **Remove explicit parallel DSL support (GPT-4o)** - Removed `parallel` function and `ParallelStepsBuilder`, updated Flow DSL and examples to derive parallel execution from dependencies
+13. ✅ **Remove explicit parallel DSL support (o4-mini)** - Removed `parallel` function and `ParallelStepsBuilder`, updated Flow DSL and examples to derive parallel execution from dependencies
+14. **Fix Source File Input Validation** - Modify validation logic to distinguish between source file inputs and produced artifacts
+   - **Issue**: Current validation flags all consumed artifacts without producers as errors, but source files (e.g., .asm, .ctm, .spd files) don't need producers
+   - **Solution**: Enhance FlowArtifact with source file indicators and update validation to exclude source files from missing producer checks
+   - **Files to modify**: 
+     - `flows/src/main/kotlin/domain/Flow.kt` - Add source file identification to FlowArtifact
+     - `flows/src/main/kotlin/domain/FlowDependencyGraph.kt` - Update validation logic to skip source file artifacts
+   - Rationale: Source files are the starting point of the build pipeline and should not be flagged as missing when not produced by flows
 
 ## Additional Notes
 - **Key Architectural Change**: Instead of implementing custom parallelization in the domain layer, we leverage Gradle's built-in task parallelization by generating tasks dynamically
@@ -71,3 +78,4 @@ The current implementation lacks a proper mechanism to leverage Gradle's built-i
 - **Task Generation Strategy**: Flow definitions are transformed into actual Gradle tasks with proper dependencies, allowing Gradle's execution engine to handle parallelization
 - **Reference Passing**: Generated tasks maintain references to domain flow objects to execute the actual business logic
 - **Dependency Mapping**: Flow dependencies are translated to Gradle task dependencies to maintain execution order
+- **Source File Handling**: Steps for charpad, spritepad, image, goattracker and assemble typically consume source files directly from `src/` directories and should not require producer validation
