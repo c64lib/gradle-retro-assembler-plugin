@@ -26,6 +26,7 @@ package com.github.c64lib.rbt.flows.adapters.out.gradle
 
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowService
+import com.github.c64lib.rbt.flows.domain.IssueSeverity
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
@@ -42,8 +43,7 @@ abstract class FlowExecutionTask : DefaultTask() {
     val validation = flowService.validateFlows(listOf(flow))
     if (validation.hasErrors) {
       throw IllegalStateException(
-          "Flow '${flow.name}' validation failed: ${'$'}{validation.issues.filter { it.severity.name ==  ERROR }.joinToString { it.message }}",
-      )
+          "Flow '${flow.name}' validation failed: ${validation.issues.filter { it.severity == IssueSeverity.ERROR }.joinToString { it.message }}")
     }
     // Execute the flow domain logic (placeholder: implement step executors)
     println("[FlowExecutionTask] Executing flow '${flow.name}' with ${'$'}{flow.steps.size} steps")

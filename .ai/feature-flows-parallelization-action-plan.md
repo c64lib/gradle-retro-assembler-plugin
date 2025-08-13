@@ -62,7 +62,7 @@ The current implementation lacks a proper mechanism to leverage Gradle's built-i
 
 ## Next Steps
 11. ✅ **Fix Flow DSL nesting issue (o4-mini)** - Revise FlowDsl.kt and FlowsExtension.kt to prevent unnecessary nested DSL elements in the flows DSL (simplify DSL structure and avoid redundant nesting)
-12. **Fix error message interpolation** - Update error message generation in Gradle tasks to correctly evaluate string templates (use proper Kotlin string interpolation or Gradle logging APIs to display validation issues instead of literal syntax)
+12. ✅ **Fix error message interpolation (o4-mini)** - Update error message generation in Gradle tasks to correctly evaluate string templates (use proper Kotlin string interpolation or Gradle logging APIs to display validation issues instead of literal syntax)
 
 ## Additional Notes
 - **Key Architectural Change**: Instead of implementing custom parallelization in the domain layer, we leverage Gradle's built-in task parallelization by generating tasks dynamically
