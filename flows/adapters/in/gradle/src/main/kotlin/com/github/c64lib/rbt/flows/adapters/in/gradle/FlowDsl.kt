@@ -61,7 +61,7 @@ import com.github.c64lib.rbt.flows.domain.FlowStep
  * }
  * ```
  */
-class FlowDslBuilder {
+open class FlowDslBuilder {
   private val flows = mutableListOf<Flow>()
 
   fun flow(name: String, configure: FlowBuilder.() -> Unit): FlowDslBuilder {

@@ -78,22 +78,14 @@ import com.github.c64lib.rbt.flows.domain.Flow
  * }
  * ```
  */
-open class FlowsExtension {
-  private val definedFlows = mutableListOf<Flow>()
-
-  /** Defines flows using the DSL syntax. */
-  fun flows(configure: FlowDslBuilder.() -> Unit) {
-    val builder = FlowDslBuilder()
-    builder.configure()
-    definedFlows.addAll(builder.build())
-  }
-
-  /** Returns all flows defined in this extension. */
-  fun getFlows(): List<Flow> = definedFlows.toList()
+open class FlowsExtension : FlowDslBuilder() {
+  /** Returns all flows defined via the DSL. */
+  fun getFlows(): List<Flow> = build()
 
   /** Validates that all flow dependencies exist and there are no circular dependencies. */
   fun validateFlows(): List<String> {
     val errors = mutableListOf<String>()
+    val definedFlows = build()
     val flowNames = definedFlows.map { it.name }.toSet()
 
     // Check that all dependencies exist
@@ -120,6 +112,7 @@ open class FlowsExtension {
 
   /** Returns flows that can run in parallel (have no dependencies between them). */
   fun getParallelFlows(): List<List<Flow>> {
+    val definedFlows = build()
     val result = mutableListOf<List<Flow>>()
     val processed = mutableSetOf<String>()
 
