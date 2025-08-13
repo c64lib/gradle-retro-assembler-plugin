@@ -23,7 +23,7 @@
 * `Image`: Adding PNG image processor to transform it into sprites or charsets. Currently cutting, splitting and extending are available.
 
 1.6.0::
-* KickAssembler are now longer downloaded if there is no need to do so.
+* KickAssembler are no longer downloaded if there is no need to do so.
 * Dependencies are no longer downloaded if there is no need to do so.
 * Download mechanism has been reimplemented. Additional external dependency to download files is no longer needed.
 
