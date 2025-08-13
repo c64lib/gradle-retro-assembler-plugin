@@ -61,4 +61,4 @@ Ensure that your action plan is comprehensive, follows a step-by-step approach, 
 4. When developer asks additionally for some changes, update existing plan with the changes being made
 5. Once finishing executing of the step, always mark the step as completed in the action plan by adding a ✅ right before step name.
 6. Once finishing executing the whole phase, always mark the phase as completed in the action plan by adding a ✅ right before phase name.
-7. Once finishing executing the step, always add name of the LLM that executed the step to the action plan, so that it is clear who executed the step. Add name of the model in brackets at the end of the step name, e.g. `Step 1: Analyze Current Architecture (o1-mini)`
+7. Once finishing executing the step, always add name of the large language model that executed the step to the action plan, so that it is clear who executed the step. Add name of the model in brackets at the end of the step name, e.g. `Step 1: Analyze Current Architecture (o1-mini)`. Available models are: Sonnet 3.5, Sonnet 3.7, Sonnet 4.0, o4-mini, GPT-4o, GPT-4.1, Gemini 2.5 Pro.
