@@ -33,20 +33,18 @@ import com.github.c64lib.rbt.flows.domain.FlowStep
  * DSL builder for creating Flow definitions in build.gradle.kts files.
  *
  * Example usage:
- * ```
+ * ```kotlin
  * flows {
  *     flow("preprocessing") {
- *         description = "Process all assets in parallel"
+ *         description = "Process all assets"
  *
- *         parallel {
- *             step("charpad") {
- *                 from("src/assets/charset")
- *                 to("build/processed/charset")
- *             }
- *             step("spritepad") {
- *                 from("src/assets/sprites")
- *                 to("build/processed/sprites")
- *             }
+ *         step("charpad") {
+ *             from("src/assets/charset")
+ *             to("build/processed/charset")
+ *         }
+ *         step("spritepad") {
+ *             from("src/assets/sprites")
+ *             to("build/processed/sprites")
  *         }
  *     }
  *
@@ -102,19 +100,6 @@ class FlowBuilder(private val name: String) {
     outputs.addAll(stepOutputs)
   }
 
-  /**
-   * Creates multiple steps that can run in parallel within this flow. Note: This is for
-   * documentation purposes - actual parallelization happens at the flow level, not step level.
-   */
-  fun parallel(configure: ParallelStepsBuilder.() -> Unit) {
-    val parallelBuilder = ParallelStepsBuilder()
-    parallelBuilder.configure()
-    val (parallelSteps, parallelInputs, parallelOutputs) = parallelBuilder.build()
-    steps.addAll(parallelSteps)
-    inputs.addAll(parallelInputs)
-    outputs.addAll(parallelOutputs)
-  }
-
   internal fun build(): Flow =
       Flow(
           name = name,
@@ -123,25 +108,6 @@ class FlowBuilder(private val name: String) {
           produces = outputs,
           consumes = inputs,
           description = description)
-}
-
-/** Builder for steps within a parallel block. */
-class ParallelStepsBuilder {
-  private val steps = mutableListOf<FlowStep>()
-  private val inputs = mutableListOf<FlowArtifact>()
-  private val outputs = mutableListOf<FlowArtifact>()
-
-  fun step(stepName: String, configure: StepBuilder.() -> Unit) {
-    val stepBuilder = StepBuilder(stepName)
-    stepBuilder.configure()
-    val (step, stepInputs, stepOutputs) = stepBuilder.build()
-    steps.add(step)
-    inputs.addAll(stepInputs)
-    outputs.addAll(stepOutputs)
-  }
-
-  internal fun build(): Triple<List<FlowStep>, List<FlowArtifact>, List<FlowArtifact>> =
-      Triple(steps, inputs, outputs)
 }
 
 /** Builder for individual steps. */

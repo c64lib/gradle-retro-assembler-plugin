@@ -29,50 +29,29 @@ import com.github.c64lib.rbt.flows.domain.Flow
 /**
  * Gradle extension that provides the flows DSL to build.gradle.kts files.
  *
- * Users can define parallel execution flows like this:
+ * Users can define execution flows like this:
  *
  * ```kotlin
  * flows {
  *     flow("preprocessing") {
- *         description = "Process all assets in parallel"
+ *         description = "Process all assets"
  *
- *         parallel {
- *             step("charpad") {
- *                 from("src/assets/charset")
- *                 to("build/processed/charset")
- *             }
- *             step("spritepad") {
- *                 from("src/assets/sprites")
- *                 to("build/processed/sprites")
- *             }
- *             step("image") {
- *                 from("src/assets/images")
- *                 to("build/processed/images")
- *             }
+ *         step("charpad") {
+ *             from("src/assets/charset")
+ *             to("build/processed/charset")
  *         }
- *     }
- *
- *     flow("dependencies") {
- *         step("resolve") {
- *             to("build/dependencies")
+ *         step("spritepad") {
+ *             from("src/assets/sprites")
+ *             to("build/processed/sprites")
  *         }
  *     }
  *
  *     flow("compilation") {
- *         dependsOn("preprocessing", "dependencies")
+ *         dependsOn("preprocessing")
  *
  *         step("assemble") {
  *             from("src/main/asm")
  *             to("build/compiled")
- *         }
- *     }
- *
- *     flow("testing") {
- *         dependsOn("compilation")
- *
- *         step("test") {
- *             from("build/compiled")
- *             to("build/test-results")
  *         }
  *     }
  * }
