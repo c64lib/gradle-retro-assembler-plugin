@@ -24,6 +24,8 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
+import com.github.c64lib.rbt.flows.domain.steps.CharpadStep
+import com.github.c64lib.rbt.flows.domain.steps.SpritepadStep
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
@@ -59,13 +61,13 @@ class FlowDependencyGraphTest :
         val spriteFlow =
             Flow(
                 name = "processSprites",
-                steps = listOf(GenericStep("spritepad", "spritepad")),
+                steps = listOf(SpritepadStep("spritepad")),
                 produces = listOf(spriteArtifact))
 
         val charsetFlow =
             Flow(
                 name = "processCharset",
-                steps = listOf(GenericStep("charpad", "charpad")),
+                steps = listOf(CharpadStep("charpad")),
                 produces = listOf(charsetArtifact))
 
         graph.addFlow(spriteFlow)

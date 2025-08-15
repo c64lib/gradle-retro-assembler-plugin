@@ -29,7 +29,6 @@ import com.github.c64lib.rbt.flows.domain.CommandStep
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowArtifact
 import com.github.c64lib.rbt.flows.domain.FlowStep
-import com.github.c64lib.rbt.flows.domain.GenericStep
 
 /**
  * DSL builder for creating Flow definitions in build.gradle.kts files.
@@ -99,16 +98,6 @@ class FlowBuilder(private val name: String) {
   /** Adds multiple dependencies on other flows. */
   fun dependsOn(vararg flowNames: String) {
     dependencies.addAll(flowNames)
-  }
-
-  /** Creates a single step in this flow. */
-  fun step(stepName: String, configure: StepBuilder.() -> Unit) {
-    val stepBuilder = StepBuilder(stepName)
-    stepBuilder.configure()
-    val (step, stepInputs, stepOutputs) = stepBuilder.build()
-    steps.add(step)
-    inputs.addAll(stepInputs)
-    outputs.addAll(stepOutputs)
   }
 
   /** Creates a type-safe Charpad processing step. */
@@ -246,20 +235,6 @@ class StepBuilder(private val name: String) {
     val builder = CommandStepBuilder(name, commandName)
     builder.configure()
     return builder.build()
-  }
-
-  internal fun build(): Triple<FlowStep, List<FlowArtifact>, List<FlowArtifact>> {
-    val inputPaths = inputs.map { it.path }
-    val outputPaths = outputs.map { it.path }
-
-    val step =
-        GenericStep(
-            name = name,
-            taskType = inferTaskType(),
-            inputs = inputPaths,
-            outputs = outputPaths,
-            configuration = config.toMap())
-    return Triple(step, inputs, outputs)
   }
 
   private fun inferTaskType(): String =
