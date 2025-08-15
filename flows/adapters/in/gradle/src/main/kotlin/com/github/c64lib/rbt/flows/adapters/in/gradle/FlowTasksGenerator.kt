@@ -29,6 +29,7 @@ import com.github.c64lib.rbt.flows.domain.CommandStep
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowStep
 import com.github.c64lib.rbt.flows.domain.GenericStep
+import com.github.c64lib.rbt.flows.domain.steps.*
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
@@ -95,6 +96,37 @@ class FlowTasksGenerator(private val project: Project, private val flows: Collec
       step is CommandStep -> {
         taskContainer.create(taskName, CommandTask::class.java) { task ->
           configureBaseTask(task, step, flow)
+        }
+      }
+      // Handle new processor-specific step types
+      step is CharpadStep -> {
+        taskContainer.create(taskName, CharpadTask::class.java) { task ->
+          configureBaseTask(task, step, flow)
+          configureOutputFiles(task, step)
+        }
+      }
+      step is SpritepadStep -> {
+        taskContainer.create(taskName, SpritepadTask::class.java) { task ->
+          configureBaseTask(task, step, flow)
+          configureOutputFiles(task, step)
+        }
+      }
+      step is GoattrackerStep -> {
+        taskContainer.create(taskName, GoattrackerTask::class.java) { task ->
+          configureBaseTask(task, step, flow)
+          configureOutputFiles(task, step)
+        }
+      }
+      step is AssembleStep -> {
+        taskContainer.create(taskName, AssembleTask::class.java) { task ->
+          configureBaseTask(task, step, flow)
+          configureOutputFiles(task, step)
+        }
+      }
+      step is ImageStep -> {
+        taskContainer.create(taskName, ImageTask::class.java) { task ->
+          configureBaseTask(task, step, flow)
+          configureOutputFiles(task, step)
         }
       }
       step is GenericStep -> {

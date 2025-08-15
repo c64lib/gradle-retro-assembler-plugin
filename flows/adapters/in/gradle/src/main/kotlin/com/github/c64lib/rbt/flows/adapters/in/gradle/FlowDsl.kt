@@ -24,6 +24,7 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl.*
 import com.github.c64lib.rbt.flows.domain.CommandStep
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowArtifact
@@ -39,22 +40,31 @@ import com.github.c64lib.rbt.flows.domain.GenericStep
  *     flow("preprocessing") {
  *         description = "Process all assets"
  *
- *         step("charpad") {
- *             from("src/assets/charset")
- *             to("build/processed/charset")
+ *         charpadStep("charset") {
+ *             from("src/assets/charset.ctm")
+ *             to("build/assets/charset.chr", "build/assets/charset.map")
+ *             compression = CharpadCompression.NONE
+ *             exportFormat = CharpadFormat.STANDARD
  *         }
- *         step("spritepad") {
- *             from("src/assets/sprites")
- *             to("build/processed/sprites")
+ *
+ *         spritepadStep("sprites") {
+ *             from("src/assets/sprites.spd")
+ *             to("build/assets/sprites.spr")
+ *             optimization = SpriteOptimization.SIZE
+ *             format = SpriteFormat.MULTICOLOR
  *         }
  *     }
  *
  *     flow("compilation") {
  *         dependsOn("preprocessing")
  *
- *         step("assemble") {
- *             from("src/main/asm")
- *             to("build/compiled")
+ *         assembleStep("main") {
+ *             from("src/main/main.asm")
+ *             to("build/output/main.prg")
+ *             cpu = CpuType.MOS6510
+ *             generateSymbols = true
+ *             optimization = AssemblyOptimization.SPEED
+ *             includePaths("build/assets", "lib/c64lib")
  *         }
  *     }
  * }
@@ -99,6 +109,86 @@ class FlowBuilder(private val name: String) {
     steps.add(step)
     inputs.addAll(stepInputs)
     outputs.addAll(stepOutputs)
+  }
+
+  /** Creates a type-safe Charpad processing step. */
+  fun charpadStep(stepName: String, configure: CharpadStepBuilder.() -> Unit) {
+    val stepBuilder = CharpadStepBuilder(stepName)
+    stepBuilder.configure()
+    val step = stepBuilder.build()
+    steps.add(step)
+
+    // Add artifacts for dependency tracking
+    step.inputs.forEach { input ->
+      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
+    }
+    step.outputs.forEach { output ->
+      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
+    }
+  }
+
+  /** Creates a type-safe Spritepad processing step. */
+  fun spritepadStep(stepName: String, configure: SpritepadStepBuilder.() -> Unit) {
+    val stepBuilder = SpritepadStepBuilder(stepName)
+    stepBuilder.configure()
+    val step = stepBuilder.build()
+    steps.add(step)
+
+    // Add artifacts for dependency tracking
+    step.inputs.forEach { input ->
+      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
+    }
+    step.outputs.forEach { output ->
+      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
+    }
+  }
+
+  /** Creates a type-safe GoatTracker processing step. */
+  fun goattrackerStep(stepName: String, configure: GoattrackerStepBuilder.() -> Unit) {
+    val stepBuilder = GoattrackerStepBuilder(stepName)
+    stepBuilder.configure()
+    val step = stepBuilder.build()
+    steps.add(step)
+
+    // Add artifacts for dependency tracking
+    step.inputs.forEach { input ->
+      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
+    }
+    step.outputs.forEach { output ->
+      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
+    }
+  }
+
+  /** Creates a type-safe Assembly processing step. */
+  fun assembleStep(stepName: String, configure: AssembleStepBuilder.() -> Unit) {
+    val stepBuilder = AssembleStepBuilder(stepName)
+    stepBuilder.configure()
+    val step = stepBuilder.build()
+    steps.add(step)
+
+    // Add artifacts for dependency tracking
+    step.inputs.forEach { input ->
+      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
+    }
+    step.outputs.forEach { output ->
+      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
+    }
+  }
+
+  /** Creates a type-safe Image processing step. */
+  fun imageStep(stepName: String, configure: ImageStepBuilder.() -> Unit) {
+    val stepBuilder = ImageStepBuilder(stepName)
+    stepBuilder.configure()
+    val step = stepBuilder.build()
+    steps.add(step)
+
+    // Add artifacts for dependency tracking
+    step.inputs.forEach { input ->
+      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
+    }
+    step.outputs.forEach { output ->
+      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
+    }
   }
 
   internal fun build(): Flow =
