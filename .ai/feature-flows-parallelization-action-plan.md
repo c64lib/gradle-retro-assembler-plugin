@@ -33,7 +33,7 @@ The current implementation lacks a proper mechanism to leverage Gradle's built-i
 3. ✅ **Create Flow Dependency Graph** - Implement logic to build and validate dependency graphs between flows
    - Rationale: Essential for determining which flows can execute in parallel
 
-### Phase 2: Core Implementation (Steps 4-7)
+### Phase 2: Core Implementation (Steps 4-7) ✅ COMPLETED
 4. ✅ **Implement Flow Domain Layer** - Build the core business logic for flow execution and dependency management
    - **CORRECTED APPROACH**: Focus on logical flow representation and dependency resolution, NOT custom parallelization
    - Rationale: Domain should contain pure business logic for flow definitions and dependencies, leaving parallelization to Gradle
@@ -60,7 +60,7 @@ The current implementation lacks a proper mechanism to leverage Gradle's built-i
 9. **Performance Validation** - Measure and validate performance improvements
 10. **Documentation Update** - Update user documentation and examples
 
-## Next Steps
+### Phase 4: Extensibility Enhancement (Steps 11-15) ✅ COMPLETED
 11. ✅ **Fix Flow DSL nesting issue (o4-mini)** - Revise FlowDsl.kt and FlowsExtension.kt to prevent unnecessary nested DSL elements in the flows DSL (simplify DSL structure and avoid redundant nesting)
 12. ✅ **Fix error message interpolation (o4-mini)** - Update error message generation in Gradle tasks to correctly evaluate string templates (use proper Kotlin string interpolation or Gradle logging APIs to display validation issues instead of literal syntax)
 13. ✅ **Remove explicit parallel DSL support (o4-mini)** - Removed `parallel` function and `ParallelStepsBuilder`, updated Flow DSL and examples to derive parallel execution from dependencies
@@ -72,7 +72,6 @@ The current implementation lacks a proper mechanism to leverage Gradle's built-i
      - `flows/src/main/kotlin/domain/FlowDependencyGraph.kt` - Update validation logic to skip source file artifacts
    - Rationale: Source files are the starting point of the build pipeline and should not be flagged as missing when not produced by flows
 
-### Phase 4: Extensibility Enhancement (Step 15)
 15. ✅ **Implement Extensible Step Architecture (GitHub Copilot)** - Refactor FlowStep from data class to abstract class hierarchy for better extensibility and command execution
    - **Current Issue**: FlowStep is a data class with generic configuration Map, limiting type safety and extensibility
    - **Solution**: 
@@ -88,6 +87,27 @@ The current implementation lacks a proper mechanism to leverage Gradle's built-i
    - **Benefits**: Type-safe step definitions, easier testing, better IDE support, extensible for future step types
    - Rationale: Abstract class hierarchy provides better type safety and extensibility than generic data class with Map configuration
 
+### Phase 5: Advanced Task Implementation (Step 16)
+16. **Implement Dedicated Step Tasks with Gradle Annotations** - Create dedicated Gradle task classes for each flow step type with proper @Input/@Output annotations and file-based dependencies
+   - **Issue**: Current FlowExecutionTask is generic and doesn't leverage Gradle's incremental build capabilities or proper input/output tracking
+   - **Solution**:
+     - Create dedicated task classes for each step type (CharpadTask, SpritepadTask, AssembleTask, etc.) in `flows/adapters/in/gradle/`
+     - Add @InputFiles/@InputDirectory annotations for source files and dependencies
+     - Add @OutputFiles/@OutputDirectory annotations for generated artifacts
+     - Implement automatic task dependency detection based on file inputs/outputs
+     - Update FlowTasksGenerator to create specific task types instead of generic FlowExecutionTask
+     - Ensure tasks are only re-executed when inputs change (incremental builds)
+   - **Files to modify**:
+     - `flows/adapters/in/gradle/src/main/kotlin/.../tasks/` - New directory for dedicated task classes
+     - `flows/adapters/in/gradle/src/main/kotlin/.../FlowTasksGenerator.kt` - Update to generate specific task types
+     - `flows/adapters/in/gradle/src/main/kotlin/.../FlowExecutionTask.kt` - Remove or refactor as base class
+   - **Benefits**: 
+     - Proper incremental build support (tasks only run when inputs change)
+     - Automatic dependency resolution based on file relationships
+     - Better Gradle integration and performance
+     - Enhanced parallel execution through file-based dependency tracking
+   - Rationale: Dedicated task classes with proper annotations enable Gradle's incremental build system and automatic parallelization based on file dependencies
+
 ## Additional Notes
 - **Key Architectural Change**: Instead of implementing custom parallelization in the domain layer, we leverage Gradle's built-in task parallelization by generating tasks dynamically
 - **Outbound Adapter Pattern**: The new outbound Gradle adapter follows hexagonal architecture principles by adapting domain concepts to Gradle's task system
@@ -95,3 +115,5 @@ The current implementation lacks a proper mechanism to leverage Gradle's built-i
 - **Reference Passing**: Generated tasks maintain references to domain flow objects to execute the actual business logic
 - **Dependency Mapping**: Flow dependencies are translated to Gradle task dependencies to maintain execution order
 - **Source File Handling**: Steps for charpad, spritepad, image, goattracker and assemble typically consume source files directly from `src/` directories and should not require producer validation
+- **Incremental Build Support**: Dedicated task classes with @Input/@Output annotations enable Gradle's incremental build capabilities, ensuring tasks only run when their inputs change
+- **File-Based Dependencies**: Automatic task dependency resolution based on input/output file relationships provides more granular parallelization than flow-level dependencies
