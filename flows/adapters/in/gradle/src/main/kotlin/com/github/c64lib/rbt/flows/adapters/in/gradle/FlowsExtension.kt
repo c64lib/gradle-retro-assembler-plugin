@@ -36,22 +36,16017 @@ import com.github.c64lib.rbt.flows.domain.Flow
  *     flow("preprocessing") {
  *         description = "Process all assets"
  *
- *         step("charpad") {
- *             from("src/assets/charset")
- *             to("build/processed/charset")
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
  *         }
- *         step("spritepad") {
- *             from("src/assets/sprites")
- *             to("build/processed/sprites")
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *                 to("build/processed/sprites")
+ *             }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *                 to("build/processed/sprites")
+ *             }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
+ *         }
+ *     }
+ *             step("image") {
+ *                 from("src/assets/images")
+ *         dependsOn("preprocessing", "dependencies")
+ *             }
+ *         }
+ *     }
+ *
+ *     flow("dependencies") {
+ *         step("resolve") {
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
+ *         }
+ *     }
+ *             to("build/dependencies")
  *         }
  *     }
  *
  *     flow("compilation") {
- *         dependsOn("preprocessing")
+ *         dependsOn("preprocessing", "dependencies")
  *
  *         step("assemble") {
  *             from("src/main/asm")
  *             to("build/compiled")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *
+ *         step("test") {
+ *             from("build/compiled")
+ *             to("build/test-results")
  *         }
  *     }
  * }
