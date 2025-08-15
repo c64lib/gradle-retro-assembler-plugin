@@ -24,4 +24,20 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
-data class FlowStep(val content: FlowStepContent)
+/** Service for working with flows: validation and execution planning. */
+class FlowService {
+  /** Validates the given flows and returns the result. */
+  fun validateFlows(flows: Collection<Flow>): FlowValidationResult =
+      FlowDependencyGraph().apply { flows.forEach(this::addFlow) }.validate()
+
+  /**
+   * Determines the execution plan for the given flows, returning groups of flow names that can be
+   * executed in parallel.
+   */
+  fun getExecutionPlan(flows: Collection<Flow>): List<List<String>> =
+      FlowDependencyGraph().apply { flows.forEach(this::addFlow) }.getParallelExecutionOrder()
+
+  /** Returns flow names that can run in parallel with the specified flow. */
+  fun findParallelCandidates(flows: Collection<Flow>, flowName: String): Set<String> =
+      FlowDependencyGraph().apply { flows.forEach(this::addFlow) }.getParallelCandidates(flowName)
+}
