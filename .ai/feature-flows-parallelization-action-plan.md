@@ -97,6 +97,7 @@ The current implementation lacks a proper mechanism to leverage Gradle's built-i
      - Implement automatic task dependency detection based on file inputs/outputs
      - Update FlowTasksGenerator to create specific task types instead of generic FlowExecutionTask
      - Ensure tasks are only re-executed when inputs change (incremental builds)
+     - **Enhanced**: Add dedicated DSL constructs for each concrete flow step type with type-specific configuration
    - **Files implemented**:
      - `flows/adapters/in/gradle/src/main/kotlin/.../tasks/BaseFlowStepTask.kt` - Base class with common input/output tracking
      - `flows/adapters/in/gradle/src/main/kotlin/.../tasks/CharpadTask.kt` - Dedicated Charpad task implementation
@@ -106,19 +107,101 @@ The current implementation lacks a proper mechanism to leverage Gradle's built-i
      - `flows/adapters/in/gradle/src/main/kotlin/.../tasks/ImageTask.kt` - Dedicated Image processing task implementation
      - `flows/adapters/in/gradle/src/main/kotlin/.../tasks/CommandTask.kt` - Dedicated Command execution task implementation
      - `flows/adapters/in/gradle/src/main/kotlin/.../FlowTasksGenerator.kt` - Updated to generate specific task types
+   - **Enhancement Required - Dedicated DSL Constructs**:
+     - `flows/adapters/in/gradle/src/main/kotlin/.../FlowDsl.kt` - Add dedicated DSL functions for each step type:
+       - `charpadStep(name: String, configure: CharpadStepBuilder.() -> Unit)` - Type-safe Charpad configuration
+       - `spritepadStep(name: String, configure: SpritepadStepBuilder.() -> Unit)` - Type-safe Spritepad configuration  
+       - `goattrackerStep(name: String, configure: GoattrackerStepBuilder.() -> Unit)` - Type-safe GoatTracker configuration
+       - `assembleStep(name: String, configure: AssembleStepBuilder.() -> Unit)` - Type-safe Assembly configuration
+       - `imageStep(name: String, configure: ImageStepBuilder.() -> Unit)` - Type-safe Image processing configuration
+     - Create dedicated step builder classes with processor-specific options:
+       - `CharpadStepBuilder` - Configure .ctm processing options (compression, format, etc.)
+       - `SpritepadStepBuilder` - Configure .spd processing options (sprite format, optimization, etc.)
+       - `GoattrackerStepBuilder` - Configure .sng processing options (export format, optimization, etc.)
+       - `AssembleStepBuilder` - Configure assembly options (CPU type, symbols, optimization, etc.)
+       - `ImageStepBuilder` - Configure image conversion options (format, palette, dithering, etc.)
+   - **Enhanced DSL Usage Examples**:
+     ```kotlin
+     flows {
+         flow("assets") {
+             charpadStep("charset") {
+                 from("src/assets/charset.ctm")
+                 to("build/assets/charset.chr", "build/assets/charset.map")
+                 compression = CharpadCompression.NONE
+                 exportFormat = CharpadFormat.STANDARD
+             }
+             
+             spritepadStep("sprites") {
+                 from("src/assets/sprites.spd") 
+                 to("build/assets/sprites.spr")
+                 optimization = SpriteOptimization.SIZE
+                 format = SpriteFormat.MULTICOLOR
+             }
+             
+             goattrackerStep("music") {
+                 from("src/music/theme.sng")
+                 to("build/music/theme.sid", "build/music/theme.asm")
+                 exportFormat = GoattrackerFormat.SID_AND_ASM
+                 optimization = true
+             }
+         }
+         
+         flow("compilation") {
+             dependsOn("assets")
+             
+             assembleStep("main") {
+                 from("src/main/main.asm")
+                 to("build/output/main.prg")
+                 cpu = CpuType.MOS6510
+                 generateSymbols = true
+                 optimization = AssemblyOptimization.SPEED
+                 includePaths("build/assets", "lib/c64lib")
+             }
+         }
+     }
+     ```
    - **Benefits**: 
      - Proper incremental build support (tasks only run when inputs change)
      - Automatic dependency resolution based on file relationships
      - Better Gradle integration and performance
      - Enhanced parallel execution through file-based dependency tracking
-   - Rationale: Dedicated task classes with proper annotations enable Gradle's incremental build system and automatic parallelization based on file dependencies
+     - **Enhanced**: Type-safe DSL with processor-specific configuration options
+     - **Enhanced**: IDE auto-completion and validation for step configurations
+     - **Enhanced**: Compile-time validation of step parameters and file paths
+   - Rationale: Dedicated task classes with proper annotations enable Gradle's incremental build system and automatic parallelization based on file dependencies. Enhanced DSL provides type-safe, processor-specific configuration with better developer experience.
 
-## Additional Notes
-- **Key Architectural Change**: Instead of implementing custom parallelization in the domain layer, we leverage Gradle's built-in task parallelization by generating tasks dynamically
-- **Outbound Adapter Pattern**: The new outbound Gradle adapter follows hexagonal architecture principles by adapting domain concepts to Gradle's task system
-- **Task Generation Strategy**: Flow definitions are transformed into actual Gradle tasks with proper dependencies, allowing Gradle's execution engine to handle parallelization
-- **Reference Passing**: Generated tasks maintain references to domain flow objects to execute the actual business logic
-- **Dependency Mapping**: Flow dependencies are translated to Gradle task dependencies to maintain execution order
-- **Source File Handling**: Steps for charpad, spritepad, image, goattracker and assemble typically consume source files directly from `src/` directories and should not require producer validation
-- **Incremental Build Support**: Dedicated task classes with @Input/@Output annotations enable Gradle's incremental build capabilities, ensuring tasks only run when their inputs change
-- **File-Based Dependencies**: Automatic task dependency resolution based on input/output file relationships provides more granular parallelization than flow-level dependencies
+### Phase 6: Enhanced DSL Implementation (Step 17) 
+17. **Implement Type-Safe DSL Constructs for Concrete Flow Steps** - Create dedicated DSL functions and builders for each processor type with type-specific configuration options
+   - **Issue**: Current generic step() function lacks type safety and processor-specific configuration options
+   - **Solution**:
+     - Create dedicated DSL functions for each processor type in FlowDsl.kt
+     - Implement type-safe builder classes with processor-specific configuration options
+     - Add enum classes for configuration values (compression types, formats, CPU types, etc.)
+     - Update FlowTasksGenerator to handle type-specific step configurations
+     - Create domain model classes for each step type extending FlowStep
+   - **Files to implement**:
+     - `flows/src/main/kotlin/domain/steps/CharpadStep.kt` - Domain model for Charpad processing steps
+     - `flows/src/main/kotlin/domain/steps/SpritepadStep.kt` - Domain model for Spritepad processing steps  
+     - `flows/src/main/kotlin/domain/steps/GoattrackerStep.kt` - Domain model for GoatTracker processing steps
+     - `flows/src/main/kotlin/domain/steps/AssembleStep.kt` - Domain model for Assembly processing steps
+     - `flows/src/main/kotlin/domain/steps/ImageStep.kt` - Domain model for Image processing steps
+     - `flows/src/main/kotlin/domain/config/ProcessorConfig.kt` - Configuration enums and data classes
+     - `flows/adapters/in/gradle/src/main/kotlin/.../dsl/CharpadStepBuilder.kt` - Type-safe Charpad DSL builder
+     - `flows/adapters/in/gradle/src/main/kotlin/.../dsl/SpritepadStepBuilder.kt` - Type-safe Spritepad DSL builder
+     - `flows/adapters/in/gradle/src/main/kotlin/.../dsl/GoattrackerStepBuilder.kt` - Type-safe GoatTracker DSL builder
+     - `flows/adapters/in/gradle/src/main/kotlin/.../dsl/AssembleStepBuilder.kt` - Type-safe Assembly DSL builder
+     - `flows/adapters/in/gradle/src/main/kotlin/.../dsl/ImageStepBuilder.kt` - Type-safe Image DSL builder
+     - `flows/adapters/in/gradle/src/main/kotlin/.../FlowDsl.kt` - Enhanced with dedicated DSL functions
+   - **Configuration Options to Support**:
+     - **Charpad**: Compression (none, RLE, etc.), export format (standard, optimized), tile size, charset optimization
+     - **Spritepad**: Sprite format (hires, multicolor), optimization (size, speed), export format (raw, optimized)
+     - **GoatTracker**: Export format (SID only, ASM only, both), optimization level, frequency (PAL, NTSC)
+     - **Assembly**: CPU type (6502, 6510, 65C02), optimization level, symbol generation, include paths
+     - **Image**: Target format (Koala, Art Studio, etc.), palette optimization, dithering algorithm
+   - **Benefits**:
+     - Type-safe configuration with compile-time validation
+     - IDE auto-completion for all configuration options
+     - Processor-specific validation and error messages
+     - Better integration with existing processor modules
+     - Cleaner, more maintainable DSL syntax
+   - Rationale: Type-safe DSL constructs provide better developer experience, catch configuration errors at compile time, and integrate seamlessly with the existing processor architecture.
