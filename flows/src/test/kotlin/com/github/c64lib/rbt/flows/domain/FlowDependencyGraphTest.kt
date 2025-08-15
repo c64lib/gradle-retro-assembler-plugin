@@ -53,10 +53,8 @@ class FlowDependencyGraphTest :
 
       given("a flow dependency graph with independent flows") {
         val graph = FlowDependencyGraph()
-        val spriteArtifact =
-            FlowArtifact("sprites.dat", "build/sprites.dat", ArtifactType.SPRITE_DATA)
-        val charsetArtifact =
-            FlowArtifact("charset.dat", "build/charset.dat", ArtifactType.CHARSET_DATA)
+        val spriteArtifact = FlowArtifact("sprites.dat", "build/sprites.dat")
+        val charsetArtifact = FlowArtifact("charset.dat", "build/charset.dat")
 
         val spriteFlow =
             Flow(
@@ -108,10 +106,8 @@ class FlowDependencyGraphTest :
 
       given("a flow dependency graph with sequential dependencies") {
         val graph = FlowDependencyGraph()
-        val spriteArtifact =
-            FlowArtifact("sprites.dat", "build/sprites.dat", ArtifactType.SPRITE_DATA)
-        val binaryArtifact =
-            FlowArtifact("game.prg", "build/game.prg", ArtifactType.COMPILED_BINARY)
+        val spriteArtifact = FlowArtifact("sprites.dat", "build/sprites.dat")
+        val binaryArtifact = FlowArtifact("game.prg", "build/game.prg")
 
         val spriteFlow = Flow(name = "processSprites", produces = listOf(spriteArtifact))
 
@@ -153,8 +149,8 @@ class FlowDependencyGraphTest :
 
       given("a flow dependency graph with circular dependencies") {
         val graph = FlowDependencyGraph()
-        val artifact1 = FlowArtifact("data1.dat", "build/data1.dat", ArtifactType.SOURCE_FILE)
-        val artifact2 = FlowArtifact("data2.dat", "build/data2.dat", ArtifactType.SOURCE_FILE)
+        val artifact1 = FlowArtifact("data1.dat", "build/data1.dat")
+        val artifact2 = FlowArtifact("data2.dat", "build/data2.dat")
 
         val flow1 = Flow(name = "flow1", produces = listOf(artifact1), consumes = listOf(artifact2))
 
@@ -178,8 +174,7 @@ class FlowDependencyGraphTest :
 
       given("a flow dependency graph with missing artifact producers") {
         val graph = FlowDependencyGraph()
-        val missingArtifact =
-            FlowArtifact("missing.dat", "build/missing.dat", ArtifactType.SOURCE_FILE)
+        val missingArtifact = FlowArtifact("missing.dat", "build/missing.dat")
 
         val consumerFlow = Flow(name = "consumer", consumes = listOf(missingArtifact))
 
@@ -202,13 +197,10 @@ class FlowDependencyGraphTest :
         val graph = FlowDependencyGraph()
 
         // Create artifacts
-        val spriteArtifact =
-            FlowArtifact("sprites.dat", "build/sprites.dat", ArtifactType.SPRITE_DATA)
-        val charsetArtifact =
-            FlowArtifact("charset.dat", "build/charset.dat", ArtifactType.CHARSET_DATA)
-        val musicArtifact = FlowArtifact("music.dat", "build/music.dat", ArtifactType.MUSIC_DATA)
-        val binaryArtifact =
-            FlowArtifact("game.prg", "build/game.prg", ArtifactType.COMPILED_BINARY)
+        val spriteArtifact = FlowArtifact("sprites.dat", "build/sprites.dat")
+        val charsetArtifact = FlowArtifact("charset.dat", "build/charset.dat")
+        val musicArtifact = FlowArtifact("music.dat", "build/music.dat")
+        val binaryArtifact = FlowArtifact("game.prg", "build/game.prg")
 
         // Create flows
         val spriteFlow = Flow("processSprites", produces = listOf(spriteArtifact))

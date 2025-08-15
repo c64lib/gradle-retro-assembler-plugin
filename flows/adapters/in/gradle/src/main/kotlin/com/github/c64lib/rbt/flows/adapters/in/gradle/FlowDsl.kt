@@ -24,7 +24,6 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
-import com.github.c64lib.rbt.flows.domain.ArtifactType
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowArtifact
 import com.github.c64lib.rbt.flows.domain.FlowStep
@@ -117,28 +116,26 @@ class StepBuilder(private val name: String) {
   private val outputs = mutableListOf<FlowArtifact>()
 
   /** Specifies input sources for this step. */
-  fun from(path: String, type: ArtifactType = ArtifactType.SOURCE_FILE) {
-    inputs.add(FlowArtifact("${name}_input", path, type))
+  fun from(path: String) {
+    inputs.add(FlowArtifact("${name}_input", path))
     config["inputPath"] = path
   }
 
   /** Specifies multiple input sources for this step. */
-  fun from(vararg paths: String, type: ArtifactType = ArtifactType.SOURCE_FILE) {
-    paths.forEach { path -> inputs.add(FlowArtifact("${name}_input_${inputs.size}", path, type)) }
+  fun from(vararg paths: String) {
+    paths.forEach { path -> inputs.add(FlowArtifact("${name}_input_${inputs.size}", path)) }
     config["inputPaths"] = paths.toList()
   }
 
   /** Specifies output destination for this step. */
-  fun to(path: String, type: ArtifactType = ArtifactType.COMPILED_BINARY) {
-    outputs.add(FlowArtifact("${name}_output", path, type))
+  fun to(path: String) {
+    outputs.add(FlowArtifact("${name}_output", path))
     config["outputPath"] = path
   }
 
   /** Specifies multiple output destinations for this step. */
-  fun to(vararg paths: String, type: ArtifactType = ArtifactType.COMPILED_BINARY) {
-    paths.forEach { path ->
-      outputs.add(FlowArtifact("${name}_output_${outputs.size}", path, type))
-    }
+  fun to(vararg paths: String) {
+    paths.forEach { path -> outputs.add(FlowArtifact("${name}_output_${outputs.size}", path)) }
     config["outputPaths"] = paths.toList()
   }
 

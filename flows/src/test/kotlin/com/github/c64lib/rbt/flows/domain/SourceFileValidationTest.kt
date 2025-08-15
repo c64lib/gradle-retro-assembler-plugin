@@ -36,7 +36,6 @@ class SourceFileValidationTest :
             FlowArtifact.sourceFile(
                 name = "main.asm",
                 path = "src/main/asm/main.asm",
-                type = ArtifactType.SOURCE_FILE,
                 description = "Main assembly source file")
         val flow = Flow(name = "assemble", consumes = listOf(sourceFile))
         val graph = FlowDependencyGraph()
@@ -57,7 +56,6 @@ class SourceFileValidationTest :
             FlowArtifact.produced(
                 name = "charset.bin",
                 path = "build/processed/charset.bin",
-                type = ArtifactType.CHARSET_DATA,
                 description = "Processed character set data")
         val flow = Flow(name = "assemble", consumes = listOf(producedArtifact))
         val graph = FlowDependencyGraph()
@@ -77,14 +75,12 @@ class SourceFileValidationTest :
       }
 
       Given("a mix of source files and produced artifacts with proper producers") {
-        val sourceFile =
-            FlowArtifact.sourceFile(
-                name = "main.asm", path = "src/main/asm/main.asm", type = ArtifactType.SOURCE_FILE)
+        val sourceFile = FlowArtifact.sourceFile(name = "main.asm", path = "src/main/asm/main.asm")
         val charsetData =
             FlowArtifact.produced(
                 name = "charset.bin",
                 path = "build/processed/charset.bin",
-                type = ArtifactType.CHARSET_DATA)
+            )
         val charpadFlow = Flow(name = "charpad", produces = listOf(charsetData))
         val assembleFlow = Flow(name = "assemble", consumes = listOf(sourceFile, charsetData))
         val graph = FlowDependencyGraph()
