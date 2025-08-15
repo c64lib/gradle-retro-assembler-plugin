@@ -72,6 +72,22 @@ The current implementation lacks a proper mechanism to leverage Gradle's built-i
      - `flows/src/main/kotlin/domain/FlowDependencyGraph.kt` - Update validation logic to skip source file artifacts
    - Rationale: Source files are the starting point of the build pipeline and should not be flagged as missing when not produced by flows
 
+### Phase 4: Extensibility Enhancement (Step 15)
+15. ✅ **Implement Extensible Step Architecture (GitHub Copilot)** - Refactor FlowStep from data class to abstract class hierarchy for better extensibility and command execution
+   - **Current Issue**: FlowStep is a data class with generic configuration Map, limiting type safety and extensibility
+   - **Solution**: 
+     - Convert FlowStep to abstract class with common properties (name, inputs, outputs)
+     - Remove configuration Map to eliminate generic key-value storage
+     - Create CommandStep concrete implementation for CLI command execution
+     - Implement convenient command building with + operator for parameters
+     - Support any input/output paths for maximum flexibility
+   - **Files to modify**:
+     - `flows/src/main/kotlin/domain/Flow.kt` - Convert FlowStep to abstract class
+     - `flows/src/main/kotlin/domain/CommandStep.kt` - New concrete command step implementation
+     - `flows/adapters/in/gradle/src/main/kotlin/.../FlowDsl.kt` - Update DSL to work with abstract steps
+   - **Benefits**: Type-safe step definitions, easier testing, better IDE support, extensible for future step types
+   - Rationale: Abstract class hierarchy provides better type safety and extensibility than generic data class with Map configuration
+
 ## Additional Notes
 - **Key Architectural Change**: Instead of implementing custom parallelization in the domain layer, we leverage Gradle's built-in task parallelization by generating tasks dynamically
 - **Outbound Adapter Pattern**: The new outbound Gradle adapter follows hexagonal architecture principles by adapting domain concepts to Gradle's task system

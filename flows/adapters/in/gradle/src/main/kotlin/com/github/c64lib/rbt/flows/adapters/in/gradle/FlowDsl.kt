@@ -24,9 +24,11 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
+import com.github.c64lib.rbt.flows.domain.CommandStep
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowArtifact
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.GenericStep
 
 /**
  * DSL builder for creating Flow definitions in build.gradle.kts files.
@@ -149,8 +151,24 @@ class StepBuilder(private val name: String) {
     config.putAll(configuration)
   }
 
+  /** Creates a command step that can execute any CLI command. */
+  fun command(commandName: String, configure: CommandStepBuilder.() -> Unit = {}): CommandStep {
+    val builder = CommandStepBuilder(name, commandName)
+    builder.configure()
+    return builder.build()
+  }
+
   internal fun build(): Triple<FlowStep, List<FlowArtifact>, List<FlowArtifact>> {
-    val step = FlowStep(name = name, taskType = inferTaskType(), configuration = config.toMap())
+    val inputPaths = inputs.map { it.path }
+    val outputPaths = outputs.map { it.path }
+
+    val step =
+        GenericStep(
+            name = name,
+            taskType = inferTaskType(),
+            inputs = inputPaths,
+            outputs = outputPaths,
+            configuration = config.toMap())
     return Triple(step, inputs, outputs)
   }
 
@@ -165,4 +183,40 @@ class StepBuilder(private val name: String) {
         name.contains("dependencies", ignoreCase = true) -> "dependencies"
         else -> "generic"
       }
+}
+
+/** Builder for command steps with fluent API. */
+class CommandStepBuilder(private val name: String, private val command: String) {
+  private val parameters = mutableListOf<String>()
+  private val inputs = mutableListOf<String>()
+  private val outputs = mutableListOf<String>()
+
+  /** Add a parameter to the command */
+  fun param(parameter: String): CommandStepBuilder {
+    parameters.add(parameter)
+    return this
+  }
+
+  /** Add multiple parameters to the command */
+  fun params(vararg parameters: String): CommandStepBuilder {
+    this.parameters.addAll(parameters)
+    return this
+  }
+
+  /** Set input paths for this command step */
+  fun from(vararg paths: String): CommandStepBuilder {
+    inputs.addAll(paths)
+    return this
+  }
+
+  /** Set output paths for this command step */
+  fun to(vararg paths: String): CommandStepBuilder {
+    outputs.addAll(paths)
+    return this
+  }
+
+  internal fun build(): CommandStep {
+    var step = CommandStep(name, command, inputs, outputs, parameters)
+    return step
+  }
 }

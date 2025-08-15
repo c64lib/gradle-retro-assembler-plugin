@@ -59,13 +59,13 @@ class FlowDependencyGraphTest :
         val spriteFlow =
             Flow(
                 name = "processSprites",
-                steps = listOf(FlowStep("spritepad", "spritepad")),
+                steps = listOf(GenericStep("spritepad", "spritepad")),
                 produces = listOf(spriteArtifact))
 
         val charsetFlow =
             Flow(
                 name = "processCharset",
-                steps = listOf(FlowStep("charpad", "charpad")),
+                steps = listOf(GenericStep("charpad", "charpad")),
                 produces = listOf(charsetArtifact))
 
         graph.addFlow(spriteFlow)

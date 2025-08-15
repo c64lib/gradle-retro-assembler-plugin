@@ -47,13 +47,21 @@ data class Flow(
 }
 
 /** Represents a single step within a flow */
-data class FlowStep(
+abstract class FlowStep(
     val name: String,
-    val taskType: String, // e.g., "kickass", "charpad", "spritepad"
+    val taskType: String,
     val inputs: List<String> = emptyList(),
-    val outputs: List<String> = emptyList(),
-    val configuration: Map<String, Any> = emptyMap()
-)
+    val outputs: List<String> = emptyList()
+) {
+  /** Execute this step with the given context */
+  abstract fun execute(context: Map<String, Any> = emptyMap())
+
+  /** Validate that this step can be executed */
+  open fun validate(): List<String> = emptyList()
+
+  /** Get step-specific configuration for display/debugging */
+  open fun getConfiguration(): Map<String, Any> = emptyMap()
+}
 
 /** Represents an artifact (file or resource) that flows between different flows */
 data class FlowArtifact(
