@@ -22,38 +22,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.flows.adapters.out.gradle
+package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
 import com.github.c64lib.rbt.flows.domain.Flow
-import org.gradle.api.Project
-import org.gradle.api.Task
+import com.github.c64lib.rbt.flows.domain.FlowService
+import com.github.c64lib.rbt.flows.domain.IssueSeverity
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.TaskAction
 
-/** Outbound adapter for Gradle that generates tasks for each flow definition. */
-class FlowTasksGenerator(private val project: Project, private val flows: Collection<Flow>) {
-  private val tasksByFlowName = mutableMapOf<String, Task>()
+/** Gradle task that bridges to the domain Flow execution logic. */
+abstract class FlowExecutionTask : DefaultTask() {
+  @Internal lateinit var flow: Flow
 
-  /** Registers Gradle tasks for all flows and configures dependencies. */
-  fun registerTasks() {
-    val taskContainer = project.tasks
+  @Internal val flowService: FlowService = FlowService()
 
-    // Create one task per flow
-    flows.forEach { flow ->
-      val taskName = "flow${flow.name.replaceFirstChar { it.uppercaseChar() }}"
-      val task =
-          taskContainer.create(taskName, FlowExecutionTask::class.java) { t ->
-            t.group = "flows"
-            t.description = "Executes flow '${flow.name}'"
-            t.flow = flow
-          }
-      tasksByFlowName[flow.name] = task
+  @TaskAction
+  fun executeFlow() {
+    // Validate the graph before execution
+    val validation = flowService.validateFlows(listOf(flow))
+    if (validation.hasErrors) {
+      throw IllegalStateException(
+          "Flow '${flow.name}' validation failed: ${validation.issues.filter { it.severity == IssueSeverity.ERROR }.joinToString { it.message }}")
     }
-
-    // Set up task dependencies based on flow dependencies
-    flows.forEach { flow ->
-      val task = tasksByFlowName[flow.name] ?: return@forEach
-      flow.dependsOn.forEach { depName ->
-        tasksByFlowName[depName]?.let { depTask -> task.dependsOn(depTask) }
-      }
-    }
+    // Execute the flow domain logic (placeholder: implement step executors)
+    println("[FlowExecutionTask] Executing flow '${flow.name}' with ${flow.steps.size} steps")
+    // TODO: integrate actual step executors for each FlowStep in flow.steps
   }
 }

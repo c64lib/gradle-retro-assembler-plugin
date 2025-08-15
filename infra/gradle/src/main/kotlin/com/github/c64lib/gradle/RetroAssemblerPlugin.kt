@@ -49,8 +49,8 @@ import com.github.c64lib.rbt.dependencies.adapters.out.gradle.UntarDependencyAda
 import com.github.c64lib.rbt.dependencies.usecase.ResolveGitHubDependencyUseCase
 import com.github.c64lib.rbt.emulators.vice.adapters.out.gradle.RunTestOnViceAdapter
 import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowTasksGenerator
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowsExtension
-import com.github.c64lib.rbt.flows.adapters.out.gradle.FlowTasksGenerator
 import com.github.c64lib.rbt.processors.charpad.adapters.`in`.gradle.Charpad
 import com.github.c64lib.rbt.processors.goattracker.adapters.`in`.gradle.Goattracker
 import com.github.c64lib.rbt.processors.goattracker.adapters.out.gradle.ExecuteGt2RelocAdapter
