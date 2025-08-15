@@ -24,35 +24,193 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.*
+import com.github.c64lib.rbt.flows.domain.CommandStep
 import com.github.c64lib.rbt.flows.domain.Flow
+import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.GenericStep
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.FileCollection
 
-/** Outbound adapter for Gradle that generates tasks for each flow definition. */
+/** Outbound adapter for Gradle that generates dedicated tasks for each flow step. */
 class FlowTasksGenerator(private val project: Project, private val flows: Collection<Flow>) {
   private val tasksByFlowName = mutableMapOf<String, Task>()
+  private val stepTasks = mutableListOf<Task>()
 
   /** Registers Gradle tasks for all flows and configures dependencies. */
   fun registerTasks() {
     val taskContainer = project.tasks
 
-    // Create one task per flow
+    // Create dedicated tasks for each step in each flow
     flows.forEach { flow ->
-      val taskName = "flow${flow.name.replaceFirstChar { it.uppercaseChar() }}"
-      val task =
-          taskContainer.create(taskName, FlowExecutionTask::class.java) { t ->
+      val flowStepTasks = mutableListOf<Task>()
+
+      flow.steps.forEachIndexed { index, step ->
+        val stepTaskName =
+            "flow${flow.name.replaceFirstChar { it.uppercaseChar() }}Step${step.name.replaceFirstChar { it.uppercaseChar() }}"
+
+        val stepTask = createStepTask(taskContainer, stepTaskName, step, flow)
+        stepTasks.add(stepTask)
+        flowStepTasks.add(stepTask)
+
+        // Set up step-level dependencies within the flow
+        if (index > 0) {
+          stepTask.dependsOn(flowStepTasks[index - 1])
+        }
+      }
+
+      // Create a flow-level aggregation task
+      val flowTaskName = "flow${flow.name.replaceFirstChar { it.uppercaseChar() }}"
+      val flowTask =
+          taskContainer.create(flowTaskName) { t ->
             t.group = "flows"
-            t.description = "Executes flow '${flow.name}'"
-            t.flow = flow
+            t.description = "Executes all steps in flow '${flow.name}'"
+            if (flowStepTasks.isNotEmpty()) {
+              t.dependsOn(flowStepTasks.last()) // Depend on the last step
+            }
           }
-      tasksByFlowName[flow.name] = task
+      tasksByFlowName[flow.name] = flowTask
     }
 
-    // Set up task dependencies based on flow dependencies
+    // Set up flow-level dependencies
     flows.forEach { flow ->
-      val task = tasksByFlowName[flow.name] ?: return@forEach
+      val flowTask = tasksByFlowName[flow.name] ?: return@forEach
       flow.dependsOn.forEach { depName ->
-        tasksByFlowName[depName]?.let { depTask -> task.dependsOn(depTask) }
+        tasksByFlowName[depName]?.let { depTask -> flowTask.dependsOn(depTask) }
+      }
+    }
+
+    // Set up automatic file-based dependencies between step tasks
+    setupFileDependencies()
+  }
+
+  private fun createStepTask(
+      taskContainer: org.gradle.api.tasks.TaskContainer,
+      taskName: String,
+      step: FlowStep,
+      flow: Flow
+  ): Task {
+    return when {
+      step is CommandStep -> {
+        taskContainer.create(taskName, CommandTask::class.java) { task ->
+          configureBaseTask(task, step, flow)
+        }
+      }
+      step is GenericStep -> {
+        when (step.taskType) {
+          "charpad" ->
+              taskContainer.create(taskName, CharpadTask::class.java) { task ->
+                configureBaseTask(task, step, flow)
+                configureOutputFiles(task, step)
+              }
+          "spritepad" ->
+              taskContainer.create(taskName, SpritepadTask::class.java) { task ->
+                configureBaseTask(task, step, flow)
+                configureOutputFiles(task, step)
+              }
+          "assemble" ->
+              taskContainer.create(taskName, AssembleTask::class.java) { task ->
+                configureBaseTask(task, step, flow)
+                configureOutputFiles(task, step)
+              }
+          "goattracker" ->
+              taskContainer.create(taskName, GoattrackerTask::class.java) { task ->
+                configureBaseTask(task, step, flow)
+                configureOutputFiles(task, step)
+              }
+          "image" ->
+              taskContainer.create(taskName, ImageTask::class.java) { task ->
+                configureBaseTask(task, step, flow)
+                configureOutputFiles(task, step)
+              }
+          else ->
+              taskContainer.create(taskName, BaseFlowStepTask::class.java) { task ->
+                configureBaseTask(task, step, flow)
+              }
+        }
+      }
+      else ->
+          taskContainer.create(taskName, BaseFlowStepTask::class.java) { task ->
+            configureBaseTask(task, step, flow)
+          }
+    }
+  }
+
+  private fun configureBaseTask(task: BaseFlowStepTask, step: FlowStep, flow: Flow) {
+    task.group = "flows"
+    task.description = "Executes ${step.taskType} step '${step.name}' in flow '${flow.name}'"
+    task.flowStep.set(step)
+
+    // Configure input files
+    if (step.inputs.isNotEmpty()) {
+      val inputFiles = step.inputs.map { project.file(it) }.filter { it.exists() }
+      if (inputFiles.isNotEmpty()) {
+        task.inputFiles.from(inputFiles)
+      }
+
+      // If there are input directories, configure them
+      val inputDirs = step.inputs.map { project.file(it) }.filter { it.isDirectory }
+      if (inputDirs.isNotEmpty()) {
+        task.inputDirectory.set(inputDirs.first()) // Use first directory
+      }
+    }
+
+    // Configure output directory
+    if (step.outputs.isNotEmpty()) {
+      val outputPath = step.outputs.first()
+      val outputFile = project.file(outputPath)
+      if (outputFile.isDirectory || outputPath.endsWith("/") || outputPath.endsWith("\\")) {
+        task.outputDirectory.set(outputFile)
+      } else {
+        // If output is a file, use its parent directory
+        task.outputDirectory.set(outputFile.parentFile)
+      }
+    } else {
+      // Default output directory
+      task.outputDirectory.set(project.file("build/flows/${flow.name}/${step.name}"))
+    }
+  }
+
+  private fun configureOutputFiles(task: Any, step: FlowStep) {
+    // Configure output files for tasks that have the outputFiles property
+    when (task) {
+      is CharpadTask -> task.outputFiles.from(getStepOutputFiles(step))
+      is SpritepadTask -> task.outputFiles.from(getStepOutputFiles(step))
+      is AssembleTask -> task.outputFiles.from(getStepOutputFiles(step))
+      is GoattrackerTask -> task.outputFiles.from(getStepOutputFiles(step))
+      is ImageTask -> task.outputFiles.from(getStepOutputFiles(step))
+      is CommandTask -> task.outputFiles.from(getStepOutputFiles(step))
+    }
+  }
+
+  private fun getStepOutputFiles(step: FlowStep): FileCollection {
+    val outputFiles = step.outputs.map { project.file(it) }
+    return project.files(outputFiles)
+  }
+
+  private fun setupFileDependencies() {
+    // Create a map of output paths to the tasks that produce them
+    val outputToTask = mutableMapOf<String, Task>()
+
+    stepTasks.forEach { task ->
+      if (task is BaseFlowStepTask) {
+        val step = task.flowStep.get()
+        step.outputs.forEach { outputPath -> outputToTask[outputPath] = task }
+      }
+    }
+
+    // Set up dependencies based on file relationships
+    stepTasks.forEach { task ->
+      if (task is BaseFlowStepTask) {
+        val step = task.flowStep.get()
+        step.inputs.forEach { inputPath ->
+          outputToTask[inputPath]?.let { producerTask ->
+            if (producerTask != task) {
+              task.dependsOn(producerTask)
+            }
+          }
+        }
       }
     }
   }
