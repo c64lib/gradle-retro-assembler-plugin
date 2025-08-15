@@ -46,7 +46,7 @@ abstract class FlowExecutionTask : DefaultTask() {
           "Flow '${flow.name}' validation failed: ${validation.issues.filter { it.severity == IssueSeverity.ERROR }.joinToString { it.message }}")
     }
     // Execute the flow domain logic (placeholder: implement step executors)
-    println("[FlowExecutionTask] Executing flow '${flow.name}' with ${'$'}{flow.steps.size} steps")
+    println("[FlowExecutionTask] Executing flow '${flow.name}' with ${flow.steps.size} steps")
     // TODO: integrate actual step executors for each FlowStep in flow.steps
   }
 }
