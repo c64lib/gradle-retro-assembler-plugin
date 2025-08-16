@@ -63,7 +63,17 @@ The current `AssembleStep` in the flows domain is a placeholder implementation t
 - `KickAssemblerCommandAdapter` (adapter) - Bridges to KickAssembler-specific command
 - Enhanced `AssemblyConfig` with `outputFormat` property
 
-4. **Identify dependency injection approach** - Determine how KickAssembleUseCase will be provided to AssembleStep
+4. ✅ **Identify dependency injection approach** - Determine how KickAssembleUseCase will be provided to AssembleStep (GitHub Copilot)
+
+**Key Findings:**
+- **Current Pattern**: Main plugin creates use cases with dependencies during `project.afterEvaluate` phase and injects via task properties
+- **KickAssembleUseCase Dependencies**: Requires `KickAssemblePort` (implemented by `KickAssembleAdapter(project, settings)`) and `KickAssemblerSettings`
+- **Integration Point**: `FlowTasksGenerator.createStepTask()` method needs to inject `KickAssembleUseCase` when creating `AssembleTask`
+- **Required Changes**: 
+  - Modify `FlowTasksGenerator` constructor to accept dependencies (project, extension, settings)
+  - Enhance `AssembleTask` creation to inject the use case
+  - Add `KickAssembleUseCase` property to `AssembleTask`
+- **Architecture**: Follows constructor injection pattern consistent with existing tasks like `Assemble.kt`
 
 ### Phase 2: Domain Layer Implementation
 5. **Enhance AssembleStep domain logic** - Integrate KickAssembleUseCase into the execute method
