@@ -104,6 +104,10 @@ The current `AssembleStep` in the flows domain is a placeholder implementation t
 - `AssembleStep.kt` - Enhanced with actual assembly logic and dependency injection
 - `KickAssemblerPortAdapter.kt` - Adapter implementing AssemblyPort using KickAssembleUseCase
 
+6. **Update AssemblyConfig class** - Ensure it contains all necessary configuration parameters
+7. **Implement file pattern matching** - Add source file discovery logic similar to reference implementation
+8. **Add proper error handling** - Implement validation and error reporting
+
 ### Phase 3: Adapter Layer Implementation
 9. **Create AssembleStepBuilder** - Implement builder pattern for creating configured AssembleStep instances
 10. **Enhance Gradle task integration** - Ensure AssembleStep works properly within the flow task execution framework
