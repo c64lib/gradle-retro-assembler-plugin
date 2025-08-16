@@ -48,7 +48,21 @@ The current `AssembleStep` in the flows domain is a placeholder implementation t
 - **Current Gap**: AssembleTask exists but only has placeholder logic - needs KickAssembleUseCase integration
 - **Solution**: Need dependency injection mechanism to provide KickAssembleUseCase to AssembleTask
 
-3. **Design config mapping strategy** - Plan how AssemblyConfig maps to KickAssembleCommand parameters
+3. ✅ **Design config mapping strategy** - Plan how AssemblyConfig maps to KickAssembleCommand parameters (GitHub Copilot)
+
+**Key Design Decisions:**
+- **Enhanced AssemblyConfig**: Added missing `outputFormat: OutputFormat` property to support KickAssembler requirements
+- **Domain Abstraction**: Created `AssemblyCommand` data class in flows domain to maintain hexagonal architecture boundaries
+- **Two-Layer Mapping**: Domain layer maps `AssemblyConfig → AssemblyCommand`, adapter layer maps `AssemblyCommand → KickAssembleCommand`
+- **Configuration Splitting**: Handles defines map splitting into separate defines list and values map as required by KickAssembler
+- **Path Resolution**: Converts string paths to File objects with project context resolution
+- **Architecture Compliance**: Respects hexagonal boundaries - domain layer doesn't depend on compiler-specific implementations
+
+**Implementation Components:**
+- `AssemblyConfigMapper` (domain) - Maps config to domain command
+- `KickAssemblerCommandAdapter` (adapter) - Bridges to KickAssembler-specific command
+- Enhanced `AssemblyConfig` with `outputFormat` property
+
 4. **Identify dependency injection approach** - Determine how KickAssembleUseCase will be provided to AssembleStep
 
 ### Phase 2: Domain Layer Implementation

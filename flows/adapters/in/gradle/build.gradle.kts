@@ -8,4 +8,5 @@ dependencies {
   implementation(project(":flows"))
   implementation(project(":shared:gradle"))
   implementation(project(":shared:domain"))
+  implementation(project(":compilers:kickass"))
 }
