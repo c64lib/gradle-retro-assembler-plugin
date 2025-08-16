@@ -110,7 +110,11 @@ data class AssemblyConfig(
     val includePaths: List<String> = emptyList(),
     val defines: Map<String, String> = emptyMap(),
     val verbose: Boolean = false,
-    val outputFormat: OutputFormat = OutputFormat.PRG
+    val outputFormat: OutputFormat = OutputFormat.PRG,
+    val srcDirs: List<String> = listOf("."),
+    val includes: List<String> = listOf("**/*.asm"),
+    val excludes: List<String> = listOf(".ra/**/*.asm"),
+    val workDir: String = ".ra"
 )
 
 // Image Configuration

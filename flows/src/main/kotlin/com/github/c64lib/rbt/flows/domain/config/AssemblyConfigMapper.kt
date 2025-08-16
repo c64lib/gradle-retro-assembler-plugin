@@ -113,4 +113,89 @@ class AssemblyConfigMapper {
   ): List<AssemblyCommand> {
     return sourceFiles.map { sourceFile -> toAssemblyCommand(config, sourceFile, projectRootDir) }
   }
+
+  /**
+   * Discovers source files based on AssemblyConfig file patterns. This method replicates the file
+   * discovery logic from the existing Assemble task.
+   *
+   * @param config The assembly configuration containing srcDirs, includes, and excludes
+   * @param projectRootDir The project root directory for resolving relative paths
+   * @return List of discovered source files ready for compilation
+   */
+  fun discoverSourceFiles(config: AssemblyConfig, projectRootDir: File): List<File> {
+    return config.srcDirs
+        .map { srcDir ->
+          val srcDirectory =
+              if (File(srcDir).isAbsolute) {
+                File(srcDir)
+              } else {
+                File(projectRootDir, srcDir)
+              }
+
+          if (!srcDirectory.exists() || !srcDirectory.isDirectory) {
+            emptyList<File>()
+          } else {
+            findMatchingFiles(srcDirectory, config.includes, config.excludes)
+          }
+        }
+        .flatten()
+        .distinct()
+  }
+
+  /**
+   * Finds files in a directory that match include patterns and don't match exclude patterns. Uses
+   * Gradle-style glob patterns for matching.
+   */
+  private fun findMatchingFiles(
+      directory: File,
+      includes: List<String>,
+      excludes: List<String>
+  ): List<File> {
+    val allFiles = directory.walkTopDown().filter { it.isFile }.toList()
+
+    return allFiles.filter { file ->
+      val relativePath = file.relativeTo(directory).path.replace(File.separator, "/")
+
+      // Must match at least one include pattern
+      val matchesInclude = includes.any { pattern -> matchesGlobPattern(relativePath, pattern) }
+
+      // Must not match any exclude pattern
+      val matchesExclude = excludes.any { pattern -> matchesGlobPattern(relativePath, pattern) }
+
+      matchesInclude && !matchesExclude
+    }
+  }
+
+  /**
+   * Simple glob pattern matching for file paths. Supports ** for recursive directory matching and *
+   * for single-level matching.
+   */
+  private fun matchesGlobPattern(path: String, pattern: String): Boolean {
+    // Convert glob pattern to regex
+    val regexPattern =
+        pattern
+            .replace(".", "\\.")
+            .replace("**", "DOUBLE_STAR")
+            .replace("*", "[^/]*")
+            .replace("DOUBLE_STAR", ".*")
+
+    return path.matches(Regex(regexPattern))
+  }
+
+  /**
+   * Creates AssemblyCommands by discovering source files from configuration patterns. This is
+   * useful when input files are not explicitly specified but should be discovered based on the
+   * configuration's file patterns.
+   *
+   * @param config The assembly configuration
+   * @param projectRootDir The project root directory
+   * @return List of AssemblyCommands for all discovered source files
+   */
+  fun toAssemblyCommandsFromPatterns(
+      config: AssemblyConfig,
+      projectRootDir: File
+  ): List<AssemblyCommand> {
+    val sourceFiles = discoverSourceFiles(config, projectRootDir)
+    return toAssemblyCommands(config, sourceFiles, projectRootDir)
+  }
 }

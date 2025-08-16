@@ -26,6 +26,7 @@ package com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl
 
 import com.github.c64lib.rbt.flows.domain.config.*
 import com.github.c64lib.rbt.flows.domain.steps.AssembleStep
+import com.github.c64lib.rbt.shared.domain.OutputFormat
 
 /** Type-safe DSL builder for Assembly processing steps. */
 class AssembleStepBuilder(private val name: String) {
@@ -36,9 +37,21 @@ class AssembleStepBuilder(private val name: String) {
   var generateSymbols: Boolean = true
   var optimization: AssemblyOptimization = AssemblyOptimization.SPEED
   var verbose: Boolean = false
+  var outputFormat: OutputFormat = OutputFormat.PRG
+  var workDir: String = ".ra"
 
   private val includePaths = mutableListOf<String>()
   private val defines = mutableMapOf<String, String>()
+  private val srcDirs = mutableListOf<String>()
+  private val includes = mutableListOf<String>()
+  private val excludes = mutableListOf<String>()
+
+  init {
+    // Set defaults that match the enhanced AssemblyConfig
+    srcDirs.add(".")
+    includes.add("**/*.asm")
+    excludes.add(".ra/**/*.asm")
+  }
 
   /** Specifies input sources for this Assembly step. */
   fun from(path: String) {
@@ -80,6 +93,39 @@ class AssembleStepBuilder(private val name: String) {
     defines.putAll(pairs)
   }
 
+  /** Sets source directories for file discovery. */
+  fun srcDirs(vararg dirs: String) {
+    srcDirs.clear()
+    srcDirs.addAll(dirs)
+  }
+
+  /** Adds a source directory for file discovery. */
+  fun srcDir(dir: String) {
+    srcDirs.add(dir)
+  }
+
+  /** Sets include patterns for file discovery. */
+  fun includes(vararg patterns: String) {
+    includes.clear()
+    includes.addAll(patterns)
+  }
+
+  /** Adds an include pattern for file discovery. */
+  fun include(pattern: String) {
+    includes.add(pattern)
+  }
+
+  /** Sets exclude patterns for file discovery. */
+  fun excludes(vararg patterns: String) {
+    excludes.clear()
+    excludes.addAll(patterns)
+  }
+
+  /** Adds an exclude pattern for file discovery. */
+  fun exclude(pattern: String) {
+    excludes.add(pattern)
+  }
+
   internal fun build(): AssembleStep {
     val config =
         AssemblyConfig(
@@ -88,7 +134,12 @@ class AssembleStepBuilder(private val name: String) {
             optimization = optimization,
             includePaths = includePaths.toList(),
             defines = defines.toMap(),
-            verbose = verbose)
+            verbose = verbose,
+            outputFormat = outputFormat,
+            srcDirs = srcDirs.toList(),
+            includes = includes.toList(),
+            excludes = excludes.toList(),
+            workDir = workDir)
     return AssembleStep(name, inputs, outputs, config)
   }
 }
