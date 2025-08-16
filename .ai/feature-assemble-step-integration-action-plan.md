@@ -141,9 +141,30 @@ The current `AssembleStep` in the flows domain is a placeholder implementation t
    
    **IMPLEMENTATION NOTE**: This was completed as part of step 6. The AssembleStepBuilder was enhanced with full DSL support for all configuration parameters, maintaining the builder pattern while adding comprehensive configuration options.
 
-10. **Enhance Gradle task integration** - Ensure AssembleStep works properly within the flow task execution framework
+10. ✅ **Enhance Gradle task integration** - Ensure AssembleStep works properly within the flow task execution framework (GitHub Copilot)
 
-11. **Add dependency injection** - Wire up KickAssembleUseCase through the adapter layer
+**Key Implementation Details:**
+- **Enhanced AssembleTask**: Completely rewrote the task to integrate with AssembleStep domain logic:
+  - Added `KickAssembleUseCase` property with proper `@Internal` annotation for dependency injection
+  - Enhanced `executeStepLogic()` to bridge between Gradle task framework and AssembleStep domain execution
+  - Creates `KickAssemblerPortAdapter` to inject into AssembleStep via `setAssemblyPort()`
+  - Builds proper execution context with project information (projectRootDir, outputDirectory, logger)
+  - Delegates actual execution to AssembleStep's `execute()` method
+  - Enhanced validation to use domain validation from AssembleStep and check dependency injection
+- **Enhanced FlowTasksGenerator**: Modified to support dependency injection:
+  - Added `KickAssembleUseCase` parameter to constructor (optional to maintain backward compatibility)
+  - Enhanced `configureBaseTask()` to inject `KickAssembleUseCase` into AssembleTask instances
+  - Added validation to ensure required dependencies are provided when AssembleSteps are present
+  - Maintained existing file dependency setup and task configuration patterns
+- **Complete Integration**: AssembleStep now works seamlessly within the flow execution framework:
+  - Proper incremental build support through Gradle's input/output tracking
+  - Automatic file-based dependencies between flow steps
+  - Full integration with BaseFlowStepTask infrastructure
+  - Domain logic separation maintained through hexagonal architecture
+
+**Files Created/Modified:**
+- `AssembleTask.kt` - Complete rewrite to integrate with AssembleStep domain logic and KickAssembleUseCase
+- `FlowTasksGenerator.kt` - Enhanced constructor and dependency injection for KickAssembleUseCase
 
 ### Phase 4: Testing and Integration
 12. **Write unit tests** - Test AssembleStep logic with Kotest BDD style
@@ -158,8 +179,8 @@ The current `AssembleStep` in the flows domain is a placeholder implementation t
 - The flow-based approach should provide additional flexibility for complex build pipelines while maintaining the same core functionality
 
 ## Implementation Status Summary
-**✅ COMPLETED STEPS**: 1, 2, 3, 4, 5, 6, 9
+**✅ COMPLETED STEPS**: 1, 2, 3, 4, 5, 6, 9, 10
 **⏭️ SKIPPED STEPS**: 7, 8 (functionality integrated into other steps)
-**🔄 REMAINING STEPS**: 10, 11, 12, 13, 14, 15
+**🔄 REMAINING STEPS**: 11, 12, 13, 14, 15
 
 **CURRENT PROGRESS**: Phase 1 and Phase 2 are complete. Core domain logic and configuration are fully implemented with hexagonal architecture compliance. Ready to proceed with Phase 3 (Gradle task integration) and Phase 4 (testing and documentation).

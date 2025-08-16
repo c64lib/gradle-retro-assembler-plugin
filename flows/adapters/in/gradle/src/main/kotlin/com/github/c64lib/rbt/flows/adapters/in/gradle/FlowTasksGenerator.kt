@@ -24,6 +24,7 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
+import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.*
 import com.github.c64lib.rbt.flows.domain.CommandStep
 import com.github.c64lib.rbt.flows.domain.Flow
@@ -34,7 +35,11 @@ import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 
 /** Outbound adapter for Gradle that generates dedicated tasks for each flow step. */
-class FlowTasksGenerator(private val project: Project, private val flows: Collection<Flow>) {
+class FlowTasksGenerator(
+    private val project: Project,
+    private val flows: Collection<Flow>,
+    private val kickAssembleUseCase: KickAssembleUseCase? = null
+) {
   private val tasksByFlowName = mutableMapOf<String, Task>()
   private val stepTasks = mutableListOf<Task>()
 
@@ -139,6 +144,16 @@ class FlowTasksGenerator(private val project: Project, private val flows: Collec
     task.group = "flows"
     task.description = "Executes ${step.taskType} step '${step.name}' in flow '${flow.name}'"
     task.flowStep.set(step)
+
+    // Inject dependencies for specific task types
+    if (task is AssembleTask && step is AssembleStep) {
+      if (kickAssembleUseCase != null) {
+        task.kickAssembleUseCase = kickAssembleUseCase
+      } else {
+        throw IllegalStateException(
+            "KickAssembleUseCase not provided to FlowTasksGenerator but required for AssembleStep '${step.name}'")
+      }
+    }
 
     // Configure input files
     if (step.inputs.isNotEmpty()) {
