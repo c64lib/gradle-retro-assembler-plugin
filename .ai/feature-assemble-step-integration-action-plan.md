@@ -75,6 +75,14 @@ The current `AssembleStep` in the flows domain is a placeholder implementation t
   - Add `KickAssembleUseCase` property to `AssembleTask`
 - **Architecture**: Follows constructor injection pattern consistent with existing tasks like `Assemble.kt`
 
+**Implementation Details:**
+- **Current FlowTasksGenerator**: Only accepts `(project: Project, flows: Collection<Flow>)` - missing dependencies
+- **Existing Assemble Task**: Has `@Internal lateinit var kickAssembleUseCase: KickAssembleUseCase` property for injection
+- **Settings Creation**: `KickAssemblerSettings` created with jar path and dialect version from extension
+- **Use Case Creation**: `KickAssembleUseCase(KickAssembleAdapter(project, settings))` pattern used consistently
+- **Injection Point**: In `RetroAssemblerPlugin.apply()` during `project.afterEvaluate` phase, similar to existing `assemble` task creation
+- **AssembleTask Gap**: Currently has placeholder logic, needs `KickAssembleUseCase` property and actual integration
+
 ### Phase 2: Domain Layer Implementation
 5. **Enhance AssembleStep domain logic** - Integrate KickAssembleUseCase into the execute method
 6. **Update AssemblyConfig class** - Ensure it contains all necessary configuration parameters
