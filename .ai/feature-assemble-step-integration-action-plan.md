@@ -84,10 +84,25 @@ The current `AssembleStep` in the flows domain is a placeholder implementation t
 - **AssembleTask Gap**: Currently has placeholder logic, needs `KickAssembleUseCase` property and actual integration
 
 ### Phase 2: Domain Layer Implementation
-5. **Enhance AssembleStep domain logic** - Integrate KickAssembleUseCase into the execute method
-6. **Update AssemblyConfig class** - Ensure it contains all necessary configuration parameters
-7. **Implement file pattern matching** - Add source file discovery logic similar to reference implementation
-8. **Add proper error handling** - Implement validation and error reporting
+5. ✅ **Enhance AssembleStep domain logic** - Integrate KickAssembleUseCase into the execute method (GitHub Copilot)
+
+**Key Implementation Details:**
+- **Domain Port Pattern**: Created `AssemblyPort` interface in domain layer to define assembly operations contract
+- **Hexagonal Architecture**: AssembleStep depends on domain port, not directly on KickAssembleUseCase
+- **Dependency Injection**: Added `setAssemblyPort()` method for runtime dependency injection rather than constructor injection
+- **Enhanced Execute Logic**: 
+  - Validates project root directory from execution context
+  - Converts input paths to File objects with existence validation
+  - Maps AssemblyConfig to AssemblyCommand objects using AssemblyConfigMapper
+  - Executes assembly through the domain port with proper error handling
+- **Adapter Implementation**: Created `KickAssemblerPortAdapter` that bridges domain `AssemblyCommand` to compiler `KickAssembleCommand`
+- **Validation Enhancement**: Added file extension validation (.asm, .s) and configuration validation
+- **Architectural Compliance**: Maintained hexagonal boundaries - domain doesn't depend on compiler-specific implementations
+
+**Files Created/Modified:**
+- `AssemblyPort.kt` - Domain port interface for assembly operations
+- `AssembleStep.kt` - Enhanced with actual assembly logic and dependency injection
+- `KickAssemblerPortAdapter.kt` - Adapter implementing AssemblyPort using KickAssembleUseCase
 
 ### Phase 3: Adapter Layer Implementation
 9. **Create AssembleStepBuilder** - Implement builder pattern for creating configured AssembleStep instances
