@@ -45,6 +45,7 @@ class AssembleStepBuilder(private val name: String) {
   private val srcDirs = mutableListOf<String>()
   private val includes = mutableListOf<String>()
   private val excludes = mutableListOf<String>()
+  private val additionalInputs = mutableListOf<String>()
 
   init {
     // Set defaults that match the enhanced AssemblyConfig
@@ -126,6 +127,28 @@ class AssembleStepBuilder(private val name: String) {
     excludes.add(pattern)
   }
 
+  /** Sets additional input file patterns for tracking indirect dependencies (includes/imports). */
+  fun includeFiles(vararg patterns: String) {
+    additionalInputs.clear()
+    additionalInputs.addAll(patterns)
+  }
+
+  /** Adds a single additional input file pattern for tracking indirect dependencies. */
+  fun includeFile(pattern: String) {
+    additionalInputs.add(pattern)
+  }
+
+  /** Sets file patterns to watch for changes (alias for includeFiles). */
+  fun watchFiles(vararg patterns: String) {
+    additionalInputs.clear()
+    additionalInputs.addAll(patterns)
+  }
+
+  /** Adds a single file pattern to watch for changes (alias for includeFile). */
+  fun watchFile(pattern: String) {
+    additionalInputs.add(pattern)
+  }
+
   internal fun build(): AssembleStep {
     val config =
         AssemblyConfig(
@@ -139,7 +162,8 @@ class AssembleStepBuilder(private val name: String) {
             srcDirs = srcDirs.toList(),
             includes = includes.toList(),
             excludes = excludes.toList(),
-            workDir = workDir)
+            workDir = workDir,
+            additionalInputs = additionalInputs.toList())
     return AssembleStep(name, inputs, outputs, config)
   }
 }

@@ -171,15 +171,41 @@ class AssemblyConfigMapper {
    * for single-level matching.
    */
   private fun matchesGlobPattern(path: String, pattern: String): Boolean {
-    // Convert glob pattern to regex
-    val regexPattern =
-        pattern
-            .replace(".", "\\.")
-            .replace("**", "DOUBLE_STAR")
-            .replace("*", "[^/]*")
-            .replace("DOUBLE_STAR", ".*")
+    // For patterns like "lib/**/*.asm", we need special handling
+    if (pattern.contains("**")) {
+      val parts = pattern.split("**")
+      if (parts.size == 2) {
+        val prefix = parts[0]
+        val suffix = parts[1].removePrefix("/")
 
-    return path.matches(Regex(regexPattern))
+        // Path must start with prefix (if any)
+        if (prefix.isNotEmpty() && !path.startsWith(prefix)) {
+          return false
+        }
+
+        // Get the part after prefix
+        val pathAfterPrefix =
+            if (prefix.isNotEmpty()) {
+              path.substring(prefix.length).removePrefix("/")
+            } else {
+              path
+            }
+
+        // Check if any part of the remaining path matches the suffix pattern
+        if (suffix.isEmpty()) return true
+
+        // For suffix like "*.asm", check filename directly or any subdirectory
+        return pathAfterPrefix.split("/").any { segment -> matchesSimpleGlob(segment, suffix) }
+      }
+    }
+
+    // Simple pattern without **
+    return matchesSimpleGlob(path, pattern)
+  }
+
+  private fun matchesSimpleGlob(text: String, pattern: String): Boolean {
+    val regex = pattern.replace(".", "\\.").replace("*", ".*").let { "^$it$" }
+    return text.matches(Regex(regex))
   }
 
   /**
@@ -197,5 +223,38 @@ class AssemblyConfigMapper {
   ): List<AssemblyCommand> {
     val sourceFiles = discoverSourceFiles(config, projectRootDir)
     return toAssemblyCommands(config, sourceFiles, projectRootDir)
+  }
+
+  /**
+   * Discovers additional input files based on additionalInputs patterns. These are indirect
+   * dependencies like include/import files that should be watched for changes.
+   *
+   * @param config The assembly configuration containing additionalInputs patterns
+   * @param projectRootDir The project root directory for resolving relative paths
+   * @return List of additional input files for dependency tracking
+   */
+  fun discoverAdditionalInputFiles(config: AssemblyConfig, projectRootDir: File): List<File> {
+    if (config.additionalInputs.isEmpty()) {
+      return emptyList()
+    }
+
+    return config.srcDirs
+        .map { srcDir ->
+          val srcDirectory =
+              if (File(srcDir).isAbsolute) {
+                File(srcDir)
+              } else {
+                File(projectRootDir, srcDir)
+              }
+
+          if (!srcDirectory.exists() || !srcDirectory.isDirectory) {
+            emptyList<File>()
+          } else {
+            findMatchingFiles(srcDirectory, config.additionalInputs, emptyList())
+          }
+        }
+        .flatten()
+        .distinct()
+        .filter { it.exists() && it.isFile }
   }
 }

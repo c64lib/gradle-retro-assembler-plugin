@@ -114,7 +114,8 @@ data class AssemblyConfig(
     val srcDirs: List<String> = listOf("."),
     val includes: List<String> = listOf("**/*.asm"),
     val excludes: List<String> = listOf(".ra/**/*.asm"),
-    val workDir: String = ".ra"
+    val workDir: String = ".ra",
+    val additionalInputs: List<String> = emptyList()
 )
 
 // Image Configuration

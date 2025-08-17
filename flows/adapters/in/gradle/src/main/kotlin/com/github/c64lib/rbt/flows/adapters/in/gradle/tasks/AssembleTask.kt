@@ -27,8 +27,10 @@ package com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.assembly.KickAssemblerPortAdapter
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.config.AssemblyConfigMapper
 import com.github.c64lib.rbt.flows.domain.steps.AssembleStep
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFiles
 
@@ -37,8 +39,13 @@ abstract class AssembleTask : BaseFlowStepTask() {
 
   @get:OutputFiles abstract val outputFiles: ConfigurableFileCollection
 
+  /** Additional input files for tracking indirect dependencies (includes/imports) */
+  @get:InputFiles abstract val additionalInputFiles: ConfigurableFileCollection
+
   /** KickAssembleUseCase for actual assembly compilation - injected by FlowTasksGenerator */
   @get:Internal lateinit var kickAssembleUseCase: KickAssembleUseCase
+
+  private val assemblyConfigMapper = AssemblyConfigMapper()
 
   init {
     description = "Assembles source files using Kick Assembler"
@@ -55,8 +62,12 @@ abstract class AssembleTask : BaseFlowStepTask() {
       throw IllegalStateException("Expected AssembleStep but got ${step::class.simpleName}")
     }
 
+    // Register additional input files for incremental build tracking
+    registerAdditionalInputFiles(step)
+
     logger.info("Executing AssembleStep '${step.name}' with configuration: ${step.config}")
     logger.info("Input files: ${step.inputs}")
+    logger.info("Additional input files: ${additionalInputFiles.files.map { it.name }}")
     logger.info("Output directory: ${outputDirectory.get().asFile.absolutePath}")
 
     try {
@@ -78,6 +89,24 @@ abstract class AssembleTask : BaseFlowStepTask() {
     } catch (e: Exception) {
       logger.error("Assembly compilation failed for step '${step.name}': ${e.message}", e)
       throw e
+    }
+  }
+
+  /**
+   * Registers additional input files for Gradle's incremental build system. These are indirect
+   * dependencies like include/import files.
+   */
+  private fun registerAdditionalInputFiles(step: AssembleStep) {
+    val additionalFiles =
+        assemblyConfigMapper.discoverAdditionalInputFiles(step.config, project.projectDir)
+
+    if (additionalFiles.isNotEmpty()) {
+      logger.debug(
+          "Registering ${additionalFiles.size} additional input files for incremental builds:")
+      additionalFiles.forEach { file -> logger.debug("  - ${file.relativeTo(project.projectDir)}") }
+      additionalInputFiles.from(additionalFiles)
+    } else {
+      logger.debug("No additional input files found for incremental build tracking")
     }
   }
 
