@@ -308,3 +308,43 @@ assemble("myProgram") {
 - `AssembleTask.kt` - Removed runtime file collection modification, kept execution-focused logic
 
 **Integration Test Results:** Successfully resolves the IllegalStateException and allows proper incremental build tracking of indirect dependencies.
+
+18. **Enhance output file handling** - Improve output file derivation and Kick Assembler command line argument generation
+
+**Key Requirements Analysis:**
+- **Output Type Validation**: When both `to` (output) and `outputFormat` are specified, they must be consistent:
+  - `OutputFormat.PRG` should correspond to `.prg` extension
+  - `OutputFormat.BIN` should correspond to `.bin` extension
+- **Automatic Output Derivation**: When `to` is not specified, derive output from `from` input:
+  - Preserve the full path and filename structure
+  - Change extension based on `outputFormat` (`.prg` for PRG, `.bin` for BIN)
+- **Kick Assembler Integration**: Properly pass output specification to KickAssembler:
+  - Use `-o <filename>.<extension>` for complete file path specification
+  - Use `-odir <dir>` for output directory override when appropriate
+
+**Implementation Requirements:**
+- **AssemblyConfig Enhancement**: Add validation logic for output type consistency
+- **AssembleStepBuilder Validation**: Implement DSL-level validation for output/format consistency
+- **KickAssemblerPortAdapter Enhancement**: Generate proper command line arguments (-o/-odir) based on output specification
+- **Output File Derivation Logic**: Implement automatic output path generation when `to` is not specified
+- **AssembleStep Validation**: Add domain-level validation for output consistency requirements
+
+**Technical Implementation Details:**
+- Enhance `AssemblyConfigMapper` with output file derivation logic
+- Update `KickAssemblerPortAdapter` to generate appropriate KickAssembler command line arguments
+- Add validation methods to check output format consistency
+- Implement automatic output path generation with proper extension mapping
+- Update DSL builder to validate output specifications at configuration time
+
+**Files to Modify:**
+- `AssemblyConfig.kt` / `ProcessorConfig.kt` - Add output validation logic
+- `AssembleStepBuilder.kt` - Add DSL-level output validation
+- `KickAssemblerPortAdapter.kt` - Enhance command generation for output handling
+- `AssemblyConfigMapper.kt` - Add output file derivation logic
+- `AssembleStep.kt` - Add domain validation for output consistency
+
+**Expected Benefits:**
+- **Consistent Output Handling**: Ensures output files always have correct extensions
+- **Developer Experience**: Automatic output derivation reduces configuration burden
+- **Validation**: Early detection of configuration inconsistencies
+- **KickAssembler Compatibility**: Proper command line argument generation for all output scenarios
