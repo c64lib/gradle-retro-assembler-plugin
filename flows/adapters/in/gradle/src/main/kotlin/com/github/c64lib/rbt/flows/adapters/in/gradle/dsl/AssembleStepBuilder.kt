@@ -129,7 +129,6 @@ class AssembleStepBuilder(private val name: String) {
 
   /** Sets additional input file patterns for tracking indirect dependencies (includes/imports). */
   fun includeFiles(vararg patterns: String) {
-    additionalInputs.clear()
     additionalInputs.addAll(patterns)
   }
 
@@ -140,7 +139,6 @@ class AssembleStepBuilder(private val name: String) {
 
   /** Sets file patterns to watch for changes (alias for includeFiles). */
   fun watchFiles(vararg patterns: String) {
-    additionalInputs.clear()
     additionalInputs.addAll(patterns)
   }
 

@@ -115,7 +115,9 @@ class AssembleStepBuilderAdditionalInputsTest :
           val step = builder.build()
 
           then("should only keep the last set of patterns") {
-            step.config.additionalInputs shouldHaveSize 2
+            step.config.additionalInputs shouldHaveSize 4
+            step.config.additionalInputs shouldContain "first.inc"
+            step.config.additionalInputs shouldContain "second.inc"
             step.config.additionalInputs shouldContain "third.inc"
             step.config.additionalInputs shouldContain "fourth.inc"
           }
@@ -124,12 +126,14 @@ class AssembleStepBuilderAdditionalInputsTest :
         `when`("watchFiles method called multiple times") {
           val builder = AssembleStepBuilder("testStep")
           builder.watchFiles("first.inc", "second.inc")
-          builder.watchFiles("third.inc") // Should replace previous
+          builder.watchFiles("third.inc")
 
           val step = builder.build()
 
           then("should only keep the last set of patterns") {
-            step.config.additionalInputs shouldHaveSize 1
+            step.config.additionalInputs shouldHaveSize 3
+            step.config.additionalInputs shouldContain "first.inc"
+            step.config.additionalInputs shouldContain "second.inc"
             step.config.additionalInputs shouldContain "third.inc"
           }
         }
@@ -137,12 +141,14 @@ class AssembleStepBuilderAdditionalInputsTest :
         `when`("combining watchFiles and includeFiles") {
           val builder = AssembleStepBuilder("testStep")
           builder.includeFiles("first.inc", "second.inc")
-          builder.watchFiles("third.inc", "fourth.inc") // Should replace includeFiles
+          builder.watchFiles("third.inc", "fourth.inc")
 
           val step = builder.build()
 
           then("should only keep the watchFiles patterns") {
-            step.config.additionalInputs shouldHaveSize 2
+            step.config.additionalInputs shouldHaveSize 4
+            step.config.additionalInputs shouldContain "first.inc"
+            step.config.additionalInputs shouldContain "second.inc"
             step.config.additionalInputs shouldContain "third.inc"
             step.config.additionalInputs shouldContain "fourth.inc"
           }
