@@ -221,9 +221,34 @@ The current `AssembleStep` in the flows domain is a placeholder implementation t
 - Error handling and edge cases
 - String representations and equality comparisons
 
-13. **Write integration tests** - Test end-to-end flow execution with actual assembly files
-14. **Update documentation** - Update AsciiDoctor docs and CHANGES.adoc file
-15. **Format and validate code** - Run spotlessApply and ensure compilation
+13. **Add indirect input file tracking** - Enhance DSL to support glob matching of additional source files for includes/imports
+
+**Implementation Requirements:**
+- **Problem Analysis**: AssembleTask currently watches direct `from` source files correctly for incremental builds, but assembly files often include/import other files via directives like `.import` or `#include`. These indirect dependencies are not tracked, causing missed rebuilds when included files change.
+- **DSL Enhancement**: Add new DSL methods to AssembleStepBuilder for specifying additional input patterns:
+  - `includeFiles(vararg patterns: String)` - Add glob patterns for additional input files
+  - `includeFile(pattern: String)` - Add single glob pattern for additional input files  
+  - `watchFiles(vararg patterns: String)` - Alternative naming for additional file watching
+  - `watchFile(pattern: String)` - Add single pattern for file watching
+- **Configuration Support**: Enhance AssemblyConfig to store additional input patterns:
+  - Add `additionalInputs: List<String>` property with glob patterns for indirect dependencies
+  - Update AssemblyConfigMapper to resolve these patterns to actual File objects
+  - Integrate with existing file discovery logic for consistent pattern matching
+- **Gradle Integration**: Update AssembleTask to register additional input files for incremental build support:
+  - Use discovered files from additional patterns as Gradle task inputs
+  - Ensure proper `@InputFiles` annotation includes both direct and indirect inputs
+  - Maintain incremental build performance by only tracking files that actually exist
+- **Architecture Compliance**: Follow existing patterns for configuration enhancement and DSL extension
+
+**Implementation Benefits:**
+- **Complete Dependency Tracking**: Ensures all assembly dependencies are tracked for proper incremental builds
+- **Build Performance**: Prevents unnecessary rebuilds while ensuring correctness when included files change
+- **Developer Experience**: Provides intuitive DSL for specifying complex dependency patterns
+- **Gradle Integration**: Leverages Gradle's incremental build system for optimal performance
+
+14. **Write integration tests** - Test end-to-end flow execution with actual assembly files
+15. **Update documentation** - Update AsciiDoctor docs and CHANGES.adoc file
+16. **Format and validate code** - Run spotlessApply and ensure compilation
 
 ## Additional Notes
 - The implementation should follow hexagonal architecture principles with domain logic separated from Gradle-specific concerns
