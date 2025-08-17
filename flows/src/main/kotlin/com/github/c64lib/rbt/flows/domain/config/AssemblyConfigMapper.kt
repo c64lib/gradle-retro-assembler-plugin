@@ -38,7 +38,9 @@ data class AssemblyCommand(
     val defines: List<String>,
     val values: Map<String, String>,
     val source: File,
-    val outputFormat: OutputFormat
+    val outputFormat: OutputFormat,
+    val outputFile: File? = null,
+    val outputDirectory: File? = null
 )
 
 /**

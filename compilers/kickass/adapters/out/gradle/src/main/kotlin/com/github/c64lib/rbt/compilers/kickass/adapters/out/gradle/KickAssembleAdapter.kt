@@ -39,7 +39,9 @@ class KickAssembleAdapter(
       defines: List<String>,
       values: Map<String, String>,
       source: File,
-      outputFormat: OutputFormat
+      outputFormat: OutputFormat,
+      outputFile: File?,
+      outputDirectory: File?
   ) {
     project.javaexec {
       it.classpath = project.files(settings.pathToExecutable)
@@ -50,6 +52,8 @@ class KickAssembleAdapter(
               .variables(values)
               .source(source.toPath())
               .outputFormat(outputFormat)
+              .outputFile(outputFile?.toPath())
+              .outputDirectory(outputDirectory?.toPath())
               .build()
       it.args = args
       printArgs(args)

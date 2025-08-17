@@ -47,7 +47,9 @@ class KickAssemblerCommandAdapter {
         defines = assemblyCommand.defines,
         values = assemblyCommand.values,
         source = assemblyCommand.source,
-        outputFormat = assemblyCommand.outputFormat)
+        outputFormat = assemblyCommand.outputFormat,
+        outputFile = assemblyCommand.outputFile,
+        outputDirectory = assemblyCommand.outputDirectory)
   }
 
   /**

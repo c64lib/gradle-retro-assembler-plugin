@@ -31,7 +31,13 @@ import java.io.File
 class KickAssembleUseCase(private val kickAssemblePort: KickAssemblePort) {
   fun apply(command: KickAssembleCommand) =
       kickAssemblePort.assemble(
-          command.libDirs, command.defines, command.values, command.source, command.outputFormat)
+          command.libDirs,
+          command.defines,
+          command.values,
+          command.source,
+          command.outputFormat,
+          command.outputFile,
+          command.outputDirectory)
 }
 
 data class KickAssembleCommand(
@@ -39,5 +45,7 @@ data class KickAssembleCommand(
     val defines: List<String>,
     val values: Map<String, String>,
     val source: File,
-    val outputFormat: OutputFormat
+    val outputFormat: OutputFormat,
+    val outputFile: File? = null,
+    val outputDirectory: File? = null
 )

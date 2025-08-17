@@ -33,6 +33,8 @@ interface KickAssemblePort {
       defines: List<String>,
       values: Map<String, String>,
       source: File,
-      outputFormat: OutputFormat
+      outputFormat: OutputFormat,
+      outputFile: File? = null,
+      outputDirectory: File? = null
   ): Unit
 }
