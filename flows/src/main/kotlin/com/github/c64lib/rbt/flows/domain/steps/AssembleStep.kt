@@ -80,8 +80,18 @@ class AssembleStep(
           file
         }
 
-    // Map configuration to assembly commands
-    val assemblyCommands = configMapper.toAssemblyCommands(config, sourceFiles, projectRootDir)
+    // Map configuration to assembly commands with output handling
+    val assemblyCommands =
+        if (sourceFiles.size == 1 && outputs.isNotEmpty()) {
+          // Single source file with explicit output - use enhanced mapping
+          val outputPath = outputs.first()
+          listOf(
+              configMapper.toAssemblyCommand(
+                  config, sourceFiles.first(), projectRootDir, outputPath))
+        } else {
+          // Multiple source files or no explicit output - use existing logic
+          configMapper.toAssemblyCommands(config, sourceFiles, projectRootDir)
+        }
 
     println("  Generated ${assemblyCommands.size} assembly command(s)")
 

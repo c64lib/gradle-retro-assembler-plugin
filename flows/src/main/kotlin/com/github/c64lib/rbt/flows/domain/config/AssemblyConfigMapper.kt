@@ -57,19 +57,77 @@ class AssemblyConfigMapper {
    * @param config The domain assembly configuration
    * @param sourceFile The specific source file to compile
    * @param projectRootDir The project root directory for resolving relative paths
+   * @param outputPath Optional output path from step configuration (from DSL 'to' method)
    * @return AssemblyCommand ready for execution
    */
   fun toAssemblyCommand(
       config: AssemblyConfig,
       sourceFile: File,
-      projectRootDir: File
+      projectRootDir: File,
+      outputPath: String? = null
   ): AssemblyCommand {
+    // Determine output file and validate consistency
+    val (outputFile, outputDirectory) =
+        resolveOutputParameters(config, sourceFile, outputPath, projectRootDir)
+
     return AssemblyCommand(
         libDirs = mapLibraryDirectories(config.includePaths, projectRootDir),
         defines = extractDefineNames(config.defines),
         values = extractDefineValues(config.defines),
         source = sourceFile,
-        outputFormat = config.outputFormat)
+        outputFormat = config.outputFormat,
+        outputFile = outputFile,
+        outputDirectory = outputDirectory)
+  }
+
+  /**
+   * Resolves output file parameters based on step 18 requirements.
+   *
+   * @param config Assembly configuration with output format
+   * @param sourceFile Source file being compiled
+   * @param outputPath Optional output path from DSL 'to' method
+   * @param projectRootDir Project root for resolving relative paths
+   * @return Pair of (outputFile, outputDirectory) for KickAssembler
+   */
+  private fun resolveOutputParameters(
+      config: AssemblyConfig,
+      sourceFile: File,
+      outputPath: String?,
+      projectRootDir: File
+  ): Pair<File?, File?> {
+    val expectedExtension =
+        when (config.outputFormat) {
+          OutputFormat.PRG -> ".prg"
+          OutputFormat.BIN -> ".bin"
+        }
+
+    return if (outputPath != null) {
+      // Case 1: Output path specified - validate and use it
+      val outputFile =
+          if (File(outputPath).isAbsolute) File(outputPath) else File(projectRootDir, outputPath)
+
+      // Validate output format consistency (requirement 1)
+      if (!outputFile.name.endsWith(expectedExtension)) {
+        throw IllegalArgumentException(
+            "Output format ${config.outputFormat} requires $expectedExtension extension, but output path is: $outputPath")
+      }
+
+      Pair(outputFile, null) // Use -o flag for complete file specification
+    } else {
+      // Case 2: No output specified - derive from input (requirement 2)
+      val derivedOutputFile = deriveOutputFromInput(sourceFile, expectedExtension)
+      Pair(derivedOutputFile, null) // Use -o flag for derived file
+    }
+  }
+
+  /**
+   * Derives output file path from input file, preserving path and changing extension. Implements
+   * requirement 2: preserve full path and filename, change extension only.
+   */
+  private fun deriveOutputFromInput(sourceFile: File, expectedExtension: String): File {
+    val baseName = sourceFile.nameWithoutExtension
+    val parentDir = sourceFile.parentFile
+    return File(parentDir, "$baseName$expectedExtension")
   }
 
   /** Converts string include paths to File objects resolved against project root. */
@@ -211,29 +269,13 @@ class AssemblyConfigMapper {
   }
 
   /**
-   * Creates AssemblyCommands by discovering source files from configuration patterns. This is
-   * useful when input files are not explicitly specified but should be discovered based on the
-   * configuration's file patterns.
+   * Discovers additional input files based on glob patterns. This method is used to track indirect
+   * dependencies like included/imported files. It searches within the configured source
+   * directories, similar to discoverSourceFiles.
    *
-   * @param config The assembly configuration
-   * @param projectRootDir The project root directory
-   * @return List of AssemblyCommands for all discovered source files
-   */
-  fun toAssemblyCommandsFromPatterns(
-      config: AssemblyConfig,
-      projectRootDir: File
-  ): List<AssemblyCommand> {
-    val sourceFiles = discoverSourceFiles(config, projectRootDir)
-    return toAssemblyCommands(config, sourceFiles, projectRootDir)
-  }
-
-  /**
-   * Discovers additional input files based on additionalInputs patterns. These are indirect
-   * dependencies like include/import files that should be watched for changes.
-   *
-   * @param config The assembly configuration containing additionalInputs patterns
+   * @param config The assembly configuration containing additionalInputs patterns and srcDirs
    * @param projectRootDir The project root directory for resolving relative paths
-   * @return List of additional input files for dependency tracking
+   * @return List of discovered additional input files for dependency tracking
    */
   fun discoverAdditionalInputFiles(config: AssemblyConfig, projectRootDir: File): List<File> {
     if (config.additionalInputs.isEmpty()) {
@@ -241,7 +283,7 @@ class AssemblyConfigMapper {
     }
 
     return config.srcDirs
-        .map { srcDir ->
+        .flatMap { srcDir ->
           val srcDirectory =
               if (File(srcDir).isAbsolute) {
                 File(srcDir)
@@ -250,13 +292,28 @@ class AssemblyConfigMapper {
               }
 
           if (!srcDirectory.exists() || !srcDirectory.isDirectory) {
-            emptyList()
+            emptyList<File>()
           } else {
-            findMatchingFiles(srcDirectory, config.additionalInputs, emptyList())
+            // Find files matching additional input patterns in this source directory
+            config.additionalInputs.flatMap { pattern ->
+              findMatchingFilesForPattern(srcDirectory, pattern)
+            }
           }
         }
-        .flatten()
         .distinct()
-        .filter { it.exists() && it.isFile }
+  }
+
+  /** Finds files matching a single glob pattern. */
+  private fun findMatchingFilesForPattern(searchRoot: File, pattern: String): List<File> {
+    if (!searchRoot.exists() || !searchRoot.isDirectory) {
+      return emptyList()
+    }
+
+    val allFiles = searchRoot.walkTopDown().filter { it.isFile }.toList()
+
+    return allFiles.filter { file ->
+      val relativePath = file.relativeTo(searchRoot).path.replace(File.separator, "/")
+      matchesGlobPattern(relativePath, pattern)
+    }
   }
 }
