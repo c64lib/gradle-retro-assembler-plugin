@@ -54,6 +54,10 @@ class AssembleStepBuilder(private val name: String) {
     //    excludes.add(".ra/**/*.asm")
   }
 
+  fun outputFormat(format: OutputFormat) {
+    outputFormat = format
+  }
+
   /** Specifies input sources for this Assembly step. */
   fun from(path: String) {
     inputs.add(path)
