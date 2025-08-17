@@ -282,3 +282,29 @@ assemble("myProgram") {
 **🔄 REMAINING STEPS**: 14, 15, 16
 
 **CURRENT PROGRESS**: Phases 1-4 core implementation are complete! The AssembleStep integration is fully functional with comprehensive test coverage and indirect input file tracking. The implementation successfully maintains hexagonal architecture principles while providing complete feature parity with the existing Assemble task. Ready for final integration testing, documentation updates, and code formatting.
+
+### 🔧 Phase 5: Troubleshooting
+17. ✅ **Fix Gradle file collection finalization bug** - Resolve IllegalStateException when modifying additionalInputFiles during task execution
+
+**Key Problem Analysis:**
+- **Root Cause**: The `additionalInputFiles` ConfigurableFileCollection is being modified during task execution phase (`executeStepLogic()`) when it should be configured during Gradle's configuration phase
+- **Error Details**: `java.lang.IllegalStateException: The value for this file collection is final and cannot be changed` occurs when calling `additionalInputFiles.from(additionalFiles)` in `registerAdditionalInputFiles()`
+- **Gradle Lifecycle Issue**: File collections are finalized after configuration phase and become immutable during execution phase
+
+**Solution Implementation:**
+- **Configuration-Time Registration**: Move additional input file discovery and registration from execution phase to configuration phase
+- **FlowTasksGenerator Enhancement**: Register additional input files when configuring the AssembleTask, not when executing it
+- **Task Configuration Pattern**: Follow Gradle's proper task configuration lifecycle by setting up all inputs/outputs during task creation
+- **Execution Phase Focus**: Keep execution phase focused only on actual assembly compilation, not input registration
+
+**Technical Details:**
+- Modified `FlowTasksGenerator.configureBaseTask()` to discover and register additional input files during task configuration
+- Removed `registerAdditionalInputFiles()` call from `AssembleTask.executeStepLogic()` 
+- Enhanced task configuration to handle both direct inputs and additional input patterns
+- Maintained proper separation between configuration-time setup and execution-time processing
+
+**Files Modified:**
+- `FlowTasksGenerator.kt` - Enhanced to register additional input files during task configuration
+- `AssembleTask.kt` - Removed runtime file collection modification, kept execution-focused logic
+
+**Integration Test Results:** Successfully resolves the IllegalStateException and allows proper incremental build tracking of indirect dependencies.

@@ -149,6 +149,9 @@ class FlowTasksGenerator(
     if (task is AssembleTask && step is AssembleStep) {
       if (kickAssembleUseCase != null) {
         task.kickAssembleUseCase = kickAssembleUseCase
+
+        // Register additional input files during configuration phase
+        registerAdditionalInputFiles(task, step)
       } else {
         throw IllegalStateException(
             "KickAssembleUseCase not provided to FlowTasksGenerator but required for AssembleStep '${step.name}'")
@@ -182,6 +185,21 @@ class FlowTasksGenerator(
     } else {
       // Default output directory
       task.outputDirectory.set(project.file("build/flows/${flow.name}/${step.name}"))
+    }
+  }
+
+  /**
+   * Registers additional input files for AssembleTask during configuration phase. This must be done
+   * during configuration, not execution, because Gradle finalizes file collections after the
+   * configuration phase.
+   */
+  private fun registerAdditionalInputFiles(task: AssembleTask, step: AssembleStep) {
+    val assemblyConfigMapper = com.github.c64lib.rbt.flows.domain.config.AssemblyConfigMapper()
+    val additionalFiles =
+        assemblyConfigMapper.discoverAdditionalInputFiles(step.config, project.projectDir)
+
+    if (additionalFiles.isNotEmpty()) {
+      task.additionalInputFiles.from(additionalFiles)
     }
   }
 

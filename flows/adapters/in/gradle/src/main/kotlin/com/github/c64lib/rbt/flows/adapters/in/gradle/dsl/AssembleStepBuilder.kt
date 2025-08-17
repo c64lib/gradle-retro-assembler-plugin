@@ -49,9 +49,9 @@ class AssembleStepBuilder(private val name: String) {
 
   init {
     // Set defaults that match the enhanced AssemblyConfig
-    srcDirs.add(".")
-    includes.add("**/*.asm")
-    excludes.add(".ra/**/*.asm")
+    //    srcDirs.add(".")
+    //    includes.add("**/*.asm")
+    //    excludes.add(".ra/**/*.asm")
   }
 
   /** Specifies input sources for this Assembly step. */
@@ -96,7 +96,7 @@ class AssembleStepBuilder(private val name: String) {
 
   /** Sets source directories for file discovery. */
   fun srcDirs(vararg dirs: String) {
-    srcDirs.clear()
+    srcDirs.clear() // TODO remove
     srcDirs.addAll(dirs)
   }
 
@@ -107,7 +107,7 @@ class AssembleStepBuilder(private val name: String) {
 
   /** Sets include patterns for file discovery. */
   fun includes(vararg patterns: String) {
-    includes.clear()
+    includes.clear() // TODO remove
     includes.addAll(patterns)
   }
 
@@ -118,7 +118,7 @@ class AssembleStepBuilder(private val name: String) {
 
   /** Sets exclude patterns for file discovery. */
   fun excludes(vararg patterns: String) {
-    excludes.clear()
+    excludes.clear() // TODO remove
     excludes.addAll(patterns)
   }
 

@@ -62,9 +62,6 @@ abstract class AssembleTask : BaseFlowStepTask() {
       throw IllegalStateException("Expected AssembleStep but got ${step::class.simpleName}")
     }
 
-    // Register additional input files for incremental build tracking
-    registerAdditionalInputFiles(step)
-
     logger.info("Executing AssembleStep '${step.name}' with configuration: ${step.config}")
     logger.info("Input files: ${step.inputs}")
     logger.info("Additional input files: ${additionalInputFiles.files.map { it.name }}")
@@ -89,24 +86,6 @@ abstract class AssembleTask : BaseFlowStepTask() {
     } catch (e: Exception) {
       logger.error("Assembly compilation failed for step '${step.name}': ${e.message}", e)
       throw e
-    }
-  }
-
-  /**
-   * Registers additional input files for Gradle's incremental build system. These are indirect
-   * dependencies like include/import files.
-   */
-  private fun registerAdditionalInputFiles(step: AssembleStep) {
-    val additionalFiles =
-        assemblyConfigMapper.discoverAdditionalInputFiles(step.config, project.projectDir)
-
-    if (additionalFiles.isNotEmpty()) {
-      logger.debug(
-          "Registering ${additionalFiles.size} additional input files for incremental builds:")
-      additionalFiles.forEach { file -> logger.debug("  - ${file.relativeTo(project.projectDir)}") }
-      additionalInputFiles.from(additionalFiles)
-    } else {
-      logger.debug("No additional input files found for incremental build tracking")
     }
   }
 

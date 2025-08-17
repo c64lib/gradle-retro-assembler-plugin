@@ -248,7 +248,7 @@ class AssemblyConfigMapper {
               }
 
           if (!srcDirectory.exists() || !srcDirectory.isDirectory) {
-            emptyList<File>()
+            emptyList()
           } else {
             findMatchingFiles(srcDirectory, config.additionalInputs, emptyList())
           }
