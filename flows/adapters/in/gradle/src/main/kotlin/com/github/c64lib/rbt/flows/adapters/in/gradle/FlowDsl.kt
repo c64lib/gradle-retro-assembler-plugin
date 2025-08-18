@@ -25,10 +25,10 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl.*
-import com.github.c64lib.rbt.flows.domain.CommandStep
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowArtifact
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.steps.CommandStep
 
 /**
  * DSL builder for creating Flow definitions in build.gradle.kts files.

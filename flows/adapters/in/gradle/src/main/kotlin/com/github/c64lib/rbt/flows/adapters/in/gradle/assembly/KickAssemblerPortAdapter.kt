@@ -22,30 +22,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.compilers.kickass.usecase
+package com.github.c64lib.rbt.flows.adapters.`in`.gradle.assembly
 
-import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssemblePort
-import com.github.c64lib.rbt.shared.domain.OutputFormat
-import java.io.File
+import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
+import com.github.c64lib.rbt.flows.domain.config.AssemblyCommand
+import com.github.c64lib.rbt.flows.domain.port.AssemblyPort
 
-class KickAssembleUseCase(private val kickAssemblePort: KickAssemblePort) {
-  fun apply(command: KickAssembleCommand) =
-      kickAssemblePort.assemble(
-          command.libDirs,
-          command.defines,
-          command.values,
-          command.source,
-          command.outputFormat,
-          command.outputFile,
-          command.outputDirectory)
+/**
+ * Adapter implementation of AssemblyPort that bridges to KickAssembleUseCase.
+ *
+ * This adapter is responsible for translating domain-level assembly commands to
+ * KickAssembler-specific operations while maintaining hexagonal architecture boundaries.
+ */
+class KickAssemblerPortAdapter(
+    private val kickAssembleUseCase: KickAssembleUseCase,
+    private val commandAdapter: KickAssemblerCommandAdapter = KickAssemblerCommandAdapter()
+) : AssemblyPort {
+
+  override fun assemble(command: AssemblyCommand) {
+    val kickAssembleCommand = commandAdapter.toKickAssembleCommand(command)
+    kickAssembleUseCase.apply(kickAssembleCommand)
+  }
+
+  override fun assemble(commands: List<AssemblyCommand>) {
+    commands.forEach { command -> assemble(command) }
+  }
 }
-
-data class KickAssembleCommand(
-    val libDirs: List<File>,
-    val defines: List<String>,
-    val values: Map<String, String>,
-    val source: File,
-    val outputFormat: OutputFormat,
-    val outputFile: File? = null,
-    val outputDirectory: File? = null
-)

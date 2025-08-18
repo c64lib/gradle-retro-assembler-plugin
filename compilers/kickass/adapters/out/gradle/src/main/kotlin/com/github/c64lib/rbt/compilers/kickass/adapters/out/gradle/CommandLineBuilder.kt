@@ -70,6 +70,20 @@ internal class CommandLineBuilder(private val settings: KickAssemblerSettings) {
     return this
   }
 
+  fun outputFile(outputFile: Path?): CommandLineBuilder {
+    if (outputFile != null) {
+      args.addAll(listOf("-o", outputFile.absolutePathString()))
+    }
+    return this
+  }
+
+  fun outputDirectory(outputDirectory: Path?): CommandLineBuilder {
+    if (outputDirectory != null) {
+      args.addAll(listOf("-odir", outputDirectory.absolutePathString()))
+    }
+    return this
+  }
+
   fun viceSymbols(): CommandLineBuilder {
     args.add("-vicesymbols")
     return this

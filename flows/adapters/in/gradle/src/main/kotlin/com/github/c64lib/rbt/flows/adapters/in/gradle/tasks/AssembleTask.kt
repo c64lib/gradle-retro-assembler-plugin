@@ -24,14 +24,28 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks
 
+import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.assembly.KickAssemblerPortAdapter
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.config.AssemblyConfigMapper
+import com.github.c64lib.rbt.flows.domain.steps.AssembleStep
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFiles
 
 /** Gradle task for executing assembly steps with proper incremental build support. */
 abstract class AssembleTask : BaseFlowStepTask() {
 
   @get:OutputFiles abstract val outputFiles: ConfigurableFileCollection
+
+  /** Additional input files for tracking indirect dependencies (includes/imports) */
+  @get:InputFiles abstract val additionalInputFiles: ConfigurableFileCollection
+
+  /** KickAssembleUseCase for actual assembly compilation - injected by FlowTasksGenerator */
+  @get:Internal lateinit var kickAssembleUseCase: KickAssembleUseCase
+
+  private val assemblyConfigMapper = AssemblyConfigMapper()
 
   init {
     description = "Assembles source files using Kick Assembler"
@@ -44,47 +58,51 @@ abstract class AssembleTask : BaseFlowStepTask() {
           "Assemble step validation failed: ${validationErrors.joinToString(", ")}")
     }
 
-    logger.info("Assembling source files from inputs: ${step.inputs}")
+    if (step !is AssembleStep) {
+      throw IllegalStateException("Expected AssembleStep but got ${step::class.simpleName}")
+    }
+
+    logger.info("Executing AssembleStep '${step.name}' with configuration: ${step.config}")
+    logger.info("Input files: ${step.inputs}")
+    logger.info("Additional input files: ${additionalInputFiles.files.map { it.name }}")
     logger.info("Output directory: ${outputDirectory.get().asFile.absolutePath}")
 
-    // TODO: Integrate with actual Kick Assembler from compilers/kickass module
-    // For now, simulate the assembly process
-    step.inputs.forEach { inputPath ->
-      logger.info("Assembling file: $inputPath")
+    try {
+      // Inject the assembly port adapter into the step
+      val assemblyPortAdapter = KickAssemblerPortAdapter(kickAssembleUseCase)
+      step.setAssemblyPort(assemblyPortAdapter)
 
-      val inputFile = project.file(inputPath)
-      if (inputFile.exists() && inputFile.extension == "asm") {
-        val baseName = inputFile.nameWithoutExtension
-        val outputDir = outputDirectory.get().asFile
+      // Create execution context with project information
+      val executionContext =
+          mapOf(
+              "projectRootDir" to project.projectDir,
+              "outputDirectory" to outputDirectory.get().asFile,
+              "logger" to logger)
 
-        // Create output files (placeholder - actual implementation will use kickass compiler)
-        val prgFile = outputDir.resolve("$baseName.prg")
-        val symbolsFile = outputDir.resolve("$baseName.sym")
+      // Execute the step using its domain logic
+      step.execute(executionContext)
 
-        prgFile.writeText("// Generated binary from $inputPath\n")
-        symbolsFile.writeText("// Generated symbols from $inputPath\n")
-
-        logger.info("Generated: ${prgFile.absolutePath}")
-        logger.info("Generated: ${symbolsFile.absolutePath}")
-      } else {
-        logger.warn("Input file not found or not an .asm file: $inputPath")
-      }
+      logger.info("Successfully completed assembly step '${step.name}'")
+    } catch (e: Exception) {
+      logger.error("Assembly compilation failed for step '${step.name}': ${e.message}", e)
+      throw e
     }
   }
 
   override fun validateStep(step: FlowStep): List<String> {
     val errors = super.validateStep(step).toMutableList()
 
-    // Assembly-specific validations
-    if (step.inputs.isEmpty()) {
-      errors.add("Assemble step requires at least one input .asm file")
+    if (step !is AssembleStep) {
+      errors.add("Expected AssembleStep but got ${step::class.simpleName}")
+      return errors
     }
 
-    step.inputs.forEach { inputPath ->
-      val inputFile = project.file(inputPath)
-      if (!inputFile.name.endsWith(".asm")) {
-        errors.add("Assemble step expects .asm files, but got: $inputPath")
-      }
+    // Use the domain validation from AssembleStep
+    errors.addAll(step.validate())
+
+    // Validate that KickAssembleUseCase has been injected
+    if (!::kickAssembleUseCase.isInitialized) {
+      errors.add("KickAssembleUseCase not injected for AssembleTask")
     }
 
     return errors

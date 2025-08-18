@@ -24,6 +24,8 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain.config
 
+import com.github.c64lib.rbt.shared.domain.OutputFormat
+
 /** Configuration enums and data classes for processor-specific options */
 
 // Charpad Configuration
@@ -102,12 +104,16 @@ enum class AssemblyOptimization {
 }
 
 data class AssemblyConfig(
-    val cpu: CpuType = CpuType.MOS6510,
     val generateSymbols: Boolean = true,
-    val optimization: AssemblyOptimization = AssemblyOptimization.SPEED,
     val includePaths: List<String> = emptyList(),
     val defines: Map<String, String> = emptyMap(),
-    val verbose: Boolean = false
+    val verbose: Boolean = false,
+    val outputFormat: OutputFormat = OutputFormat.PRG,
+    val srcDirs: List<String> = listOf("."),
+    val includes: List<String> = listOf("**/*.asm"),
+    val excludes: List<String> = listOf(".ra/**/*.asm"),
+    val workDir: String = ".ra",
+    val additionalInputs: List<String> = emptyList()
 )
 
 // Image Configuration

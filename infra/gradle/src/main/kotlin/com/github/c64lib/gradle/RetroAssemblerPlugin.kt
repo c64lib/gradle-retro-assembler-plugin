@@ -195,8 +195,11 @@ class RetroAssemblerPlugin : Plugin<Project> {
       val build = project.tasks.create(TASK_BUILD, Build::class.java)
       build.dependsOn(assemble, runSpec)
 
-      // Register generated flow tasks leveraging Gradle parallelization
-      FlowTasksGenerator(project, flowsExtension.getFlows()).registerTasks()
+      // Create KickAssembleUseCase for flow tasks that contain AssembleSteps
+      val kickAssembleUseCase = KickAssembleUseCase(KickAssembleAdapter(project, settings))
+
+      // Register generated flow tasks leveraging Gradle parallelization with dependency injection
+      FlowTasksGenerator(project, flowsExtension.getFlows(), kickAssembleUseCase).registerTasks()
 
       if (project.defaultTasks.isEmpty()) {
         project.defaultTasks.add(TASK_BUILD)

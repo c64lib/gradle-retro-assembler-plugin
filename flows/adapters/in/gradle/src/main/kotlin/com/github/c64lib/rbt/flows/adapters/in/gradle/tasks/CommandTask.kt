@@ -24,8 +24,8 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks
 
-import com.github.c64lib.rbt.flows.domain.CommandStep
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.steps.CommandStep
 import java.io.File
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.tasks.OutputFiles

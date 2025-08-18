@@ -22,30 +22,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.compilers.kickass.usecase
+package com.github.c64lib.rbt.flows.domain.port
 
-import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssemblePort
-import com.github.c64lib.rbt.shared.domain.OutputFormat
-import java.io.File
+import com.github.c64lib.rbt.flows.domain.config.AssemblyCommand
 
-class KickAssembleUseCase(private val kickAssemblePort: KickAssemblePort) {
-  fun apply(command: KickAssembleCommand) =
-      kickAssemblePort.assemble(
-          command.libDirs,
-          command.defines,
-          command.values,
-          command.source,
-          command.outputFormat,
-          command.outputFile,
-          command.outputDirectory)
+/**
+ * Domain port for assembly operations.
+ *
+ * This port defines the contract for assembly compilation within the flows domain, abstracting away
+ * the specific compiler implementation details.
+ */
+interface AssemblyPort {
+
+  /**
+   * Executes assembly compilation for a single command.
+   *
+   * @param command The assembly command containing all necessary compilation parameters
+   */
+  fun assemble(command: AssemblyCommand)
+
+  /**
+   * Executes assembly compilation for multiple commands.
+   *
+   * @param commands The list of assembly commands to execute
+   */
+  fun assemble(commands: List<AssemblyCommand>) {
+    commands.forEach { command -> assemble(command) }
+  }
 }
-
-data class KickAssembleCommand(
-    val libDirs: List<File>,
-    val defines: List<String>,
-    val values: Map<String, String>,
-    val source: File,
-    val outputFormat: OutputFormat,
-    val outputFile: File? = null,
-    val outputDirectory: File? = null
-)
