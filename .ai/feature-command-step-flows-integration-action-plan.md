@@ -41,7 +41,7 @@ The CommandStep is currently incomplete and not properly integrated with the flo
 6. ✅ **Add Command-Specific Validation** - Implement thorough validation for command existence, parameters, and file paths
 
 ### Phase 3: DSL Integration
-7. **Create CommandStepBuilder** - Implement DSL builder following AssembleStepBuilder pattern with from/to support
+7. ✅ **Create CommandStepBuilder** - Implement DSL builder following AssembleStepBuilder pattern with from/to support
 8. **Integrate with FlowDsl** - Add commandStep method to FlowBuilder class
 9. **Add DSL Documentation** - Update FlowDsl documentation with command step examples
 
