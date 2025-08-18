@@ -60,4 +60,14 @@ Execute step 8
 ```
 Quota: 39%
 
+### Execute step 9
+```
+Execute step 9
+```
+Attempt failed, quota 40% rolling back, starting with empty conversation
 
+### Execute step 9  
+```
+Execute step 9
+```
+Quota: 41%
