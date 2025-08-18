@@ -28,3 +28,12 @@ Execute step 4
 The code does not compile, fix this
 ```
 Quota: 37%
+
+
+### Execute step 5
+### Execute step 6
+```
+CommandStepTest has failures, fix them
+```
+(manual fix was required)
+Quota: 38%

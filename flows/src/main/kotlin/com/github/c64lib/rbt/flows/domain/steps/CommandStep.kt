@@ -133,7 +133,7 @@ class CommandStep(
     } else {
       // For simple command names, we can't easily validate existence without PATH lookup
       // But we can validate that it's a reasonable command name
-      if (!command.matches(Regex("[a-zA-Z0-9._-]+"))) {
+      if (command.isNotBlank() && !command.matches(Regex("[a-zA-Z0-9._-]+"))) {
         errors.add("Command name contains invalid characters: $command")
       }
     }
