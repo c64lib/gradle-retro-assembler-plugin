@@ -37,3 +37,12 @@ CommandStepTest has failures, fix them
 ```
 (manual fix was required)
 Quota: 38%
+
+```
+Fix this problem:
+
+Execution failed for task ':infra:gradle:validatePlugins'.
+> Plugin validation failed with 1 problem:
+    - Error: Type 'com.github.c64lib.rbt.flows.adapters.in.gradle.tasks.CommandTask' property 'commandPortAdapter' is private and annotated with @Internal.
+```
+Quota: 39%

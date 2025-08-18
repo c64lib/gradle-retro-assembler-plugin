@@ -38,9 +38,7 @@ abstract class CommandTask : BaseFlowStepTask() {
 
   /** CommandPortAdapter for actual CLI execution - created internally with Gradle logger */
   @get:Internal
-  private val commandPortAdapter: GradleCommandPortAdapter by lazy {
-    GradleCommandPortAdapter(logger)
-  }
+  val commandPortAdapter: GradleCommandPortAdapter by lazy { GradleCommandPortAdapter(logger) }
 
   init {
     description = "Executes arbitrary command-line tools with incremental build support"
