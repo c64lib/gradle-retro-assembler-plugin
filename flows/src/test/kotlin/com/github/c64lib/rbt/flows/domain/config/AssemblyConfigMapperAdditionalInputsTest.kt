@@ -38,7 +38,7 @@ class AssemblyConfigMapperAdditionalInputsTest :
         val mapper = AssemblyConfigMapper()
 
         `when`("config has no additional inputs") {
-          val config = AssemblyConfig(cpu = CpuType.MOS6510, additionalInputs = emptyList())
+          val config = AssemblyConfig(additionalInputs = emptyList())
           val projectDir = Files.createTempDirectory("test-project").toFile()
 
           then("should return empty list") {
@@ -53,9 +53,7 @@ class AssemblyConfigMapperAdditionalInputsTest :
           val projectDir = Files.createTempDirectory("test-project").toFile()
           val config =
               AssemblyConfig(
-                  cpu = CpuType.MOS6510,
-                  srcDirs = listOf("."),
-                  additionalInputs = listOf("**/*.inc", "lib/**/*.asm"))
+                  srcDirs = listOf("."), additionalInputs = listOf("**/*.inc", "lib/**/*.asm"))
 
           then("should return empty list") {
             val result = mapper.discoverAdditionalInputFiles(config, projectDir)
@@ -86,9 +84,7 @@ class AssemblyConfigMapperAdditionalInputsTest :
 
           val config =
               AssemblyConfig(
-                  cpu = CpuType.MOS6510,
-                  srcDirs = listOf("."),
-                  additionalInputs = listOf("**/*.inc", "lib/**/*.asm"))
+                  srcDirs = listOf("."), additionalInputs = listOf("**/*.inc", "lib/**/*.asm"))
 
           then("should return matching files") {
             val result = mapper.discoverAdditionalInputFiles(config, projectDir)
@@ -119,10 +115,7 @@ class AssemblyConfigMapperAdditionalInputsTest :
           otherFile.writeText("#define OTHER_CONSTANT 3")
 
           val config =
-              AssemblyConfig(
-                  cpu = CpuType.MOS6510,
-                  srcDirs = listOf("src", "lib"),
-                  additionalInputs = listOf("*.inc"))
+              AssemblyConfig(srcDirs = listOf("src", "lib"), additionalInputs = listOf("*.inc"))
 
           then("should find files in all specified source directories") {
             val result = mapper.discoverAdditionalInputFiles(config, projectDir)
@@ -140,7 +133,6 @@ class AssemblyConfigMapperAdditionalInputsTest :
 
           val config =
               AssemblyConfig(
-                  cpu = CpuType.MOS6510,
                   srcDirs = listOf("nonexistent", "alsononexistent"),
                   additionalInputs = listOf("**/*.inc"))
 
@@ -160,10 +152,7 @@ class AssemblyConfigMapperAdditionalInputsTest :
           srcDir.mkdirs()
 
           val config =
-              AssemblyConfig(
-                  cpu = CpuType.MOS6510,
-                  srcDirs = listOf("src"),
-                  additionalInputs = listOf("**/*.inc"))
+              AssemblyConfig(srcDirs = listOf("src"), additionalInputs = listOf("**/*.inc"))
 
           then("should filter out non-existent files") {
             val result = mapper.discoverAdditionalInputFiles(config, projectDir)
@@ -195,10 +184,7 @@ class AssemblyConfigMapperAdditionalInputsTest :
           file4.writeText("// main asm")
 
           val config =
-              AssemblyConfig(
-                  cpu = CpuType.MOS6510,
-                  srcDirs = listOf("src"),
-                  additionalInputs = listOf("**/*.inc"))
+              AssemblyConfig(srcDirs = listOf("src"), additionalInputs = listOf("**/*.inc"))
 
           then("should match all files with recursive pattern") {
             val result = mapper.discoverAdditionalInputFiles(config, projectDir)
@@ -234,7 +220,6 @@ class AssemblyConfigMapperAdditionalInputsTest :
 
           val config =
               AssemblyConfig(
-                  cpu = CpuType.MOS6510,
                   srcDirs = listOf("src"),
                   includes = listOf("**/*.asm"),
                   excludes = listOf("test/**/*.asm"),

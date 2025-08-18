@@ -26,8 +26,6 @@ package com.github.c64lib.rbt.flows.domain.steps
 
 import com.github.c64lib.rbt.flows.domain.config.AssemblyCommand
 import com.github.c64lib.rbt.flows.domain.config.AssemblyConfig
-import com.github.c64lib.rbt.flows.domain.config.AssemblyOptimization
-import com.github.c64lib.rbt.flows.domain.config.CpuType
 import com.github.c64lib.rbt.flows.domain.port.AssemblyPort
 import com.github.c64lib.rbt.shared.domain.OutputFormat
 import io.kotest.assertions.throwables.shouldThrow
@@ -61,9 +59,7 @@ class AssembleStepTest :
           }
 
           And("it should have default configuration") {
-            step.config.cpu shouldBe CpuType.MOS6510
             step.config.generateSymbols shouldBe true
-            step.config.optimization shouldBe AssemblyOptimization.SPEED
             step.config.verbose shouldBe false
             step.config.outputFormat shouldBe OutputFormat.PRG
             step.config.srcDirs shouldBe listOf(".")
@@ -77,9 +73,7 @@ class AssembleStepTest :
       Given("an AssembleStep with custom configuration") {
         val config =
             AssemblyConfig(
-                cpu = CpuType.MOS6502,
                 generateSymbols = false,
-                optimization = AssemblyOptimization.SIZE,
                 includePaths = listOf("lib1", "lib2"),
                 defines = mapOf("DEBUG" to "1", "VERSION" to "2.0"),
                 verbose = true,
@@ -99,9 +93,7 @@ class AssembleStepTest :
         When("getting configuration") {
           Then("it should return the correct configuration map") {
             val configMap = step.getConfiguration()
-            configMap["cpu"] shouldBe "MOS6502"
             configMap["generateSymbols"] shouldBe false
-            configMap["optimization"] shouldBe "SIZE"
             configMap["includePaths"] shouldBe listOf("lib1", "lib2")
             configMap["defines"] shouldBe mapOf("DEBUG" to "1", "VERSION" to "2.0")
             configMap["verbose"] shouldBe true
@@ -348,8 +340,8 @@ class AssembleStepTest :
       }
 
       Given("equality and string representation") {
-        val config1 = AssemblyConfig(cpu = CpuType.MOS6502)
-        val config2 = AssemblyConfig(cpu = CpuType.MOS6510)
+        val config1 = AssemblyConfig(generateSymbols = true)
+        val config2 = AssemblyConfig(generateSymbols = false)
 
         val step1 = AssembleStep("test", listOf("a.asm"), listOf("a.prg"), config1)
         val step2 = AssembleStep("test", listOf("a.asm"), listOf("a.prg"), config1)

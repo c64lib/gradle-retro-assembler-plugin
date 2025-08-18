@@ -177,9 +177,7 @@ class AssembleStepBuilderAdditionalInputsTest :
             step.name shouldBe "complexStep"
             step.inputs shouldContain "main.asm"
             step.outputs shouldContain "output.prg"
-            step.config.cpu shouldBe CpuType.MOS65C02
             step.config.generateSymbols shouldBe false
-            step.config.optimization shouldBe AssemblyOptimization.SIZE
             step.config.verbose shouldBe true
             step.config.outputFormat shouldBe OutputFormat.PRG
             step.config.workDir shouldBe "build"

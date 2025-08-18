@@ -25,7 +25,7 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.domain
 
 /** Manages the dependency graph of flows and provides validation and analysis capabilities */
-class FlowDependencyGraph {
+internal class FlowDependencyGraph {
   private val flows = mutableMapOf<String, Flow>()
   private val dependencyEdges = mutableMapOf<String, MutableSet<String>>()
   private val artifactProducers = mutableMapOf<FlowArtifact, String>()

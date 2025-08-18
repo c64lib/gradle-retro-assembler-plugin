@@ -104,9 +104,7 @@ enum class AssemblyOptimization {
 }
 
 data class AssemblyConfig(
-    val cpu: CpuType = CpuType.MOS6510,
     val generateSymbols: Boolean = true,
-    val optimization: AssemblyOptimization = AssemblyOptimization.SPEED,
     val includePaths: List<String> = emptyList(),
     val defines: Map<String, String> = emptyMap(),
     val verbose: Boolean = false,

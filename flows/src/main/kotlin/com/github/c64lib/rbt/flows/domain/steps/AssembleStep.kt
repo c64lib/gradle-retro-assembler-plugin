@@ -132,9 +132,7 @@ class AssembleStep(
 
   override fun getConfiguration(): Map<String, Any> {
     return mapOf(
-        "cpu" to config.cpu.name,
         "generateSymbols" to config.generateSymbols,
-        "optimization" to config.optimization.name,
         "includePaths" to config.includePaths,
         "defines" to config.defines,
         "verbose" to config.verbose)

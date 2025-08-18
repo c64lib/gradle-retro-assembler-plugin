@@ -26,10 +26,10 @@ package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.*
-import com.github.c64lib.rbt.flows.domain.CommandStep
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowStep
 import com.github.c64lib.rbt.flows.domain.steps.*
+import com.github.c64lib.rbt.flows.domain.steps.CommandStep
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection

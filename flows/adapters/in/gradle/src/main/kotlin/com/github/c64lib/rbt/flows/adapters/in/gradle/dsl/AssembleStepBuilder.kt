@@ -144,9 +144,7 @@ class AssembleStepBuilder(private val name: String) {
   internal fun build(): AssembleStep {
     val config =
         AssemblyConfig(
-            cpu = cpu,
             generateSymbols = generateSymbols,
-            optimization = optimization,
             includePaths = includePaths.toList(),
             defines = defines.toMap(),
             verbose = verbose,
