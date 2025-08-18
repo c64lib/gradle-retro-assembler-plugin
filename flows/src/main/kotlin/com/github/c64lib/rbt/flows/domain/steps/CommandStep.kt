@@ -25,6 +25,9 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.domain.steps
 
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.config.CommandConfigMapper
+import com.github.c64lib.rbt.flows.domain.port.CommandPort
+import java.io.File
 
 /**
  * A command-based flow step that can execute any CLI command with parameters.
@@ -40,25 +43,37 @@ import com.github.c64lib.rbt.flows.domain.FlowStep
  */
 class CommandStep(
     name: String,
-    private val command: String,
+    val command: String,
     inputs: List<String> = emptyList(),
     outputs: List<String> = emptyList(),
-    private val parameters: List<String> = emptyList()
+    val parameters: List<String> = emptyList(),
+    private var commandPort: CommandPort? = null,
+    private val configMapper: CommandConfigMapper = CommandConfigMapper()
 ) : FlowStep(name, "command", inputs, outputs) {
+
+  /**
+   * Injects the command port dependency. This is called by the adapter layer when the step is
+   * prepared for execution.
+   */
+  fun setCommandPort(port: CommandPort) {
+    this.commandPort = port
+  }
 
   /** Add a parameter to the command */
   operator fun plus(parameter: String): CommandStep {
-    return CommandStep(name, command, inputs, outputs, parameters + parameter)
+    return CommandStep(
+        name, command, inputs, outputs, parameters + parameter, commandPort, configMapper)
   }
 
   /** Set input paths for this command step */
   fun from(vararg paths: String): CommandStep {
-    return CommandStep(name, command, paths.toList(), outputs, parameters)
+    return CommandStep(
+        name, command, paths.toList(), outputs, parameters, commandPort, configMapper)
   }
 
   /** Set output paths for this command step */
   fun to(vararg paths: String): CommandStep {
-    return CommandStep(name, command, inputs, paths.toList(), parameters)
+    return CommandStep(name, command, inputs, paths.toList(), parameters, commandPort, configMapper)
   }
 
   /** Get the full command line that would be executed */
@@ -67,18 +82,34 @@ class CommandStep(
   }
 
   override fun execute(context: Map<String, Any>) {
-    val commandLine = getCommandLine()
+    val port =
+        commandPort
+            ?: throw IllegalStateException(
+                "CommandPort not injected for step '$name'. Call setCommandPort() before execution.")
 
-    // TODO: Implement actual command execution
-    // This will be implemented when integrating with the execution framework
-    println("Executing command: ${commandLine.joinToString(" ")}")
+    // Extract project root directory from context
+    val projectRootDir =
+        context["projectRootDir"] as? File
+            ?: throw IllegalStateException("Project root directory not found in execution context")
 
-    if (inputs.isNotEmpty()) {
-      println("  Inputs: ${inputs.joinToString(", ")}")
+    // Extract environment variables from context if available
+    val environment = context["environment"] as? Map<String, String> ?: emptyMap()
+
+    // Extract timeout from context if available
+    val timeoutSeconds = context["timeoutSeconds"] as? Long
+
+    // Map step configuration to command
+    val commandCommand =
+        configMapper.toCommandCommand(this, projectRootDir, environment, timeoutSeconds)
+
+    // Execute CLI command through the port
+    try {
+      port.execute(commandCommand)
+    } catch (e: Exception) {
+      throw RuntimeException("Command execution failed for step '$name': ${e.message}", e)
     }
-    if (outputs.isNotEmpty()) {
-      println("  Outputs: ${outputs.joinToString(", ")}")
-    }
+
+    outputs.forEach { outputPath -> println("  Expected output: $outputPath") }
   }
 
   override fun validate(): List<String> {
