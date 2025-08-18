@@ -47,13 +47,6 @@ class AssembleStepBuilder(private val name: String) {
   private val excludes = mutableListOf<String>()
   private val additionalInputs = mutableListOf<String>()
 
-  init {
-    // Set defaults that match the enhanced AssemblyConfig
-    //    srcDirs.add(".")
-    //    includes.add("**/*.asm")
-    //    excludes.add(".ra/**/*.asm")
-  }
-
   fun outputFormat(format: OutputFormat) {
     outputFormat = format
   }
@@ -100,7 +93,6 @@ class AssembleStepBuilder(private val name: String) {
 
   /** Sets source directories for file discovery. */
   fun srcDirs(vararg dirs: String) {
-    srcDirs.clear() // TODO remove
     srcDirs.addAll(dirs)
   }
 
@@ -111,7 +103,6 @@ class AssembleStepBuilder(private val name: String) {
 
   /** Sets include patterns for file discovery. */
   fun includes(vararg patterns: String) {
-    includes.clear() // TODO remove
     includes.addAll(patterns)
   }
 
@@ -122,7 +113,6 @@ class AssembleStepBuilder(private val name: String) {
 
   /** Sets exclude patterns for file discovery. */
   fun excludes(vararg patterns: String) {
-    excludes.clear() // TODO remove
     excludes.addAll(patterns)
   }
 
