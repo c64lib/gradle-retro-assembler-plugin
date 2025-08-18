@@ -54,10 +54,6 @@ class AssembleStep(
             ?: throw IllegalStateException(
                 "AssemblyPort not injected for step '$name'. Call setAssemblyPort() before execution.")
 
-    println("Executing Assembly step: $name")
-    println("  Configuration: $config")
-    println("  Processing ${inputs.size} input file(s)")
-
     // Extract project root directory from context
     val projectRootDir =
         context["projectRootDir"] as? File
@@ -93,12 +89,9 @@ class AssembleStep(
           configMapper.toAssemblyCommands(config, sourceFiles, projectRootDir)
         }
 
-    println("  Generated ${assemblyCommands.size} assembly command(s)")
-
     // Execute assembly compilation through the port
     try {
       port.assemble(assemblyCommands)
-      println("  Assembly compilation completed successfully")
     } catch (e: Exception) {
       throw RuntimeException("Assembly compilation failed for step '$name': ${e.message}", e)
     }
