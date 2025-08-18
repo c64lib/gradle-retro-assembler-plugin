@@ -37,7 +37,7 @@ The CommandStep is currently incomplete and not properly integrated with the flo
 
 ### Phase 2: Adapter Layer Implementation  
 4. ✅ **Create CommandPortAdapter** - Implement the CLI execution port adapter with proper error handling
-5. **Enhance CommandTask Integration** - Improve CommandTask to work with enhanced CommandStep and proper change detection
+5. ✅ **Enhance CommandTask Integration** - Improve CommandTask to work with enhanced CommandStep and proper change detection
 6. **Add Command-Specific Validation** - Implement thorough validation for command existence, parameters, and file paths
 
 ### Phase 3: DSL Integration

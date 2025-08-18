@@ -24,10 +24,11 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks
 
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.command.GradleCommandPortAdapter
 import com.github.c64lib.rbt.flows.domain.FlowStep
 import com.github.c64lib.rbt.flows.domain.steps.CommandStep
-import java.io.File
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFiles
 
 /** Gradle task for executing command-line steps with proper incremental build support. */
@@ -35,57 +36,100 @@ abstract class CommandTask : BaseFlowStepTask() {
 
   @get:OutputFiles abstract val outputFiles: ConfigurableFileCollection
 
+  /** CommandPortAdapter for actual CLI execution - created internally with Gradle logger */
+  @get:Internal
+  private val commandPortAdapter: GradleCommandPortAdapter by lazy {
+    GradleCommandPortAdapter(logger)
+  }
+
   init {
-    description = "Executes arbitrary command-line tools"
+    description = "Executes arbitrary command-line tools with incremental build support"
   }
 
   override fun executeStepLogic(step: FlowStep) {
-    if (step !is CommandStep) {
-      throw IllegalStateException(
-          "CommandTask can only execute CommandStep instances, but got: ${step::class.simpleName}")
-    }
-
     val validationErrors = validateStep(step)
     if (validationErrors.isNotEmpty()) {
       throw IllegalStateException(
           "Command step validation failed: ${validationErrors.joinToString(", ")}")
     }
 
-    logger.info("Executing command: ${step.getCommandLine().joinToString(" ")}")
+    if (step !is CommandStep) {
+      throw IllegalStateException("Expected CommandStep but got ${step::class.simpleName}")
+    }
+
+    logger.info("Executing CommandStep '${step.name}' with command: ${step.command}")
+    logger.info("Parameters: ${step.parameters}")
+    logger.info("Input files: ${step.inputs}")
+    logger.info("Output files: ${step.outputs}")
     logger.info("Working directory: ${project.projectDir.absolutePath}")
 
-    // Execute the command
-    val processBuilder = ProcessBuilder(step.getCommandLine())
-    processBuilder.directory(project.projectDir)
-    processBuilder.redirectErrorStream(true)
-
     try {
-      val process = processBuilder.start()
+      // Inject the command port adapter into the step
+      step.setCommandPort(commandPortAdapter)
 
-      // Read and log output
-      val output = process.inputStream.bufferedReader().use { it.readText() }
-      if (output.isNotBlank()) {
-        logger.info("Command output:\n$output")
-      }
+      // Create execution context with project information and optional settings
+      val executionContext = buildExecutionContext()
 
-      val exitCode = process.waitFor()
-      if (exitCode != 0) {
-        throw RuntimeException(
-            "Command failed with exit code $exitCode: ${step.getCommandLine().joinToString(" ")}")
-      }
+      // Execute the command step through the domain layer
+      step.execute(executionContext)
 
-      logger.info("Command executed successfully")
-
-      // Verify that expected output files were created
-      step.outputs.forEach { outputPath ->
-        val outputFile = File(outputPath)
-        if (!outputFile.exists()) {
-          logger.warn("Expected output file not found: $outputPath")
-        }
-      }
+      logger.info("Command step '${step.name}' executed successfully")
     } catch (e: Exception) {
-      logger.error("Failed to execute command: ${step.getCommandLine().joinToString(" ")}", e)
+      logger.error("Failed to execute command step '${step.name}': ${e.message}", e)
       throw e
+    }
+  }
+
+  /**
+   * Builds the execution context for the command step. This context provides the step with
+   * necessary runtime information.
+   */
+  private fun buildExecutionContext(): Map<String, Any> {
+    val context =
+        mutableMapOf<String, Any>(
+            "projectRootDir" to project.projectDir,
+            "outputDirectory" to outputDirectory.get().asFile,
+            "logger" to logger)
+
+    // Add environment variables if any are defined in project properties
+    val environmentVariables = extractEnvironmentVariables()
+    if (environmentVariables.isNotEmpty()) {
+      context["environment"] = environmentVariables
+    }
+
+    // Add timeout if defined in project properties
+    extractTimeoutSeconds()?.let { timeout -> context["timeoutSeconds"] = timeout }
+
+    return context
+  }
+
+  /**
+   * Extracts environment variables from project properties. Looks for properties with pattern:
+   * command.env.{KEY}={VALUE}
+   */
+  private fun extractEnvironmentVariables(): Map<String, String> {
+    val envVars = mutableMapOf<String, String>()
+
+    project.properties.forEach { (key, value) ->
+      if (key.startsWith("command.env.") && value != null) {
+        val envKey = key.removePrefix("command.env.")
+        envVars[envKey] = value.toString()
+      }
+    }
+
+    return envVars
+  }
+
+  /**
+   * Extracts timeout configuration from project properties. Looks for property:
+   * command.timeout.seconds
+   */
+  private fun extractTimeoutSeconds(): Long? {
+    val timeoutProperty = project.findProperty("command.timeout.seconds")
+    return when {
+      timeoutProperty is Number -> timeoutProperty.toLong()
+      timeoutProperty is String -> timeoutProperty.toLongOrNull()
+      else -> null
     }
   }
 
@@ -98,17 +142,18 @@ abstract class CommandTask : BaseFlowStepTask() {
     }
 
     // Command-specific validations
-    val commandLine = step.getCommandLine()
-    if (commandLine.isEmpty() || commandLine[0].isBlank()) {
-      errors.add("Command step requires a valid command")
+    if (step.command.isBlank()) {
+      errors.add("Command step requires a valid command executable")
     }
 
-    // Check that input files exist
-    step.inputs.forEach { inputPath ->
-      val inputFile = File(inputPath)
-      if (!inputFile.exists()) {
-        errors.add("Input file does not exist: $inputPath")
-      }
+    // Validate that input files are properly configured in Gradle
+    if (step.inputs.isNotEmpty() && inputFiles.isEmpty) {
+      errors.add("Command step declares input files but Gradle inputFiles is not configured")
+    }
+
+    // Validate that output files are properly configured in Gradle
+    if (step.outputs.isNotEmpty() && outputFiles.isEmpty) {
+      errors.add("Command step declares output files but Gradle outputFiles is not configured")
     }
 
     return errors
