@@ -28,17 +28,87 @@ import com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl.*
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowArtifact
 import com.github.c64lib.rbt.flows.domain.FlowStep
-import com.github.c64lib.rbt.flows.domain.steps.CommandStep
 
 /**
  * DSL builder for creating Flow definitions in build.gradle.kts files.
  *
- * Example usage:
+ * The flows DSL allows you to define processing pipelines with proper dependency tracking and
+ * incremental build support. Each flow can contain multiple steps that process files and only
+ * execute when their input files have changed.
+ *
+ * ## Basic Flow Structure
+ * ```kotlin
+ * flows {
+ *     flow("flowName") {
+ *         description = "Flow description"
+ *         dependsOn("otherFlow") // Optional dependency on other flows
+ *
+ *         // Add processing steps here
+ *     }
+ * }
+ * ```
+ *
+ * ## Command Step Examples
+ *
+ * ### Image Processing with ImageMagick
+ * ```kotlin
+ * commandStep("convertBackground", "convert") {
+ *     from("src/assets/background.png")
+ *     to("build/assets/background.png")
+ *     option("-resize", "320x200")
+ *     option("-colors", "16")
+ *     option("-dither", "FloydSteinberg")
+ * }
+ * ```
+ *
+ * ### File Compression with Exomizer
+ * ```kotlin
+ * commandStep("compress", "exomizer") {
+ *     from("build/output/main.prg")
+ *     to("build/output/main.exo")
+ *     param("sfx")
+ *     param("\$0801")
+ *     option("-o", "build/output/main.exo")
+ * }
+ * ```
+ *
+ * ### Custom Build Tools
+ * ```kotlin
+ * commandStep("generateData", "python") {
+ *     from("scripts/data_generator.py", "data/input.csv")
+ *     to("build/generated/data.asm")
+ *     param("scripts/data_generator.py")
+ *     option("--input", "data/input.csv")
+ *     option("--output", "build/generated/data.asm")
+ *     option("--format", "kickass")
+ * }
+ * ```
+ *
+ * ### Multi-tool Processing Chain
+ * ```kotlin
+ * // Convert and optimize graphics
+ * commandStep("convertSprites", "convert") {
+ *     from("src/graphics/sprites.png")
+ *     to("build/temp/sprites.png")
+ *     option("-resize", "384x168")
+ *     option("-colors", "16")
+ * }
+ *
+ * commandStep("optimizeSprites", "pngcrush") {
+ *     from("build/temp/sprites.png")
+ *     to("build/graphics/sprites.png")
+ *     flag("-reduce")
+ *     flag("-brute")
+ * }
+ * ```
+ *
+ * ## Complete Example Usage
  * ```kotlin
  * flows {
  *     flow("preprocessing") {
- *         description = "Process all assets"
+ *         description = "Process all assets and generate data"
  *
+ *         // Process charset with Charpad
  *         charpadStep("charset") {
  *             from("src/assets/charset.ctm")
  *             to("build/assets/charset.chr", "build/assets/charset.map")
@@ -46,28 +116,99 @@ import com.github.c64lib.rbt.flows.domain.steps.CommandStep
  *             exportFormat = CharpadFormat.STANDARD
  *         }
  *
+ *         // Process sprites with Spritepad
  *         spritepadStep("sprites") {
  *             from("src/assets/sprites.spd")
  *             to("build/assets/sprites.spr")
  *             optimization = SpriteOptimization.SIZE
  *             format = SpriteFormat.MULTICOLOR
  *         }
+ *
+ *         // Convert background image
+ *         commandStep("convertBackground", "convert") {
+ *             from("src/assets/background.png")
+ *             to("build/assets/background.png")
+ *             option("-resize", "320x200")
+ *             option("-colors", "16")
+ *         }
+ *
+ *         // Generate lookup tables
+ *         commandStep("generateTables", "python") {
+ *             from("scripts/table_generator.py")
+ *             to("build/generated/tables.asm")
+ *             param("scripts/table_generator.py")
+ *             option("--output", "build/generated/tables.asm")
+ *         }
  *     }
  *
  *     flow("compilation") {
  *         dependsOn("preprocessing")
+ *         description = "Compile and package the final program"
  *
+ *         // Assemble the main program
  *         assembleStep("main") {
  *             from("src/main/main.asm")
  *             to("build/output/main.prg")
  *             cpu = CpuType.MOS6510
  *             generateSymbols = true
  *             optimization = AssemblyOptimization.SPEED
- *             includePaths("build/assets", "lib/c64lib")
+ *             includePaths("build/assets", "build/generated", "lib/c64lib")
+ *         }
+ *
+ *         // Compress the final program
+ *         commandStep("compress", "exomizer") {
+ *             from("build/output/main.prg")
+ *             to("build/output/main.exo")
+ *             param("sfx")
+ *             param("\$0801")
+ *             option("-o", "build/output/main.exo")
+ *         }
+ *
+ *         // Create disk image
+ *         commandStep("createDisk", "c1541") {
+ *             from("build/output/main.exo")
+ *             to("build/output/game.d64")
+ *             option("-format", "game,gm")
+ *             option("-attach", "build/output/game.d64")
+ *             option("-write", "build/output/main.exo")
+ *             param("main")
+ *         }
+ *     }
+ *
+ *     flow("testing") {
+ *         dependsOn("compilation")
+ *         description = "Test the compiled program"
+ *
+ *         // Run automated tests in emulator
+ *         commandStep("runTests", "x64sc") {
+ *             from("build/output/game.d64", "tests/test-suite.prg")
+ *             to("build/test-results/results.txt")
+ *             option("-autostart", "tests/test-suite.prg")
+ *             option("-autostartprgmode", "1")
+ *             option("-exitscreenshot", "build/test-results/final-screen.png")
+ *             flag("-silent")
  *         }
  *     }
  * }
  * ```
+ *
+ * ## Command Step Configuration Options
+ *
+ * - `from(vararg paths)` - Specify input files for change detection
+ * - `to(vararg paths)` - Specify output files for incremental builds
+ * - `param(value)` - Add positional parameters to the command
+ * - `option(name, value)` - Add named options (e.g., "-o", "output.bin")
+ * - `flag(name)` - Add boolean flags (e.g., "-verbose", "-force")
+ * - `workingDirectory(path)` - Set working directory for command execution
+ * - `environment(key, value)` - Set environment variables
+ * - `timeout(seconds)` - Set command execution timeout
+ *
+ * ## Notes on Change Detection
+ *
+ * - Command steps only execute when input files (specified with `from()`) have changed
+ * - Output files (specified with `to()`) are tracked by Gradle's incremental build system
+ * - The build system automatically handles dependencies between steps and flows
+ * - Use proper file paths to ensure reliable change detection across different environments
  */
 open class FlowDslBuilder {
   private val flows = mutableListOf<Flow>()
@@ -180,6 +321,22 @@ class FlowBuilder(private val name: String) {
     }
   }
 
+  /** Creates a type-safe Command execution step. */
+  fun commandStep(stepName: String, command: String, configure: CommandStepBuilder.() -> Unit) {
+    val stepBuilder = CommandStepBuilder(stepName, command)
+    stepBuilder.configure()
+    val step = stepBuilder.build()
+    steps.add(step)
+
+    // Add artifacts for dependency tracking
+    step.inputs.forEach { input ->
+      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
+    }
+    step.outputs.forEach { output ->
+      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
+    }
+  }
+
   internal fun build(): Flow =
       Flow(
           name = name,
@@ -230,13 +387,6 @@ class StepBuilder(private val name: String) {
     config.putAll(configuration)
   }
 
-  /** Creates a command step that can execute any CLI command. */
-  fun command(commandName: String, configure: CommandStepBuilder.() -> Unit = {}): CommandStep {
-    val builder = CommandStepBuilder(name, commandName)
-    builder.configure()
-    return builder.build()
-  }
-
   private fun inferTaskType(): String =
       when {
         name.contains("charpad", ignoreCase = true) -> "charpad"
@@ -248,40 +398,4 @@ class StepBuilder(private val name: String) {
         name.contains("dependencies", ignoreCase = true) -> "dependencies"
         else -> "generic"
       }
-}
-
-/** Builder for command steps with fluent API. */
-class CommandStepBuilder(private val name: String, private val command: String) {
-  private val parameters = mutableListOf<String>()
-  private val inputs = mutableListOf<String>()
-  private val outputs = mutableListOf<String>()
-
-  /** Add a parameter to the command */
-  fun param(parameter: String): CommandStepBuilder {
-    parameters.add(parameter)
-    return this
-  }
-
-  /** Add multiple parameters to the command */
-  fun params(vararg parameters: String): CommandStepBuilder {
-    this.parameters.addAll(parameters)
-    return this
-  }
-
-  /** Set input paths for this command step */
-  fun from(vararg paths: String): CommandStepBuilder {
-    inputs.addAll(paths)
-    return this
-  }
-
-  /** Set output paths for this command step */
-  fun to(vararg paths: String): CommandStepBuilder {
-    outputs.addAll(paths)
-    return this
-  }
-
-  internal fun build(): CommandStep {
-    var step = CommandStep(name, command, inputs, outputs, parameters)
-    return step
-  }
 }

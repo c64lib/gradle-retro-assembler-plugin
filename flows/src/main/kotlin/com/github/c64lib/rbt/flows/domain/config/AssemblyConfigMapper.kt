@@ -112,11 +112,15 @@ class AssemblyConfigMapper {
             "Output format ${config.outputFormat} requires $expectedExtension extension, but output path is: $outputPath")
       }
 
-      Pair(outputFile, null) // Use -o flag for complete file specification
+      Pair(
+          outputFile,
+          outputFile.parentFile.absoluteFile) // Use -o flag for complete file specification
     } else {
       // Case 2: No output specified - derive from input (requirement 2)
       val derivedOutputFile = deriveOutputFromInput(sourceFile, expectedExtension)
-      Pair(derivedOutputFile, null) // Use -o flag for derived file
+      Pair(
+          derivedOutputFile,
+          derivedOutputFile.parentFile.absoluteFile) // Use -o flag for derived file
     }
   }
 

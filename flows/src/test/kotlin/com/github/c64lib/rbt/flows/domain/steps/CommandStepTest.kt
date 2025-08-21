@@ -33,7 +33,7 @@ import io.kotest.matchers.shouldBe
 class CommandStepTest :
     BehaviorSpec({
       given("a basic command step") {
-        val step = CommandStep("compile", "kickass")
+        val step = CommandStep("compile", "kickass").from("src/main.asm").to("build/main.prg")
 
         `when`("getting its properties") {
           then("it should have correct basic properties") {
@@ -47,6 +47,20 @@ class CommandStepTest :
           val errors = step.validate()
 
           then("it should be valid") { errors shouldHaveSize 0 }
+        }
+      }
+
+      given("a basic command step without inputs/outputs") {
+        val step = CommandStep("compile", "kickass")
+
+        `when`("validating the step") {
+          val errors = step.validate()
+
+          then("it should require inputs or outputs") {
+            errors shouldHaveSize 1
+            errors shouldContain
+                "Command step should declare either input files, output files, or both"
+          }
         }
       }
 
@@ -113,7 +127,7 @@ class CommandStepTest :
       }
 
       given("a command step with blank command") {
-        val step = CommandStep("invalid", "")
+        val step = CommandStep("invalid", "").from("input.txt")
 
         `when`("validating the step") {
           val errors = step.validate()
