@@ -100,6 +100,7 @@ class FlowTasksGenerator(
         is CommandStep -> {
           taskContainer.create(taskName, CommandTask::class.java) { task ->
             configureBaseTask(task, step, flow)
+            configureOutputFiles(task, step)
           }
         }
         // Handle new processor-specific step types
