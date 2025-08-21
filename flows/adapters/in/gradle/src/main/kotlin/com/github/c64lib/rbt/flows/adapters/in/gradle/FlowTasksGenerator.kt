@@ -95,50 +95,49 @@ class FlowTasksGenerator(
       taskName: String,
       step: FlowStep,
       flow: Flow
-  ): Task {
-    return when {
-      step is CommandStep -> {
-        taskContainer.create(taskName, CommandTask::class.java) { task ->
-          configureBaseTask(task, step, flow)
-        }
-      }
-      // Handle new processor-specific step types
-      step is CharpadStep -> {
-        taskContainer.create(taskName, CharpadTask::class.java) { task ->
-          configureBaseTask(task, step, flow)
-          configureOutputFiles(task, step)
-        }
-      }
-      step is SpritepadStep -> {
-        taskContainer.create(taskName, SpritepadTask::class.java) { task ->
-          configureBaseTask(task, step, flow)
-          configureOutputFiles(task, step)
-        }
-      }
-      step is GoattrackerStep -> {
-        taskContainer.create(taskName, GoattrackerTask::class.java) { task ->
-          configureBaseTask(task, step, flow)
-          configureOutputFiles(task, step)
-        }
-      }
-      step is AssembleStep -> {
-        taskContainer.create(taskName, AssembleTask::class.java) { task ->
-          configureBaseTask(task, step, flow)
-          configureOutputFiles(task, step)
-        }
-      }
-      step is ImageStep -> {
-        taskContainer.create(taskName, ImageTask::class.java) { task ->
-          configureBaseTask(task, step, flow)
-          configureOutputFiles(task, step)
-        }
-      }
-      else ->
-          taskContainer.create(taskName, BaseFlowStepTask::class.java) { task ->
+  ): Task =
+      when (step) {
+        is CommandStep -> {
+          taskContainer.create(taskName, CommandTask::class.java) { task ->
             configureBaseTask(task, step, flow)
           }
-    }
-  }
+        }
+        // Handle new processor-specific step types
+        is CharpadStep -> {
+          taskContainer.create(taskName, CharpadTask::class.java) { task ->
+            configureBaseTask(task, step, flow)
+            configureOutputFiles(task, step)
+          }
+        }
+        is SpritepadStep -> {
+          taskContainer.create(taskName, SpritepadTask::class.java) { task ->
+            configureBaseTask(task, step, flow)
+            configureOutputFiles(task, step)
+          }
+        }
+        is GoattrackerStep -> {
+          taskContainer.create(taskName, GoattrackerTask::class.java) { task ->
+            configureBaseTask(task, step, flow)
+            configureOutputFiles(task, step)
+          }
+        }
+        is AssembleStep -> {
+          taskContainer.create(taskName, AssembleTask::class.java) { task ->
+            configureBaseTask(task, step, flow)
+            configureOutputFiles(task, step)
+          }
+        }
+        is ImageStep -> {
+          taskContainer.create(taskName, ImageTask::class.java) { task ->
+            configureBaseTask(task, step, flow)
+            configureOutputFiles(task, step)
+          }
+        }
+        else ->
+            taskContainer.create(taskName, BaseFlowStepTask::class.java) { task ->
+              configureBaseTask(task, step, flow)
+            }
+      }
 
   private fun configureBaseTask(task: BaseFlowStepTask, step: FlowStep, flow: Flow) {
     task.group = "flows"
@@ -206,12 +205,12 @@ class FlowTasksGenerator(
   private fun configureOutputFiles(task: Any, step: FlowStep) {
     // Configure output files for tasks that have the outputFiles property
     when (task) {
-      is CharpadTask -> task.outputFiles.from(getStepOutputFiles(step))
-      is SpritepadTask -> task.outputFiles.from(getStepOutputFiles(step))
-      is AssembleTask -> task.outputFiles.from(getStepOutputFiles(step))
-      is GoattrackerTask -> task.outputFiles.from(getStepOutputFiles(step))
-      is ImageTask -> task.outputFiles.from(getStepOutputFiles(step))
-      is CommandTask -> task.outputFiles.from(getStepOutputFiles(step))
+      is CharpadTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
+      is SpritepadTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
+      is AssembleTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
+      is GoattrackerTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
+      is ImageTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
+      is CommandTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
     }
   }
 

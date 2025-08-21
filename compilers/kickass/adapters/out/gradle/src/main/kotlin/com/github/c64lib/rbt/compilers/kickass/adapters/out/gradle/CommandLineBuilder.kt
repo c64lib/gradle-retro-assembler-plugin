@@ -28,6 +28,7 @@ import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
 import com.github.c64lib.rbt.shared.domain.OutputFormat
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.name
 
 internal class CommandLineBuilder(private val settings: KickAssemblerSettings) {
 
@@ -72,7 +73,7 @@ internal class CommandLineBuilder(private val settings: KickAssemblerSettings) {
 
   fun outputFile(outputFile: Path?): CommandLineBuilder {
     if (outputFile != null) {
-      args.addAll(listOf("-o", outputFile.absolutePathString()))
+      args.addAll(listOf("-o", outputFile.name))
     }
     return this
   }
