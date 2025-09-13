@@ -44,7 +44,7 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 
 1. ❌ **~~Add dependency from flows to charpad processor~~** - ~~Modify flows/build.gradle.kts to include dependency on processors:charpad module to access ProcessCharpadUseCase and domain models~~ **CANCELLED**: Flows module cannot directly depend on processors/charpad
 
-2. **Create intermediate inbound adapter module** - Create flows/adapters/out/charpad module with its own build.gradle.kts that depends on both flows domain and processors:charpad, following the established pattern of other adapter modules
+2. ✅ **Create intermediate inbound adapter module** - Create flows/adapters/out/charpad module with its own build.gradle.kts that depends on both flows domain and processors:charpad, following the established pattern of other adapter modules
 
 3. **Create CharpadPort interface** - Define a domain port interface in flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/port/ following the AssemblyPort pattern for charpad processing operations
 
