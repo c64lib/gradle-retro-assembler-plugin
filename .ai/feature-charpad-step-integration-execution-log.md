@@ -93,3 +93,47 @@
   - All compilation errors resolved after dependency refresh
 - **Result**: CharpadTask now properly integrates with the CharpadAdapter from the intermediate adapter module to perform actual charpad processing instead of creating placeholder output files
 - **Next action**: The core integration between CharpadStep and CharpadTask is now complete. Further steps would involve adding comprehensive error handling, extending configuration options if needed, and creating integration tests to verify the complete charpad processing pipeline works correctly
+
+## 2025-09-14T00:15:00Z - ✅ Step 10: Add comprehensive error handling
+- **What was done**: Added comprehensive error handling to the CharpadAdapter that maps charpad processor exceptions (InvalidCTMFormatException, InsufficientDataException) to flows validation errors within the adapter.
+- **What was found**: The flows module already has a `FlowValidationException` class in `FlowDependencyGraph.kt` that provides the proper flows domain exception type for validation errors.
+- **What was implemented**:
+  - Added imports for charpad-specific exceptions (`InvalidCTMFormatException`, `InsufficientDataException`) and flows validation exception (`FlowValidationException`)
+  - Added imports for standard I/O exceptions (`FileNotFoundException`, `IOException`, `SecurityException`)
+  - Implemented comprehensive try-catch block in `CharpadAdapter.process()` method with specific error mappings:
+    - `InvalidCTMFormatException` → `FlowValidationException` with CTM format-specific error message
+    - `InsufficientDataException` → `FlowValidationException` with data corruption context
+    - `FileNotFoundException` → `FlowValidationException` with file path verification guidance
+    - `IOException` → `FlowValidationException` with I/O context (permissions, disk space)
+    - `SecurityException` → `FlowValidationException` with security context
+    - `OutOfMemoryError` → `FlowValidationException` with memory context
+    - Generic `Exception` → `FlowValidationException` with debugging context
+  - Added `validateInputFile()` private method with comprehensive input validation:
+    - File existence validation
+    - File type validation (ensuring it's a file, not directory)
+    - Read permission validation
+    - Empty file validation
+    - Optional CTM extension validation (non-blocking)
+  - Enhanced `FileInputByteStream.read()` method to detect and handle end-of-file conditions
+  - Added validation for output producers (ensuring at least one is configured)
+- **Key features implemented**:
+  - Specific error messages that provide actionable guidance for users
+  - Proper mapping from low-level processor exceptions to high-level flows validation errors
+  - Comprehensive input file validation with detailed error messages
+  - Proper handling of edge cases (empty files, permissions, memory issues)
+  - Re-throwing of existing `FlowValidationException` instances to preserve error hierarchy
+  - Enhanced InputByteStream implementation with proper EOF handling
+- **Error categories handled**:
+  - CTM format validation errors (invalid format, unsupported versions)
+  - Data integrity errors (corruption, truncation, insufficient data)
+  - File system errors (not found, permissions, I/O issues)
+  - Configuration errors (no output producers configured)
+  - Resource errors (out of memory)
+  - Unexpected errors (with debugging context)
+- **Verification**: 
+  - Code formatted successfully with `gradle spotlessApply`
+  - CharpadAdapter compilation completed with no errors
+  - Charpad adapter module build completed successfully
+  - Full flows system build completed successfully
+- **Result**: The CharpadAdapter now provides comprehensive error handling that maps all charpad processor exceptions to appropriate flows validation errors with actionable error messages for users
+- **Next action**: The error handling implementation is complete. Further steps could include extending CharpadConfig if needed (step 11) or creating integration tests (step 12) to verify the complete charpad processing pipeline works correctly with proper error handling

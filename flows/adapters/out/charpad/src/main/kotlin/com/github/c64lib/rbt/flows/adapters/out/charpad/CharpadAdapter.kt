@@ -24,11 +24,16 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.out.charpad
 
+import com.github.c64lib.rbt.flows.domain.FlowValidationException
 import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
 import com.github.c64lib.rbt.flows.domain.port.CharpadPort
+import com.github.c64lib.rbt.processors.charpad.domain.InsufficientDataException
+import com.github.c64lib.rbt.processors.charpad.domain.InvalidCTMFormatException
 import com.github.c64lib.rbt.processors.charpad.usecase.ProcessCharpadUseCase
 import com.github.c64lib.rbt.shared.processor.InputByteStream
 import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.IOException
 import java.io.InputStream
 
 /**
@@ -44,8 +49,19 @@ class CharpadAdapter(
 
   override fun process(command: CharpadCommand) {
     try {
+      // Validate input file exists and is readable
+      validateInputFile(command.inputFile)
+
       // Create output producers based on command configuration and output files
       val outputProducers = outputProducerFactory.createOutputProducers(command)
+
+      // Validate that at least one output producer was created
+      if (outputProducers.isEmpty()) {
+        throw FlowValidationException(
+            "No output producers configured for charpad processing. " +
+                "At least one output file must be specified with a recognized type " +
+                "(charset, map, tiles, header, etc.)")
+      }
 
       // Create ProcessCharpadUseCase with output producers and ctm8 compatibility flag
       val processCharpadUseCase =
@@ -58,8 +74,82 @@ class CharpadAdapter(
 
       // Execute charpad processing
       processCharpadUseCase.apply(inputStream)
+    } catch (e: FlowValidationException) {
+      // Re-throw flows validation exceptions as-is
+      throw e
+    } catch (e: InvalidCTMFormatException) {
+      // Map charpad-specific CTM format errors to flows validation errors
+      throw FlowValidationException(
+          "Invalid CTM file format in '${command.inputFile.name}': ${e.message}. " +
+              "Ensure the file is a valid Charpad CTM file (versions 5-9 supported).")
+    } catch (e: InsufficientDataException) {
+      // Map charpad-specific data errors to flows validation errors
+      throw FlowValidationException(
+          "Insufficient data in CTM file '${command.inputFile.name}': ${e.message}. " +
+              "The CTM file appears to be corrupted or truncated.")
+    } catch (e: FileNotFoundException) {
+      // Map file not found errors to flows validation errors
+      throw FlowValidationException(
+          "CTM input file not found: '${command.inputFile.absolutePath}'. " +
+              "Verify the file path is correct and the file exists.")
+    } catch (e: IOException) {
+      // Map I/O errors to flows validation errors with context
+      throw FlowValidationException(
+          "I/O error while processing CTM file '${command.inputFile.name}': ${e.message}. " +
+              "Check file permissions and disk space.")
+    } catch (e: SecurityException) {
+      // Map security errors to flows validation errors
+      throw FlowValidationException(
+          "Security error accessing CTM file '${command.inputFile.name}': ${e.message}. " +
+              "Check file permissions.")
+    } catch (e: OutOfMemoryError) {
+      // Map memory errors to flows validation errors
+      throw FlowValidationException(
+          "Out of memory while processing CTM file '${command.inputFile.name}'. " +
+              "The CTM file may be too large or corrupted.")
     } catch (e: Exception) {
-      throw RuntimeException("Failed to process charpad file: ${command.inputFile.name}", e)
+      // Map any other unexpected errors to generic flows validation errors
+      throw FlowValidationException(
+          "Unexpected error while processing CTM file '${command.inputFile.name}': ${e.message}. " +
+              "This may indicate a bug in the charpad processor or an unsupported CTM format.")
+    }
+  }
+
+  /**
+   * Validates that the input CTM file exists and is readable.
+   *
+   * @param inputFile The input CTM file to validate
+   * @throws FlowValidationException if the file is invalid
+   */
+  private fun validateInputFile(inputFile: java.io.File) {
+    if (!inputFile.exists()) {
+      throw FlowValidationException(
+          "CTM input file does not exist: '${inputFile.absolutePath}'. " +
+              "Verify the file path is correct.")
+    }
+
+    if (!inputFile.isFile()) {
+      throw FlowValidationException(
+          "CTM input path is not a file: '${inputFile.absolutePath}'. " +
+              "Ensure the path points to a valid CTM file.")
+    }
+
+    if (!inputFile.canRead()) {
+      throw FlowValidationException(
+          "Cannot read CTM input file: '${inputFile.absolutePath}'. " + "Check file permissions.")
+    }
+
+    if (inputFile.length() == 0L) {
+      throw FlowValidationException(
+          "CTM input file is empty: '${inputFile.absolutePath}'. " +
+              "Ensure the CTM file contains valid charpad data.")
+    }
+
+    // Validate CTM file extension (optional but helpful)
+    if (!inputFile.name.endsWith(".ctm", ignoreCase = true)) {
+      // This is a warning, not an error - users should be able to use any file name
+      // But we can log this as a potential issue
+      // For now, we'll allow it to proceed
     }
   }
 
@@ -70,6 +160,9 @@ class CharpadAdapter(
     override fun read(amount: Int): ByteArray {
       val buffer = ByteArray(amount)
       val size = inputStream.read(buffer)
+      if (size == -1) {
+        throw InsufficientDataException("Unexpected end of file reached while reading CTM data")
+      }
       readCounter += size
       return buffer.copyOfRange(0, size)
     }
