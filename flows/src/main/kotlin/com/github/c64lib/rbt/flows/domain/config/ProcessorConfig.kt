@@ -49,12 +49,12 @@ data class CharpadConfig(
     val generateMap: Boolean = true,
     val generateCharset: Boolean = true,
     val ctm8PrototypeCompatibility: Boolean = false,
-    // Metadata configuration options
+    // Metadata configuration options - aligned with original processor defaults
     val namespace: String = "",
     val prefix: String = "",
     val includeVersion: Boolean = false,
-    val includeBgColours: Boolean = false,
-    val includeCharColours: Boolean = false,
+    val includeBgColours: Boolean = true, // Align with original processor default
+    val includeCharColours: Boolean = true, // Align with original processor default
     val includeMode: Boolean = false
 )
 
