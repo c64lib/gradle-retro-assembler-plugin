@@ -25,3 +25,7 @@
 /exec step 3
 
 /plan-update in step 4, class should be named CharpadAdapter, not CharpadPortAdapter (worked but also started to execute the plan)
+
+steps 5-7 were implemented together as part of step 4
+
+/exec step 8
