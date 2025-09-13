@@ -33,3 +33,7 @@ steps 5-7 were implemented together as part of step 4
 /exec step 9
 
 /exec step 10
+
+/exec step 11
+
+/exec step 12 (two test failures that were fixed by manually running the tests, and pasting errors into the agent, asking for a fix)

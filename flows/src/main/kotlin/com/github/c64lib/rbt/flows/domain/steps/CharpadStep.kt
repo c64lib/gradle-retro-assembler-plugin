@@ -115,23 +115,29 @@ class CharpadStep(
             File(projectRootDir, outputPath)
           }
 
-      // Determine output type based on file extension or position
+      // Determine output type based on file extension or name pattern
       val outputKey =
           when {
             outputPath.contains("charset", ignoreCase = true) ||
                 outputPath.endsWith(".chr", ignoreCase = true) -> "charset"
-            outputPath.contains("map", ignoreCase = true) ||
+            outputPath.contains("tilemap", ignoreCase = true) ||
+                outputPath.contains("map", ignoreCase = true) ||
                 outputPath.endsWith(".map", ignoreCase = true) -> "map"
             outputPath.contains("tiles", ignoreCase = true) ||
                 outputPath.endsWith(".tiles", ignoreCase = true) -> "tiles"
+            // Header files (.h) get priority over metadata files (.inc)
             outputPath.contains("header", ignoreCase = true) ||
-                outputPath.contains("metadata", ignoreCase = true) ||
-                outputPath.endsWith(".h", ignoreCase = true) ||
-                outputPath.endsWith(".inc", ignoreCase = true) -> "header"
-            outputPath.contains("attributes", ignoreCase = true) -> "charattributes"
-            outputPath.contains("colours", ignoreCase = true) -> "charcolours"
-            outputPath.contains("materials", ignoreCase = true) -> "charmaterials"
-            outputPath.contains("screen", ignoreCase = true) -> "charscreencolours"
+                outputPath.endsWith(".h", ignoreCase = true) -> "header"
+            outputPath.contains("metadata", ignoreCase = true) ||
+                outputPath.endsWith(".inc", ignoreCase = true) -> "metadata"
+            outputPath.contains("char_attributes", ignoreCase = true) ||
+                outputPath.contains("attributes", ignoreCase = true) -> "charattributes"
+            outputPath.contains("char_colours", ignoreCase = true) ||
+                outputPath.contains("colours", ignoreCase = true) -> "charcolours"
+            outputPath.contains("char_materials", ignoreCase = true) ||
+                outputPath.contains("materials", ignoreCase = true) -> "charmaterials"
+            outputPath.contains("screen_colors", ignoreCase = true) ||
+                outputPath.contains("screen", ignoreCase = true) -> "charscreencolours"
             else -> "output$index" // Fallback to indexed naming
           }
 
