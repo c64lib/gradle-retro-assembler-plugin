@@ -9,4 +9,5 @@ dependencies {
   implementation(project(":shared:gradle"))
   implementation(project(":shared:domain"))
   implementation(project(":compilers:kickass"))
+  implementation(project(":flows:adapters:out:charpad"))
 }
