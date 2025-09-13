@@ -34,7 +34,7 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 
 ### Question for others
 1. ~~Should the flows module directly depend on the processors/charpad module, or should there be an intermediate adapter?~~ **RESOLVED**: Yes, there should be an adapter following the same pattern as compilers integration (KickAssemblerPortAdapter)
-2. Are there any specific output file naming conventions that should be enforced by the flows integration?
+2. ~~Are there any specific output file naming conventions that should be enforced by the flows integration?~~ **RESOLVED**: No, there are no specific conventions; users should be able to provide any name for an output file
 3. Should the integration support all the existing output producers or only a subset for the flows use case?
 4. How should metadata outputs be handled in the flows context (namespace, prefixes, etc.)?
 
@@ -48,7 +48,7 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 
 4. **Create output producer factory** - Implement a factory class within the adapter that converts CharpadConfig to appropriate collection of OutputProducer instances based on configuration flags
 
-5. **Implement file I/O adapters** - Create adapters within the port adapter to convert flows file paths to InputByteStream and handle various output types (binary, text) to files
+5. **Implement file I/O adapters** - Create adapters within the port adapter to convert flows file paths to InputByteStream and handle various output types (binary, text) to files. Ensure users can specify any output file names without enforcing specific naming conventions
 
 6. **Update CharpadStep.execute() method** - Replace placeholder implementation with calls to the CharpadPort interface for actual charpad processing
 
@@ -73,4 +73,5 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 - Special attention needed for CTM8 prototype compatibility flag that may need to be exposed in CharpadConfig
 - The established adapter pattern uses port interfaces in the domain layer with concrete adapters in the adapter layer, maintaining hexagonal architecture boundaries
 - Both CharpadStep (domain) and CharpadTask (gradle adapter) need to be updated to use the new port adapter
+- Users should have complete flexibility in naming output files - no specific naming conventions should be enforced by the flows integration
 - Consider whether the flows integration should support the full Gradle task capabilities or focus on core processing functionality
