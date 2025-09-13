@@ -48,7 +48,7 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 
 3. ✅ **Create CharpadPort interface** - Define a domain port interface in flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/port/ following the AssemblyPort pattern for charpad processing operations
 
-4. **Create CharpadPortAdapter** - Implement adapter in flows/adapters/out/charpad/.../CharpadPortAdapter.kt that bridges flows domain to charpad processor module, similar to KickAssemblerPortAdapter pattern
+4. **Create CharpadAdapter** - Implement adapter in flows/adapters/out/charpad/.../CharpadAdapter.kt that bridges flows domain to charpad processor module, similar to KickAssemblerPortAdapter pattern
 
 5. **Create comprehensive output producer factory** - Implement a factory class within the adapter that converts CharpadConfig to the complete collection of OutputProducer instances, supporting all existing producers: CharsetProducer, MapProducer, TileProducer, CharAttributesProducer, CharColoursProducer, CharMaterialsProducer, CharScreenColoursProducer, TileTagsProducer, TileColoursProducer, TileScreenColoursProducer, and HeaderProducer
 
@@ -58,7 +58,7 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 
 8. **Update CharpadStep.execute() method** - Replace placeholder implementation with calls to the CharpadPort interface for actual charpad processing
 
-9. **Update CharpadTask.executeStepLogic() method** - Replace placeholder implementation in the Gradle task adapter to use the new CharpadPortAdapter from the intermediate adapter module
+9. **Update CharpadTask.executeStepLogic() method** - Replace placeholder implementation in the Gradle task adapter to use the new CharpadAdapter from the intermediate adapter module
 
 10. **Add comprehensive error handling** - Map charpad processor exceptions (InvalidCTMFormatException, InsufficientDataException) to flows validation errors within the adapter
 
