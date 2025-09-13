@@ -8,4 +8,5 @@ dependencies {
   implementation(project(":flows"))
   implementation(project(":processors:charpad"))
   implementation(project(":shared:domain"))
+  implementation(project(":shared:processor"))
 }
