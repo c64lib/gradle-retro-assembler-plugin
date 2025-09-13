@@ -35,7 +35,7 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 ### Question for others
 1. ~~Should the flows module directly depend on the processors/charpad module, or should there be an intermediate adapter?~~ **RESOLVED**: Yes, there should be an adapter following the same pattern as compilers integration (KickAssemblerPortAdapter)
 2. ~~Are there any specific output file naming conventions that should be enforced by the flows integration?~~ **RESOLVED**: No, there are no specific conventions; users should be able to provide any name for an output file
-3. Should the integration support all the existing output producers or only a subset for the flows use case?
+3. ~~Should the integration support all the existing output producers or only a subset for the flows use case?~~ **RESOLVED**: Yes, all existing output producers should be supported to retain full capabilities
 4. How should metadata outputs be handled in the flows context (namespace, prefixes, etc.)?
 
 ## Next Steps
@@ -46,7 +46,7 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 
 3. **Create CharpadPortAdapter** - Implement adapter in flows/adapters/in/gradle/.../CharpadPortAdapter.kt that bridges flows domain to charpad processor module, similar to KickAssemblerPortAdapter pattern
 
-4. **Create output producer factory** - Implement a factory class within the adapter that converts CharpadConfig to appropriate collection of OutputProducer instances based on configuration flags
+4. **Create comprehensive output producer factory** - Implement a factory class within the adapter that converts CharpadConfig to the complete collection of OutputProducer instances, supporting all existing producers: CharsetProducer, MapProducer, TileProducer, CharAttributesProducer, CharColoursProducer, CharMaterialsProducer, CharScreenColoursProducer, TileTagsProducer, TileColoursProducer, TileScreenColoursProducer, and HeaderProducer
 
 5. **Implement file I/O adapters** - Create adapters within the port adapter to convert flows file paths to InputByteStream and handle various output types (binary, text) to files. Ensure users can specify any output file names without enforcing specific naming conventions
 
@@ -56,22 +56,22 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 
 8. **Add comprehensive error handling** - Map charpad processor exceptions (InvalidCTMFormatException, InsufficientDataException) to flows validation errors within the adapter
 
-9. **Extend CharpadConfig if needed** - Compare flows CharpadConfig with all capabilities in the original processor and add missing options like ctm8PrototypeCompatibility
+9. **Extend CharpadConfig if needed** - Compare flows CharpadConfig with all capabilities in the original processor and add missing options like ctm8PrototypeCompatibility to support all output producers
 
-10. **Create integration tests** - Add tests that verify the CharpadStep and CharpadTask produce identical outputs to the original charpad processor for various CTM file formats
+10. **Create integration tests** - Add tests that verify the CharpadStep and CharpadTask produce identical outputs to the original charpad processor for various CTM file formats, testing all supported output producers
 
-11. **Update documentation** - Modify flows documentation to include charpad step usage examples and configuration options
+11. **Update documentation** - Modify flows documentation to include charpad step usage examples and configuration options, emphasizing support for all output types
 
 12. **Validate against existing charpad tests** - Run existing charpad processor tests to ensure no regression in core functionality
 
-13. **Add flows-specific charpad tests** - Create tests for the CharpadStep integration including validation, configuration mapping, and file I/O scenarios
+13. **Add flows-specific charpad tests** - Create tests for the CharpadStep integration including validation, configuration mapping, and file I/O scenarios for all output producer types
 
 ## Additional Notes
 - The charpad processor supports CTM versions 5, 6, 7, 8, 82, and 9 with different processing logic for each
-- Multiple output producers exist: charset, char attributes/colours/materials, tiles, tile tags/colours, map, and header producers
+- All existing output producers must be supported: charset, char attributes/colours/materials/screen colours, tiles, tile tags/colours/screen colours, map, and header producers
 - The original implementation includes sophisticated metadata handling with namespace support and optional inclusion flags
 - Special attention needed for CTM8 prototype compatibility flag that may need to be exposed in CharpadConfig
 - The established adapter pattern uses port interfaces in the domain layer with concrete adapters in the adapter layer, maintaining hexagonal architecture boundaries
 - Both CharpadStep (domain) and CharpadTask (gradle adapter) need to be updated to use the new port adapter
 - Users should have complete flexibility in naming output files - no specific naming conventions should be enforced by the flows integration
-- Consider whether the flows integration should support the full Gradle task capabilities or focus on core processing functionality
+- The integration must retain full compatibility with all existing charpad processor capabilities to ensure no functionality is lost in the flows-based implementation
