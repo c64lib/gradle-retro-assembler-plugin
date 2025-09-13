@@ -19,3 +19,5 @@ With information provided above, perform the following steps:
 2. Check if any of the questions for others hasn't been answered by acceptance criteria and mark it accordingly if so.
 3. If any new questions for others arise from the <issue_update> information, add them to the list of questions for others.
 4. If at any point you see that relevant code parts section needs to be updated, update it accordingly.
+
+Do not attempt to exectue any steps of this plan.
