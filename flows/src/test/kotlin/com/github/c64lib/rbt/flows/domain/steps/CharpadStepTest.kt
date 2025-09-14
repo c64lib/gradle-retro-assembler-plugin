@@ -399,29 +399,19 @@ class CharpadStepTest :
 
       Given("CharpadStep integration with real CharpadAdapter") {
         val tempDir = Files.createTempDirectory("charpad-integration-test").toFile()
-        val ctmFile = File(tempDir, "test.ctm")
-        val charsetFile = File(tempDir, "build/charset.chr")
-        val mapFile = File(tempDir, "build/map.bin")
-        val headerFile = File(tempDir, "build/header.h")
 
         // Create output directory
         File(tempDir, "build").mkdirs()
 
-        // Create a simple CTM file with minimal valid content for testing
-        // This is a simplified CTM v5 format for testing purposes
-        val ctmContent =
-            "CTM".toByteArray() +
-                byteArrayOf(5) + // Version
-                ByteArray(4) + // Background colors
-                byteArrayOf(1) + // Char color
-                byteArrayOf(0) + // Coloring method
-                byteArrayOf(0) + // Screen mode
-                byteArrayOf(40, 0) + // Map width (little endian)
-                byteArrayOf(25, 0) + // Map height (little endian)
-                ByteArray(256 * 8) + // Charset data (256 chars * 8 bytes)
-                ByteArray(40 * 25) // Map data
+        // Copy real CTM file from test resources to temp directory
+        val ctmFile = File(tempDir, "test.ctm")
+        val ctmResourceStream =
+            this.javaClass.getResourceAsStream("/test-integration.ctm")
+                ?: throw IllegalStateException("CTM test resource file not found")
 
-        ctmFile.writeBytes(ctmContent)
+        ctmResourceStream.use { input ->
+          ctmFile.outputStream().use { output -> input.copyTo(output) }
+        }
 
         val config =
             CharpadConfig(

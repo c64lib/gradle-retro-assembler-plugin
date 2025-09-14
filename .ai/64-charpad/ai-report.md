@@ -49,3 +49,20 @@ fix it
 java.lang.RuntimeException: Charpad processing failed for step 'integrationTest': Insufficient data in CTM file 'test.ctm': Unexpected end of file reached while reading CTM data. The CTM file appears to be corrupted or truncated. at com.github.c64lib.rbt.flows.domain.steps.CharpadStep.execute(CharpadStep.kt:96) at com.github.c64lib.rbt.flows.domain.steps.CharpadStepTest<span>1</span>9<span>1.invokeSuspend(CharpadStepTest.kt:447) at com.github.c64lib.rbt.flows.domain.steps.CharpadStepTest</span>1<span>9</span>1.invoke(CharpadStepTest.kt) at com.github.c64lib.rbt.flows.domain.steps.CharpadStepTest<span>1</span>9$1.invoke(CharpadStepTest.kt)
 If a real CTM file is needed, let human generate it manually via appropriate editor and plug it into the test as a resource, similarily as it is done in processors/charpad tests
 
+> > Task :flows:adapters:out:charpad:compileTestKotlin FAILED
+e: C:\prj\cbm\gradle-retro-assembler-plugin\flows\adapters\out\charpad\src\test\kotlin\com\github\c64lib\rbt\flows\adapters\out\charpad\CharpadAdapterTest.kt: (203, 81): Unresolved reference. None of the following candidates is applicable because of receiver type mismatch:
+public fun <T : Comparable<TypeVariable(T)>> Array<out TypeVariable(T)>.sorted(): List<TypeVariable(T)> defined in kotlin.collections
+public fun ByteArray.sorted(): List<Byte> defined in kotlin.collections
+public fun CharArray.sorted(): List<Char> defined in kotlin.collections
+public fun DoubleArray.sorted(): List<Double> defined in kotlin.collections
+public fun FloatArray.sorted(): List<Float> defined in kotlin.collections
+public fun IntArray.sorted(): List<Int> defined in kotlin.collections
+public fun LongArray.sorted(): List<Long> defined in kotlin.collections
+public fun ShortArray.sorted(): List<Short> defined in kotlin.collections
+public fun UByteArray.sorted(): List<UByte> defined in kotlin.collections
+public fun UIntArray.sorted(): List<UInt> defined in kotlin.collections
+public fun ULongArray.sorted(): List<ULong> defined in kotlin.collections
+public fun UShortArray.sorted(): List<UShort> defined in kotlin.collections
+public fun <T : Comparable<TypeVariable(T)>> Iterable<TypeVariable(T)>.sorted(): List<TypeVariable(T)> defined in kotlin.collections
+public fun <T : Comparable<TypeVariable(T)>> Sequence<TypeVariable(T)>.sorted(): Sequence<TypeVariable(T)> defined in kotlin.sequences
+

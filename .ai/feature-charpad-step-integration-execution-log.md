@@ -136,4 +136,55 @@
   - Charpad adapter module build completed successfully
   - Full flows system build completed successfully
 - **Result**: The CharpadAdapter now provides comprehensive error handling that maps all charpad processor exceptions to appropriate flows validation errors with actionable error messages for users
-- **Next action**: The error handling implementation is complete. Further steps could include extending CharpadConfig if needed (step 11) or creating integration tests (step 12) to verify the complete charpad processing pipeline works correctly with proper error handling
+- **Next action**: The error handling implementation is complete. Further steps could include extending CharpadConfig if needed (step 11) or creating integration tests (step 12) to verify the complete charpad processing pipeline works correctly
+
+# Feature Charpad Step Integration - Execution Log
+
+## Step 12.1: Fix integration test CTM file issue
+**Timestamp**: 2025-09-14 (execution start)
+
+**Objective**: Replace the synthetic CTM file creation in the integration test with a real CTM file resource to fix the "Insufficient data in CTM file" error.
+
+**Current Issue**: The test creates a minimal synthetic CTM file that doesn't contain sufficient data for the charpad processor, causing the error:
+```
+java.lang.RuntimeException: Charpad processing failed for step 'integrationTest': Insufficient data in CTM file 'test.ctm': Unexpected end of file reached while reading CTM data. The CTM file appears to be corrupted or truncated.
+```
+
+**Plan**:
+1. Copy one of the existing CTM files from `processors/charpad/src/test/resources/` to `flows/src/test/resources/`
+2. Update the integration test to load the CTM file using `javaClass.getResourceAsStream()`
+3. Remove the synthetic CTM file creation code and replace with resource loading
+
+## Execution Steps Completed:
+
+### ✅ Step 1: Create test resources directory
+- Created `flows/src/test/resources/` directory
+
+### ✅ Step 2: Copy real CTM file
+- Copied `processors/charpad/src/test/resources/text-hires/text-hi-per-char-notiles-ctm5.ctm` to `flows/src/test/resources/test-integration.ctm`
+- This provides a properly formatted CTM v5 file with sufficient data for the charpad processor
+
+### ✅ Step 3: Update integration test
+- Modified CharpadStepTest.kt integration test to load CTM file from resources using `javaClass.getResourceAsStream()`
+- Removed synthetic CTM file creation code
+- Added proper resource loading with error handling for missing resource file
+
+### ✅ Step 4: Fix compilation error
+- Fixed compilation error in CharpadAdapterTest.kt where `.sorted()` was called on `List<String?>` (nullable strings)
+- Changed `producers.map { it::class.simpleName }.toList().sorted()` to `producers.map { it::class.simpleName }.filterNotNull().sorted()`
+- This filters out null values and converts to non-nullable strings before sorting
+
+### ✅ Step 5: Apply code formatting and verify build
+- Applied spotless formatting to ensure code style compliance
+- Successfully compiled the entire project with `gradle build`
+
+## Result: ✅ SUCCESS
+- The integration test CTM file issue has been resolved
+- Real CTM file is now used instead of synthetic minimal data
+- All compilation errors have been fixed
+- The build completes successfully without errors
+
+## Impact:
+- CharpadStep integration test now uses a properly formatted CTM file with sufficient data
+- The test should no longer fail with "Insufficient data in CTM file" error
+- Integration test can now properly exercise the CharpadAdapter with real charpad processor functionality

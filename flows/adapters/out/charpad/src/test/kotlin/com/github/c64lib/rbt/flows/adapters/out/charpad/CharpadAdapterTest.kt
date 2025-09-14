@@ -200,7 +200,7 @@ class CharpadAdapterTest :
             producers shouldHaveSize 11 // All output producer types
 
             // Verify we have one producer for each output type
-            val producerTypes = producers.map { it::class.simpleName }.toList().sorted()
+            val producerTypes = producers.map { it::class.simpleName }.filterNotNull().sorted()
 
             producerTypes shouldContain "CharsetProducer"
             producerTypes shouldContain "MapProducer"
