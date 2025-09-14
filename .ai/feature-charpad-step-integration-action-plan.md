@@ -75,17 +75,17 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 
 12. ✅ **Create integration tests** - Add tests that verify the CharpadStep and CharpadTask produce identical outputs to the original charpad processor for various CTM file formats, testing all supported output producers including metadata outputs
 
-12.1. **🔧 Fix integration test CTM file issue** - The current integration test creates a synthetic CTM file with insufficient data, causing "Insufficient data in CTM file" error. Replace the synthetic CTM file creation with a real CTM file resource:
-   - Copy one of the existing CTM files from `processors/charpad/src/test/resources/` (e.g., `text-hires/text-hi-per-char-notiles-ctm5.ctm`) to `flows/src/test/resources/`
-   - Update the integration test to load the CTM file using `javaClass.getResourceAsStream()` similar to how charpad processor tests work
-   - Remove the synthetic CTM file creation code and replace with resource loading
-   - This will provide a properly formatted CTM file with sufficient data for the charpad processor to work with
+13. **🔧 Fix integration test CTM file issue** - The current integration test creates a synthetic CTM file with insufficient data, causing "Insufficient data in CTM file" error. Replace the synthetic CTM file creation with a real CTM file resource:
+    * Copy one of the existing CTM files from `processors/charpad/src/test/resources/` (e.g., `text-hires/text-hi-per-char-notiles-ctm5.ctm`) to `flows/src/test/resources/`
+    * Update the integration test to load the CTM file using `javaClass.getResourceAsStream()` similar to how charpad processor tests work
+    * Remove the synthetic CTM file creation code and replace with resource loading
+    * This will provide a properly formatted CTM file with sufficient data for the charpad processor to work with
 
-13. **Update documentation** - Modify flows documentation to include charpad step usage examples and configuration options, emphasizing support for all output types including explicit metadata configuration parameters
+14. **Update documentation** - Modify flows documentation to include charpad step usage examples and configuration options, emphasizing support for all output types including explicit metadata configuration parameters
 
-14. **Validate against existing charpad tests** - Run existing charpad processor tests to ensure no regression in core functionality
+15. **Validate against existing charpad tests** - Run existing charpad processor tests to ensure no regression in core functionality
 
-15. **Add flows-specific charpad tests** - Create tests for the CharpadStep integration including validation, configuration mapping, and file I/O scenarios for all output producer types, with specific tests for metadata output configuration
+16. **Add flows-specific charpad tests** - Create tests for the CharpadStep integration including validation, configuration mapping, and file I/O scenarios for all output producer types, with specific tests for metadata output configuration
 
 ## Additional Notes
 - The charpad processor supports CTM versions 5, 6, 7, 8, 82, and 9 with different processing logic for each
