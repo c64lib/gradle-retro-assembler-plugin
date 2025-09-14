@@ -37,3 +37,15 @@ steps 5-7 were implemented together as part of step 4
 /exec step 11
 
 /exec step 12 (two test failures that were fixed by manually running the tests, and pasting errors into the agent, asking for a fix)
+
+> There is a test failure: Expected :"header.h" Actual :"metadata.inc" <click></click> org.opentest4j.AssertionFailedError: expected:<"header.h"> but was:<"metadata.inc"> at com.github.c64lib.rbt.flows.domain.steps.CharpadStepTest<span>1</span>6<span>1</span>1.invokeSuspend(CharpadStepTest.kt:301) at com.github.c64lib.rbt.flows.domain.steps.CharpadStepTest<span>1</span>6<span>1</span>1.invoke(CharpadStepTest.kt) at com.github.c64lib.rbt.flows.domain.steps.CharpadStepTest<span>1</span>6<span>1</span>1.invoke(CharpadStepTest.kt) fix it
+
+> there is another test failure:
+Expected :1733631364 Actual :-1070626948 <click></click>
+org.opentest4j.AssertionFailedError: expected:<1733631364> but was:<-1070626948> at com.github.c64lib.rbt.flows.domain.steps.CharpadStepTest<span>1</span>10<span>2</span>1.invokeSuspend(CharpadStepTest.kt:501) at com.github.c64lib.rbt.flows.domain.steps.CharpadStepTest<span>1</span>10<span>2</span>1.invoke(CharpadStepTest.kt) at com.github.c64lib.rbt.flows.domain.steps.CharpadStepTest<span>1</span>10<span>2</span>1.invoke(CharpadStepTest.kt)
+fix it
+
+/plan-update there is still error in the test, denoted by:
+java.lang.RuntimeException: Charpad processing failed for step 'integrationTest': Insufficient data in CTM file 'test.ctm': Unexpected end of file reached while reading CTM data. The CTM file appears to be corrupted or truncated. at com.github.c64lib.rbt.flows.domain.steps.CharpadStep.execute(CharpadStep.kt:96) at com.github.c64lib.rbt.flows.domain.steps.CharpadStepTest<span>1</span>9<span>1.invokeSuspend(CharpadStepTest.kt:447) at com.github.c64lib.rbt.flows.domain.steps.CharpadStepTest</span>1<span>9</span>1.invoke(CharpadStepTest.kt) at com.github.c64lib.rbt.flows.domain.steps.CharpadStepTest<span>1</span>9$1.invoke(CharpadStepTest.kt)
+If a real CTM file is needed, let human generate it manually via appropriate editor and plug it into the test as a resource, similarily as it is done in processors/charpad tests
+
