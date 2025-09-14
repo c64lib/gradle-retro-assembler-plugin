@@ -389,7 +389,7 @@ class CharpadAdapterTest :
           val exception2 = shouldThrow<FlowValidationException> { adapter.process(command2) }
 
           Then("it should handle insufficient data errors") {
-            exception2.message shouldContain "Invalid CTM file format"
+            exception2.message shouldContain "Insufficient data in CTM file"
           }
         }
 

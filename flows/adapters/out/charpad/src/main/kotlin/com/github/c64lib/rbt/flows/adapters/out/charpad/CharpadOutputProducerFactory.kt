@@ -109,10 +109,63 @@ class CharpadOutputProducerFactory {
         "metadata" -> {
           producers.add(HeaderProducer(output = createHeaderOutput(outputFile, command)))
         }
+        else -> {
+          // Fall back to file extension detection for unknown output keys
+          val producer = detectProducerFromFileExtension(outputFile, command)
+          if (producer != null) {
+            producers.add(producer)
+          }
+        }
       }
     }
 
     return producers
+  }
+
+  /**
+   * Detects output producer type from file extension when output key doesn't match predefined
+   * types.
+   */
+  private fun detectProducerFromFileExtension(
+      outputFile: File,
+      command: CharpadCommand
+  ): OutputProducer<*>? {
+    val extension = outputFile.extension.lowercase()
+    val fileName = outputFile.nameWithoutExtension.lowercase()
+
+    return when {
+      extension == "chr" || fileName.contains("charset") -> {
+        if (command.config.generateCharset) {
+          CharsetProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile))
+        } else null
+      }
+      extension == "map" || fileName.contains("map") -> {
+        if (command.config.generateMap) {
+          MapProducer(
+              leftTop = MapCoord(0, 0),
+              rightBottom = MapCoord(39, 24), // Default C64 screen size
+              output = createBinaryOutput(outputFile))
+        } else null
+      }
+      extension == "tiles" || fileName.contains("tiles") -> {
+        TileProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile))
+      }
+      extension in listOf("h", "inc") ||
+          fileName.contains("header") ||
+          fileName.contains("metadata") -> {
+        HeaderProducer(output = createHeaderOutput(outputFile, command))
+      }
+      fileName.contains("attributes") -> {
+        CharAttributesProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile))
+      }
+      fileName.contains("colours") || fileName.contains("colors") -> {
+        CharColoursProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile))
+      }
+      fileName.contains("materials") -> {
+        CharMaterialsProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile))
+      }
+      else -> null // Unknown file type, skip
+    }
   }
 
   private fun createBinaryOutput(outputFile: File): Output<ByteArray> {
