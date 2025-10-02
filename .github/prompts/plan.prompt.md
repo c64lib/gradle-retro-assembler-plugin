@@ -9,7 +9,7 @@ First, review the following information:
 
 <issue_description>
 
-${input:IssueDescription}
+${input:task}
 
 </issue_description>
 
@@ -53,6 +53,6 @@ After completing your analysis, create a Markdown document with the following st
 [Any other relevant information or considerations]
 ```
 
-Ensure that your action plan is comprehensive, follows a step-by-step approach, and is presented in an easy-to-read Markdown format. The final document should be named `.ai/feature-${input:IssueName}-action-plan.md`.
+Ensure that your action plan is comprehensive, follows a step-by-step approach, and is presented in an easy-to-read Markdown format. The final document should be named `.ai/feature-${input:name}-action-plan.md`.
 Your final output should consist only of the Markdown document and should not duplicate or rehash any of the work you did in the action_plan_development thinking block. 
 Do not attempt to execute any steps of this plan.
