@@ -134,7 +134,8 @@ class CharpadStepTest :
             CharpadStep(
                 name = "testCharpad",
                 inputs = listOf("test.ctm"),
-                charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
+                charpadOutputs =
+                    CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
 
         val tempDir = Files.createTempDirectory("test-project").toFile()
         val testFile = File(tempDir, "test.ctm")
@@ -319,7 +320,8 @@ class CharpadStepTest :
             CharpadStep(
                 name = "testCharpad",
                 inputs = listOf("nonexistent.ctm"),
-                charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
+                charpadOutputs =
+                    CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
         step.setCharpadPort(CharpadAdapter())
 
         val tempDir = Files.createTempDirectory("test-project").toFile()
@@ -343,7 +345,8 @@ class CharpadStepTest :
               CharpadStep(
                   name = "noInputs",
                   inputs = emptyList(),
-                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
+                  charpadOutputs =
+                      CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
           val errors = step.validate()
 
           Then("it should report missing input files") {
@@ -355,12 +358,15 @@ class CharpadStepTest :
         When("validating step with no outputs") {
           val step =
               CharpadStep(
-                  name = "noOutputs", inputs = listOf("test.ctm"), charpadOutputs = CharpadOutputs())
+                  name = "noOutputs",
+                  inputs = listOf("test.ctm"),
+                  charpadOutputs = CharpadOutputs())
           val errors = step.validate()
 
           Then("it should report missing output configurations") {
             errors shouldHaveSize 1
-            errors shouldContain "Charpad step 'noOutputs' requires at least one output configuration"
+            errors shouldContain
+                "Charpad step 'noOutputs' requires at least one output configuration"
           }
         }
 
@@ -369,7 +375,8 @@ class CharpadStepTest :
               CharpadStep(
                   name = "wrongExt",
                   inputs = listOf("test.txt"),
-                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
+                  charpadOutputs =
+                      CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
           val errors = step.validate()
 
           Then("it should report wrong file extension") {
@@ -384,7 +391,8 @@ class CharpadStepTest :
               CharpadStep(
                   name = "invalidTileSize",
                   inputs = listOf("test.ctm"),
-                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))),
+                  charpadOutputs =
+                      CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))),
                   config = config)
           val errors = step.validate()
 
@@ -400,7 +408,8 @@ class CharpadStepTest :
               CharpadStep(
                   name = "valid",
                   inputs = listOf("test.ctm"),
-                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
+                  charpadOutputs =
+                      CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
           val errors = step.validate()
 
           Then("it should have no validation errors") { errors.shouldBeEmpty() }
@@ -475,21 +484,24 @@ class CharpadStepTest :
             CharpadStep(
                 name = "test1",
                 inputs = listOf("test.ctm"),
-                charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))),
+                charpadOutputs =
+                    CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))),
                 config = config1)
 
         val step2 =
             CharpadStep(
                 name = "test1",
                 inputs = listOf("test.ctm"),
-                charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))),
+                charpadOutputs =
+                    CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))),
                 config = config1)
 
         val step3 =
             CharpadStep(
                 name = "test1",
                 inputs = listOf("test.ctm"),
-                charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))),
+                charpadOutputs =
+                    CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))),
                 config = config2)
 
         When("comparing identical steps") {
@@ -556,7 +568,10 @@ class CharpadStepTest :
                 inputs = listOf("test.ctm"),
                 charpadOutputs =
                     CharpadOutputs(
-                        maps = listOf(MapOutput("build/map.bin", left = 5, top = 10, right = 20, bottom = 15))))
+                        maps =
+                            listOf(
+                                MapOutput(
+                                    "build/map.bin", left = 5, top = 10, right = 20, bottom = 15))))
 
         When("getting step configuration") {
           Then("it should have map with correct region parameters") {

@@ -170,7 +170,10 @@ class CharpadAdapterTest :
 
           val command =
               CharpadCommand(
-                  inputFile = ctmFile, charpadOutputs = charpadOutputs, config = config, projectRootDir = tempDir)
+                  inputFile = ctmFile,
+                  charpadOutputs = charpadOutputs,
+                  config = config,
+                  projectRootDir = tempDir)
 
           val producers = factory.createOutputProducers(command)
 
@@ -221,7 +224,8 @@ class CharpadAdapterTest :
         When("creating map output with rectangular region") {
           val ctmFile = File(tempDir, "test.ctm")
           val charpadOutputs =
-              CharpadOutputs(maps = listOf(MapOutput("map.bin", left = 5, top = 10, right = 20, bottom = 15)))
+              CharpadOutputs(
+                  maps = listOf(MapOutput("map.bin", left = 5, top = 10, right = 20, bottom = 15)))
 
           val command =
               CharpadCommand(
@@ -291,7 +295,10 @@ class CharpadAdapterTest :
 
           val command =
               CharpadCommand(
-                  inputFile = ctmFile, charpadOutputs = charpadOutputs, config = config, projectRootDir = tempDir)
+                  inputFile = ctmFile,
+                  charpadOutputs = charpadOutputs,
+                  config = config,
+                  projectRootDir = tempDir)
 
           try {
             adapter.process(command)
