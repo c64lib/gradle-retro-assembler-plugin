@@ -4,13 +4,7 @@
 Integrate CharpadStep with the existing charpad preprocessor, retaining all capabilities of the charpad processor from the original, non-flows-based implementation. The current CharpadStep in the flows module has a placeholder implementation that needs to be connected to the fully-featured charpad processor module.
 
 ## Issue Update
-**Current Test Failure**: The CharpadStep integration test is failing with "Insufficient data in CTM file" error because the test creates a minimal synthetic CTM file that doesn't contain sufficient data for the charpad processor to work with. The error occurs at:
-
-```
-java.lang.RuntimeException: Charpad processing failed for step 'integrationTest': Insufficient data in CTM file 'test.ctm': Unexpected end of file reached while reading CTM data. The CTM file appears to be corrupted or truncated.
-```
-
-This indicates that the test needs to use real CTM files as resources, similar to how the existing charpad processor tests work (using files like `/text-hires/text-hi-per-char-notiles-ctm5.ctm`).
+**RESOLVED**: The CharpadStep integration test was failing with "Insufficient data in CTM file" error because the test was creating a minimal synthetic CTM file. This has been resolved by adding a real CTM test resource file (`flows/src/test/resources/test-integration.ctm`) and updating the integration test to load it using `javaClass.getResourceAsStream()`. All tests are now passing.
 
 ## Relevant Codebase Parts
 
@@ -75,11 +69,7 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 
 12. ✅ **Create integration tests** - Add tests that verify the CharpadStep and CharpadTask produce identical outputs to the original charpad processor for various CTM file formats, testing all supported output producers including metadata outputs
 
-13. **🔧 Fix integration test CTM file issue** - The current integration test creates a synthetic CTM file with insufficient data, causing "Insufficient data in CTM file" error. Replace the synthetic CTM file creation with a real CTM file resource:
-    * Copy one of the existing CTM files from `processors/charpad/src/test/resources/` (e.g., `text-hires/text-hi-per-char-notiles-ctm5.ctm`) to `flows/src/test/resources/`
-    * Update the integration test to load the CTM file using `javaClass.getResourceAsStream()` similar to how charpad processor tests work
-    * Remove the synthetic CTM file creation code and replace with resource loading
-    * This will provide a properly formatted CTM file with sufficient data for the charpad processor to work with
+13. ✅ **Fix integration test CTM file issue** - Replaced synthetic CTM file creation with a real CTM file resource (`flows/src/test/resources/test-integration.ctm`). Updated the integration test in CharpadStepTest.kt:409 to load the CTM file using `javaClass.getResourceAsStream("/test-integration.ctm")`. All tests are now passing successfully.
 
 14. **Update documentation** - Modify flows documentation to include charpad step usage examples and configuration options, emphasizing support for all output types including explicit metadata configuration parameters
 
