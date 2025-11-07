@@ -6,6 +6,13 @@ Integrate CharpadStep with the existing charpad preprocessor, retaining all capa
 ## Issue Update
 **RESOLVED**: The CharpadStep integration test was failing with "Insufficient data in CTM file" error because the test was creating a minimal synthetic CTM file. This has been resolved by adding a real CTM test resource file (`flows/src/test/resources/test-integration.ctm`) and updating the integration test to load it using `javaClass.getResourceAsStream()`. All tests are now passing.
 
+**NEW REQUIREMENT**: The CharpadStep DSL needs to be redesigned to replace the generic "to" outputs with dedicated DSL entries for each output type (charset, map, charsetColours, charsetAttributes, etc.), matching the functionality of the original processor DSL. This will provide:
+- Dedicated methods for each output type (charset, map, tiles, charsetColours, charsetAttributes, charsetMaterials, charsetScreenColours, tileTags, tileColours, tileScreenColours, meta)
+- Support for start/end range parameters for charset and tile-based outputs
+- Support for left/top/right/bottom rectangular region parameters for map outputs
+- Support for all metadata configuration parameters (namespace, prefix, includeVersion, etc.)
+- Ability to define multiple outputs of the same type (e.g., multiple charset outputs with different ranges)
+
 ## Relevant Codebase Parts
 
 1. **flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/steps/CharpadStep.kt** - Current placeholder implementation with basic validation and configuration structure
@@ -17,6 +24,11 @@ Integrate CharpadStep with the existing charpad preprocessor, retaining all capa
 7. **flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/tasks/CharpadTask.kt** - Existing placeholder Gradle task for charpad processing
 8. **flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/assembly/KickAssemblerPortAdapter.kt** - Example adapter pattern implementation for connecting flows to compilers module
 9. **flows/adapters/out/** - Location where intermediate inbound adapter for charpad processing will be created
+10. **shared/gradle/src/main/kotlin/com/github/c64lib/rbt/shared/gradle/dsl/OutputsExtension.kt** - Original processor DSL with dedicated methods for each output type (charset, map, charsetColours, etc.)
+11. **shared/gradle/src/main/kotlin/com/github/c64lib/rbt/shared/gradle/dsl/StartEndExtension.kt** - Extension for outputs with start/end range parameters
+12. **shared/gradle/src/main/kotlin/com/github/c64lib/rbt/shared/gradle/dsl/MapExtension.kt** - Extension for map outputs with left/top/right/bottom rectangular region parameters
+13. **shared/gradle/src/main/kotlin/com/github/c64lib/rbt/shared/gradle/dsl/MetadataExtension.kt** - Extension for metadata outputs with namespace, prefix, and inclusion flags
+14. **processors/charpad/adapters/in/gradle/src/main/kotlin/.../Charpad.kt** - Original charpad task showing how outputs are configured and processed
 
 ## Root Cause Hypothesis
 The CharpadStep currently has only a placeholder execute() method that prints debug information instead of performing actual charpad processing. The integration requires:
@@ -36,6 +48,9 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 4. Are there any missing configuration options in CharpadConfig that exist in the original processor?
 5. How should error handling be unified between the flows validation and processor exceptions?
 6. What is the correct way to handle the ctm8PrototypeCompatibility flag in the flows context?
+7. **NEW**: How should the dedicated output DSL methods be structured in the domain model vs the DSL builder? Should the domain model have separate lists for each output type, or a unified structure with type discriminators?
+8. **NEW**: How should default values for start/end and left/top/right/bottom parameters be handled? Should they match the original processor defaults (0, 65536)?
+9. **NEW**: Should the dedicated DSL methods be added to CharpadStepBuilder only, or also reflected in the CharpadStep domain model? How to maintain clean separation between domain and DSL concerns?
 
 ### Question for others
 1. ~~Should the flows module directly depend on the processors/charpad module, or should there be an intermediate adapter?~~ **RESOLVED**: Flows module cannot depend on processors/charpad. There must be an intermediate inbound adapter declared to indirectly set up this dependency.
@@ -71,11 +86,38 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 
 13. ✅ **Fix integration test CTM file issue** - Replaced synthetic CTM file creation with a real CTM file resource (`flows/src/test/resources/test-integration.ctm`). Updated the integration test in CharpadStepTest.kt:409 to load the CTM file using `javaClass.getResourceAsStream("/test-integration.ctm")`. All tests are now passing successfully.
 
-14. **Update documentation** - Modify flows documentation to include charpad step usage examples and configuration options, emphasizing support for all output types including explicit metadata configuration parameters
+14. **Redesign CharpadStep DSL with dedicated output methods** - Replace the generic "to" output configuration with dedicated DSL methods matching the original processor:
+    * Create domain models for each output type configuration (CharsetOutput, MapOutput, MetadataOutput, etc.) in flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/config/
+    * Update CharpadStepBuilder to provide dedicated methods: `charset {}`, `map {}`, `charsetColours {}`, `charsetAttributes {}`, `charsetMaterials {}`, `charsetScreenColours {}`, `tiles {}`, `tileTags {}`, `tileColours {}`, `tileScreenColours {}`, `meta {}`
+    * Each method should accept a lambda for configuring output-specific parameters (start/end for ranges, left/top/right/bottom for maps, namespace/prefix/flags for metadata)
+    * Support multiple outputs of the same type (e.g., multiple charset outputs with different ranges)
+    * Remove the generic `to()` method and related generic output configuration
+    * Update CharpadStep domain model to store lists of dedicated output configurations instead of generic outputs
+    * Ensure backward compatibility by providing migration path documentation
 
-15. **Validate against existing charpad tests** - Run existing charpad processor tests to ensure no regression in core functionality
+15. **Update CharpadAdapter to handle dedicated output configurations** - Modify the CharpadAdapter and OutputProducerFactory to work with the new dedicated output models:
+    * Update CharpadOutputProducerFactory to accept lists of dedicated output configurations
+    * Create producer instances based on each dedicated output configuration
+    * Map domain output models (CharsetOutput, MapOutput, etc.) to their corresponding producers (CharsetProducer, MapProducer, etc.)
+    * Ensure all parameters (start/end, left/top/right/bottom, metadata flags) are correctly passed to producers
 
-16. **Add flows-specific charpad tests** - Create tests for the CharpadStep integration including validation, configuration mapping, and file I/O scenarios for all output producer types, with specific tests for metadata output configuration
+16. **Update CharpadCommand and mapping logic** - Modify CharpadCommand and related mappers to work with dedicated outputs:
+    * Update CharpadCommand domain model to include lists for each output type
+    * Update CharpadConfigMapper to map from CharpadStepBuilder's dedicated outputs to CharpadCommand
+    * Ensure proper validation of output configurations
+
+17. **Update integration and unit tests** - Modify existing tests to use the new dedicated DSL:
+    * Update CharpadStepTest to use dedicated output methods (charset, map, meta, etc.)
+    * Add tests for multiple outputs of the same type
+    * Add tests for range parameters (start/end) and rectangular regions (left/top/right/bottom)
+    * Update CharpadAdapter tests to verify correct producer creation from dedicated configurations
+    * Ensure all existing test scenarios still pass with the new DSL
+
+18. **Update documentation** - Modify flows documentation to include charpad step usage examples and configuration options, emphasizing support for all output types including explicit metadata configuration parameters. Include examples of the new dedicated DSL methods and migration guide from generic "to" outputs.
+
+19. **Validate against existing charpad tests** - Run existing charpad processor tests to ensure no regression in core functionality
+
+20. **Add flows-specific charpad tests** - Create tests for the CharpadStep integration including validation, configuration mapping, and file I/O scenarios for all output producer types, with specific tests for metadata output configuration
 
 ## Additional Notes
 - The charpad processor supports CTM versions 5, 6, 7, 8, 82, and 9 with different processing logic for each
@@ -88,3 +130,7 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 - Users should have complete flexibility in naming output files - no specific naming conventions should be enforced by the flows integration
 - The integration must retain full compatibility with all existing charpad processor capabilities to ensure no functionality is lost in the flows-based implementation
 - **IMPORTANT**: Flows module cannot directly depend on processors/charpad - an intermediate inbound adapter module (flows/adapters/out/charpad) must be created to bridge this dependency indirectly
+- **DSL Redesign**: The new dedicated DSL methods (charset, map, charsetColours, etc.) should mirror the original processor DSL structure found in OutputsExtension, StartEndExtension, MapExtension, and MetadataExtension
+- **Multiple Outputs**: The DSL must support multiple outputs of the same type (e.g., `charset { output = "chars1.bin"; start = 0; end = 128 }` and `charset { output = "chars2.bin"; start = 128; end = 256 }`)
+- **Parameter Defaults**: Default values for range parameters should match the original processor: start=0, end=65536, left=0, top=0, right=65536, bottom=65536
+- **Migration Path**: Existing code using generic "to" outputs will need to be migrated to use dedicated output methods; documentation should provide clear migration examples
