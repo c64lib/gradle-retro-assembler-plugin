@@ -27,6 +27,7 @@ package com.github.c64lib.rbt.flows.domain.steps
 import com.github.c64lib.rbt.flows.domain.FlowStep
 import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
 import com.github.c64lib.rbt.flows.domain.config.CharpadConfig
+import com.github.c64lib.rbt.flows.domain.config.CharpadOutputs
 import com.github.c64lib.rbt.flows.domain.port.CharpadPort
 import java.io.File
 
@@ -34,10 +35,10 @@ import java.io.File
 class CharpadStep(
     name: String,
     inputs: List<String> = emptyList(),
-    outputs: List<String> = emptyList(),
+    val charpadOutputs: CharpadOutputs,
     val config: CharpadConfig = CharpadConfig(),
     private var charpadPort: CharpadPort? = null
-) : FlowStep(name, "charpad", inputs, outputs) {
+) : FlowStep(name, "charpad", inputs, charpadOutputs.getAllOutputPaths()) {
 
   /**
    * Injects the charpad port dependency. This is called by the adapter layer when the step is
@@ -75,16 +76,12 @@ class CharpadStep(
           file
         }
 
-    // Create output files map from outputs list
-    // For charpad, we support multiple output types but need to determine the mapping
-    val outputFilesMap = createOutputFilesMap(outputs, projectRootDir)
-
     // Create CharpadCommand instances for each input file
     val charpadCommands =
         inputFiles.map { inputFile ->
           CharpadCommand(
               inputFile = inputFile,
-              outputFiles = outputFilesMap,
+              charpadOutputs = charpadOutputs,
               config = config,
               projectRootDir = projectRootDir)
         }
@@ -99,54 +96,6 @@ class CharpadStep(
     outputs.forEach { outputPath -> println("  Generated output: $outputPath") }
   }
 
-  /**
-   * Creates a map of output file types to File objects from the outputs list. For charpad
-   * processing, we need to determine which output corresponds to which type (charset, map, tiles,
-   * etc.)
-   */
-  private fun createOutputFilesMap(outputs: List<String>, projectRootDir: File): Map<String, File> {
-    val outputMap = mutableMapOf<String, File>()
-
-    outputs.forEachIndexed { index, outputPath ->
-      val file =
-          if (File(outputPath).isAbsolute) {
-            File(outputPath)
-          } else {
-            File(projectRootDir, outputPath)
-          }
-
-      // Determine output type based on file extension or name pattern
-      val outputKey =
-          when {
-            outputPath.contains("charset", ignoreCase = true) ||
-                outputPath.endsWith(".chr", ignoreCase = true) -> "charset"
-            outputPath.contains("tilemap", ignoreCase = true) ||
-                outputPath.contains("map", ignoreCase = true) ||
-                outputPath.endsWith(".map", ignoreCase = true) -> "map"
-            outputPath.contains("tiles", ignoreCase = true) ||
-                outputPath.endsWith(".tiles", ignoreCase = true) -> "tiles"
-            // Header files (.h) get priority over metadata files (.inc)
-            outputPath.contains("header", ignoreCase = true) ||
-                outputPath.endsWith(".h", ignoreCase = true) -> "header"
-            outputPath.contains("metadata", ignoreCase = true) ||
-                outputPath.endsWith(".inc", ignoreCase = true) -> "metadata"
-            outputPath.contains("char_attributes", ignoreCase = true) ||
-                outputPath.contains("attributes", ignoreCase = true) -> "charattributes"
-            outputPath.contains("char_colours", ignoreCase = true) ||
-                outputPath.contains("colours", ignoreCase = true) -> "charcolours"
-            outputPath.contains("char_materials", ignoreCase = true) ||
-                outputPath.contains("materials", ignoreCase = true) -> "charmaterials"
-            outputPath.contains("screen_colors", ignoreCase = true) ||
-                outputPath.contains("screen", ignoreCase = true) -> "charscreencolours"
-            else -> "output$index" // Fallback to indexed naming
-          }
-
-      outputMap[outputKey] = file
-    }
-
-    return outputMap
-  }
-
   override fun validate(): List<String> {
     val errors = mutableListOf<String>()
 
@@ -154,8 +103,8 @@ class CharpadStep(
       errors.add("Charpad step '$name' requires at least one input .ctm file")
     }
 
-    if (outputs.isEmpty()) {
-      errors.add("Charpad step '$name' requires at least one output file")
+    if (!charpadOutputs.hasOutputs()) {
+      errors.add("Charpad step '$name' requires at least one output configuration")
     }
 
     // Validate input file extensions
@@ -168,6 +117,37 @@ class CharpadStep(
     // Validate tile size
     if (config.tileSize !in listOf(8, 16, 32)) {
       errors.add("Charpad step '$name' tile size must be 8, 16, or 32, but got: ${config.tileSize}")
+    }
+
+    // Validate output configurations
+    charpadOutputs.charsets.forEach { charset ->
+      if (charset.output.isEmpty()) {
+        errors.add("Charpad step '$name': charset output path cannot be empty")
+      }
+      if (charset.start < 0 || charset.end < 0 || charset.start >= charset.end) {
+        errors.add(
+            "Charpad step '$name': charset start/end range invalid: start=${charset.start}, end=${charset.end}")
+      }
+    }
+
+    charpadOutputs.maps.forEach { map ->
+      if (map.output.isEmpty()) {
+        errors.add("Charpad step '$name': map output path cannot be empty")
+      }
+      if (map.left < 0 || map.top < 0 || map.right < 0 || map.bottom < 0) {
+        errors.add(
+            "Charpad step '$name': map coordinates cannot be negative: left=${map.left}, top=${map.top}, right=${map.right}, bottom=${map.bottom}")
+      }
+      if (map.left >= map.right || map.top >= map.bottom) {
+        errors.add(
+            "Charpad step '$name': map rectangular region invalid: left=${map.left}, top=${map.top}, right=${map.right}, bottom=${map.bottom}")
+      }
+    }
+
+    charpadOutputs.metadata.forEach { meta ->
+      if (meta.output.isEmpty()) {
+        errors.add("Charpad step '$name': metadata output path cannot be empty")
+      }
     }
 
     return errors
@@ -187,11 +167,14 @@ class CharpadStep(
         "includeVersion" to config.includeVersion,
         "includeBgColours" to config.includeBgColours,
         "includeCharColours" to config.includeCharColours,
-        "includeMode" to config.includeMode)
+        "includeMode" to config.includeMode,
+        "charsetOutputs" to charpadOutputs.charsets.size,
+        "mapOutputs" to charpadOutputs.maps.size,
+        "metadataOutputs" to charpadOutputs.metadata.size)
   }
 
   override fun toString(): String {
-    return "CharpadStep(name='$name', inputs=$inputs, outputs=$outputs, config=$config)"
+    return "CharpadStep(name='$name', inputs=$inputs, outputs=${charpadOutputs.getAllOutputPaths()}, config=$config)"
   }
 
   override fun equals(other: Any?): Boolean {
@@ -200,14 +183,14 @@ class CharpadStep(
 
     return name == other.name &&
         inputs == other.inputs &&
-        outputs == other.outputs &&
+        charpadOutputs == other.charpadOutputs &&
         config == other.config
   }
 
   override fun hashCode(): Int {
     var result = name.hashCode()
     result = 31 * result + inputs.hashCode()
-    result = 31 * result + outputs.hashCode()
+    result = 31 * result + charpadOutputs.hashCode()
     result = 31 * result + config.hashCode()
     return result
   }

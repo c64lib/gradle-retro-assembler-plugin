@@ -25,10 +25,7 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.adapters.out.charpad
 
 import com.github.c64lib.rbt.flows.domain.FlowValidationException
-import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
-import com.github.c64lib.rbt.flows.domain.config.CharpadCompression
-import com.github.c64lib.rbt.flows.domain.config.CharpadConfig
-import com.github.c64lib.rbt.flows.domain.config.CharpadFormat
+import com.github.c64lib.rbt.flows.domain.config.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
@@ -49,11 +46,10 @@ class CharpadAdapterTest :
 
         When("processing command with missing input file") {
           val nonExistentFile = File(tempDir, "nonexistent.ctm")
-          val outputFile = File(tempDir, "output.chr")
           val command =
               CharpadCommand(
                   inputFile = nonExistentFile,
-                  outputFiles = mapOf("charset" to outputFile),
+                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("output.chr"))),
                   config = CharpadConfig(),
                   projectRootDir = tempDir)
 
@@ -68,11 +64,10 @@ class CharpadAdapterTest :
         When("processing command with directory instead of file") {
           val directory = File(tempDir, "directory.ctm")
           directory.mkdirs()
-          val outputFile = File(tempDir, "output.chr")
           val command =
               CharpadCommand(
                   inputFile = directory,
-                  outputFiles = mapOf("charset" to outputFile),
+                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("output.chr"))),
                   config = CharpadConfig(),
                   projectRootDir = tempDir)
 
@@ -87,11 +82,10 @@ class CharpadAdapterTest :
         When("processing command with empty file") {
           val emptyFile = File(tempDir, "empty.ctm")
           emptyFile.createNewFile()
-          val outputFile = File(tempDir, "output.chr")
           val command =
               CharpadCommand(
                   inputFile = emptyFile,
-                  outputFiles = mapOf("charset" to outputFile),
+                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("output.chr"))),
                   config = CharpadConfig(),
                   projectRootDir = tempDir)
 
@@ -109,7 +103,7 @@ class CharpadAdapterTest :
           val command =
               CharpadCommand(
                   inputFile = ctmFile,
-                  outputFiles = emptyMap(), // No output files
+                  charpadOutputs = CharpadOutputs(), // No outputs
                   config = CharpadConfig(),
                   projectRootDir = tempDir)
 
@@ -124,11 +118,10 @@ class CharpadAdapterTest :
         When("processing command with invalid CTM content") {
           val invalidCtmFile = File(tempDir, "invalid.ctm")
           invalidCtmFile.writeBytes("INVALID".toByteArray())
-          val outputFile = File(tempDir, "output.chr")
           val command =
               CharpadCommand(
                   inputFile = invalidCtmFile,
-                  outputFiles = mapOf("charset" to outputFile),
+                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("output.chr"))),
                   config = CharpadConfig(),
                   projectRootDir = tempDir)
 
@@ -150,32 +143,6 @@ class CharpadAdapterTest :
 
         When("creating output producers for different output types") {
           val ctmFile = File(tempDir, "test.ctm")
-          val charsetFile = File(tempDir, "charset.chr")
-          val mapFile = File(tempDir, "map.bin")
-          val tilesFile = File(tempDir, "tiles.dat")
-          val headerFile = File(tempDir, "header.h")
-          val attributesFile = File(tempDir, "attributes.bin")
-          val coloursFile = File(tempDir, "colours.bin")
-          val materialsFile = File(tempDir, "materials.bin")
-          val screenColoursFile = File(tempDir, "screen_colours.bin")
-          val tileTagsFile = File(tempDir, "tile-tags.bin")
-          val tileColoursFile = File(tempDir, "tile-colours.bin")
-          val tileScreenColoursFile = File(tempDir, "tile-screen-colours.bin")
-
-          val outputFiles =
-              mapOf(
-                  "charset" to charsetFile,
-                  "map" to mapFile,
-                  "tiles" to tilesFile,
-                  "header" to headerFile,
-                  "charattributes" to attributesFile,
-                  "charcolours" to coloursFile,
-                  "charmaterials" to materialsFile,
-                  "charscreencolours" to screenColoursFile,
-                  "tiletags" to tileTagsFile,
-                  "tilecolours" to tileColoursFile,
-                  "tilescreencolours" to tileScreenColoursFile)
-
           val config =
               CharpadConfig(
                   generateCharset = true,
@@ -187,12 +154,23 @@ class CharpadAdapterTest :
                   includeCharColours = true,
                   includeMode = true)
 
+          val charpadOutputs =
+              CharpadOutputs(
+                  charsets = listOf(CharsetOutput("charset.chr")),
+                  maps = listOf(MapOutput("map.bin")),
+                  tiles = listOf(TileOutput("tiles.dat")),
+                  metadata = listOf(MetadataOutput("header.h")),
+                  charAttributes = listOf(CharAttributesOutput("attributes.bin")),
+                  charColours = listOf(CharColoursOutput("colours.bin")),
+                  charMaterials = listOf(CharMaterialsOutput("materials.bin")),
+                  charScreenColours = listOf(CharScreenColoursOutput("screen_colours.bin")),
+                  tileTags = listOf(TileTagsOutput("tile-tags.bin")),
+                  tileColours = listOf(TileColoursOutput("tile-colours.bin")),
+                  tileScreenColours = listOf(TileScreenColoursOutput("tile-screen-colours.bin")))
+
           val command =
               CharpadCommand(
-                  inputFile = ctmFile,
-                  outputFiles = outputFiles,
-                  config = config,
-                  projectRootDir = tempDir)
+                  inputFile = ctmFile, charpadOutputs = charpadOutputs, config = config, projectRootDir = tempDir)
 
           val producers = factory.createOutputProducers(command)
 
@@ -216,63 +194,47 @@ class CharpadAdapterTest :
           }
         }
 
-        When("creating output producers with conditional generation") {
+        When("creating output producers with multiple outputs of same type") {
           val ctmFile = File(tempDir, "test.ctm")
-          val charsetFile = File(tempDir, "charset.chr")
-          val mapFile = File(tempDir, "map.bin")
-
-          val outputFiles = mapOf("charset" to charsetFile, "map" to mapFile)
-
-          val config =
-              CharpadConfig(generateCharset = true, generateMap = false) // Map generation disabled
+          val charpadOutputs =
+              CharpadOutputs(
+                  charsets =
+                      listOf(
+                          CharsetOutput("charset1.chr", start = 0, end = 128),
+                          CharsetOutput("charset2.chr", start = 128, end = 256)))
 
           val command =
               CharpadCommand(
                   inputFile = ctmFile,
-                  outputFiles = outputFiles,
-                  config = config,
-                  projectRootDir = tempDir)
-
-          val producers = factory.createOutputProducers(command)
-
-          Then("it should only create producers for enabled outputs") {
-            // Should create charset producer but not map producer
-            producers shouldHaveSize 1
-            producers.first()::class.simpleName shouldBe "CharsetProducer"
-          }
-        }
-
-        When("creating output producers with file extension detection") {
-          val ctmFile = File(tempDir, "test.ctm")
-          val charsetFile = File(tempDir, "data.chr") // .chr extension
-          val mapFile = File(tempDir, "level.map") // .map extension
-          val headerFile = File(tempDir, "constants.h") // .h extension
-          val includeFile = File(tempDir, "defines.inc") // .inc extension
-
-          val outputFiles =
-              mapOf(
-                  "auto1" to charsetFile,
-                  "auto2" to mapFile,
-                  "auto3" to headerFile,
-                  "auto4" to includeFile)
-
-          val command =
-              CharpadCommand(
-                  inputFile = ctmFile,
-                  outputFiles = outputFiles,
+                  charpadOutputs = charpadOutputs,
                   config = CharpadConfig(),
                   projectRootDir = tempDir)
 
           val producers = factory.createOutputProducers(command)
 
-          Then("it should detect output types from file extensions") {
-            producers shouldHaveSize 4
-            val producerTypeNames = producers.map { it::class.simpleName }
+          Then("it should create separate producers for each output") {
+            producers shouldHaveSize 2
+            producers.forEach { it::class.simpleName shouldBe "CharsetProducer" }
+          }
+        }
 
-            // Should detect charset, map, and header producers based on extensions
-            producerTypeNames shouldContain "CharsetProducer"
-            producerTypeNames shouldContain "MapProducer"
-            producerTypeNames shouldContain "HeaderProducer" // For both .h and .inc
+        When("creating map output with rectangular region") {
+          val ctmFile = File(tempDir, "test.ctm")
+          val charpadOutputs =
+              CharpadOutputs(maps = listOf(MapOutput("map.bin", left = 5, top = 10, right = 20, bottom = 15)))
+
+          val command =
+              CharpadCommand(
+                  inputFile = ctmFile,
+                  charpadOutputs = charpadOutputs,
+                  config = CharpadConfig(),
+                  projectRootDir = tempDir)
+
+          val producers = factory.createOutputProducers(command)
+
+          Then("it should create map producer with correct region parameters") {
+            producers shouldHaveSize 1
+            producers.first()::class.simpleName shouldBe "MapProducer"
           }
         }
 
@@ -321,18 +283,15 @@ class CharpadAdapterTest :
                   includeCharColours = true,
                   includeMode = false)
 
-          val outputFiles =
-              mapOf(
-                  "charset" to File(outputDir, "charset.chr"),
-                  "map" to File(outputDir, "map.bin"),
-                  "header" to File(outputDir, "level.h"))
+          val charpadOutputs =
+              CharpadOutputs(
+                  charsets = listOf(CharsetOutput("output/charset.chr")),
+                  maps = listOf(MapOutput("output/map.bin")),
+                  metadata = listOf(MetadataOutput("output/level.h")))
 
           val command =
               CharpadCommand(
-                  inputFile = ctmFile,
-                  outputFiles = outputFiles,
-                  config = config,
-                  projectRootDir = tempDir)
+                  inputFile = ctmFile, charpadOutputs = charpadOutputs, config = config, projectRootDir = tempDir)
 
           try {
             adapter.process(command)
@@ -359,12 +318,11 @@ class CharpadAdapterTest :
         When("processing with various error conditions") {
           // Test case 1: File not readable (simulate with non-existent file)
           val nonReadableFile = File(tempDir, "nonreadable.ctm")
-          val outputFile = File(tempDir, "output.chr")
 
           val command1 =
               CharpadCommand(
                   inputFile = nonReadableFile,
-                  outputFiles = mapOf("charset" to outputFile),
+                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("output.chr"))),
                   config = CharpadConfig(),
                   projectRootDir = tempDir)
 
@@ -382,7 +340,7 @@ class CharpadAdapterTest :
           val command2 =
               CharpadCommand(
                   inputFile = truncatedFile,
-                  outputFiles = mapOf("charset" to outputFile),
+                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("output.chr"))),
                   config = CharpadConfig(),
                   projectRootDir = tempDir)
 

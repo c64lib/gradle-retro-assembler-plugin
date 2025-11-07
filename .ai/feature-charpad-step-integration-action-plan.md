@@ -86,32 +86,13 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 
 13. ✅ **Fix integration test CTM file issue** - Replaced synthetic CTM file creation with a real CTM file resource (`flows/src/test/resources/test-integration.ctm`). Updated the integration test in CharpadStepTest.kt:409 to load the CTM file using `javaClass.getResourceAsStream("/test-integration.ctm")`. All tests are now passing successfully.
 
-14. **Redesign CharpadStep DSL with dedicated output methods** - Replace the generic "to" output configuration with dedicated DSL methods matching the original processor:
-    * Create domain models for each output type configuration (CharsetOutput, MapOutput, MetadataOutput, etc.) in flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/config/
-    * Update CharpadStepBuilder to provide dedicated methods: `charset {}`, `map {}`, `charsetColours {}`, `charsetAttributes {}`, `charsetMaterials {}`, `charsetScreenColours {}`, `tiles {}`, `tileTags {}`, `tileColours {}`, `tileScreenColours {}`, `meta {}`
-    * Each method should accept a lambda for configuring output-specific parameters (start/end for ranges, left/top/right/bottom for maps, namespace/prefix/flags for metadata)
-    * Support multiple outputs of the same type (e.g., multiple charset outputs with different ranges)
-    * Remove the generic `to()` method and related generic output configuration
-    * Update CharpadStep domain model to store lists of dedicated output configurations instead of generic outputs
-    * Ensure backward compatibility by providing migration path documentation
+14. ✅ **Redesign CharpadStep DSL with dedicated output methods** - Created CharpadOutputs.kt (5,815 bytes) with 11 output type models (CharsetOutput, MapOutput, MetadataOutput, etc.). Updated CharpadStepBuilder with 11 dedicated DSL methods (charset, map, charsetColours, charsetAttributes, charsetMaterials, charsetScreenColours, tiles, tileTags, tileColours, tileScreenColours, meta). Each method accepts lambda configuration blocks with appropriate parameters (start/end for ranges, left/top/right/bottom for maps, namespace/prefix/flags for metadata). Supports multiple outputs of same type via lists. Deprecated to() method for backward compatibility with @Deprecated annotations including ReplaceWith migration hints. CharpadStep now uses CharpadOutputs parameter instead of List<String>.
 
-15. **Update CharpadAdapter to handle dedicated output configurations** - Modify the CharpadAdapter and OutputProducerFactory to work with the new dedicated output models:
-    * Update CharpadOutputProducerFactory to accept lists of dedicated output configurations
-    * Create producer instances based on each dedicated output configuration
-    * Map domain output models (CharsetOutput, MapOutput, etc.) to their corresponding producers (CharsetProducer, MapProducer, etc.)
-    * Ensure all parameters (start/end, left/top/right/bottom, metadata flags) are correctly passed to producers
+15. ✅ **Update CharpadAdapter to handle dedicated output configurations** - Completely rewrote CharpadOutputProducerFactory to iterate through dedicated output lists (charsets.forEach, maps.forEach, etc.). Creates appropriate producer instances (CharsetProducer, MapProducer, etc.) with correct parameters extracted from each output configuration. All range parameters (start/end), map regions (left/top/right/bottom), and metadata flags are properly passed to producers.
 
-16. **Update CharpadCommand and mapping logic** - Modify CharpadCommand and related mappers to work with dedicated outputs:
-    * Update CharpadCommand domain model to include lists for each output type
-    * Update CharpadConfigMapper to map from CharpadStepBuilder's dedicated outputs to CharpadCommand
-    * Ensure proper validation of output configurations
+16. ✅ **Update CharpadCommand and mapping logic** - Updated CharpadCommand to use CharpadOutputs instead of Map<String, File>. CharpadStepBuilder.build() creates CharpadOutputs from DSL method calls. Enhanced CharpadStep.validate() with dedicated validation for charset ranges, map regions, and metadata output paths. All output configurations properly validated before execution.
 
-17. **Update integration and unit tests** - Modify existing tests to use the new dedicated DSL:
-    * Update CharpadStepTest to use dedicated output methods (charset, map, meta, etc.)
-    * Add tests for multiple outputs of the same type
-    * Add tests for range parameters (start/end) and rectangular regions (left/top/right/bottom)
-    * Update CharpadAdapter tests to verify correct producer creation from dedicated configurations
-    * Ensure all existing test scenarios still pass with the new DSL
+17. ✅ **Update integration and unit tests** - Updated all test files to use the new dedicated DSL structure. CharpadStepTest.kt (572 lines) updated with 17 test cases using CharpadOutputs. Added new test cases for multiple outputs of same type (line 528) and map rectangular regions (line 552). FlowDependencyGraphTest.kt updated with CharpadOutputs import and usage. CharpadAdapterTest.kt (357 lines) completely rewritten to use CharpadOutputs structure with tests for all 11 output types, multiple outputs, and region parameters. All tests passing: :flows:test and :flows:adapters:out:charpad:test BUILD SUCCESSFUL.
 
 18. **Update documentation** - Modify flows documentation to include charpad step usage examples and configuration options, emphasizing support for all output types including explicit metadata configuration parameters. Include examples of the new dedicated DSL methods and migration guide from generic "to" outputs.
 

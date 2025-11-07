@@ -24,6 +24,8 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
+import com.github.c64lib.rbt.flows.domain.config.CharpadOutputs
+import com.github.c64lib.rbt.flows.domain.config.CharsetOutput
 import com.github.c64lib.rbt.flows.domain.steps.CharpadStep
 import com.github.c64lib.rbt.flows.domain.steps.SpritepadStep
 import io.kotest.core.spec.style.BehaviorSpec
@@ -67,7 +69,12 @@ class FlowDependencyGraphTest :
         val charsetFlow =
             Flow(
                 name = "processCharset",
-                steps = listOf(CharpadStep("charpad")),
+                steps =
+                    listOf(
+                        CharpadStep(
+                            "charpad",
+                            charpadOutputs =
+                                CharpadOutputs(charsets = listOf(CharsetOutput("charset.chr"))))),
                 produces = listOf(charsetArtifact))
 
         graph.addFlow(spriteFlow)

@@ -26,10 +26,7 @@ package com.github.c64lib.rbt.flows.domain.steps
 
 import com.github.c64lib.rbt.flows.adapters.out.charpad.CharpadAdapter
 import com.github.c64lib.rbt.flows.domain.FlowValidationException
-import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
-import com.github.c64lib.rbt.flows.domain.config.CharpadCompression
-import com.github.c64lib.rbt.flows.domain.config.CharpadConfig
-import com.github.c64lib.rbt.flows.domain.config.CharpadFormat
+import com.github.c64lib.rbt.flows.domain.config.*
 import com.github.c64lib.rbt.flows.domain.port.CharpadPort
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
@@ -51,7 +48,10 @@ class CharpadStepTest :
             CharpadStep(
                 name = "testCharpad",
                 inputs = listOf("test.ctm"),
-                outputs = listOf("build/charset.chr", "build/map.bin"))
+                charpadOutputs =
+                    CharpadOutputs(
+                        charsets = listOf(CharsetOutput("build/charset.chr")),
+                        maps = listOf(MapOutput("build/map.bin"))))
 
         When("getting step properties") {
           Then("it should have correct name and type") {
@@ -101,7 +101,10 @@ class CharpadStepTest :
             CharpadStep(
                 name = "customCharpad",
                 inputs = listOf("sprites.ctm"),
-                outputs = listOf("build/sprites.chr", "build/sprites.h"),
+                charpadOutputs =
+                    CharpadOutputs(
+                        charsets = listOf(CharsetOutput("build/sprites.chr")),
+                        metadata = listOf(MetadataOutput("build/sprites.h"))),
                 config = config)
 
         When("getting configuration") {
@@ -120,6 +123,8 @@ class CharpadStepTest :
             configMap["includeBgColours"] shouldBe false
             configMap["includeCharColours"] shouldBe false
             configMap["includeMode"] shouldBe true
+            configMap["charsetOutputs"] shouldBe 1
+            configMap["metadataOutputs"] shouldBe 1
           }
         }
       }
@@ -129,7 +134,7 @@ class CharpadStepTest :
             CharpadStep(
                 name = "testCharpad",
                 inputs = listOf("test.ctm"),
-                outputs = listOf("build/charset.chr"))
+                charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
 
         val tempDir = Files.createTempDirectory("test-project").toFile()
         val testFile = File(tempDir, "test.ctm")
@@ -167,7 +172,10 @@ class CharpadStepTest :
             CharpadStep(
                 name = "testCharpad",
                 inputs = listOf("test.ctm"),
-                outputs = listOf("build/charset.chr", "build/map.bin"))
+                charpadOutputs =
+                    CharpadOutputs(
+                        charsets = listOf(CharsetOutput("build/charset.chr")),
+                        maps = listOf(MapOutput("build/map.bin"))))
         step.setCharpadPort(mockPort)
 
         val tempDir = Files.createTempDirectory("test-project").toFile()
@@ -185,8 +193,8 @@ class CharpadStepTest :
 
             val command = executedCommands.first()
             command.inputFile.name shouldBe "test.ctm"
-            command.outputFiles.keys shouldContain "charset"
-            command.outputFiles.keys shouldContain "map"
+            command.charpadOutputs.charsets shouldHaveSize 1
+            command.charpadOutputs.maps shouldHaveSize 1
             command.config shouldBe step.config
             command.projectRootDir shouldBe tempDir
           }
@@ -212,7 +220,10 @@ class CharpadStepTest :
             CharpadStep(
                 name = "multiCharpad",
                 inputs = listOf("charset1.ctm", "charset2.ctm"),
-                outputs = listOf("build/charset.chr", "build/map.bin"))
+                charpadOutputs =
+                    CharpadOutputs(
+                        charsets = listOf(CharsetOutput("build/charset.chr")),
+                        maps = listOf(MapOutput("build/map.bin"))))
         step.setCharpadPort(mockPort)
 
         val tempDir = Files.createTempDirectory("test-project").toFile()
@@ -232,10 +243,10 @@ class CharpadStepTest :
             executedCommands[0].inputFile.name shouldBe "charset1.ctm"
             executedCommands[1].inputFile.name shouldBe "charset2.ctm"
 
-            // Both commands should share the same output files map and configuration
+            // Both commands should share the same charpad outputs and configuration
             executedCommands.forEach { command ->
-              command.outputFiles.keys shouldContain "charset"
-              command.outputFiles.keys shouldContain "map"
+              command.charpadOutputs.charsets shouldHaveSize 1
+              command.charpadOutputs.maps shouldHaveSize 1
               command.config shouldBe step.config
               command.projectRootDir shouldBe tempDir
             }
@@ -245,7 +256,7 @@ class CharpadStepTest :
         tempDir.deleteRecursively()
       }
 
-      Given("a CharpadStep with output file type detection") {
+      Given("a CharpadStep with multiple outputs of different types") {
         val executedCommands = mutableListOf<CharpadCommand>()
         val mockPort =
             object : CharpadPort {
@@ -256,20 +267,19 @@ class CharpadStepTest :
 
         val step =
             CharpadStep(
-                name = "detectionTest",
+                name = "multiOutputTest",
                 inputs = listOf("test.ctm"),
-                outputs =
-                    listOf(
-                        "build/charset.chr",
-                        "build/tilemap.map",
-                        "build/tiles.tiles",
-                        "build/header.h",
-                        "build/metadata.inc",
-                        "build/char_attributes.bin",
-                        "build/char_colours.bin",
-                        "build/char_materials.bin",
-                        "build/screen_colors.bin",
-                        "build/unknown_output.bin"))
+                charpadOutputs =
+                    CharpadOutputs(
+                        charsets = listOf(CharsetOutput("build/charset.chr")),
+                        maps = listOf(MapOutput("build/tilemap.map")),
+                        tiles = listOf(TileOutput("build/tiles.tiles")),
+                        metadata = listOf(MetadataOutput("build/header.h")),
+                        charAttributes = listOf(CharAttributesOutput("build/char_attributes.bin")),
+                        charColours = listOf(CharColoursOutput("build/char_colours.bin")),
+                        charMaterials = listOf(CharMaterialsOutput("build/char_materials.bin")),
+                        charScreenColours =
+                            listOf(CharScreenColoursOutput("build/screen_colors.bin"))))
         step.setCharpadPort(mockPort)
 
         val tempDir = Files.createTempDirectory("test-project").toFile()
@@ -278,29 +288,26 @@ class CharpadStepTest :
 
         val context = mapOf<String, Any>("projectRootDir" to tempDir)
 
-        When("executing with various output file types") {
+        When("executing with various output types") {
           step.execute(context)
 
-          Then("it should correctly detect output file types") {
+          Then("it should correctly handle all output types") {
             executedCommands shouldHaveSize 1
 
-            val outputFiles = executedCommands.first().outputFiles
-            outputFiles.keys shouldContain "charset"
-            outputFiles.keys shouldContain "map"
-            outputFiles.keys shouldContain "tiles"
-            outputFiles.keys shouldContain "header"
-            outputFiles.keys shouldContain "metadata"
-            outputFiles.keys shouldContain "charattributes"
-            outputFiles.keys shouldContain "charcolours"
-            outputFiles.keys shouldContain "charmaterials"
-            outputFiles.keys shouldContain "charscreencolours"
-            outputFiles.keys shouldContain "output9" // Fallback for unknown type
+            val outputs = executedCommands.first().charpadOutputs
+            outputs.charsets shouldHaveSize 1
+            outputs.maps shouldHaveSize 1
+            outputs.tiles shouldHaveSize 1
+            outputs.metadata shouldHaveSize 1
+            outputs.charAttributes shouldHaveSize 1
+            outputs.charColours shouldHaveSize 1
+            outputs.charMaterials shouldHaveSize 1
+            outputs.charScreenColours shouldHaveSize 1
 
-            outputFiles["charset"]?.name shouldBe "charset.chr"
-            outputFiles["map"]?.name shouldBe "tilemap.map"
-            outputFiles["tiles"]?.name shouldBe "tiles.tiles"
-            outputFiles["header"]?.name shouldBe "header.h"
-            outputFiles["metadata"]?.name shouldBe "metadata.inc"
+            outputs.charsets.first().output shouldBe "build/charset.chr"
+            outputs.maps.first().output shouldBe "build/tilemap.map"
+            outputs.tiles.first().output shouldBe "build/tiles.tiles"
+            outputs.metadata.first().output shouldBe "build/header.h"
           }
         }
 
@@ -312,7 +319,7 @@ class CharpadStepTest :
             CharpadStep(
                 name = "testCharpad",
                 inputs = listOf("nonexistent.ctm"),
-                outputs = listOf("build/charset.chr"))
+                charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
         step.setCharpadPort(CharpadAdapter())
 
         val tempDir = Files.createTempDirectory("test-project").toFile()
@@ -334,7 +341,9 @@ class CharpadStepTest :
         When("validating step with no inputs") {
           val step =
               CharpadStep(
-                  name = "noInputs", inputs = emptyList(), outputs = listOf("build/charset.chr"))
+                  name = "noInputs",
+                  inputs = emptyList(),
+                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
           val errors = step.validate()
 
           Then("it should report missing input files") {
@@ -345,12 +354,13 @@ class CharpadStepTest :
 
         When("validating step with no outputs") {
           val step =
-              CharpadStep(name = "noOutputs", inputs = listOf("test.ctm"), outputs = emptyList())
+              CharpadStep(
+                  name = "noOutputs", inputs = listOf("test.ctm"), charpadOutputs = CharpadOutputs())
           val errors = step.validate()
 
-          Then("it should report missing output files") {
+          Then("it should report missing output configurations") {
             errors shouldHaveSize 1
-            errors shouldContain "Charpad step 'noOutputs' requires at least one output file"
+            errors shouldContain "Charpad step 'noOutputs' requires at least one output configuration"
           }
         }
 
@@ -359,7 +369,7 @@ class CharpadStepTest :
               CharpadStep(
                   name = "wrongExt",
                   inputs = listOf("test.txt"),
-                  outputs = listOf("build/charset.chr"))
+                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
           val errors = step.validate()
 
           Then("it should report wrong file extension") {
@@ -374,7 +384,7 @@ class CharpadStepTest :
               CharpadStep(
                   name = "invalidTileSize",
                   inputs = listOf("test.ctm"),
-                  outputs = listOf("build/charset.chr"),
+                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))),
                   config = config)
           val errors = step.validate()
 
@@ -390,7 +400,7 @@ class CharpadStepTest :
               CharpadStep(
                   name = "valid",
                   inputs = listOf("test.ctm"),
-                  outputs = listOf("build/charset.chr"))
+                  charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))))
           val errors = step.validate()
 
           Then("it should have no validation errors") { errors.shouldBeEmpty() }
@@ -425,7 +435,11 @@ class CharpadStepTest :
             CharpadStep(
                 name = "integrationTest",
                 inputs = listOf("test.ctm"),
-                outputs = listOf("build/charset.chr", "build/map.bin", "build/header.h"),
+                charpadOutputs =
+                    CharpadOutputs(
+                        charsets = listOf(CharsetOutput("build/charset.chr")),
+                        maps = listOf(MapOutput("build/map.bin")),
+                        metadata = listOf(MetadataOutput("build/header.h"))),
                 config = config)
 
         step.setCharpadPort(CharpadAdapter())
@@ -461,21 +475,21 @@ class CharpadStepTest :
             CharpadStep(
                 name = "test1",
                 inputs = listOf("test.ctm"),
-                outputs = listOf("build/charset.chr"),
+                charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))),
                 config = config1)
 
         val step2 =
             CharpadStep(
                 name = "test1",
                 inputs = listOf("test.ctm"),
-                outputs = listOf("build/charset.chr"),
+                charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))),
                 config = config1)
 
         val step3 =
             CharpadStep(
                 name = "test1",
                 inputs = listOf("test.ctm"),
-                outputs = listOf("build/charset.chr"),
+                charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("build/charset.chr"))),
                 config = config2)
 
         When("comparing identical steps") {
@@ -496,7 +510,9 @@ class CharpadStepTest :
       Given("CharpadStep toString") {
         val step =
             CharpadStep(
-                name = "testStep", inputs = listOf("input.ctm"), outputs = listOf("output.chr"))
+                name = "testStep",
+                inputs = listOf("input.ctm"),
+                charpadOutputs = CharpadOutputs(charsets = listOf(CharsetOutput("output.chr"))))
 
         When("converting to string") {
           val result = step.toString()
@@ -505,6 +521,50 @@ class CharpadStepTest :
             result shouldContain "testStep"
             result shouldContain "input.ctm"
             result shouldContain "output.chr"
+          }
+        }
+      }
+
+      Given("CharpadStep with multiple outputs of the same type") {
+        val step =
+            CharpadStep(
+                name = "multiCharsetTest",
+                inputs = listOf("test.ctm"),
+                charpadOutputs =
+                    CharpadOutputs(
+                        charsets =
+                            listOf(
+                                CharsetOutput("build/chars1.chr", start = 0, end = 128),
+                                CharsetOutput("build/chars2.chr", start = 128, end = 256))))
+
+        When("getting step outputs") {
+          Then("it should include all outputs") {
+            step.outputs shouldBe listOf("build/chars1.chr", "build/chars2.chr")
+            step.charpadOutputs.charsets shouldHaveSize 2
+            step.charpadOutputs.charsets[0].start shouldBe 0
+            step.charpadOutputs.charsets[0].end shouldBe 128
+            step.charpadOutputs.charsets[1].start shouldBe 128
+            step.charpadOutputs.charsets[1].end shouldBe 256
+          }
+        }
+      }
+
+      Given("CharpadStep with map output using rectangular region") {
+        val step =
+            CharpadStep(
+                name = "mapRegionTest",
+                inputs = listOf("test.ctm"),
+                charpadOutputs =
+                    CharpadOutputs(
+                        maps = listOf(MapOutput("build/map.bin", left = 5, top = 10, right = 20, bottom = 15))))
+
+        When("getting step configuration") {
+          Then("it should have map with correct region parameters") {
+            step.charpadOutputs.maps shouldHaveSize 1
+            step.charpadOutputs.maps.first().left shouldBe 5
+            step.charpadOutputs.maps.first().top shouldBe 10
+            step.charpadOutputs.maps.first().right shouldBe 20
+            step.charpadOutputs.maps.first().bottom shouldBe 15
           }
         }
       }
