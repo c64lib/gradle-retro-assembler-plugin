@@ -25,28 +25,126 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.domain.steps
 
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
 import com.github.c64lib.rbt.flows.domain.config.CharpadConfig
+import com.github.c64lib.rbt.flows.domain.port.CharpadPort
+import java.io.File
 
 /** Domain model for Charpad processing steps with type-safe configuration. */
 class CharpadStep(
     name: String,
     inputs: List<String> = emptyList(),
     outputs: List<String> = emptyList(),
-    val config: CharpadConfig = CharpadConfig()
+    val config: CharpadConfig = CharpadConfig(),
+    private var charpadPort: CharpadPort? = null
 ) : FlowStep(name, "charpad", inputs, outputs) {
 
-  override fun execute(context: Map<String, Any>) {
-    println("Executing Charpad step: $name")
-    println("  Configuration: $config")
-    println("  Processing ${inputs.size} input file(s)")
+  /**
+   * Injects the charpad port dependency. This is called by the adapter layer when the step is
+   * prepared for execution.
+   */
+  fun setCharpadPort(port: CharpadPort) {
+    this.charpadPort = port
+  }
 
-    // TODO: Integrate with actual Charpad processor
-    inputs.forEach { inputPath ->
-      println("  Processing: $inputPath")
-      // The actual implementation will use the charpad processor module
+  override fun execute(context: Map<String, Any>) {
+    val port =
+        charpadPort
+            ?: throw IllegalStateException(
+                "CharpadPort not injected for step '$name'. Call setCharpadPort() before execution.")
+
+    // Extract project root directory from context
+    val projectRootDir =
+        context["projectRootDir"] as? File
+            ?: throw IllegalStateException("Project root directory not found in execution context")
+
+    // Convert input paths to CTM files
+    val inputFiles =
+        inputs.map { inputPath ->
+          val file =
+              if (File(inputPath).isAbsolute) {
+                File(inputPath)
+              } else {
+                File(projectRootDir, inputPath)
+              }
+
+          if (!file.exists()) {
+            throw IllegalArgumentException("CTM file does not exist: ${file.absolutePath}")
+          }
+
+          file
+        }
+
+    // Create output files map from outputs list
+    // For charpad, we support multiple output types but need to determine the mapping
+    val outputFilesMap = createOutputFilesMap(outputs, projectRootDir)
+
+    // Create CharpadCommand instances for each input file
+    val charpadCommands =
+        inputFiles.map { inputFile ->
+          CharpadCommand(
+              inputFile = inputFile,
+              outputFiles = outputFilesMap,
+              config = config,
+              projectRootDir = projectRootDir)
+        }
+
+    // Execute charpad processing through the port
+    try {
+      port.process(charpadCommands)
+    } catch (e: Exception) {
+      throw RuntimeException("Charpad processing failed for step '$name': ${e.message}", e)
     }
 
-    outputs.forEach { outputPath -> println("  Generating: $outputPath") }
+    outputs.forEach { outputPath -> println("  Generated output: $outputPath") }
+  }
+
+  /**
+   * Creates a map of output file types to File objects from the outputs list. For charpad
+   * processing, we need to determine which output corresponds to which type (charset, map, tiles,
+   * etc.)
+   */
+  private fun createOutputFilesMap(outputs: List<String>, projectRootDir: File): Map<String, File> {
+    val outputMap = mutableMapOf<String, File>()
+
+    outputs.forEachIndexed { index, outputPath ->
+      val file =
+          if (File(outputPath).isAbsolute) {
+            File(outputPath)
+          } else {
+            File(projectRootDir, outputPath)
+          }
+
+      // Determine output type based on file extension or name pattern
+      val outputKey =
+          when {
+            outputPath.contains("charset", ignoreCase = true) ||
+                outputPath.endsWith(".chr", ignoreCase = true) -> "charset"
+            outputPath.contains("tilemap", ignoreCase = true) ||
+                outputPath.contains("map", ignoreCase = true) ||
+                outputPath.endsWith(".map", ignoreCase = true) -> "map"
+            outputPath.contains("tiles", ignoreCase = true) ||
+                outputPath.endsWith(".tiles", ignoreCase = true) -> "tiles"
+            // Header files (.h) get priority over metadata files (.inc)
+            outputPath.contains("header", ignoreCase = true) ||
+                outputPath.endsWith(".h", ignoreCase = true) -> "header"
+            outputPath.contains("metadata", ignoreCase = true) ||
+                outputPath.endsWith(".inc", ignoreCase = true) -> "metadata"
+            outputPath.contains("char_attributes", ignoreCase = true) ||
+                outputPath.contains("attributes", ignoreCase = true) -> "charattributes"
+            outputPath.contains("char_colours", ignoreCase = true) ||
+                outputPath.contains("colours", ignoreCase = true) -> "charcolours"
+            outputPath.contains("char_materials", ignoreCase = true) ||
+                outputPath.contains("materials", ignoreCase = true) -> "charmaterials"
+            outputPath.contains("screen_colors", ignoreCase = true) ||
+                outputPath.contains("screen", ignoreCase = true) -> "charscreencolours"
+            else -> "output$index" // Fallback to indexed naming
+          }
+
+      outputMap[outputKey] = file
+    }
+
+    return outputMap
   }
 
   override fun validate(): List<String> {
@@ -82,7 +180,14 @@ class CharpadStep(
         "tileSize" to config.tileSize,
         "charsetOptimization" to config.charsetOptimization,
         "generateMap" to config.generateMap,
-        "generateCharset" to config.generateCharset)
+        "generateCharset" to config.generateCharset,
+        "ctm8PrototypeCompatibility" to config.ctm8PrototypeCompatibility,
+        "namespace" to config.namespace,
+        "prefix" to config.prefix,
+        "includeVersion" to config.includeVersion,
+        "includeBgColours" to config.includeBgColours,
+        "includeCharColours" to config.includeCharColours,
+        "includeMode" to config.includeMode)
   }
 
   override fun toString(): String {

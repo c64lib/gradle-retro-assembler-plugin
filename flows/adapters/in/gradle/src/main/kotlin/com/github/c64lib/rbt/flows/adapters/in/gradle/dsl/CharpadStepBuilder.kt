@@ -32,12 +32,22 @@ class CharpadStepBuilder(private val name: String) {
   private val inputs = mutableListOf<String>()
   private val outputs = mutableListOf<String>()
 
+  // Core charpad processing options
   var compression: CharpadCompression = CharpadCompression.NONE
   var exportFormat: CharpadFormat = CharpadFormat.STANDARD
   var tileSize: Int = 8
   var charsetOptimization: Boolean = true
   var generateMap: Boolean = true
   var generateCharset: Boolean = true
+  var ctm8PrototypeCompatibility: Boolean = false
+
+  // Metadata configuration options
+  var namespace: String = ""
+  var prefix: String = ""
+  var includeVersion: Boolean = false
+  var includeBgColours: Boolean = true // Align with original processor default
+  var includeCharColours: Boolean = true // Align with original processor default
+  var includeMode: Boolean = false
 
   /** Specifies input sources for this Charpad step. */
   fun from(path: String) {
@@ -59,6 +69,18 @@ class CharpadStepBuilder(private val name: String) {
     outputs.addAll(paths)
   }
 
+  /** Configures metadata output options. */
+  fun metadata(block: MetadataConfigBuilder.() -> Unit) {
+    val builder = MetadataConfigBuilder()
+    builder.block()
+    namespace = builder.namespace
+    prefix = builder.prefix
+    includeVersion = builder.includeVersion
+    includeBgColours = builder.includeBgColours
+    includeCharColours = builder.includeCharColours
+    includeMode = builder.includeMode
+  }
+
   internal fun build(): CharpadStep {
     val config =
         CharpadConfig(
@@ -67,7 +89,24 @@ class CharpadStepBuilder(private val name: String) {
             tileSize = tileSize,
             charsetOptimization = charsetOptimization,
             generateMap = generateMap,
-            generateCharset = generateCharset)
+            generateCharset = generateCharset,
+            ctm8PrototypeCompatibility = ctm8PrototypeCompatibility,
+            namespace = namespace,
+            prefix = prefix,
+            includeVersion = includeVersion,
+            includeBgColours = includeBgColours,
+            includeCharColours = includeCharColours,
+            includeMode = includeMode)
     return CharpadStep(name, inputs, outputs, config)
+  }
+
+  /** DSL builder for metadata configuration. */
+  class MetadataConfigBuilder {
+    var namespace: String = ""
+    var prefix: String = ""
+    var includeVersion: Boolean = false
+    var includeBgColours: Boolean = true
+    var includeCharColours: Boolean = true
+    var includeMode: Boolean = false
   }
 }

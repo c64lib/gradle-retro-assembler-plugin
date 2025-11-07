@@ -47,7 +47,15 @@ data class CharpadConfig(
     val tileSize: Int = 8,
     val charsetOptimization: Boolean = true,
     val generateMap: Boolean = true,
-    val generateCharset: Boolean = true
+    val generateCharset: Boolean = true,
+    val ctm8PrototypeCompatibility: Boolean = false,
+    // Metadata configuration options - aligned with original processor defaults
+    val namespace: String = "",
+    val prefix: String = "",
+    val includeVersion: Boolean = false,
+    val includeBgColours: Boolean = true, // Align with original processor default
+    val includeCharColours: Boolean = true, // Align with original processor default
+    val includeMode: Boolean = false
 )
 
 // Spritepad Configuration

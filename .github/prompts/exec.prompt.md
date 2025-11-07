@@ -23,3 +23,4 @@ Follow the following rules during plan execution.
 5. Once finishing executing of the step, always mark the step as completed in the action plan by adding a ✅ right before step name.
 6. Once finishing executing the whole phase, always mark the phase as completed in the action plan by adding a ✅ right before phase name.
 7. If by any reason the step is skipped, it should be marked as skipped in the action plan by adding a ⏭️ right before step name. It should be clearly stated why it was skipped.
+8. During plan execution, document each step as separate section in file `.ai/feature-${input:IssueName}-execution-log.md`, with timestamp and description of what was done, what was found, what was changed, what was the errors found during execution and how were they fixed, etc.

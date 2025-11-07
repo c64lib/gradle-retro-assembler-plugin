@@ -24,7 +24,9 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks
 
+import com.github.c64lib.rbt.flows.adapters.out.charpad.CharpadAdapter
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.steps.CharpadStep
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.tasks.OutputFiles
 
@@ -44,49 +46,46 @@ abstract class CharpadTask : BaseFlowStepTask() {
           "Charpad step validation failed: ${validationErrors.joinToString(", ")}")
     }
 
-    logger.info("Processing Charpad files from inputs: ${step.inputs}")
+    if (step !is CharpadStep) {
+      throw IllegalStateException("Expected CharpadStep but got ${step::class.simpleName}")
+    }
+
+    logger.info("Executing CharpadStep '${step.name}' with configuration: ${step.config}")
+    logger.info("Input files: ${step.inputs}")
     logger.info("Output directory: ${outputDirectory.get().asFile.absolutePath}")
 
-    // TODO: Integrate with actual Charpad processor from processors/charpad module
-    // For now, simulate the processing
-    step.inputs.forEach { inputPath ->
-      logger.info("Processing Charpad file: $inputPath")
+    try {
+      // Create CharpadAdapter for actual charpad processing
+      val charpadAdapter = CharpadAdapter()
+      step.setCharpadPort(charpadAdapter)
 
-      // Example: Convert .ctm file to .chr and .map files
-      val inputFile = project.file(inputPath)
-      if (inputFile.exists() && inputFile.extension == "ctm") {
-        val baseName = inputFile.nameWithoutExtension
-        val outputDir = outputDirectory.get().asFile
+      // Create execution context with project information
+      val executionContext =
+          mapOf(
+              "projectRootDir" to project.projectDir,
+              "outputDirectory" to outputDirectory.get().asFile,
+              "logger" to logger)
 
-        // Create output files (placeholder - actual implementation will use charpad processor)
-        val chrFile = outputDir.resolve("$baseName.chr")
-        val mapFile = outputDir.resolve("$baseName.map")
+      // Execute the step using its domain logic
+      step.execute(executionContext)
 
-        chrFile.writeText("// Generated character set from $inputPath\n")
-        mapFile.writeText("// Generated character map from $inputPath\n")
-
-        logger.info("Generated: ${chrFile.absolutePath}")
-        logger.info("Generated: ${mapFile.absolutePath}")
-      } else {
-        logger.warn("Input file not found or not a .ctm file: $inputPath")
-      }
+      logger.info("Successfully completed charpad step '${step.name}'")
+    } catch (e: Exception) {
+      logger.error("Charpad processing failed for step '${step.name}': ${e.message}", e)
+      throw e
     }
   }
 
   override fun validateStep(step: FlowStep): List<String> {
     val errors = super.validateStep(step).toMutableList()
 
-    // Charpad-specific validations
-    if (step.inputs.isEmpty()) {
-      errors.add("Charpad step requires at least one input .ctm file")
+    if (step !is CharpadStep) {
+      errors.add("Expected CharpadStep but got ${step::class.simpleName}")
+      return errors
     }
 
-    step.inputs.forEach { inputPath ->
-      val inputFile = project.file(inputPath)
-      if (!inputFile.name.endsWith(".ctm")) {
-        errors.add("Charpad step expects .ctm files, but got: $inputPath")
-      }
-    }
+    // Use the domain validation from CharpadStep
+    errors.addAll(step.validate())
 
     return errors
   }
