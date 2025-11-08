@@ -110,8 +110,13 @@ These filters enable flexible data transformation pipelines for asset processing
      - **Interleaver**: Allows access to bytes within larger chunks independently (e.g., upper or lower byte of a word value) for conversion
    - **Implication**: These are complementary filters for different granularity levels of data access and transformation
 
-3. **Testing Requirements**: Are there existing CharPad projects with nybbler/interleaver configurations that can be used for integration testing?
-   - **Why important**: Real-world test cases are more valuable than synthetic ones for validating the implementation.
+3. ✅ **Testing Requirements**: Are there existing CharPad projects with nybbler/interleaver configurations that can be used for integration testing?
+   - **Answer**: Existing tests in the old functionality should be copied and converted to the new flow-based system
+   - **Implication**:
+     - Reduces test creation effort by reusing proven test cases
+     - Ensures parity between old and new implementations
+     - Existing tests serve as both validation and documentation
+     - Test location: Copy from old test location to `flows/src/test/kotlin/...`
 
 4. **Filter Combinations**: Can nybbler and interleaver be applied simultaneously to the same output, or are they mutually exclusive?
    - **Why important**: Affects the configuration model and validation logic.
@@ -198,20 +203,28 @@ private fun createBinaryOutput(outputFile: File, filterConfig: OutputFilterConfi
 **Expected Outcome**: Functional nybbler and interleaver support in the charpad flow step.
 
 ### 5. Write Unit Tests
-**Action**: Create CharpadStepTest.kt in flows/src/test/kotlin/ with test cases for:
-- Nybbler with loOutput only
-- Nybbler with hiOutput only
-- Nybbler with both outputs
-- Nybbler with normalizeHi = true/false
-- Single interleaver
-- Multiple interleavers
-- Interleaver with uneven byte count (should throw exception)
-- Combined charset extraction + nybbler
-- Edge case: null outputs should use DevNull
+**Action**: Copy and convert existing tests from old charpad functionality to the new flow-based system:
+1. Identify all charpad-related tests in `processors/charpad/src/test/kotlin/`
+2. Copy tests that cover nybbler/interleaver functionality
+3. Convert them to work with the new CharpadStep architecture (instead of old DSL)
+4. Adapt assertions to use new configuration model (data classes instead of DSL actions)
+5. Add any missing edge cases:
+   - Nybbler with loOutput only
+   - Nybbler with hiOutput only
+   - Nybbler with both outputs
+   - Nybbler with normalizeHi = true/false
+   - Single interleaver
+   - Multiple interleavers
+   - Interleaver with uneven byte count (should throw exception)
+   - Combined charset extraction + nybbler
 
-**Rationale**: The existing NybblerTest.kt and BinaryInterleaverTest.kt test the filters in isolation. New tests are needed to verify integration with the charpad flow step.
+**Rationale**:
+- Reusing existing proven test cases reduces test creation effort
+- Ensures parity between old and new implementations
+- Existing tests document expected behavior and edge cases
+- Conversion process validates the new implementation against known good behavior
 
-**Expected Outcome**: Comprehensive test coverage ensuring the feature works correctly and handles edge cases.
+**Expected Outcome**: Comprehensive test suite mirroring old functionality, ensuring correctness and parity.
 
 ### 6. Write Integration Tests
 **Action**: Create an end-to-end test that:
@@ -343,3 +356,21 @@ No new dependencies are required.
 - Validates that filters operate at different data granularity levels
 - Helps inform validation logic and test case design
 - Confirms both filters are essential for flexible asset processing pipelines
+
+### Update 3: Test Strategy - Copy and Convert Existing Tests (2025-11-08)
+
+**Information Added**: Existing tests in old charpad functionality should be copied and converted to the new flow-based system.
+
+**Changes Made**:
+1. Marked Question 3 as answered with specific test strategy
+2. Replaced Step 5 (Write Unit Tests) with copy-and-convert approach
+3. Updated rationale to emphasize reuse and parity validation
+4. Defined conversion process: adapt from DSL to data classes
+
+**Impact on Implementation**:
+- **Reduces test creation effort** - leverages existing proven test cases
+- **Ensures feature parity** - validates new implementation against known good behavior
+- **Improves confidence** - existing tests document expected behavior and edge cases
+- **Defines clear test location** - convert to `flows/src/test/kotlin/...`
+- **Simplifies validation** - comparison between old and new implementations becomes straightforward
+- **First step in Step 5** should now identify and locate existing charpad tests in old DSL
