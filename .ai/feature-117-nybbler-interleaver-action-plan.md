@@ -137,6 +137,168 @@ These filters enable flexible data transformation pipelines for asset processing
 
 ## Next Steps
 
+### ✅ 9. Implement and Execute Unit Tests for Filter Integration
+**Status**: PENDING
+
+**Action**: Write comprehensive unit tests to validate the filter integration in CharpadStep and CharpadOutputProducerFactory:
+
+1. **Unit Tests for Filter Configuration**:
+   - Test `FilterConfig.Nybbler` with various parameter combinations
+     - Both loOutput and hiOutput specified
+     - Only loOutput specified
+     - Only hiOutput specified
+     - normalizeHi = true vs false
+   - Test `FilterConfig.Interleaver` with different output counts
+     - Single output (no distribution)
+     - Two outputs (even/odd distribution)
+     - Three or more outputs (multi-way distribution)
+   - Test `FilterConfig.None` (baseline, no filtering)
+
+2. **Unit Tests for Output Wrapping**:
+   - Verify `CharpadOutputProducerFactory.createBinaryOutput()` returns correct wrapper types
+     - `FilterConfig.Nybbler` returns NybblerImpl instance
+     - `FilterConfig.Interleaver` returns BinaryInterleaverImpl instance
+     - `FilterConfig.None` returns unwrapped FileBinaryOutput
+   - Test that filter outputs are correctly resolved and created
+
+3. **Unit Tests for getAllOutputPaths()**:
+   - Verify primary output paths are included
+   - Verify nybbler filter outputs (loOutput, hiOutput) are included when present
+   - Verify interleaver filter outputs are included
+   - Verify null outputs are excluded from path list
+   - Test with mixed configurations (some with filters, some without)
+
+4. **Unit Tests for CharpadStep Validation**:
+   - Ensure validation still works with filter configurations
+   - Verify no validation errors for valid filter setups
+   - Test that output file paths are properly resolved (relative/absolute)
+
+**Test Location**: `flows/src/test/kotlin/com/github/c64lib/rbt/flows/domain/`
+- `CharpadOutputsTest.kt` - Test getAllOutputPaths() and filter configuration
+- `CharpadOutputProducerFactoryTest.kt` - Test createBinaryOutput() wrapper logic
+- `CharpadStepTest.kt` - Test filter configuration integration in step
+
+**Rationale**: Unit tests validate individual components work correctly in isolation and prevent regressions as the code evolves.
+
+**Expected Outcome**: Comprehensive test suite covering all filter configurations and edge cases.
+
+### ✅ 10. Implement and Execute Integration Tests
+**Status**: PENDING
+
+**Action**: Create end-to-end integration tests that exercise the full filter pipeline:
+
+1. **Integration Test: Nybbler with Real CharPad File**:
+   - Load a test CharPad CTM file
+   - Configure charset output with nybbler filter (loOutput and hiOutput)
+   - Execute CharpadStep
+   - Verify:
+     - Original output file is created
+     - Low nibble output file is created with correct content
+     - High nibble output file is created with correct content
+     - Content matches expected nybbler transformation
+
+2. **Integration Test: Interleaver with Real CharPad File**:
+   - Load a test CharPad CTM file
+   - Configure tile output with interleaver filter (2-way split)
+   - Execute CharpadStep
+   - Verify:
+     - Original output file is created
+     - Both interleaver output files are created
+     - Content is correctly distributed (even indices in output 0, odd in output 1)
+
+3. **Integration Test: Multiple Filters on Different Outputs**:
+   - Configure charset with nybbler
+   - Configure tiles with interleaver
+   - Configure map without filter
+   - Execute CharpadStep
+   - Verify all outputs and filter outputs are created
+
+4. **Integration Test: Partial Nybbler Configuration**:
+   - Configure nybbler with only loOutput (hiOutput = null)
+   - Verify only loOutput file is created
+   - Verify hiOutput file is NOT created
+
+5. **Integration Test: Flow Dependency Resolution**:
+   - Verify that filter output paths are correctly included in `getAllOutputPaths()`
+   - Ensure flow framework can track all dependencies including filter outputs
+
+**Test Location**: `flows/src/test/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/`
+- `CharpadIntegrationTest.kt` - End-to-end integration tests
+
+**Test Data**: Use existing test CharPad files from `flows/src/test/resources/` or create minimal test fixtures
+
+**Rationale**: Integration tests validate the complete pipeline works end-to-end with real data, catching issues that unit tests might miss.
+
+**Expected Outcome**: Proof that filter implementation works correctly with real CharPad files and all filter configurations.
+
+### ✅ 11. Update/Create Documentation
+**Status**: PENDING
+
+**Action**: Document the nybbler/interleaver filter feature for users:
+
+1. **Flow DSL Configuration Examples**:
+   - Document how to configure nybbler filters in flow DSL
+   - Document how to configure interleaver filters in flow DSL
+   - Show complete examples of charpad flow steps with filters
+
+2. **Update FlowDslExamples.md**:
+   - Add comprehensive example showing all 10 binary output types with optional filter support
+   - Update filter constraints section
+   - Include practical use cases for nybbler and interleaver
+
+3. **Migration Guide** (if applicable):
+   - Document how users migrating from old DSL to new flow step should configure filters
+   - Highlight that API differs but functionality is equivalent
+
+4. **API Documentation**:
+   - Ensure KDoc comments in CharpadOutputs.kt are comprehensive
+   - Include usage examples in class-level documentation
+   - Document filter applicability and constraints
+
+**Documentation Locations**:
+- `flows/README.md` or equivalent
+- `FlowDslExamples.md` (if exists)
+- Code documentation in CharpadOutputs.kt (already in place)
+
+**Rationale**: Users need clear documentation to understand how to use the new filter capabilities.
+
+**Expected Outcome**: Clear, comprehensive documentation enabling users to adopt the feature.
+
+### ✅ 12. Validate with Real-World Example (NEW)
+**Status**: PENDING
+
+**Action**: Verify the implementation works with real-world Commodore 64 asset processing scenarios:
+
+1. **Identify Real-World Use Cases**:
+   - Find or create a CharPad CTM file that uses typical C64 graphics conventions
+   - Identify scenarios where nybbler or interleaver would be beneficial
+   - Document the data transformation workflow
+
+2. **End-to-End Validation**:
+   - Configure a complete charpad flow step with nybbler/interleaver filters
+   - Execute the full flow
+   - Verify:
+     - All output files are created
+     - Filter outputs contain correct transformed data
+     - Results match expected transformations
+     - No performance issues or errors
+
+3. **Compare with Old DSL** (if applicable):
+   - Run equivalent configuration in old DSL system
+   - Compare results between old and new systems
+   - Verify complete feature parity
+
+4. **Document Findings**:
+   - Create a real-world example project or documentation
+   - Show before/after transformations
+   - Demonstrate practical use cases
+
+**Test Data**: Locate or create representative CharPad projects in test resources
+
+**Rationale**: Real-world validation ensures the implementation meets actual user needs and catches issues that synthetic tests might miss. Validates feature parity with legacy system.
+
+**Expected Outcome**: Confidence that the feature works correctly in real-world scenarios and provides equivalent functionality to the old DSL.
+
 ### ✅ 1. Enforce Filter Mutual Exclusivity
 **Status**: COMPLETED
 
@@ -633,3 +795,56 @@ All 10 binary outputs properly extended with filter field:
 
 **Key Insight - Refined**:
 The design principle is simpler than previously thought: **All binary outputs support filters. Only text-based outputs don't.** This provides maximum flexibility for users while maintaining a clear semantic boundary between binary transformation and text generation.
+
+### Update 8: Flow DSL Enhanced with Filter Support (2025-11-08)
+
+**Information Added**: The flow DSL has been fully enhanced with interleaver and nybbler filter capabilities across all binary output types.
+
+**Implementation Status**: COMPLETED
+
+**Implementation Details**:
+
+1. **Domain Layer** - `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/config/CharpadOutputs.kt`:
+   - ✅ `FilterConfig` sealed class with `Nybbler`, `Interleaver`, and `None` variants
+   - ✅ All 9 RangeOutput implementations extended with `filter: FilterConfig` field
+   - ✅ `MapOutput` extended with `filter: FilterConfig` field
+   - ✅ `getAllOutputPaths()` updated to include filter output paths
+   - ✅ Comprehensive documentation with usage examples
+
+2. **Adapter Layer** - `flows/adapters/out/charpad/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/out/charpad/CharpadOutputProducerFactory.kt`:
+   - ✅ `createBinaryOutput()` method wraps outputs with filters based on sealed class
+   - ✅ All 10 output types (9 RangeOutput + MapOutput) support filter wrapping
+   - ✅ Uses existing `NybblerImpl` and `BinaryInterleaverImpl` implementations
+   - ✅ Proper file path resolution for relative paths
+   - ✅ Parent directory creation for all filter outputs
+
+3. **Execution Logic** - `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/steps/CharpadStep.kt`:
+   - ✅ Passes filter configuration through to output producer factory
+   - ✅ Dependency tracking includes all filter output paths
+   - ✅ No additional validation needed (mutual exclusivity enforced by sealed class)
+
+**Key Features**:
+- **Type-Safe Mutual Exclusivity**: Sealed class hierarchy prevents invalid filter combinations at compile time
+- **Comprehensive Coverage**: All binary output types (charset, tiles, colors, materials, map) support filters
+- **Flexible Configuration**: Optional outputs (e.g., nybbler's loOutput/hiOutput can be null)
+- **Proper Dependency Tracking**: `getAllOutputPaths()` includes all filter-generated outputs for flow dependency resolution
+- **Performance**: Direct reuse of existing optimized filter implementations
+
+**Filter Applicability Summary**:
+- ✅ 10 binary output types support filters (9 RangeOutput + MapOutput)
+- ❌ 1 non-binary output type excluded (MetadataOutput - text headers)
+
+**Architecture Compliance**:
+- **Hexagonal Architecture**: Clear separation between domain (FilterConfig), use case (CharpadStep), and adapter (CharpadOutputProducerFactory)
+- **Shared Code Reuse**: Leverages battle-tested `Nybbler` and `BinaryInterleaver` implementations from shared/gradle
+- **Backward Compatibility**: Old DSL system continues unchanged; new flow step provides equivalent functionality
+
+**Evidence of Completion**:
+1. CharpadOutputs.kt line 70-158: FilterConfig sealed class with comprehensive documentation
+2. CharpadOutputs.kt line 160-251: All output data classes extended with filter fields
+3. CharpadOutputs.kt line 284-326: getAllOutputPaths() properly tracks filter outputs
+4. CharpadOutputProducerFactory.kt line 173-225: createBinaryOutput() wraps outputs with filters
+5. All 10 binary output types properly configured with filter support
+
+**Next Steps**:
+The implementation is feature-complete. Remaining tasks are testing, documentation, and validation with real-world examples.
