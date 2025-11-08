@@ -24,7 +24,9 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks
 
+import com.github.c64lib.rbt.flows.adapters.out.spritepad.SpritepadAdapter
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.steps.SpritepadStep
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.tasks.OutputFiles
 
@@ -44,46 +46,46 @@ abstract class SpritepadTask : BaseFlowStepTask() {
           "Spritepad step validation failed: ${validationErrors.joinToString(", ")}")
     }
 
-    logger.info("Processing Spritepad files from inputs: ${step.inputs}")
+    if (step !is SpritepadStep) {
+      throw IllegalStateException("Expected SpritepadStep but got ${step::class.simpleName}")
+    }
+
+    logger.info("Executing SpritepadStep '${step.name}' with configuration: ${step.config}")
+    logger.info("Input files: ${step.inputs}")
     logger.info("Output directory: ${outputDirectory.get().asFile.absolutePath}")
 
-    // TODO: Integrate with actual Spritepad processor from processors/spritepad module
-    // For now, simulate the processing
-    step.inputs.forEach { inputPath ->
-      logger.info("Processing Spritepad file: $inputPath")
+    try {
+      // Create SpritepadAdapter for actual spritepad processing
+      val spritepadAdapter = SpritepadAdapter()
+      step.setSpritepadPort(spritepadAdapter)
 
-      // Example: Convert .spd file to .spr file
-      val inputFile = project.file(inputPath)
-      if (inputFile.exists() && inputFile.extension == "spd") {
-        val baseName = inputFile.nameWithoutExtension
-        val outputDir = outputDirectory.get().asFile
+      // Create execution context with project information
+      val executionContext =
+          mapOf(
+              "projectRootDir" to project.projectDir,
+              "outputDirectory" to outputDirectory.get().asFile,
+              "logger" to logger)
 
-        // Create output files (placeholder - actual implementation will use spritepad processor)
-        val sprFile = outputDir.resolve("$baseName.spr")
+      // Execute the step using its domain logic
+      step.execute(executionContext)
 
-        sprFile.writeText("// Generated sprite data from $inputPath\n")
-
-        logger.info("Generated: ${sprFile.absolutePath}")
-      } else {
-        logger.warn("Input file not found or not a .spd file: $inputPath")
-      }
+      logger.info("Successfully completed spritepad step '${step.name}'")
+    } catch (e: Exception) {
+      logger.error("Spritepad processing failed for step '${step.name}': ${e.message}", e)
+      throw e
     }
   }
 
   override fun validateStep(step: FlowStep): List<String> {
     val errors = super.validateStep(step).toMutableList()
 
-    // Spritepad-specific validations
-    if (step.inputs.isEmpty()) {
-      errors.add("Spritepad step requires at least one input .spd file")
+    if (step !is SpritepadStep) {
+      errors.add("Expected SpritepadStep but got ${step::class.simpleName}")
+      return errors
     }
 
-    step.inputs.forEach { inputPath ->
-      val inputFile = project.file(inputPath)
-      if (!inputFile.name.endsWith(".spd")) {
-        errors.add("Spritepad step expects .spd files, but got: $inputPath")
-      }
-    }
+    // Use the domain validation from SpritepadStep
+    errors.addAll(step.validate())
 
     return errors
   }
