@@ -2,7 +2,9 @@
 
 ## Issue Description
 
-The old charpad preprocessor (Gradle DSL-based) supports nybbler and interleaver filters to be applied onto each output. These capabilities need to be extended to the new charpad flow step to maintain feature parity and allow migration from the old DSL to the new flow-based system.
+The old charpad preprocessor (Gradle DSL-based) supports nybbler and interleaver filters to be applied onto each output. These capabilities need to be extended to the new charpad flow step to maintain feature parity with the existing system.
+
+**Important**: Both the old DSL structure and new flow-based structure will be maintained in parallel. This is NOT a migration effort; the goal is to extend the new flow step with equivalent capabilities while keeping the old system functional.
 
 **Nybbler**: Splits bytes into low and high nibbles (4-bit halves), writing them to separate output files. Supports optional normalization of high nibbles.
 
@@ -67,6 +69,8 @@ The old charpad preprocessor (Gradle DSL-based) supports nybbler and interleaver
 2. Updating the output producer factory to wrap outputs with filters
 3. Ensuring the filters are applied in the correct order
 
+**Scope Clarification**: The old DSL will continue to exist and function unchanged. This is a parallel implementation to extend the new flow-based system, not a replacement or migration.
+
 ## Investigation Questions
 
 ### Self-Reflection Questions
@@ -91,8 +95,9 @@ The old charpad preprocessor (Gradle DSL-based) supports nybbler and interleaver
 
 ### Questions for Others
 
-1. **User Migration**: Are there active users of the old nybbler/interleaver DSL? What does their usage look like in real projects?
-   - **Why important**: Understanding real-world usage patterns will inform the API design and ensure backward compatibility.
+1. ✅ **Architecture Decision - Old vs New Structure**: Should the old DSL and new flow step maintain separate implementations or share code?
+   - **Answer**: Keep old structure in parallel. Both systems will coexist independently.
+   - **Implication**: No refactoring of shared/gradle components required. Only new flow step needs extension.
 
 2. **Use Cases**: What are the primary use cases for nybbler and interleaver in Commodore 64 development?
    - **Why important**: Helps validate the design and may reveal edge cases or additional requirements.
@@ -237,11 +242,12 @@ private fun createBinaryOutput(outputFile: File, filterConfig: OutputFilterConfi
 - **Use Case** (CharpadStep.execute): Logic for applying filters
 - **Adapter** (flows/adapters/out/charpad): CharpadOutputProducerFactory wraps outputs
 
-The existing filter implementations (Nybbler, BinaryInterleaver) are in shared/gradle, which may need to be refactored:
-- **Option 1**: Move filters to shared/domain to keep them technology-agnostic
-- **Option 2**: Create new domain-level filter interfaces in flows/src/domain and adapt the existing implementations
+**Shared Code Reuse**: The existing filter implementations (Nybbler.kt, BinaryInterleaver.kt) in shared/gradle will be reused directly. **No refactoring of shared/gradle is required** since both old and new systems will maintain separate, parallel implementations.
 
-**Recommendation**: Option 1 is simpler and preserves existing functionality. Option 2 is more architecturally pure but requires more refactoring.
+This approach:
+- Reduces risk of breaking existing functionality
+- Avoids cross-module dependencies between old DSL and new flow architectures
+- Keeps concerns properly isolated
 
 ### Backward Compatibility
 
@@ -293,3 +299,23 @@ No new dependencies are required.
 - Check if there are open issues about flow step feature parity
 - Review recent PRs that added new flow steps for architectural patterns to follow
 - Look for user requests or bug reports related to nybbler/interleaver
+
+## Plan Updates
+
+### Update 1: Parallel Architecture Decision (2025-11-08)
+
+**Information Added**: Both old DSL structure and new flow-based structure will be maintained in parallel.
+
+**Changes Made**:
+1. Updated Issue Description to clarify this is NOT a migration effort
+2. Added scope clarification to Root Cause Hypothesis
+3. Marked Question 1 as answered with key implications
+4. Updated Architecture Considerations to reflect that no refactoring of shared/gradle is needed
+5. Emphasized risk reduction and concern isolation benefits
+
+**Impact on Implementation**:
+- Simplifies the architecture by avoiding cross-module dependencies
+- Reduces risk of breaking existing functionality
+- Allows independent evolution of old DSL and new flow systems
+- **No changes required to shared/gradle components**
+- Implementation scope remains focused on flows module only
