@@ -237,13 +237,14 @@ data class TileScreenColoursOutput(
     override val filter: FilterConfig = FilterConfig.None
 ) : RangeOutput
 
-/** Map output configuration with rectangular region (left/top/right/bottom). */
+/** Map output configuration with rectangular region (left/top/right/bottom) and optional binary filter. */
 data class MapOutput(
     val output: String,
     val left: Int = 0,
     val top: Int = 0,
     val right: Int = 65536,
-    val bottom: Int = 65536
+    val bottom: Int = 65536,
+    val filter: FilterConfig = FilterConfig.None
 )
 
 /** Metadata output configuration with namespace, prefix, and inclusion flags. */
@@ -291,7 +292,7 @@ data class CharpadOutputs(
             maps.map { it.output } +
             metadata.map { it.output }
 
-    val filterOutputs =
+    val rangeFilterOutputs =
         (charsets +
                 charAttributes +
                 charColours +
@@ -309,7 +310,16 @@ data class CharpadOutputs(
               }
             }
 
-    return primaryOutputs + filterOutputs
+    val mapFilterOutputs =
+        maps.flatMap { output ->
+          when (val filter = output.filter) {
+            is FilterConfig.Nybbler -> listOfNotNull(filter.loOutput, filter.hiOutput)
+            is FilterConfig.Interleaver -> filter.outputs
+            FilterConfig.None -> emptyList()
+          }
+        }
+
+    return primaryOutputs + rangeFilterOutputs + mapFilterOutputs
   }
 
   /** Checks if any outputs are configured. */

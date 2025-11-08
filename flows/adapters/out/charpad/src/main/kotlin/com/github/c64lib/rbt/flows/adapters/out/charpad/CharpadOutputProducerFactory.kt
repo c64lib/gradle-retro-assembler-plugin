@@ -149,7 +149,7 @@ class CharpadOutputProducerFactory {
           MapProducer(
               leftTop = MapCoord(mapOutput.left, mapOutput.top),
               rightBottom = MapCoord(mapOutput.right, mapOutput.bottom),
-              output = createBinaryOutput(file, FilterConfig.None, command.projectRootDir)))
+              output = createBinaryOutput(file, mapOutput.filter, command.projectRootDir)))
     }
 
     // Create metadata/header producers

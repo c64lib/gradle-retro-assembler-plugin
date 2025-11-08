@@ -574,3 +574,62 @@ Non-filterable outputs correctly excluded:
 
 **Key Insight**:
 The design of filter support is elegant - by adding the `filter` field only to the `RangeOutput` interface, all 9 range-based output implementations automatically support filters. This is consistent with Hexagonal Architecture principles where concerns are properly isolated based on semantic meaning (range-based vs region-based vs metadata).
+
+### Update 7: Maps Should Also Support Filters (2025-11-08)
+
+**New Information**: Maps produce binary data (like charsets and tiles) and should support filters just like other binary outputs.
+
+**Correction to Previous Update**:
+Maps were incorrectly excluded from filter support in Update 6. The original reasoning ("region-based, not range-based") was incorrect.
+
+**Key Realization**:
+- Maps ARE binary outputs (produce binary map data)
+- Maps CAN benefit from nybbler/interleaver transformation
+- Maps should follow the same filter pattern as charsets and tiles
+- The only output type that should NOT support filters is metadata (text headers)
+
+**Changes Made**:
+1. Added `filter: FilterConfig = FilterConfig.None` to MapOutput data class
+2. Updated `getAllOutputPaths()` to include map filter outputs in mapFilterOutputs collection
+3. Updated CharpadOutputProducerFactory to pass `mapOutput.filter` (not hardcoded `FilterConfig.None`)
+4. Updated FlowDslExamples.md filter applicability table to show `map` as ✅ Yes
+5. Updated documentation note to clarify only metadata doesn't support filters
+6. Updated comprehensive example to show map with nybbler filter
+7. Updated count: now 10 binary outputs support filters (9 range-based + map), only 1 doesn't (metadata)
+
+**Updated Filter Applicability**:
+
+Filters ARE supported on these 10 binary outputs:
+1. charset ✅
+2. charsetAttributes ✅
+3. charsetColours ✅
+4. charsetMaterials ✅
+5. charsetScreenColours ✅
+6. tiles ✅
+7. tileTags ✅
+8. tileColours ✅
+9. tileScreenColours ✅
+10. **map** ✅ (NEWLY ADDED)
+
+Filters are NOT supported on this 1 output:
+- meta ❌ (text/metadata header, not binary data)
+
+**Architecture Rationale - Updated**:
+- All outputs that produce **binary data** support filters
+- Only metadata output (which produces **text headers**) does not support filters
+- This is a cleaner, more consistent design principle: "binary outputs support binary filters"
+
+**Implementation Verification**:
+All 10 binary outputs properly extended with filter field:
+- 9 RangeOutput implementations ✅
+- MapOutput ✅
+- MetadataOutput correctly excluded (doesn't produce binary data) ❌
+
+**Documentation Updates**:
+- Updated filter applicability table (all 11 output types with correct ✅/❌)
+- Updated note explaining why only metadata doesn't support filters
+- Updated comprehensive example to show map with nybbler filter
+- Clear distinction: binary vs text-based outputs
+
+**Key Insight - Refined**:
+The design principle is simpler than previously thought: **All binary outputs support filters. Only text-based outputs don't.** This provides maximum flexibility for users while maintaining a clear semantic boundary between binary transformation and text generation.

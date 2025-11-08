@@ -447,10 +447,10 @@ Filters are applicable to **range-based outputs only** (those with `start` and `
 | `tileTags` | ✅ Yes | Range-based output |
 | `tileColours` | ✅ Yes | Range-based output |
 | `tileScreenColours` | ✅ Yes | Range-based output |
-| `map` | ❌ No | Region-based (left/top/right/bottom), not range-based |
+| `map` | ✅ Yes | Region-based output (also produces binary data) |
 | `meta` | ❌ No | Metadata/header output, not binary data |
 
-**Note:** Maps and metadata outputs do not support filters because they have different output semantics (rectangular regions and header generation respectively).
+**Note:** Only metadata output does not support filters because it generates text headers, not binary data. All other outputs (including maps) produce binary data and support filters.
 
 ### Nybbler Filter
 
@@ -882,16 +882,21 @@ step("all-outputs-with-filters") {
         }
     }
 
-    // NOTE: Map and metadata outputs do NOT support filters
-    // (they use different output semantics)
+    // Map - also supports filters (produces binary data)
     map {
         output = "build/map.bin"
         left = 0
         top = 0
         right = 40
         bottom = 25
+        nybbler {
+            loOutput = "build/map_lo.bin"
+            hiOutput = "build/map_hi.bin"
+        }
     }
 
+    // NOTE: Metadata output does NOT support filters
+    // (generates text headers, not binary data)
     meta {
         output = "build/header.h"
         namespace = "GAME"
@@ -901,8 +906,9 @@ step("all-outputs-with-filters") {
 ```
 
 This comprehensive example shows:
-- All 9 range-based output types that support filters
+- All 10 binary output types that support filters (9 range-based + map)
 - Both nybbler and interleaver filters being used
 - Mix of filtered and non-filtered outputs in the same step
 - Range parameters combined with filters (tiles example)
-- Map and metadata outputs without filters (as they're not applicable)
+- Region parameters combined with filters (map example)
+- Metadata output without filters (as it generates text headers)
