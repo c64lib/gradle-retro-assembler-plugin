@@ -80,83 +80,106 @@ class CharpadStepBuilder(private val name: String) {
   fun charset(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    charsetOutputs.add(CharsetOutput(builder.output, builder.start, builder.end, builder.filter))
+    if (builder.output.isNotEmpty() || builder.filter != FilterConfig.None) {
+      charsetOutputs.add(CharsetOutput(builder.output, builder.start, builder.end, builder.filter))
+    }
   }
 
   /** Configures charset attributes output with optional start/end range and filter. */
   fun charsetAttributes(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    charAttributesOutputs.add(
-        CharAttributesOutput(builder.output, builder.start, builder.end, builder.filter))
+    if (builder.output.isNotEmpty() || builder.filter != FilterConfig.None) {
+      charAttributesOutputs.add(
+          CharAttributesOutput(builder.output, builder.start, builder.end, builder.filter))
+    }
   }
 
   /** Configures charset colours output with optional start/end range and filter. */
   fun charsetColours(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    charColoursOutputs.add(
-        CharColoursOutput(builder.output, builder.start, builder.end, builder.filter))
+    if (builder.output.isNotEmpty() || builder.filter != FilterConfig.None) {
+      charColoursOutputs.add(
+          CharColoursOutput(builder.output, builder.start, builder.end, builder.filter))
+    }
   }
 
   /** Configures charset materials output with optional start/end range and filter. */
   fun charsetMaterials(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    charMaterialsOutputs.add(
-        CharMaterialsOutput(builder.output, builder.start, builder.end, builder.filter))
+    if (builder.output.isNotEmpty() || builder.filter != FilterConfig.None) {
+      charMaterialsOutputs.add(
+          CharMaterialsOutput(builder.output, builder.start, builder.end, builder.filter))
+    }
   }
 
   /** Configures charset screen colours output with optional start/end range and filter. */
   fun charsetScreenColours(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    charScreenColoursOutputs.add(
-        CharScreenColoursOutput(builder.output, builder.start, builder.end, builder.filter))
+    if (builder.output.isNotEmpty() || builder.filter != FilterConfig.None) {
+      charScreenColoursOutputs.add(
+          CharScreenColoursOutput(builder.output, builder.start, builder.end, builder.filter))
+    }
   }
 
   /** Configures tiles output with optional start/end range and filter. */
   fun tiles(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    tileOutputs.add(TileOutput(builder.output, builder.start, builder.end, builder.filter))
+    if (builder.output.isNotEmpty() || builder.filter != FilterConfig.None) {
+      tileOutputs.add(TileOutput(builder.output, builder.start, builder.end, builder.filter))
+    }
   }
 
   /** Configures tile tags output with optional start/end range and filter. */
   fun tileTags(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    tileTagsOutputs.add(TileTagsOutput(builder.output, builder.start, builder.end, builder.filter))
+    if (builder.output.isNotEmpty() || builder.filter != FilterConfig.None) {
+      tileTagsOutputs.add(
+          TileTagsOutput(builder.output, builder.start, builder.end, builder.filter))
+    }
   }
 
   /** Configures tile colours output with optional start/end range and filter. */
   fun tileColours(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    tileColoursOutputs.add(
-        TileColoursOutput(builder.output, builder.start, builder.end, builder.filter))
+    if (builder.output.isNotEmpty() || builder.filter != FilterConfig.None) {
+      tileColoursOutputs.add(
+          TileColoursOutput(builder.output, builder.start, builder.end, builder.filter))
+    }
   }
 
   /** Configures tile screen colours output with optional start/end range and filter. */
   fun tileScreenColours(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    tileScreenColoursOutputs.add(
-        TileScreenColoursOutput(builder.output, builder.start, builder.end, builder.filter))
+    if (builder.output.isNotEmpty() || builder.filter != FilterConfig.None) {
+      tileScreenColoursOutputs.add(
+          TileScreenColoursOutput(builder.output, builder.start, builder.end, builder.filter))
+    }
   }
 
   /** Configures map output with optional rectangular region and filter. */
   fun map(block: MapOutputBuilder.() -> Unit) {
     val builder = MapOutputBuilder()
     builder.block()
-    mapOutputs.add(
-        MapOutput(
-            builder.output,
-            builder.left,
-            builder.top,
-            builder.right,
-            builder.bottom,
-            builder.filter))
+    // Only add MapOutput if output is specified OR if a filter is configured
+    // When using filter-only mode (no primary output), output can be empty
+    if (builder.output.isNotEmpty() || builder.filter != FilterConfig.None) {
+      mapOutputs.add(
+          MapOutput(
+              builder.output,
+              builder.left,
+              builder.top,
+              builder.right,
+              builder.bottom,
+              builder.filter))
+    }
   }
 
   /** Configures metadata output with optional parameters. */
