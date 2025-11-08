@@ -67,7 +67,7 @@ The old charpad preprocessor (Gradle DSL-based) supports nybbler and interleaver
 **What needs to happen**: The existing filter implementations need to be integrated into the flow step by:
 1. Adding configuration fields to domain models (CharpadOutputs)
 2. Updating the output producer factory to wrap outputs with filters
-3. Ensuring the filters are applied in the correct order
+3. Enforcing mutual exclusivity - only one filter type (nybbler OR interleaver) per output
 
 **Scope Clarification**: The old DSL will continue to exist and function unchanged. This is a parallel implementation to extend the new flow-based system, not a replacement or migration.
 
@@ -86,8 +86,9 @@ These filters enable flexible data transformation pipelines for asset processing
 2. **API Compatibility**: Should the new flow step's filter API exactly mirror the old DSL, or should it be redesigned to fit the flow-based paradigm?
    - **Analysis**: The flow system uses Kotlin data classes rather than Gradle DSL actions. The concepts (loOutput, hiOutput, normalizeHi) should remain the same, but the syntax will differ.
 
-3. **Filter Ordering**: In what order should filters be applied? Should nybbler come before or after interleaver?
-   - **Analysis**: Looking at FilterAwareExtension.kt lines 74-110, the logic suggests only one filter type is applied per output. Need to verify if both can be combined.
+3. ✅ **Filter Ordering**: In what order should filters be applied? Should nybbler come before or after interleaver?
+   - **Answer**: Not applicable - filters cannot be combined (mutually exclusive)
+   - **Analysis**: FilterAwareExtension.kt lines 74-110 shows only one filter type per output. Configuration must enforce that only nybbler OR interleaver can be configured, never both.
 
 4. **Output Path Tracking**: How should additional output paths (nybbler's loOutput/hiOutput, interleaver outputs) be registered with the flow step's getAllOutputPaths()?
    - **Analysis**: CharpadStep.kt line 49 calls charpadOutputs.getAllOutputPaths(). This needs to include filter outputs for dependency tracking.
@@ -118,89 +119,113 @@ These filters enable flexible data transformation pipelines for asset processing
      - Existing tests serve as both validation and documentation
      - Test location: Copy from old test location to `flows/src/test/kotlin/...`
 
-4. **Filter Combinations**: Can nybbler and interleaver be applied simultaneously to the same output, or are they mutually exclusive?
-   - **Why important**: Affects the configuration model and validation logic.
+4. ✅ **Filter Combinations**: Can nybbler and interleaver be applied simultaneously to the same output, or are they mutually exclusive?
+   - **Answer**: They cannot be combined - they are mutually exclusive
+   - **Implication**:
+     - Configuration model should enforce mutual exclusivity (either nybbler OR interleaver per output, not both)
+     - Validation logic must reject configurations with both filters on the same output
+     - Simplifies implementation - no need to handle filter composition/ordering
+     - Each output can have only one filter type applied
 
 5. **Performance**: Are there performance concerns with filter usage? Should the new implementation optimize for specific scenarios?
    - **Why important**: May influence implementation details (e.g., buffering strategies).
 
 ## Next Steps
 
-### 1. Verify Filter Composition Rules
-**Action**: Analyze FilterAwareExtension.kt lines 74-110 to determine if nybbler and interleaver can be combined, and in what order.
+### 1. Enforce Filter Mutual Exclusivity
+**Action**: Ensure the configuration model enforces that nybbler and interleaver are mutually exclusive on any output:
+1. Only allow nybbler OR interleaver per output type, never both
+2. Add validation logic to reject conflicting configurations
+3. Consider using sealed class hierarchy or explicit validation
 
-**Rationale**: The configuration model depends on whether filters are mutually exclusive or composable. The code shows `hasNybbler`, `hasInterleavers`, and `hasMainOutput` as separate branches in a when expression, suggesting they're mutually exclusive per output.
+**Rationale**: Nybbler and interleaver cannot be combined - they are mutually exclusive. This simplifies the implementation and avoids filter composition complexity. FilterAwareExtension.kt lines 74-110 shows separate branches for each filter type.
 
-**Expected Outcome**: Documentation of filter composition rules to guide the new API design.
+**Expected Outcome**: Validation rules preventing misconfiguration of incompatible filters.
 
 ### 2. Design Configuration Model
-**Action**: Create data classes for filter configuration in the flows domain:
+**Action**: Create data classes for filter configuration in the flows domain with mutual exclusivity enforcement:
 ```kotlin
 // In flows/src/main/kotlin/.../domain/config/CharpadOutputs.kt
 
-data class NybblerConfig(
-    val loOutput: String? = null,
-    val hiOutput: String? = null,
-    val normalizeHi: Boolean = true
-)
+sealed class FilterConfig {
+    data class Nybbler(
+        val loOutput: String? = null,
+        val hiOutput: String? = null,
+        val normalizeHi: Boolean = true
+    ) : FilterConfig()
 
-data class InterleaverConfig(
-    val output: String
-)
+    data class Interleaver(
+        val outputs: List<String>
+    ) : FilterConfig()
+
+    object None : FilterConfig()
+}
 
 // Extend RangeOutput implementations
 data class CharsetOutput(
     override val output: String,
     override val start: Int = 0,
     override val end: Int = 65536,
-    val nybbler: NybblerConfig? = null,
-    val interleavers: List<InterleaverConfig> = emptyList()
+    val filter: FilterConfig = FilterConfig.None
 ) : RangeOutput
 ```
 
-**Rationale**: This maintains the domain-driven design of the flow architecture while providing equivalent functionality to the old DSL. Using data classes is idiomatic for the flows module.
+**Rationale**:
+- Sealed class hierarchy enforces mutual exclusivity at the type level
+- Only one filter type can be selected per output (nybbler, interleaver, or none)
+- Maintains domain-driven design while preventing invalid configurations
+- Using data classes is idiomatic for the flows module
 
-**Expected Outcome**: Type-safe configuration model that can be validated at compile time.
+**Expected Outcome**: Type-safe configuration model with compile-time mutual exclusivity enforcement.
 
 ### 3. Update getAllOutputPaths()
-**Action**: Modify CharpadOutputs.kt to include nybbler and interleaver output paths in getAllOutputPaths():
+**Action**: Modify CharpadOutputs.kt to include filter output paths in getAllOutputPaths():
 ```kotlin
 fun getAllOutputPaths(): List<String> {
     val primaryOutputs = charsets.map { it.output } +
                         charAttributes.map { it.output } + ...
-    val nybblerOutputs = charsets.flatMap { listOfNotNull(it.nybbler?.loOutput, it.nybbler?.hiOutput) } + ...
-    val interleaverOutputs = charsets.flatMap { it.interleavers.map { i -> i.output } } + ...
-    return primaryOutputs + nybblerOutputs + interleaverOutputs
+    val filterOutputs = (charsets + charAttributes + ...).flatMap { output ->
+        when (val filter = output.filter) {
+            is FilterConfig.Nybbler -> listOfNotNull(filter.loOutput, filter.hiOutput)
+            is FilterConfig.Interleaver -> filter.outputs
+            FilterConfig.None -> emptyList()
+        }
+    }
+    return primaryOutputs + filterOutputs
 }
 ```
 
-**Rationale**: Flow dependency tracking requires knowing all output files. Filters create additional outputs that must be registered.
+**Rationale**: Flow dependency tracking requires knowing all output files. Filters create additional outputs that must be registered. Sealed class pattern simplifies the extraction logic.
 
-**Expected Outcome**: Correct dependency graph for flow execution ordering.
+**Expected Outcome**: Correct dependency graph for flow execution ordering, including all filter outputs.
 
 ### 4. Implement Filter Wrapping in CharpadOutputProducerFactory
-**Action**: Modify CharpadOutputProducerFactory.kt to wrap binary outputs with filters:
+**Action**: Modify CharpadOutputProducerFactory.kt to wrap binary outputs with filters based on sealed class:
 ```kotlin
-private fun createBinaryOutput(outputFile: File, filterConfig: OutputFilterConfig): Output<ByteArray> {
+private fun createBinaryOutput(outputFile: File, filter: FilterConfig): Output<ByteArray> {
     val baseOutput = FileBinaryOutput(outputFile)
-    return when {
-        filterConfig.hasNybbler -> {
-            val lo = filterConfig.nybbler?.loOutput?.let { FileBinaryOutput(File(it)) }
-            val hi = filterConfig.nybbler?.hiOutput?.let { FileBinaryOutput(File(it)) }
-            Nybbler(lo, hi, filterConfig.nybbler?.normalizeHi ?: true)
+    return when (filter) {
+        is FilterConfig.Nybbler -> {
+            val lo = filter.loOutput?.let { FileBinaryOutput(File(it)) }
+            val hi = filter.hiOutput?.let { FileBinaryOutput(File(it)) }
+            Nybbler(lo, hi, filter.normalizeHi)
         }
-        filterConfig.hasInterleavers -> {
-            val outputs = filterConfig.interleavers.map { FileBinaryOutput(File(it.output)) }
+        is FilterConfig.Interleaver -> {
+            val outputs = filter.outputs.map { FileBinaryOutput(File(it)) }
             BinaryInterleaver(List.ofAll(outputs))
         }
-        else -> baseOutput
+        FilterConfig.None -> baseOutput
     }
 }
 ```
 
-**Rationale**: This mirrors the logic in FilterAwareExtension.resolveOutput() but adapted for the new architecture. The existing filter implementations can be reused directly.
+**Rationale**:
+- Sealed class pattern provides exhaustive when expression - compiler ensures all cases handled
+- Mutual exclusivity enforced at type level - cleaner than boolean flags
+- Mirrors FilterAwareExtension.resolveOutput() logic but type-safe
+- Existing filter implementations (Nybbler, BinaryInterleaver) reused directly
 
-**Expected Outcome**: Functional nybbler and interleaver support in the charpad flow step.
+**Expected Outcome**: Type-safe functional nybbler and interleaver support in the charpad flow step.
 
 ### 5. Write Unit Tests
 **Action**: Copy and convert existing tests from old charpad functionality to the new flow-based system:
@@ -258,10 +283,10 @@ private fun createBinaryOutput(outputFile: File, filterConfig: OutputFilterConfi
 
 ### Architecture Considerations
 
-**Hexagonal Architecture Compliance**: The implementation should maintain clear separation:
-- **Domain** (flows/src/domain): NybblerConfig, InterleaverConfig data classes
+**Hexagonal Architecture Compliance**: The implementation maintains clear separation:
+- **Domain** (flows/src/domain): FilterConfig sealed class enforcing mutual exclusivity
 - **Use Case** (CharpadStep.execute): Logic for applying filters
-- **Adapter** (flows/adapters/out/charpad): CharpadOutputProducerFactory wraps outputs
+- **Adapter** (flows/adapters/out/charpad): CharpadOutputProducerFactory wraps outputs with filters
 
 **Shared Code Reuse**: The existing filter implementations (Nybbler.kt, BinaryInterleaver.kt) in shared/gradle will be reused directly. **No refactoring of shared/gradle is required** since both old and new systems will maintain separate, parallel implementations.
 
@@ -284,15 +309,18 @@ No new dependencies are required.
 
 ### Potential Challenges
 
-1. **Filter Order Ambiguity**: If both nybbler and interleavers are configured, which is applied first? The old system suggests they're mutually exclusive per output (based on FilterAwareExtension when branches), but this needs verification.
+1. ✅ **Filter Order Ambiguity**: RESOLVED - Filters are mutually exclusive, no composition needed.
 
 2. **Output Buffer Management**: FilterAwareExtension.kt line 79 shows buffers are tracked separately. The new system needs equivalent buffer lifecycle management.
 
 3. **Null vs DevNull**: The old system uses DevNull() for null outputs. The new system should decide whether to:
    - Require explicit file paths (simpler, fail-fast)
    - Support null with DevNull fallback (more flexible)
+   - Current approach: Optional<String> with null allowed
 
 4. **Gradle Workers API**: The charpad flow step may use parallel execution. Filters must be thread-safe or properly isolated per-worker.
+
+5. **Interleaver Output Count**: Must validate that number of interleaver outputs divides evenly into byte stream length (BinaryInterleaver throws IllegalInputException otherwise).
 
 ### Success Criteria
 
@@ -374,3 +402,39 @@ No new dependencies are required.
 - **Defines clear test location** - convert to `flows/src/test/kotlin/...`
 - **Simplifies validation** - comparison between old and new implementations becomes straightforward
 - **First step in Step 5** should now identify and locate existing charpad tests in old DSL
+
+### Update 4: Filter Mutual Exclusivity - Sealed Class Pattern (2025-11-08)
+
+**Information Added**: Nybbler and interleaver cannot be combined - they are mutually exclusive per output.
+
+**Changes Made**:
+1. Marked Question 4 as answered with mutual exclusivity constraint
+2. Marked Self-Reflection Question 3 as answered (filter ordering not applicable)
+3. Updated "What needs to happen" in Root Cause Hypothesis to enforce mutual exclusivity instead of composition
+4. Redesigned Step 1 from "Verify Filter Composition Rules" to "Enforce Filter Mutual Exclusivity"
+5. Completely redesigned Step 2 configuration model using sealed class hierarchy instead of separate fields
+6. Updated Step 3 getAllOutputPaths() to use when expression on sealed class
+7. Updated Step 4 filter wrapping implementation to use sealed class exhaustive when
+8. Updated Architecture Considerations to reflect FilterConfig sealed class
+9. Marked Challenge #1 as resolved
+10. Added new Challenge #5 for interleaver output count validation
+
+**Code Pattern - Sealed Class Approach**:
+```kotlin
+sealed class FilterConfig {
+    data class Nybbler(...) : FilterConfig()
+    data class Interleaver(...) : FilterConfig()
+    object None : FilterConfig()
+}
+```
+
+**Impact on Implementation**:
+- **Type-safe mutual exclusivity** - enforced at compile time via sealed class
+- **Simplified when expressions** - exhaustive checking by compiler
+- **Cleaner than boolean flags** - prevents invalid states at the type level
+- **Better error messages** - type mismatch instead of runtime validation
+- **Reduced test complexity** - no tests needed for invalid combinations
+- **Eliminates configuration challenge #1** - no need to decide filter composition order
+
+### Key Insight:
+Filters are **complementary at different granularity levels** (confirmed in Update 2) but **mutually exclusive per output** (confirmed in Update 4). The sealed class pattern elegantly captures this constraint.
