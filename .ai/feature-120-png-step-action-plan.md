@@ -82,26 +82,40 @@ Implement a comprehensive flow step for preprocessing PNG image files. This invo
 ### Self-Reflection Questions
 
 1. How should the transformation pipeline be modeled in the flow step? Should transformations be represented as nested objects or as a fluent builder chain?
+   - **ANSWERED**: Use fluent builder chain pattern (following CharpadStep/SpritepadStep precedent)
 
 2. What output model should ImageStep use? Should it support multiple output files (like legacy split outputs) or a single primary output?
+   - **ANSWERED**: Support multiple output files for split operations, similar to legacy behavior
 
 3. Should the flow step expose all transformation options as top-level DSL methods, or should they be nested under a transformations() block?
+   - **ANSWERED**: Expose as top-level DSL methods following CharpadStep/SpritepadStep precedent
 
 4. How should the port interface bridge between the flow step domain and the existing image processing use cases? Should it wrap multiple use cases or create a unified ImageProcessingPort?
+   - **ANSWERED**: Create a unified ImagePort that internally orchestrates multiple use cases
 
 5. What error handling and validation should occur at each level (domain, builder, task)?
+   - **ANSWERED**: Both build-time (DSL builder validation) and execution-time (task validation) depending on data type:
+     - Build-time: Configuration properties (file paths, dimensions, formats)
+     - Execution-time: Runtime state (file existence, image dimensions compatibility)
 
-### Questions for Others
+### Questions for Others (Answered)
 
 1. Are there any existing flow step implementations for other processors (beyond Charpad/Spritepad) that I should reference?
+   - **ANSWERED**: No, Charpad/Spritepad are the only references available. Use these as the template.
 
 2. What's the expected behavior if a user chains multiple image transformations? Should they be applied sequentially, or are there any optimization opportunities?
+   - **ANSWERED**: Transformations should be applied sequentially. No optimization opportunities needed at this time.
 
 3. Should the ImageStep support the same output formats as the legacy DSL (sprite and bitmap), or are there additional formats needed?
+   - **ANSWERED**: Support only legacy behaviors (sprite and bitmap formats). No additional formats required.
 
 4. Are there any performance considerations when processing large PNG files through the flow step pipeline?
+   - **ANSWERED**: No specific performance considerations identified. Standard processing is acceptable.
 
 5. Should the flow step validation happen at DSL build time or at task execution time?
+   - **ANSWERED**: Both, depending on validation type:
+     - DSL build-time: Type safety and basic configuration validation
+     - Task execution-time: File existence, image compatibility checks
 
 ---
 
@@ -239,15 +253,25 @@ Existing Image Use Cases & Domain Logic
 
 ### Key Implementation Considerations
 
-1. **Transformation Chaining**: The legacy DSL supported chaining transformations recursively. The new ImageStep should maintain this capability, either through the port or through domain logic.
+1. **Fluent Builder DSL**: Use fluent builder chain pattern for transformation methods (cut(), flip(), extend(), split(), reduceResolution()). Expose these as top-level DSL methods, not nested under a transformations() block. This follows the CharpadStep/SpritepadStep precedent.
 
-2. **Multiple Outputs**: Legacy image processing could produce multiple output files (from split operations). The new step should support this through the ImageOutputs model.
+2. **Sequential Transformation Execution**: Transformations must be applied sequentially in the order specified by the user. No optimization or reordering is required. The ImagePort should apply transformations in the order they appear in the command.
 
-3. **Output Formats**: Support both SPRITE and BITMAP formats as defined in ImageFormat enum in ProcessorConfig.kt.
+3. **Multiple Outputs Support**: Legacy image processing could produce multiple output files (from split operations). The ImageOutputs model must support this with a List<Pair<String, File>> structure. Handle indexed naming for split outputs (e.g., tile_0, tile_1, tile_2).
 
-4. **Reuse, Don't Reimplement**: All image transformation logic already exists in use cases. The ImagePort should orchestrate these use cases rather than reimplementing functionality.
+4. **Output Formats**: Support only the legacy formats: SPRITE and BITMAP. No additional formats are required at this time.
 
-5. **Configuration Alignment**: The ImageConfig data class in ProcessorConfig.kt already contains targetFormat, paletteOptimization, dithering, etc. The DSL and domain should use this existing structure.
+5. **Unified ImagePort**: Create a single ImagePort interface that internally orchestrates multiple image use cases (Read, Cut, Flip, Extend, Split, ReduceResolution, Write). This hides the complexity of use case coordination from the domain layer.
+
+6. **Two-Level Validation**:
+   - **Build-time (DSL)**: Validate configuration properties (file paths, dimensions, formats) when ImageStep is built
+   - **Execution-time (Task)**: Validate runtime state (file existence, image dimensions compatibility) when ImageTask executes
+
+   This ensures both type safety and runtime correctness.
+
+7. **Reuse, Don't Reimplement**: All image transformation logic already exists in use cases. The ImagePort should orchestrate these use cases rather than reimplementing functionality.
+
+8. **Configuration Alignment**: The ImageConfig data class in ProcessorConfig.kt already contains targetFormat, paletteOptimization, dithering, etc. The DSL and domain should use this existing structure.
 
 ### Potential Blockers
 
