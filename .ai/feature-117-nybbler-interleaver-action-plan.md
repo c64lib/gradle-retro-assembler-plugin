@@ -500,3 +500,77 @@ val interleaver = BinaryInterleaver(List.ofAll(outputs))
 5. ✅ Performance: Existing implementations already optimal
 
 **Ready for Implementation** - All major questions answered, design patterns established, implementation approach clear.
+
+### Update 6: Filter Applicability Across Output Types (2025-11-08)
+
+**Information Added**: Filters are applicable only to range-based outputs (those with `start` and `end` parameters). Map and metadata outputs do not support filters due to their different output semantics.
+
+**Filter Applicability Details**:
+
+Filters ARE supported on these 9 range-based outputs:
+1. `charset` - Character set data with start/end range
+2. `charsetAttributes` - Character attributes/collision data with range
+3. `charsetColours` - Character colors with range
+4. `charsetMaterials` - Character materials with range
+5. `charsetScreenColours` - Screen colors per character with range
+6. `tiles` - Tile definitions with start/end range
+7. `tileTags` - Tile metadata tags with range
+8. `tileColours` - Tile colors with range
+9. `tileScreenColours` - Tile screen colors with range
+
+Filters are NOT supported on these 2 outputs:
+- `map` - Uses rectangular region parameters (left/top/right/bottom), not range-based
+- `meta` - Metadata/header output with string data (not binary transformation)
+
+**Architecture Rationale**:
+- Range-based outputs (`RangeOutput` interface implementations) produce binary data streams
+- Nybbler and Interleaver are binary transformation filters operating on byte-level data
+- Maps use different semantics (rectangular region selection) incompatible with binary transformation
+- Metadata generates text headers, not binary data that can be transformed by filters
+
+**Changes Made**:
+1. Added new question to Questions for Others section: "Filter Output Type Coverage"
+2. Marked new question as answered with complete applicability details
+3. Updated Step 2 (Design Configuration Model) to clarify FilterConfig applies only to RangeOutput
+4. Added documentation example showing comprehensive usage across all filterable types
+5. Added documentation table clearly indicating which output types support/don't support filters
+6. Created documentation section explaining filter applicability with practical rationale
+7. Added comprehensive example in FlowDslExamples.md showing all 9 filterable output types plus non-filterable map/metadata
+
+**New Question - Answered**:
+**Question**: Which CharPad output types support filters?
+**Answer**:
+- ✅ 9 range-based output types support filters (charset, tiles, colors, attributes, etc.)
+- ❌ 2 outputs do NOT support filters (map and metadata)
+**Implication**:
+- Implementation scope includes all RangeOutput implementations, not MapOutput or MetadataOutput
+- Documentation must clarify this distinction to prevent user confusion
+- Filter configuration is automatically available on all RangeOutput types via inheritance
+- No separate configuration needed for each output type - sealed class FilterConfig works uniformly
+
+**Documentation Impact**:
+- Updated FlowDslExamples.md with:
+  - Filter applicability table (all 11 output types with ✅/❌ indicators)
+  - Updated filter constraints section with applicability rules
+  - Comprehensive example using all 9 filterable output types
+  - Clear explanation of why map/metadata don't support filters
+  - Practical comments in code examples
+
+**Implementation Verification**:
+All 9 RangeOutput implementations properly extend with filter field:
+- CharsetOutput ✅
+- CharAttributesOutput ✅
+- CharColoursOutput ✅
+- CharMaterialsOutput ✅
+- CharScreenColoursOutput ✅
+- TileOutput ✅
+- TileTagsOutput ✅
+- TileColoursOutput ✅
+- TileScreenColoursOutput ✅
+
+Non-filterable outputs correctly excluded:
+- MapOutput (not RangeOutput) ❌
+- MetadataOutput (not RangeOutput) ❌
+
+**Key Insight**:
+The design of filter support is elegant - by adding the `filter` field only to the `RangeOutput` interface, all 9 range-based output implementations automatically support filters. This is consistent with Hexagonal Architecture principles where concerns are properly isolated based on semantic meaning (range-based vs region-based vs metadata).
