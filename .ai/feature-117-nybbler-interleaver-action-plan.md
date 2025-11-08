@@ -6,9 +6,9 @@ The old charpad preprocessor (Gradle DSL-based) supports nybbler and interleaver
 
 **Important**: Both the old DSL structure and new flow-based structure will be maintained in parallel. This is NOT a migration effort; the goal is to extend the new flow step with equivalent capabilities while keeping the old system functional.
 
-**Nybbler**: Splits bytes into low and high nibbles (4-bit halves), writing them to separate output files. Supports optional normalization of high nibbles.
+**Nybbler**: Splits bytes into low and high nibbles (4-bit halves), writing them to separate output files. Allows direct access to nybbles (either upper or lower 4 bits of a byte) for independent conversion and transformation. Supports optional normalization of high nibbles.
 
-**Interleaver**: Distributes binary data across multiple output streams in round-robin fashion, splitting the byte stream evenly.
+**Interleaver**: Distributes binary data across multiple output streams in round-robin fashion, splitting the byte stream evenly. Allows access to bytes within larger chunks (e.g., upper or lower byte of a word value) independently for conversion and transformation.
 
 ## Relevant Codebase Parts
 
@@ -71,6 +71,11 @@ The old charpad preprocessor (Gradle DSL-based) supports nybbler and interleaver
 
 **Scope Clarification**: The old DSL will continue to exist and function unchanged. This is a parallel implementation to extend the new flow-based system, not a replacement or migration.
 
+**Filter Purpose**: Both nybbler and interleaver are complementary filters that operate at different granularity levels:
+- **Nybbler** works at 4-bit granularity (nibble level) - separating upper/lower nibbles for independent processing
+- **Interleaver** works at byte granularity within larger chunks (word/multi-byte level) - separating individual bytes for independent processing
+These filters enable flexible data transformation pipelines for asset processing in Commodore 64 development.
+
 ## Investigation Questions
 
 ### Self-Reflection Questions
@@ -99,8 +104,11 @@ The old charpad preprocessor (Gradle DSL-based) supports nybbler and interleaver
    - **Answer**: Keep old structure in parallel. Both systems will coexist independently.
    - **Implication**: No refactoring of shared/gradle components required. Only new flow step needs extension.
 
-2. **Use Cases**: What are the primary use cases for nybbler and interleaver in Commodore 64 development?
-   - **Why important**: Helps validate the design and may reveal edge cases or additional requirements.
+2. ✅ **Use Cases**: What are the primary use cases for nybbler and interleaver in Commodore 64 development?
+   - **Answer**:
+     - **Nybbler**: Used to access nybbles directly (either upper or lower 4 bits of a byte) and perform further conversions on them independently
+     - **Interleaver**: Allows access to bytes within larger chunks independently (e.g., upper or lower byte of a word value) for conversion
+   - **Implication**: These are complementary filters for different granularity levels of data access and transformation
 
 3. **Testing Requirements**: Are there existing CharPad projects with nybbler/interleaver configurations that can be used for integration testing?
    - **Why important**: Real-world test cases are more valuable than synthetic ones for validating the implementation.
@@ -319,3 +327,19 @@ No new dependencies are required.
 - Allows independent evolution of old DSL and new flow systems
 - **No changes required to shared/gradle components**
 - Implementation scope remains focused on flows module only
+
+### Update 2: Use Cases and Filter Purpose Clarification (2025-11-08)
+
+**Information Added**: Detailed explanation of what nybbler and interleaver do and their complementary roles in data transformation.
+
+**Changes Made**:
+1. Marked Question 2 as answered with specific use case details
+2. Enhanced Issue Description with purpose of both filters
+3. Added Filter Purpose explanation to Root Cause Hypothesis section
+4. Clarified granularity levels: nybbler (4-bit/nibble level) vs interleaver (byte level within chunks)
+
+**Impact on Implementation**:
+- Confirms filters are **complementary, not alternatives** - both may be needed in different scenarios
+- Validates that filters operate at different data granularity levels
+- Helps inform validation logic and test case design
+- Confirms both filters are essential for flexible asset processing pipelines
