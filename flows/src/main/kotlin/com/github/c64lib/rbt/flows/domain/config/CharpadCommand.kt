@@ -34,17 +34,26 @@ import java.io.File
  */
 data class CharpadCommand(
     val inputFile: File,
-    val outputFiles: Map<String, File>,
+    val charpadOutputs: CharpadOutputs,
     val config: CharpadConfig,
     val projectRootDir: File,
     val workingDirectory: File = projectRootDir
 ) {
 
   /** Returns all output file paths as a list for dependency tracking and validation. */
-  fun getAllOutputFiles(): List<File> = outputFiles.values.toList()
+  fun getAllOutputFiles(): List<File> {
+    return charpadOutputs.getAllOutputPaths().map { path ->
+      if (File(path).isAbsolute) {
+        File(path)
+      } else {
+        File(projectRootDir, path)
+      }
+    }
+  }
 
   /** Returns a human-readable representation of the charpad processing command. */
   override fun toString(): String {
-    return "CharpadCommand(input=${inputFile.name}, outputs=${outputFiles.keys}, config=$config)"
+    val outputCount = charpadOutputs.getAllOutputPaths().size
+    return "CharpadCommand(input=${inputFile.name}, outputs=$outputCount, config=$config)"
   }
 }

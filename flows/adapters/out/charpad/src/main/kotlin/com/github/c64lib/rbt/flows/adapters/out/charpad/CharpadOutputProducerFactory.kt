@@ -25,6 +25,7 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.adapters.out.charpad
 
 import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
+import com.github.c64lib.rbt.flows.domain.config.MetadataOutput
 import com.github.c64lib.rbt.processors.charpad.domain.*
 import com.github.c64lib.rbt.shared.processor.Output
 import com.github.c64lib.rbt.shared.processor.OutputProducer
@@ -36,135 +37,127 @@ import java.io.FileWriter
 /**
  * Factory for creating OutputProducer instances based on CharpadCommand configuration.
  *
- * This factory converts flows domain CharpadConfig and output file specifications into the complete
- * collection of OutputProducer instances that ProcessCharpadUseCase expects, supporting all
- * existing producers: charset, map, tiles, attributes, colors, materials, and metadata outputs.
+ * This factory converts flows domain CharpadOutputs and configuration into the complete collection
+ * of OutputProducer instances that ProcessCharpadUseCase expects, supporting all existing producers
+ * with their dedicated configurations (start/end ranges, map regions, metadata parameters).
  */
 class CharpadOutputProducerFactory {
 
   fun createOutputProducers(command: CharpadCommand): Collection<OutputProducer<*>> {
     val producers = mutableListOf<OutputProducer<*>>()
+    val outputs = command.charpadOutputs
 
-    command.outputFiles.forEach { (outputKey, outputFile) ->
-      when (outputKey.lowercase()) {
-        "charset" -> {
-          if (command.config.generateCharset) {
-            producers.add(
-                CharsetProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile)))
-          }
-        }
-        "map" -> {
-          if (command.config.generateMap) {
-            producers.add(
-                MapProducer(
-                    leftTop = MapCoord(0, 0),
-                    rightBottom = MapCoord(39, 24), // Default C64 screen size
-                    output = createBinaryOutput(outputFile)))
-          }
-        }
-        "tiles" -> {
-          producers.add(
-              TileProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile)))
-        }
-        "charattributes",
-        "char-attributes" -> {
-          producers.add(
-              CharAttributesProducer(
-                  start = 0, end = 65536, output = createBinaryOutput(outputFile)))
-        }
-        "charcolours",
-        "char-colours" -> {
-          producers.add(
-              CharColoursProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile)))
-        }
-        "charmaterials",
-        "char-materials" -> {
-          producers.add(
-              CharMaterialsProducer(
-                  start = 0, end = 65536, output = createBinaryOutput(outputFile)))
-        }
-        "charscreencolours",
-        "char-screen-colours" -> {
-          producers.add(
-              CharScreenColoursProducer(
-                  start = 0, end = 65536, output = createBinaryOutput(outputFile)))
-        }
-        "tiletags",
-        "tile-tags" -> {
-          producers.add(
-              TileTagsProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile)))
-        }
-        "tilecolours",
-        "tile-colours" -> {
-          producers.add(
-              TileColoursProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile)))
-        }
-        "tilescreencolours",
-        "tile-screen-colours" -> {
-          producers.add(
-              TileScreenColoursProducer(
-                  start = 0, end = 65536, output = createBinaryOutput(outputFile)))
-        }
-        "header",
-        "metadata" -> {
-          producers.add(HeaderProducer(output = createHeaderOutput(outputFile, command)))
-        }
-        else -> {
-          // Fall back to file extension detection for unknown output keys
-          val producer = detectProducerFromFileExtension(outputFile, command)
-          if (producer != null) {
-            producers.add(producer)
-          }
-        }
-      }
+    // Create charset producers from dedicated charset outputs
+    outputs.charsets.forEach { charsetOutput ->
+      val file = resolveOutputFile(charsetOutput.output, command.projectRootDir)
+      producers.add(
+          CharsetProducer(
+              start = charsetOutput.start,
+              end = charsetOutput.end,
+              output = createBinaryOutput(file)))
+    }
+
+    // Create charset attributes producers
+    outputs.charAttributes.forEach { attrOutput ->
+      val file = resolveOutputFile(attrOutput.output, command.projectRootDir)
+      producers.add(
+          CharAttributesProducer(
+              start = attrOutput.start, end = attrOutput.end, output = createBinaryOutput(file)))
+    }
+
+    // Create charset colours producers
+    outputs.charColours.forEach { colourOutput ->
+      val file = resolveOutputFile(colourOutput.output, command.projectRootDir)
+      producers.add(
+          CharColoursProducer(
+              start = colourOutput.start,
+              end = colourOutput.end,
+              output = createBinaryOutput(file)))
+    }
+
+    // Create charset materials producers
+    outputs.charMaterials.forEach { materialOutput ->
+      val file = resolveOutputFile(materialOutput.output, command.projectRootDir)
+      producers.add(
+          CharMaterialsProducer(
+              start = materialOutput.start,
+              end = materialOutput.end,
+              output = createBinaryOutput(file)))
+    }
+
+    // Create charset screen colours producers
+    outputs.charScreenColours.forEach { screenColourOutput ->
+      val file = resolveOutputFile(screenColourOutput.output, command.projectRootDir)
+      producers.add(
+          CharScreenColoursProducer(
+              start = screenColourOutput.start,
+              end = screenColourOutput.end,
+              output = createBinaryOutput(file)))
+    }
+
+    // Create tiles producers
+    outputs.tiles.forEach { tileOutput ->
+      val file = resolveOutputFile(tileOutput.output, command.projectRootDir)
+      producers.add(
+          TileProducer(
+              start = tileOutput.start, end = tileOutput.end, output = createBinaryOutput(file)))
+    }
+
+    // Create tile tags producers
+    outputs.tileTags.forEach { tileTagOutput ->
+      val file = resolveOutputFile(tileTagOutput.output, command.projectRootDir)
+      producers.add(
+          TileTagsProducer(
+              start = tileTagOutput.start,
+              end = tileTagOutput.end,
+              output = createBinaryOutput(file)))
+    }
+
+    // Create tile colours producers
+    outputs.tileColours.forEach { tileColourOutput ->
+      val file = resolveOutputFile(tileColourOutput.output, command.projectRootDir)
+      producers.add(
+          TileColoursProducer(
+              start = tileColourOutput.start,
+              end = tileColourOutput.end,
+              output = createBinaryOutput(file)))
+    }
+
+    // Create tile screen colours producers
+    outputs.tileScreenColours.forEach { tileScreenColourOutput ->
+      val file = resolveOutputFile(tileScreenColourOutput.output, command.projectRootDir)
+      producers.add(
+          TileScreenColoursProducer(
+              start = tileScreenColourOutput.start,
+              end = tileScreenColourOutput.end,
+              output = createBinaryOutput(file)))
+    }
+
+    // Create map producers
+    outputs.maps.forEach { mapOutput ->
+      val file = resolveOutputFile(mapOutput.output, command.projectRootDir)
+      producers.add(
+          MapProducer(
+              leftTop = MapCoord(mapOutput.left, mapOutput.top),
+              rightBottom = MapCoord(mapOutput.right, mapOutput.bottom),
+              output = createBinaryOutput(file)))
+    }
+
+    // Create metadata/header producers
+    outputs.metadata.forEach { metadataOutput ->
+      val file = resolveOutputFile(metadataOutput.output, command.projectRootDir)
+      producers.add(
+          HeaderProducer(output = createHeaderOutput(file, command.config, metadataOutput)))
     }
 
     return producers
   }
 
-  /**
-   * Detects output producer type from file extension when output key doesn't match predefined
-   * types.
-   */
-  private fun detectProducerFromFileExtension(
-      outputFile: File,
-      command: CharpadCommand
-  ): OutputProducer<*>? {
-    val extension = outputFile.extension.lowercase()
-    val fileName = outputFile.nameWithoutExtension.lowercase()
-
-    return when {
-      extension == "chr" || fileName.contains("charset") -> {
-        if (command.config.generateCharset) {
-          CharsetProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile))
-        } else null
-      }
-      extension == "map" || fileName.contains("map") -> {
-        if (command.config.generateMap) {
-          MapProducer(
-              leftTop = MapCoord(0, 0),
-              rightBottom = MapCoord(39, 24), // Default C64 screen size
-              output = createBinaryOutput(outputFile))
-        } else null
-      }
-      extension == "tiles" || fileName.contains("tiles") -> {
-        TileProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile))
-      }
-      extension in listOf("h", "inc") ||
-          fileName.contains("header") ||
-          fileName.contains("metadata") -> {
-        HeaderProducer(output = createHeaderOutput(outputFile, command))
-      }
-      fileName.contains("attributes") -> {
-        CharAttributesProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile))
-      }
-      fileName.contains("colours") || fileName.contains("colors") -> {
-        CharColoursProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile))
-      }
-      fileName.contains("materials") -> {
-        CharMaterialsProducer(start = 0, end = 65536, output = createBinaryOutput(outputFile))
-      }
-      else -> null // Unknown file type, skip
+  private fun resolveOutputFile(outputPath: String, projectRootDir: File): File {
+    return if (File(outputPath).isAbsolute) {
+      File(outputPath)
+    } else {
+      File(projectRootDir, outputPath)
     }
   }
 
@@ -190,30 +183,33 @@ class CharpadOutputProducerFactory {
     }
   }
 
-  private fun createHeaderOutput(outputFile: File, command: CharpadCommand): Output<CTMHeader> {
+  private fun createHeaderOutput(
+      outputFile: File,
+      config: com.github.c64lib.rbt.flows.domain.config.CharpadConfig,
+      metadataOutput: MetadataOutput
+  ): Output<CTMHeader> {
     return object : Output<CTMHeader> {
       override fun write(data: CTMHeader) {
         val textOutput = createTextOutput(outputFile)
 
-        // Generate metadata header based on configuration
-        val config = command.config
-        val namespace = if (config.namespace.isNotEmpty()) config.namespace else ""
-        val prefix = if (config.prefix.isNotEmpty()) config.prefix else ""
+        // Use metadata-specific configuration (overrides global config)
+        val namespace = metadataOutput.namespace.ifEmpty { config.namespace }
+        val prefix = metadataOutput.prefix.ifEmpty { config.prefix }
 
-        if (config.includeVersion) {
+        if (metadataOutput.includeVersion) {
           textOutput.writeLn("// CTM Version: ${data.version}")
         }
 
-        if (config.includeBgColours) {
+        if (metadataOutput.includeBgColours) {
           textOutput.writeLn(
               "// Background Colors: ${data.backgroundColour0}, ${data.backgroundColour1}, ${data.backgroundColour2}, ${data.backgroundColour3}")
         }
 
-        if (config.includeCharColours) {
+        if (metadataOutput.includeCharColours) {
           textOutput.writeLn("// Character Color: ${data.charColour}")
         }
 
-        if (config.includeMode) {
+        if (metadataOutput.includeMode) {
           textOutput.writeLn("// Screen Mode: ${data.screenMode}")
           textOutput.writeLn("// Coloring Method: ${data.colouringMethod}")
         }

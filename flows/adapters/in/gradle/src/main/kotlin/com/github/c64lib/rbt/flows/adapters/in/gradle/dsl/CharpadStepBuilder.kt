@@ -27,10 +27,27 @@ package com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl
 import com.github.c64lib.rbt.flows.domain.config.*
 import com.github.c64lib.rbt.flows.domain.steps.CharpadStep
 
-/** Type-safe DSL builder for Charpad processing steps. */
+/**
+ * Type-safe DSL builder for Charpad processing steps with dedicated output methods.
+ *
+ * This builder provides dedicated DSL methods for each output type (charset, map, metadata, etc.),
+ * matching the functionality of the original processor DSL.
+ */
 class CharpadStepBuilder(private val name: String) {
   private val inputs = mutableListOf<String>()
-  private val outputs = mutableListOf<String>()
+
+  // Output configuration lists
+  private val charsetOutputs = mutableListOf<CharsetOutput>()
+  private val charAttributesOutputs = mutableListOf<CharAttributesOutput>()
+  private val charColoursOutputs = mutableListOf<CharColoursOutput>()
+  private val charMaterialsOutputs = mutableListOf<CharMaterialsOutput>()
+  private val charScreenColoursOutputs = mutableListOf<CharScreenColoursOutput>()
+  private val tileOutputs = mutableListOf<TileOutput>()
+  private val tileTagsOutputs = mutableListOf<TileTagsOutput>()
+  private val tileColoursOutputs = mutableListOf<TileColoursOutput>()
+  private val tileScreenColoursOutputs = mutableListOf<TileScreenColoursOutput>()
+  private val mapOutputs = mutableListOf<MapOutput>()
+  private val metadataOutputs = mutableListOf<MetadataOutput>()
 
   // Core charpad processing options
   var compression: CharpadCompression = CharpadCompression.NONE
@@ -41,7 +58,7 @@ class CharpadStepBuilder(private val name: String) {
   var generateCharset: Boolean = true
   var ctm8PrototypeCompatibility: Boolean = false
 
-  // Metadata configuration options
+  // Global metadata defaults (can be overridden per metadata output)
   var namespace: String = ""
   var prefix: String = ""
   var includeVersion: Boolean = false
@@ -59,17 +76,128 @@ class CharpadStepBuilder(private val name: String) {
     inputs.addAll(paths)
   }
 
-  /** Specifies output destination for this Charpad step. */
+  /** Configures charset output with optional start/end range. */
+  fun charset(block: RangeOutputBuilder.() -> Unit) {
+    val builder = RangeOutputBuilder()
+    builder.block()
+    charsetOutputs.add(CharsetOutput(builder.output, builder.start, builder.end))
+  }
+
+  /** Configures charset attributes output with optional start/end range. */
+  fun charsetAttributes(block: RangeOutputBuilder.() -> Unit) {
+    val builder = RangeOutputBuilder()
+    builder.block()
+    charAttributesOutputs.add(CharAttributesOutput(builder.output, builder.start, builder.end))
+  }
+
+  /** Configures charset colours output with optional start/end range. */
+  fun charsetColours(block: RangeOutputBuilder.() -> Unit) {
+    val builder = RangeOutputBuilder()
+    builder.block()
+    charColoursOutputs.add(CharColoursOutput(builder.output, builder.start, builder.end))
+  }
+
+  /** Configures charset materials output with optional start/end range. */
+  fun charsetMaterials(block: RangeOutputBuilder.() -> Unit) {
+    val builder = RangeOutputBuilder()
+    builder.block()
+    charMaterialsOutputs.add(CharMaterialsOutput(builder.output, builder.start, builder.end))
+  }
+
+  /** Configures charset screen colours output with optional start/end range. */
+  fun charsetScreenColours(block: RangeOutputBuilder.() -> Unit) {
+    val builder = RangeOutputBuilder()
+    builder.block()
+    charScreenColoursOutputs.add(
+        CharScreenColoursOutput(builder.output, builder.start, builder.end))
+  }
+
+  /** Configures tiles output with optional start/end range. */
+  fun tiles(block: RangeOutputBuilder.() -> Unit) {
+    val builder = RangeOutputBuilder()
+    builder.block()
+    tileOutputs.add(TileOutput(builder.output, builder.start, builder.end))
+  }
+
+  /** Configures tile tags output with optional start/end range. */
+  fun tileTags(block: RangeOutputBuilder.() -> Unit) {
+    val builder = RangeOutputBuilder()
+    builder.block()
+    tileTagsOutputs.add(TileTagsOutput(builder.output, builder.start, builder.end))
+  }
+
+  /** Configures tile colours output with optional start/end range. */
+  fun tileColours(block: RangeOutputBuilder.() -> Unit) {
+    val builder = RangeOutputBuilder()
+    builder.block()
+    tileColoursOutputs.add(TileColoursOutput(builder.output, builder.start, builder.end))
+  }
+
+  /** Configures tile screen colours output with optional start/end range. */
+  fun tileScreenColours(block: RangeOutputBuilder.() -> Unit) {
+    val builder = RangeOutputBuilder()
+    builder.block()
+    tileScreenColoursOutputs.add(
+        TileScreenColoursOutput(builder.output, builder.start, builder.end))
+  }
+
+  /** Configures map output with optional rectangular region. */
+  fun map(block: MapOutputBuilder.() -> Unit) {
+    val builder = MapOutputBuilder()
+    builder.block()
+    mapOutputs.add(
+        MapOutput(builder.output, builder.left, builder.top, builder.right, builder.bottom))
+  }
+
+  /** Configures metadata output with optional parameters. */
+  fun meta(block: MetadataOutputBuilder.() -> Unit) {
+    val builder =
+        MetadataOutputBuilder(
+            namespace, prefix, includeVersion, includeBgColours, includeCharColours, includeMode)
+    builder.block()
+    metadataOutputs.add(
+        MetadataOutput(
+            builder.output,
+            builder.namespace,
+            builder.prefix,
+            builder.includeVersion,
+            builder.includeBgColours,
+            builder.includeCharColours,
+            builder.includeMode))
+  }
+
+  /**
+   * DEPRECATED: Legacy method for backward compatibility. Use dedicated output methods instead.
+   *
+   * @deprecated Use dedicated output methods (charset, map, meta, etc.) instead of generic to()
+   */
+  @Deprecated(
+      "Use dedicated output methods (charset, map, meta, etc.) instead of generic to()",
+      ReplaceWith("charset { output = path }"))
   fun to(path: String) {
-    outputs.add(path)
+    // For backward compatibility, treat generic outputs as charset outputs
+    charsetOutputs.add(CharsetOutput(path))
   }
 
-  /** Specifies multiple output destinations for this Charpad step. */
+  /**
+   * DEPRECATED: Legacy method for backward compatibility. Use dedicated output methods instead.
+   *
+   * @deprecated Use dedicated output methods (charset, map, meta, etc.) instead of generic to()
+   */
+  @Deprecated(
+      "Use dedicated output methods (charset, map, meta, etc.) instead of generic to()",
+      ReplaceWith("paths.forEach { charset { output = it } }"))
   fun to(vararg paths: String) {
-    outputs.addAll(paths)
+    // For backward compatibility, treat generic outputs as charset outputs
+    paths.forEach { charsetOutputs.add(CharsetOutput(it)) }
   }
 
-  /** Configures metadata output options. */
+  /**
+   * DEPRECATED: Legacy method for backward compatibility. Use meta() instead.
+   *
+   * @deprecated Use meta { ... } instead of metadata { ... }
+   */
+  @Deprecated("Use meta { ... } instead of metadata { ... }", ReplaceWith("meta(block)"))
   fun metadata(block: MetadataConfigBuilder.() -> Unit) {
     val builder = MetadataConfigBuilder()
     builder.block()
@@ -97,10 +225,64 @@ class CharpadStepBuilder(private val name: String) {
             includeBgColours = includeBgColours,
             includeCharColours = includeCharColours,
             includeMode = includeMode)
+
+    val outputs =
+        CharpadOutputs(
+            charsets = charsetOutputs.toList(),
+            charAttributes = charAttributesOutputs.toList(),
+            charColours = charColoursOutputs.toList(),
+            charMaterials = charMaterialsOutputs.toList(),
+            charScreenColours = charScreenColoursOutputs.toList(),
+            tiles = tileOutputs.toList(),
+            tileTags = tileTagsOutputs.toList(),
+            tileColours = tileColoursOutputs.toList(),
+            tileScreenColours = tileScreenColoursOutputs.toList(),
+            maps = mapOutputs.toList(),
+            metadata = metadataOutputs.toList())
+
     return CharpadStep(name, inputs, outputs, config)
   }
 
-  /** DSL builder for metadata configuration. */
+  /** DSL builder for range-based outputs (start/end parameters). */
+  class RangeOutputBuilder {
+    var output: String = ""
+    var start: Int = 0
+    var end: Int = 65536
+  }
+
+  /** DSL builder for map outputs (left/top/right/bottom rectangular region). */
+  class MapOutputBuilder {
+    var output: String = ""
+    var left: Int = 0
+    var top: Int = 0
+    var right: Int = 65536
+    var bottom: Int = 65536
+  }
+
+  /** DSL builder for metadata outputs with all configuration parameters. */
+  class MetadataOutputBuilder(
+      defaultNamespace: String = "",
+      defaultPrefix: String = "",
+      defaultIncludeVersion: Boolean = false,
+      defaultIncludeBgColours: Boolean = true,
+      defaultIncludeCharColours: Boolean = true,
+      defaultIncludeMode: Boolean = false
+  ) {
+    var output: String = ""
+    var namespace: String = defaultNamespace
+    var prefix: String = defaultPrefix
+    var includeVersion: Boolean = defaultIncludeVersion
+    var includeBgColours: Boolean = defaultIncludeBgColours
+    var includeCharColours: Boolean = defaultIncludeCharColours
+    var includeMode: Boolean = defaultIncludeMode
+  }
+
+  /**
+   * DEPRECATED: Legacy DSL builder for backward compatibility.
+   *
+   * @deprecated Use MetadataOutputBuilder with meta { ... } instead
+   */
+  @Deprecated("Use MetadataOutputBuilder with meta { ... } instead")
   class MetadataConfigBuilder {
     var namespace: String = ""
     var prefix: String = ""
