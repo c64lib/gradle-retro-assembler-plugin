@@ -28,6 +28,7 @@ import com.github.c64lib.rbt.flows.domain.FlowStep
 import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
 import com.github.c64lib.rbt.flows.domain.config.CharpadConfig
 import com.github.c64lib.rbt.flows.domain.config.CharpadOutputs
+import com.github.c64lib.rbt.flows.domain.config.FilterConfig
 import com.github.c64lib.rbt.flows.domain.port.CharpadPort
 import java.io.File
 
@@ -121,7 +122,8 @@ class CharpadStep(
 
     // Validate output configurations
     charpadOutputs.charsets.forEach { charset ->
-      if (charset.output.isEmpty()) {
+      // Allow empty output path only if a filter is configured
+      if (charset.output.isEmpty() && charset.filter == FilterConfig.None) {
         errors.add("Charpad step '$name': charset output path cannot be empty")
       }
       if (charset.start < 0 || charset.end < 0 || charset.start >= charset.end) {
@@ -131,7 +133,8 @@ class CharpadStep(
     }
 
     charpadOutputs.maps.forEach { map ->
-      if (map.output.isEmpty()) {
+      // Allow empty output path only if a filter is configured
+      if (map.output.isEmpty() && map.filter == FilterConfig.None) {
         errors.add("Charpad step '$name': map output path cannot be empty")
       }
       if (map.left < 0 || map.top < 0 || map.right < 0 || map.bottom < 0) {

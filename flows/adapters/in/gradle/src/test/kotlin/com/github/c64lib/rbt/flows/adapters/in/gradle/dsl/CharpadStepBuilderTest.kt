@@ -235,5 +235,139 @@ class CharpadStepBuilderTest :
             step.charpadOutputs.maps.shouldBeEmpty()
           }
         }
+
+        When("building with nybbler filter") {
+          val builder = CharpadStepBuilder("nybbler-test")
+          builder.from("input.ctm")
+          builder.charset {
+            output = "charset.chr"
+            nybbler {
+              loOutput = "charset_lo.chr"
+              hiOutput = "charset_hi.chr"
+              normalizeHi = true
+            }
+          }
+          val step = builder.build()
+
+          Then("it should configure nybbler filter correctly") {
+            step.charpadOutputs.charsets shouldHaveSize 1
+            val charset = step.charpadOutputs.charsets.first()
+            charset.output shouldBe "charset.chr"
+
+            val filter =
+                charset.filter as com.github.c64lib.rbt.flows.domain.config.FilterConfig.Nybbler
+            filter.loOutput shouldBe "charset_lo.chr"
+            filter.hiOutput shouldBe "charset_hi.chr"
+            filter.normalizeHi shouldBe true
+
+            // Verify all outputs are tracked
+            step.outputs shouldHaveSize 3
+            step.outputs shouldBe listOf("charset.chr", "charset_lo.chr", "charset_hi.chr")
+          }
+        }
+
+        When("building with partial nybbler filter (lo only)") {
+          val builder = CharpadStepBuilder("nybbler-lo-only")
+          builder.from("input.ctm")
+          builder.charset {
+            output = "charset.chr"
+            nybbler {
+              loOutput = "charset_lo.chr"
+              normalizeHi = false
+            }
+          }
+          val step = builder.build()
+
+          Then("it should configure partial nybbler correctly") {
+            val charset = step.charpadOutputs.charsets.first()
+            val filter =
+                charset.filter as com.github.c64lib.rbt.flows.domain.config.FilterConfig.Nybbler
+            filter.loOutput shouldBe "charset_lo.chr"
+            filter.hiOutput shouldBe null
+            filter.normalizeHi shouldBe false
+
+            step.outputs shouldHaveSize 2
+          }
+        }
+
+        When("building with interleaver filter") {
+          val builder = CharpadStepBuilder("interleaver-test")
+          builder.from("input.ctm")
+          builder.tiles {
+            output = "tiles.bin"
+            interleaver { outputs = listOf("tiles_0.bin", "tiles_1.bin", "tiles_2.bin") }
+          }
+          val step = builder.build()
+
+          Then("it should configure interleaver filter correctly") {
+            step.charpadOutputs.tiles shouldHaveSize 1
+            val tile = step.charpadOutputs.tiles.first()
+            tile.output shouldBe "tiles.bin"
+
+            val filter =
+                tile.filter as com.github.c64lib.rbt.flows.domain.config.FilterConfig.Interleaver
+            filter.outputs shouldBe listOf("tiles_0.bin", "tiles_1.bin", "tiles_2.bin")
+
+            // Verify all outputs are tracked
+            step.outputs shouldHaveSize 4
+          }
+        }
+
+        When("building with filters on different output types") {
+          val builder = CharpadStepBuilder("mixed-filters")
+          builder.from("input.ctm")
+          builder.charset {
+            output = "charset.chr"
+            nybbler {
+              loOutput = "charset_lo.chr"
+              hiOutput = "charset_hi.chr"
+            }
+          }
+          builder.tiles {
+            output = "tiles.bin"
+            interleaver { outputs = listOf("tiles_0.bin", "tiles_1.bin") }
+          }
+          builder.map {
+            output = "map.bin"
+            nybbler { loOutput = "map_lo.bin" }
+          }
+          val step = builder.build()
+
+          Then("it should configure all filters independently") {
+            step.charpadOutputs.charsets shouldHaveSize 1
+            step.charpadOutputs.tiles shouldHaveSize 1
+            step.charpadOutputs.maps shouldHaveSize 1
+
+            // Verify total output count: 3 primary + 2 charset nybbler + 2 tile interleaver + 1 map
+            // nybbler = 8
+            step.outputs shouldHaveSize 8
+          }
+        }
+
+        When("building with range parameters and filters") {
+          val builder = CharpadStepBuilder("range-and-filter")
+          builder.from("input.ctm")
+          builder.charset {
+            output = "charset.chr"
+            start = 0
+            end = 128
+            nybbler {
+              loOutput = "charset_lo.chr"
+              hiOutput = "charset_hi.chr"
+            }
+          }
+          val step = builder.build()
+
+          Then("it should configure both range and filter") {
+            val charset = step.charpadOutputs.charsets.first()
+            charset.start shouldBe 0
+            charset.end shouldBe 128
+
+            val filter =
+                charset.filter as com.github.c64lib.rbt.flows.domain.config.FilterConfig.Nybbler
+            filter.loOutput shouldBe "charset_lo.chr"
+            filter.hiOutput shouldBe "charset_hi.chr"
+          }
+        }
       }
     })

@@ -427,3 +427,488 @@ With the new flow syntax:
 - **Testing** and **Packaging** can run in parallel after compilation
 
 This can reduce build times from sequential execution (A + B + C + D) to parallel execution (max(A, B) + C + max(D, E)), potentially cutting build times in half or more for complex projects.
+
+## Binary Filters: Nybbler and Interleaver
+
+The CharPad step supports optional binary filters on range-based outputs to transform charset and tile data at different granularity levels. These filters are useful for accessing and transforming data at nibble (4-bit) or byte level independently.
+
+### Filter Applicability
+
+Filters are applicable to **range-based outputs only** (those with `start` and `end` parameters):
+
+| Output Type | Supports Filters | Reason |
+|------------|-----------------|--------|
+| `charset` | ✅ Yes | Range-based output |
+| `charsetAttributes` | ✅ Yes | Range-based output |
+| `charsetColours` | ✅ Yes | Range-based output |
+| `charsetMaterials` | ✅ Yes | Range-based output |
+| `charsetScreenColours` | ✅ Yes | Range-based output |
+| `tiles` | ✅ Yes | Range-based output |
+| `tileTags` | ✅ Yes | Range-based output |
+| `tileColours` | ✅ Yes | Range-based output |
+| `tileScreenColours` | ✅ Yes | Range-based output |
+| `map` | ✅ Yes | Region-based output (also produces binary data) |
+| `meta` | ❌ No | Metadata/header output, not binary data |
+
+**Note:** Only metadata output does not support filters because it generates text headers, not binary data. All other outputs (including maps) produce binary data and support filters.
+
+### Nybbler Filter
+
+The nybbler filter splits each byte into low and high nibbles (4-bit halves), writing them to separate output files. This is useful in Commodore 64 development where character codes or color values often pack two nybbles per byte.
+
+**Use Cases:**
+- Extracting upper/lower 4-bit values independently
+- Converting character codes that store two nybbles per byte
+- Processing graphics data that requires separate handling of nibble pairs
+- Generating lookup tables for nibble-based color mappings
+
+**Syntax:**
+```kotlin
+step("charpad-nybbler") {
+    from("charset.ctm")
+
+    // Split charset into low and high nibbles
+    charset {
+        output = "build/charset.chr"
+        nybbler {
+            loOutput = "build/charset_lo.chr"      // Low nibbles (lower 4 bits)
+            hiOutput = "build/charset_hi.chr"      // High nibbles (upper 4 bits)
+            normalizeHi = true                      // Shift high nibbles right (default: true)
+        }
+    }
+}
+```
+
+**How it works:**
+
+Input byte `0xA5` (binary: 1010 0101):
+- Low nibbles output: `0x5` (binary: 0000 0101)
+- High nibbles output (normalized): `0x0A` (binary: 0000 1010)
+- High nibbles output (not normalized): `0xA0` (binary: 1010 0000)
+
+**Advanced Examples:**
+
+Only extract high nibbles (discard low):
+```kotlin
+charset {
+    output = "build/charset.chr"
+    nybbler {
+        hiOutput = "build/charset_hi.chr"
+        normalizeHi = true
+    }
+}
+```
+
+Extract low nibbles without normalizing high:
+```kotlin
+charset {
+    output = "build/charset.chr"
+    nybbler {
+        loOutput = "build/charset_lo.chr"
+        hiOutput = "build/charset_hi.chr"
+        normalizeHi = false  // Keep high nibbles in upper 4 bits
+    }
+}
+```
+
+Use nybbler with other outputs:
+```kotlin
+step("charpad-complex") {
+    from("charset.ctm")
+
+    charset {
+        output = "build/charset.chr"
+        start = 0
+        end = 256
+        nybbler {
+            loOutput = "build/lo.chr"
+            hiOutput = "build/hi.chr"
+        }
+    }
+
+    map {
+        output = "build/map.bin"
+        left = 0
+        top = 0
+        right = 40
+        bottom = 25
+    }
+}
+```
+
+### Interleaver Filter
+
+The interleaver filter distributes binary data across multiple output streams in round-robin fashion. This is useful for accessing bytes within larger chunks (like word-aligned data) independently.
+
+**Use Cases:**
+- Separating even/odd bytes for word-aligned data structures
+- Splitting bitmap data into separate bit-planes
+- Extracting upper/lower bytes of word-aligned values independently
+- Creating parallel data streams for specialized processing
+
+**Syntax:**
+```kotlin
+step("charpad-interleaver") {
+    from("charset.ctm")
+
+    // Split charset across 2 outputs (even/odd bytes)
+    charset {
+        output = "build/charset.chr"
+        interleaver {
+            outputs = listOf(
+                "build/charset_even.chr",
+                "build/charset_odd.chr"
+            )
+        }
+    }
+}
+```
+
+**How it works:**
+
+Input bytes: `[0x01, 0x02, 0x03, 0x04, 0x05, 0x06]`
+
+With 2 outputs (even/odd distribution):
+- Output 0: `[0x01, 0x03, 0x05]` (indices 0, 2, 4, ...)
+- Output 1: `[0x02, 0x04, 0x06]` (indices 1, 3, 5, ...)
+
+With 3 outputs:
+- Output 0: `[0x01, 0x04]` (indices 0, 3, ...)
+- Output 1: `[0x02, 0x05]` (indices 1, 4, ...)
+- Output 2: `[0x03, 0x06]` (indices 2, 5, ...)
+
+**Advanced Examples:**
+
+Split charset into 4 streams (for multi-way processing):
+```kotlin
+charset {
+    output = "build/charset.chr"
+    interleaver {
+        outputs = listOf(
+            "build/char_0.chr",
+            "build/char_1.chr",
+            "build/char_2.chr",
+            "build/char_3.chr"
+        )
+    }
+}
+```
+
+Use interleaver with range-based output:
+```kotlin
+tiles {
+    output = "build/tiles.bin"
+    start = 0
+    end = 100
+    interleaver {
+        outputs = listOf(
+            "build/tiles_lower.bin",
+            "build/tiles_upper.bin"
+        )
+    }
+}
+```
+
+### Filter Constraints and Behavior
+
+**Important Constraints:**
+
+1. **Filter Applicability:** Only range-based outputs (charset, tiles, colors, attributes, etc.) support filters. Maps and metadata outputs do not.
+
+2. **Mutual Exclusivity:** Only one filter type (nybbler OR interleaver) can be applied per output. The following will compile but will only use the interleaver:
+
+```kotlin
+// ❌ Invalid: Both filters specified (only interleaver will be used)
+charset {
+    output = "build/charset.chr"
+    nybbler {
+        loOutput = "build/lo.chr"
+    }
+    interleaver {
+        outputs = listOf("build/i0.chr", "build/i1.chr")
+    }
+}
+```
+
+**Correct approach - choose one:**
+```kotlin
+// ✅ Valid: Using nybbler
+charset {
+    output = "build/charset.chr"
+    nybbler {
+        loOutput = "build/lo.chr"
+        hiOutput = "build/hi.chr"
+    }
+}
+```
+
+### Practical Examples
+
+**Example 1: Separating Charset into Bit Planes**
+```kotlin
+step("charset-bitplanes") {
+    description = "Extract charset into separate bit planes for color processing"
+    from("graphics.ctm")
+
+    charset {
+        output = "build/charset.chr"
+        interleaver {
+            outputs = listOf(
+                "build/bitplane_0.chr",
+                "build/bitplane_1.chr",
+                "build/bitplane_2.chr",
+                "build/bitplane_3.chr"
+            )
+        }
+    }
+}
+```
+
+**Example 2: Processing Character Attributes with Nybbler**
+```kotlin
+step("char-attributes-nibbles") {
+    description = "Split character attributes into separate nibble streams"
+    from("charset.ctm")
+
+    // Character attributes (collision data, etc.)
+    charsetAttributes {
+        output = "build/char_attrs.bin"
+        nybbler {
+            loOutput = "build/attrs_low.bin"       // Lower nibble attributes
+            hiOutput = "build/attrs_high.bin"      // Upper nibble attributes
+            normalizeHi = true
+        }
+    }
+}
+```
+
+**Example 3: Complex Multi-Output Processing**
+```kotlin
+step("charpad-comprehensive") {
+    description = "Process charset with both nybbler and map"
+    from("level_charset.ctm")
+
+    charset {
+        output = "build/charset.chr"
+        nybbler {
+            loOutput = "build/charset_lo.chr"
+            hiOutput = "build/charset_hi.chr"
+        }
+    }
+
+    charsetColours {
+        output = "build/colours.bin"
+        interleaver {
+            outputs = listOf(
+                "build/colours_fg.bin",    // Foreground colors
+                "build/colours_bg.bin"     // Background colors
+            )
+        }
+    }
+
+    map {
+        output = "build/map.bin"
+        left = 0
+        top = 0
+        right = 40
+        bottom = 25
+    }
+}
+```
+
+**Example 4: Complete Game Asset Processing Pipeline**
+```kotlin
+parallel {
+    step("main-charset") {
+        from("assets/main_charset.ctm")
+
+        charset {
+            output = "build/assets/charset.chr"
+            nybbler {
+                loOutput = "build/assets/charset_decoded.bin"
+                hiOutput = "build/assets/charset_encoded.bin"
+            }
+        }
+
+        map {
+            output = "build/assets/main_map.bin"
+        }
+    }
+
+    step("level-charset") {
+        from("assets/level_charset.ctm")
+
+        charset {
+            output = "build/assets/level_chars.chr"
+            interleaver {
+                outputs = listOf(
+                    "build/assets/level_stream_0.chr",
+                    "build/assets/level_stream_1.chr"
+                )
+            }
+        }
+
+        tiles {
+            output = "build/assets/level_tiles.bin"
+        }
+    }
+}
+```
+
+### Output Path Tracking
+
+When using filters, all output paths (including filter outputs) are automatically tracked for build dependency purposes:
+
+```kotlin
+step("charpad") {
+    from("charset.ctm")
+
+    charset {
+        output = "build/charset.chr"
+        nybbler {
+            loOutput = "build/charset_lo.chr"
+            hiOutput = "build/charset_hi.chr"
+        }
+    }
+}
+
+// The following files are all tracked as outputs:
+// - build/charset.chr
+// - build/charset_lo.chr
+// - build/charset_hi.chr
+```
+
+This ensures proper build ordering and dependency resolution in the flow system.
+
+### Comprehensive Example: All Filterable Output Types
+
+This example demonstrates filters applied to all range-based output types available in CharPad:
+
+```kotlin
+step("all-outputs-with-filters") {
+    description = "Process all available output types with filters"
+    from("complete_charset.ctm")
+
+    // Charset - split into nibbles
+    charset {
+        output = "build/charset.chr"
+        nybbler {
+            loOutput = "build/charset_lo.chr"
+            hiOutput = "build/charset_hi.chr"
+        }
+    }
+
+    // Charset attributes - use interleaver
+    charsetAttributes {
+        output = "build/attributes.bin"
+        interleaver {
+            outputs = listOf(
+                "build/attr_stream0.bin",
+                "build/attr_stream1.bin"
+            )
+        }
+    }
+
+    // Charset colours - split into nibbles
+    charsetColours {
+        output = "build/colours.bin"
+        nybbler {
+            loOutput = "build/colours_lo.bin"
+            hiOutput = "build/colours_hi.bin"
+        }
+    }
+
+    // Charset materials - use interleaver
+    charsetMaterials {
+        output = "build/materials.bin"
+        interleaver {
+            outputs = listOf(
+                "build/mat_0.bin",
+                "build/mat_1.bin",
+                "build/mat_2.bin",
+                "build/mat_3.bin"
+            )
+        }
+    }
+
+    // Charset screen colours - split into nibbles
+    charsetScreenColours {
+        output = "build/screen_colours.bin"
+        nybbler {
+            loOutput = "build/screen_lo.bin"
+            hiOutput = "build/screen_hi.bin"
+        }
+    }
+
+    // Tiles - use interleaver with range
+    tiles {
+        output = "build/tiles.bin"
+        start = 0
+        end = 256
+        interleaver {
+            outputs = listOf(
+                "build/tiles_even.bin",
+                "build/tiles_odd.bin"
+            )
+        }
+    }
+
+    // Tile tags - split into nibbles
+    tileTags {
+        output = "build/tile_tags.bin"
+        nybbler {
+            loOutput = "build/tags_lo.bin"
+            hiOutput = "build/tags_hi.bin"
+        }
+    }
+
+    // Tile colours - use interleaver
+    tileColours {
+        output = "build/tile_colours.bin"
+        interleaver {
+            outputs = listOf(
+                "build/tilecolour_0.bin",
+                "build/tilecolour_1.bin"
+            )
+        }
+    }
+
+    // Tile screen colours - split into nibbles
+    tileScreenColours {
+        output = "build/tile_screen_colours.bin"
+        nybbler {
+            loOutput = "build/tsc_lo.bin"
+            hiOutput = "build/tsc_hi.bin"
+        }
+    }
+
+    // Map - also supports filters (produces binary data)
+    map {
+        output = "build/map.bin"
+        left = 0
+        top = 0
+        right = 40
+        bottom = 25
+        nybbler {
+            loOutput = "build/map_lo.bin"
+            hiOutput = "build/map_hi.bin"
+        }
+    }
+
+    // NOTE: Metadata output does NOT support filters
+    // (generates text headers, not binary data)
+    meta {
+        output = "build/header.h"
+        namespace = "GAME"
+        prefix = "ASSET_"
+    }
+}
+```
+
+This comprehensive example shows:
+- All 10 binary output types that support filters (9 range-based + map)
+- Both nybbler and interleaver filters being used
+- Mix of filtered and non-filtered outputs in the same step
+- Range parameters combined with filters (tiles example)
+- Region parameters combined with filters (map example)
+- Metadata output without filters (as it generates text headers)

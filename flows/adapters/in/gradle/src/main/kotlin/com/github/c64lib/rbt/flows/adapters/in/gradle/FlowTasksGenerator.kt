@@ -216,7 +216,7 @@ class FlowTasksGenerator(
   }
 
   private fun getStepOutputFiles(step: FlowStep): FileCollection {
-    val outputFiles = step.outputs.map { project.file(it) }
+    val outputFiles = step.outputs.filter { it.isNotEmpty() }.map { project.file(it) }
     return project.files(outputFiles)
   }
 
@@ -227,7 +227,9 @@ class FlowTasksGenerator(
     stepTasks.forEach { task ->
       if (task is BaseFlowStepTask) {
         val step = task.flowStep.get()
-        step.outputs.forEach { outputPath -> outputToTask[outputPath] = task }
+        step.outputs
+            .filter { it.isNotEmpty() }
+            .forEach { outputPath -> outputToTask[outputPath] = task }
       }
     }
 

@@ -9,4 +9,5 @@ dependencies {
   implementation(project(":processors:charpad"))
   implementation(project(":shared:domain"))
   implementation(project(":shared:processor"))
+  implementation(project(":shared:gradle"))
 }
