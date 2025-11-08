@@ -127,8 +127,13 @@ These filters enable flexible data transformation pipelines for asset processing
      - Simplifies implementation - no need to handle filter composition/ordering
      - Each output can have only one filter type applied
 
-5. **Performance**: Are there performance concerns with filter usage? Should the new implementation optimize for specific scenarios?
-   - **Why important**: May influence implementation details (e.g., buffering strategies).
+5. ✅ **Performance**: Are there performance concerns with filter usage? Should the new implementation optimize for specific scenarios?
+   - **Answer**: Existing domain implementation is very performant - no additional optimization needed as long as existing domain implementations (Nybbler, BinaryInterleaver) are used
+   - **Implication**:
+     - No custom buffering or optimization strategies required
+     - Reuse existing Nybbler.kt and BinaryInterleaver.kt implementations directly
+     - Focus on correct integration, not performance tuning
+     - No performance-related tests needed
 
 ## Next Steps
 
@@ -301,26 +306,32 @@ The old charpad DSL (Charpad.kt task) should continue to work unchanged. This im
 
 ### Dependencies
 
-- Nybbler.kt depends on BinaryOutput interface
-- BinaryInterleaver.kt depends on BinaryOutput and Vavr Seq
+**Reusing Existing Implementations**:
+- Nybbler.kt (shared/gradle) - depends on BinaryOutput interface
+- BinaryInterleaver.kt (shared/gradle) - depends on BinaryOutput and Vavr Seq
 - CharpadOutputProducerFactory already has access to these dependencies
+- **No performance concerns** - existing implementations are already optimized
 
-No new dependencies are required.
+**No new dependencies are required.**
+
+The implementation strategy is to reuse these battle-tested, performant implementations directly rather than creating new ones or adding wrapper logic.
 
 ### Potential Challenges
 
 1. ✅ **Filter Order Ambiguity**: RESOLVED - Filters are mutually exclusive, no composition needed.
 
-2. **Output Buffer Management**: FilterAwareExtension.kt line 79 shows buffers are tracked separately. The new system needs equivalent buffer lifecycle management.
+2. ✅ **Performance Optimization**: RESOLVED - Existing domain implementations are already performant. No optimization needed as long as Nybbler.kt and BinaryInterleaver.kt are reused directly.
 
-3. **Null vs DevNull**: The old system uses DevNull() for null outputs. The new system should decide whether to:
+3. **Output Buffer Management**: FilterAwareExtension.kt line 79 shows buffers are tracked separately. The new system needs equivalent buffer lifecycle management.
+
+4. **Null vs DevNull**: The old system uses DevNull() for null outputs. The new system should decide whether to:
    - Require explicit file paths (simpler, fail-fast)
    - Support null with DevNull fallback (more flexible)
    - Current approach: Optional<String> with null allowed
 
-4. **Gradle Workers API**: The charpad flow step may use parallel execution. Filters must be thread-safe or properly isolated per-worker.
+5. **Gradle Workers API**: The charpad flow step may use parallel execution. Filters must be thread-safe or properly isolated per-worker. (Existing implementations are thread-safe by design - they don't maintain state.)
 
-5. **Interleaver Output Count**: Must validate that number of interleaver outputs divides evenly into byte stream length (BinaryInterleaver throws IllegalInputException otherwise).
+6. **Interleaver Output Count Validation**: Must validate that number of interleaver outputs divides evenly into byte stream length (BinaryInterleaver throws IllegalInputException otherwise).
 
 ### Success Criteria
 
@@ -438,3 +449,37 @@ sealed class FilterConfig {
 
 ### Key Insight:
 Filters are **complementary at different granularity levels** (confirmed in Update 2) but **mutually exclusive per output** (confirmed in Update 4). The sealed class pattern elegantly captures this constraint.
+
+### Update 5: Performance - Existing Implementations Are Optimal (2025-11-08)
+
+**Information Added**: Existing domain implementations (Nybbler.kt, BinaryInterleaver.kt) are already performant - no additional optimization needed.
+
+**Changes Made**:
+1. Marked Question 5 as answered with performance assessment
+2. Updated Dependencies section to emphasize reuse of battle-tested implementations
+3. Marked Challenge #2 as resolved (Performance Optimization)
+4. Clarified that existing implementations are thread-safe by design
+5. Renumbered remaining challenges
+
+**Code Pattern - Direct Reuse**:
+```kotlin
+// Simply reuse existing implementations:
+val nybbler = Nybbler(lo, hi, normalizeHi)
+val interleaver = BinaryInterleaver(List.ofAll(outputs))
+```
+
+**Impact on Implementation**:
+- **No custom buffering strategies needed** - existing implementations handle it optimally
+- **No performance testing required** - can rely on existing test coverage
+- **Simplified adapter implementation** - just wrap and delegate
+- **Focus on integration, not optimization** - reduces implementation scope
+- **Guaranteed performance parity** - with old DSL system since using same implementations
+
+**Summary of All Questions Answered**:
+1. ✅ Architecture: Keep old structure in parallel
+2. ✅ Use Cases: Complementary filters at different granularity levels
+3. ✅ Testing: Copy and convert existing tests
+4. ✅ Filter Combinations: Mutually exclusive per output
+5. ✅ Performance: Existing implementations already optimal
+
+**Ready for Implementation** - All major questions answered, design patterns established, implementation approach clear.
