@@ -25,10 +25,20 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks
 
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.steps.ImageStep
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.tasks.OutputFiles
 
-/** Gradle task for executing image processing steps with proper incremental build support. */
+/**
+ * Gradle task for executing image processing steps with proper incremental build support.
+ *
+ * This task:
+ * 1. Validates the ImageStep configuration
+ * 2. Creates an ImageAdapter to implement the ImagePort
+ * 3. Injects the adapter into the domain step
+ * 4. Executes the domain step with Gradle context (project directory, output directory)
+ * 5. Handles errors and logging
+ */
 abstract class ImageTask : BaseFlowStepTask() {
 
   @get:OutputFiles abstract val outputFiles: ConfigurableFileCollection
@@ -44,56 +54,50 @@ abstract class ImageTask : BaseFlowStepTask() {
           "Image step validation failed: ${validationErrors.joinToString(", ")}")
     }
 
-    logger.info("Processing image files from inputs: ${step.inputs}")
+    if (step !is ImageStep) {
+      throw IllegalStateException("Expected ImageStep but got ${step::class.simpleName}")
+    }
+
+    logger.info("Executing ImageStep '${step.name}' with configuration: ${step.config}")
+    logger.info("Input files: ${step.inputs}")
     logger.info("Output directory: ${outputDirectory.get().asFile.absolutePath}")
 
-    // TODO: Integrate with actual Image processor from processors/image module
-    // For now, simulate the processing
-    step.inputs.forEach { inputPath ->
-      logger.info("Processing image file: $inputPath")
+    try {
+      // Create ImageAdapter for actual image processing (lazy import to avoid circular dependency)
+      val adapterClass =
+          Class.forName("com.github.c64lib.rbt.flows.adapters.out.image.ImageAdapter")
+      val imageAdapter = adapterClass.getDeclaredConstructor().newInstance()
+      val imagePort = imageAdapter as com.github.c64lib.rbt.flows.domain.port.ImagePort
+      step.setImagePort(imagePort)
 
-      val inputFile = project.file(inputPath)
-      if (inputFile.exists() && isImageFile(inputFile.extension)) {
-        val baseName = inputFile.nameWithoutExtension
-        val outputDir = outputDirectory.get().asFile
+      // Create execution context with project information
+      val executionContext =
+          mapOf(
+              "projectRootDir" to project.projectDir,
+              "outputDirectory" to outputDirectory.get().asFile,
+              "logger" to logger)
 
-        // Create output files (placeholder - actual implementation will use image processor)
-        val koalaFile = outputDir.resolve("$baseName.kla")
-        val screenFile = outputDir.resolve("$baseName.scr")
-        val colorFile = outputDir.resolve("$baseName.col")
+      // Execute the step using its domain logic
+      step.execute(executionContext)
 
-        koalaFile.writeText("// Generated Koala bitmap from $inputPath\n")
-        screenFile.writeText("// Generated screen data from $inputPath\n")
-        colorFile.writeText("// Generated color data from $inputPath\n")
-
-        logger.info("Generated: ${koalaFile.absolutePath}")
-        logger.info("Generated: ${screenFile.absolutePath}")
-        logger.info("Generated: ${colorFile.absolutePath}")
-      } else {
-        logger.warn("Input file not found or not a supported image file: $inputPath")
-      }
+      logger.info("Successfully completed image step '${step.name}'")
+    } catch (e: Exception) {
+      logger.error("Image processing failed for step '${step.name}': ${e.message}", e)
+      throw e
     }
   }
 
   override fun validateStep(step: FlowStep): List<String> {
     val errors = super.validateStep(step).toMutableList()
 
-    // Image-specific validations
-    if (step.inputs.isEmpty()) {
-      errors.add("Image step requires at least one input image file")
+    if (step !is ImageStep) {
+      errors.add("Expected ImageStep but got ${step::class.simpleName}")
+      return errors
     }
 
-    step.inputs.forEach { inputPath ->
-      val inputFile = project.file(inputPath)
-      if (!isImageFile(inputFile.extension)) {
-        errors.add("Image step expects image files (png, jpg, jpeg, bmp, gif), but got: $inputPath")
-      }
-    }
+    // Use the domain validation from ImageStep
+    errors.addAll(step.validate())
 
     return errors
-  }
-
-  private fun isImageFile(extension: String): Boolean {
-    return extension.lowercase() in setOf("png", "jpg", "jpeg", "bmp", "gif")
   }
 }
