@@ -237,7 +237,10 @@ data class TileScreenColoursOutput(
     override val filter: FilterConfig = FilterConfig.None
 ) : RangeOutput
 
-/** Map output configuration with rectangular region (left/top/right/bottom) and optional binary filter. */
+/**
+ * Map output configuration with rectangular region (left/top/right/bottom) and optional binary
+ * filter.
+ */
 data class MapOutput(
     val output: String,
     val left: Int = 0,
