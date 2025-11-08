@@ -583,4 +583,219 @@ class CharpadStepTest :
           }
         }
       }
+
+      Given("CharpadStep with nybbler filter") {
+        val executedCommands = mutableListOf<CharpadCommand>()
+        val mockPort =
+            object : CharpadPort {
+              override fun process(command: CharpadCommand) {
+                executedCommands.add(command)
+              }
+
+              override fun process(commands: List<CharpadCommand>) {
+                executedCommands.addAll(commands)
+              }
+            }
+
+        val step =
+            CharpadStep(
+                name = "nybblerTest",
+                inputs = listOf("test.ctm"),
+                charpadOutputs =
+                    CharpadOutputs(
+                        charsets =
+                            listOf(
+                                CharsetOutput(
+                                    "build/charset.chr",
+                                    filter =
+                                        FilterConfig.Nybbler(
+                                            loOutput = "build/charset_lo.chr",
+                                            hiOutput = "build/charset_hi.chr",
+                                            normalizeHi = true)))))
+        step.setCharpadPort(mockPort)
+
+        val tempDir = Files.createTempDirectory("test-nybbler").toFile()
+        val testFile = File(tempDir, "test.ctm")
+        testFile.writeBytes("CTM".toByteArray() + byteArrayOf(5) + ByteArray(100))
+
+        val context = mapOf<String, Any>("projectRootDir" to tempDir)
+
+        When("executing with nybbler filter") {
+          step.execute(context)
+
+          Then("it should pass filter configuration to charpad command") {
+            executedCommands shouldHaveSize 1
+
+            val command = executedCommands.first()
+            command.charpadOutputs.charsets shouldHaveSize 1
+
+            val charset = command.charpadOutputs.charsets.first()
+            charset.output shouldBe "build/charset.chr"
+            charset.filter shouldBe
+                FilterConfig.Nybbler(
+                    loOutput = "build/charset_lo.chr",
+                    hiOutput = "build/charset_hi.chr",
+                    normalizeHi = true)
+          }
+        }
+
+        tempDir.deleteRecursively()
+      }
+
+      Given("CharpadStep with interleaver filter") {
+        val executedCommands = mutableListOf<CharpadCommand>()
+        val mockPort =
+            object : CharpadPort {
+              override fun process(command: CharpadCommand) {
+                executedCommands.add(command)
+              }
+
+              override fun process(commands: List<CharpadCommand>) {
+                executedCommands.addAll(commands)
+              }
+            }
+
+        val step =
+            CharpadStep(
+                name = "interleaverTest",
+                inputs = listOf("test.ctm"),
+                charpadOutputs =
+                    CharpadOutputs(
+                        charsets =
+                            listOf(
+                                CharsetOutput(
+                                    "build/charset.chr",
+                                    filter =
+                                        FilterConfig.Interleaver(
+                                            outputs =
+                                                listOf(
+                                                    "build/charset_0.chr",
+                                                    "build/charset_1.chr",
+                                                    "build/charset_2.chr"))))))
+        step.setCharpadPort(mockPort)
+
+        val tempDir = Files.createTempDirectory("test-interleaver").toFile()
+        val testFile = File(tempDir, "test.ctm")
+        testFile.writeBytes("CTM".toByteArray() + byteArrayOf(5) + ByteArray(100))
+
+        val context = mapOf<String, Any>("projectRootDir" to tempDir)
+
+        When("executing with interleaver filter") {
+          step.execute(context)
+
+          Then("it should pass interleaver filter configuration to charpad command") {
+            executedCommands shouldHaveSize 1
+
+            val command = executedCommands.first()
+            command.charpadOutputs.charsets shouldHaveSize 1
+
+            val charset = command.charpadOutputs.charsets.first()
+            charset.output shouldBe "build/charset.chr"
+            charset.filter shouldBe
+                FilterConfig.Interleaver(
+                    outputs =
+                        listOf("build/charset_0.chr", "build/charset_1.chr", "build/charset_2.chr"))
+          }
+        }
+
+        tempDir.deleteRecursively()
+      }
+
+      Given("CharpadStep with mixed filters on different outputs") {
+        val executedCommands = mutableListOf<CharpadCommand>()
+        val mockPort =
+            object : CharpadPort {
+              override fun process(command: CharpadCommand) {
+                executedCommands.add(command)
+              }
+
+              override fun process(commands: List<CharpadCommand>) {
+                executedCommands.addAll(commands)
+              }
+            }
+
+        val step =
+            CharpadStep(
+                name = "mixedFiltersTest",
+                inputs = listOf("test.ctm"),
+                charpadOutputs =
+                    CharpadOutputs(
+                        charsets =
+                            listOf(
+                                CharsetOutput(
+                                    "build/charset.chr",
+                                    filter =
+                                        FilterConfig.Nybbler(loOutput = "build/charset_lo.chr")),
+                                CharsetOutput(
+                                    "build/charset2.chr",
+                                    filter =
+                                        FilterConfig.Interleaver(
+                                            outputs = listOf("build/c2_0.chr", "build/c2_1.chr"))),
+                                CharsetOutput("build/charset3.chr"))))
+        step.setCharpadPort(mockPort)
+
+        val tempDir = Files.createTempDirectory("test-mixed-filters").toFile()
+        val testFile = File(tempDir, "test.ctm")
+        testFile.writeBytes("CTM".toByteArray() + byteArrayOf(5) + ByteArray(100))
+
+        val context = mapOf<String, Any>("projectRootDir" to tempDir)
+
+        When("executing with mixed filters") {
+          step.execute(context)
+
+          Then("it should handle different filters on different outputs") {
+            executedCommands shouldHaveSize 1
+
+            val command = executedCommands.first()
+            command.charpadOutputs.charsets shouldHaveSize 3
+
+            command.charpadOutputs.charsets[0].filter shouldBe
+                FilterConfig.Nybbler(loOutput = "build/charset_lo.chr")
+            command.charpadOutputs.charsets[1].filter shouldBe
+                FilterConfig.Interleaver(outputs = listOf("build/c2_0.chr", "build/c2_1.chr"))
+            command.charpadOutputs.charsets[2].filter shouldBe FilterConfig.None
+          }
+        }
+
+        tempDir.deleteRecursively()
+      }
+
+      Given("CharpadStep getAllOutputPaths includes filter outputs") {
+        val step =
+            CharpadStep(
+                name = "filterPathsTest",
+                inputs = listOf("test.ctm"),
+                charpadOutputs =
+                    CharpadOutputs(
+                        charsets =
+                            listOf(
+                                CharsetOutput(
+                                    "build/charset.chr",
+                                    filter =
+                                        FilterConfig.Nybbler(
+                                            loOutput = "build/charset_lo.chr",
+                                            hiOutput = "build/charset_hi.chr")),
+                                CharsetOutput(
+                                    "build/charset2.chr",
+                                    filter =
+                                        FilterConfig.Interleaver(
+                                            outputs = listOf("build/c2_0.chr", "build/c2_1.chr")))),
+                        maps = listOf(MapOutput("build/map.bin"))))
+
+        When("getting all output paths") {
+          val paths = step.outputs
+
+          Then("it should include primary and filter outputs") {
+            // Check that all expected paths are present
+            paths shouldContain "build/charset.chr"
+            paths shouldContain "build/charset_lo.chr"
+            paths shouldContain "build/charset_hi.chr"
+            paths shouldContain "build/charset2.chr"
+            paths shouldContain "build/c2_0.chr"
+            paths shouldContain "build/c2_1.chr"
+            paths shouldContain "build/map.bin"
+            paths shouldHaveSize 7
+          }
+        }
+      }
     })

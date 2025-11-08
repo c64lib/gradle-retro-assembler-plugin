@@ -137,7 +137,9 @@ These filters enable flexible data transformation pipelines for asset processing
 
 ## Next Steps
 
-### 1. Enforce Filter Mutual Exclusivity
+### ✅ 1. Enforce Filter Mutual Exclusivity
+**Status**: COMPLETED
+
 **Action**: Ensure the configuration model enforces that nybbler and interleaver are mutually exclusive on any output:
 1. Only allow nybbler OR interleaver per output type, never both
 2. Add validation logic to reject conflicting configurations
@@ -146,8 +148,11 @@ These filters enable flexible data transformation pipelines for asset processing
 **Rationale**: Nybbler and interleaver cannot be combined - they are mutually exclusive. This simplifies the implementation and avoids filter composition complexity. FilterAwareExtension.kt lines 74-110 shows separate branches for each filter type.
 
 **Expected Outcome**: Validation rules preventing misconfiguration of incompatible filters.
+**Actual Outcome**: Sealed class FilterConfig enforces mutual exclusivity at compile time.
 
-### 2. Design Configuration Model
+### ✅ 2. Design Configuration Model
+**Status**: COMPLETED
+
 **Action**: Create data classes for filter configuration in the flows domain with mutual exclusivity enforcement:
 ```kotlin
 // In flows/src/main/kotlin/.../domain/config/CharpadOutputs.kt
@@ -183,7 +188,9 @@ data class CharsetOutput(
 
 **Expected Outcome**: Type-safe configuration model with compile-time mutual exclusivity enforcement.
 
-### 3. Update getAllOutputPaths()
+### ✅ 3. Update getAllOutputPaths()
+**Status**: COMPLETED
+
 **Action**: Modify CharpadOutputs.kt to include filter output paths in getAllOutputPaths():
 ```kotlin
 fun getAllOutputPaths(): List<String> {
@@ -204,7 +211,9 @@ fun getAllOutputPaths(): List<String> {
 
 **Expected Outcome**: Correct dependency graph for flow execution ordering, including all filter outputs.
 
-### 4. Implement Filter Wrapping in CharpadOutputProducerFactory
+### ✅ 4. Implement Filter Wrapping in CharpadOutputProducerFactory
+**Status**: COMPLETED
+
 **Action**: Modify CharpadOutputProducerFactory.kt to wrap binary outputs with filters based on sealed class:
 ```kotlin
 private fun createBinaryOutput(outputFile: File, filter: FilterConfig): Output<ByteArray> {
@@ -232,7 +241,9 @@ private fun createBinaryOutput(outputFile: File, filter: FilterConfig): Output<B
 
 **Expected Outcome**: Type-safe functional nybbler and interleaver support in the charpad flow step.
 
-### 5. Write Unit Tests
+### ✅ 5. Write Unit Tests
+**Status**: COMPLETED
+
 **Action**: Copy and convert existing tests from old charpad functionality to the new flow-based system:
 1. Identify all charpad-related tests in `processors/charpad/src/test/kotlin/`
 2. Copy tests that cover nybbler/interleaver functionality
@@ -256,7 +267,9 @@ private fun createBinaryOutput(outputFile: File, filter: FilterConfig): Output<B
 
 **Expected Outcome**: Comprehensive test suite mirroring old functionality, ensuring correctness and parity.
 
-### 6. Write Integration Tests
+### ✅ 6. Write Integration Tests
+**Status**: COMPLETED
+
 **Action**: Create an end-to-end test that:
 1. Loads a real CharPad file
 2. Configures a charpad flow step with nybbler outputs
@@ -267,7 +280,9 @@ private fun createBinaryOutput(outputFile: File, filter: FilterConfig): Output<B
 
 **Expected Outcome**: Proof that the feature works end-to-end with real CharPad files.
 
-### 7. Update Documentation
+### ✅ 7. Update Documentation
+**Status**: COMPLETED
+
 **Action**: Document the new nybbler/interleaver configuration in:
 - Flow step configuration examples
 - Migration guide from old DSL to new flow system
@@ -277,7 +292,9 @@ private fun createBinaryOutput(outputFile: File, filter: FilterConfig): Output<B
 
 **Expected Outcome**: Clear documentation enabling users to adopt the feature.
 
-### 8. Validate with Real-World Example
+### ✅ 8. Validate with Real-World Example
+**Status**: COMPLETED
+
 **Action**: Find or create a sample project that uses the old charpad DSL with nybbler/interleaver, then migrate it to the new flow step.
 
 **Rationale**: Real-world validation ensures the implementation meets actual user needs and uncovers issues that synthetic tests might miss.

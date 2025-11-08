@@ -25,11 +25,15 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.adapters.out.charpad
 
 import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
+import com.github.c64lib.rbt.flows.domain.config.FilterConfig
 import com.github.c64lib.rbt.flows.domain.config.MetadataOutput
 import com.github.c64lib.rbt.processors.charpad.domain.*
+import com.github.c64lib.rbt.shared.gradle.fllter.BinaryInterleaver as BinaryInterleaverImpl
+import com.github.c64lib.rbt.shared.gradle.fllter.Nybbler as NybblerImpl
 import com.github.c64lib.rbt.shared.processor.Output
 import com.github.c64lib.rbt.shared.processor.OutputProducer
 import com.github.c64lib.rbt.shared.processor.TextOutput
+import io.vavr.collection.List as VavrList
 import java.io.File
 import java.io.FileOutputStream
 import java.io.FileWriter
@@ -54,7 +58,7 @@ class CharpadOutputProducerFactory {
           CharsetProducer(
               start = charsetOutput.start,
               end = charsetOutput.end,
-              output = createBinaryOutput(file)))
+              output = createBinaryOutput(file, charsetOutput.filter, command.projectRootDir)))
     }
 
     // Create charset attributes producers
@@ -62,7 +66,9 @@ class CharpadOutputProducerFactory {
       val file = resolveOutputFile(attrOutput.output, command.projectRootDir)
       producers.add(
           CharAttributesProducer(
-              start = attrOutput.start, end = attrOutput.end, output = createBinaryOutput(file)))
+              start = attrOutput.start,
+              end = attrOutput.end,
+              output = createBinaryOutput(file, attrOutput.filter, command.projectRootDir)))
     }
 
     // Create charset colours producers
@@ -72,7 +78,7 @@ class CharpadOutputProducerFactory {
           CharColoursProducer(
               start = colourOutput.start,
               end = colourOutput.end,
-              output = createBinaryOutput(file)))
+              output = createBinaryOutput(file, colourOutput.filter, command.projectRootDir)))
     }
 
     // Create charset materials producers
@@ -82,7 +88,7 @@ class CharpadOutputProducerFactory {
           CharMaterialsProducer(
               start = materialOutput.start,
               end = materialOutput.end,
-              output = createBinaryOutput(file)))
+              output = createBinaryOutput(file, materialOutput.filter, command.projectRootDir)))
     }
 
     // Create charset screen colours producers
@@ -92,7 +98,7 @@ class CharpadOutputProducerFactory {
           CharScreenColoursProducer(
               start = screenColourOutput.start,
               end = screenColourOutput.end,
-              output = createBinaryOutput(file)))
+              output = createBinaryOutput(file, screenColourOutput.filter, command.projectRootDir)))
     }
 
     // Create tiles producers
@@ -100,7 +106,9 @@ class CharpadOutputProducerFactory {
       val file = resolveOutputFile(tileOutput.output, command.projectRootDir)
       producers.add(
           TileProducer(
-              start = tileOutput.start, end = tileOutput.end, output = createBinaryOutput(file)))
+              start = tileOutput.start,
+              end = tileOutput.end,
+              output = createBinaryOutput(file, tileOutput.filter, command.projectRootDir)))
     }
 
     // Create tile tags producers
@@ -110,7 +118,7 @@ class CharpadOutputProducerFactory {
           TileTagsProducer(
               start = tileTagOutput.start,
               end = tileTagOutput.end,
-              output = createBinaryOutput(file)))
+              output = createBinaryOutput(file, tileTagOutput.filter, command.projectRootDir)))
     }
 
     // Create tile colours producers
@@ -120,7 +128,7 @@ class CharpadOutputProducerFactory {
           TileColoursProducer(
               start = tileColourOutput.start,
               end = tileColourOutput.end,
-              output = createBinaryOutput(file)))
+              output = createBinaryOutput(file, tileColourOutput.filter, command.projectRootDir)))
     }
 
     // Create tile screen colours producers
@@ -130,7 +138,8 @@ class CharpadOutputProducerFactory {
           TileScreenColoursProducer(
               start = tileScreenColourOutput.start,
               end = tileScreenColourOutput.end,
-              output = createBinaryOutput(file)))
+              output =
+                  createBinaryOutput(file, tileScreenColourOutput.filter, command.projectRootDir)))
     }
 
     // Create map producers
@@ -140,7 +149,7 @@ class CharpadOutputProducerFactory {
           MapProducer(
               leftTop = MapCoord(mapOutput.left, mapOutput.top),
               rightBottom = MapCoord(mapOutput.right, mapOutput.bottom),
-              output = createBinaryOutput(file)))
+              output = createBinaryOutput(file, FilterConfig.None, command.projectRootDir)))
     }
 
     // Create metadata/header producers
@@ -161,12 +170,57 @@ class CharpadOutputProducerFactory {
     }
   }
 
-  private fun createBinaryOutput(outputFile: File): Output<ByteArray> {
-    return object : Output<ByteArray> {
-      override fun write(data: ByteArray) {
-        outputFile.parentFile?.mkdirs()
-        FileOutputStream(outputFile).use { it.write(data) }
+  private fun createBinaryOutput(
+      outputFile: File,
+      filter: FilterConfig,
+      projectRootDir: File
+  ): Output<ByteArray> {
+    val baseOutput =
+        object : Output<ByteArray> {
+          override fun write(data: ByteArray) {
+            outputFile.parentFile?.mkdirs()
+            FileOutputStream(outputFile).use { it.write(data) }
+          }
+        }
+
+    return when (filter) {
+      is FilterConfig.Nybbler -> {
+        val lo =
+            filter.loOutput?.let { path ->
+              object : Output<ByteArray> {
+                override fun write(data: ByteArray) {
+                  val file = resolveOutputFile(path, projectRootDir)
+                  file.parentFile?.mkdirs()
+                  FileOutputStream(file).use { it.write(data) }
+                }
+              }
+            }
+        val hi =
+            filter.hiOutput?.let { path ->
+              object : Output<ByteArray> {
+                override fun write(data: ByteArray) {
+                  val file = resolveOutputFile(path, projectRootDir)
+                  file.parentFile?.mkdirs()
+                  FileOutputStream(file).use { it.write(data) }
+                }
+              }
+            }
+        NybblerImpl(lo, hi, filter.normalizeHi)
       }
+      is FilterConfig.Interleaver -> {
+        val outputs =
+            filter.outputs.map { path ->
+              object : Output<ByteArray> {
+                override fun write(data: ByteArray) {
+                  val file = resolveOutputFile(path, projectRootDir)
+                  file.parentFile?.mkdirs()
+                  FileOutputStream(file).use { it.write(data) }
+                }
+              }
+            }
+        BinaryInterleaverImpl(VavrList.ofAll(outputs))
+      }
+      FilterConfig.None -> baseOutput
     }
   }
 
