@@ -13,6 +13,7 @@ include(":flows")
 include(":flows:adapters:in:gradle")
 include(":flows:adapters:out:gradle")
 include(":flows:adapters:out:charpad")
+include(":flows:adapters:out:spritepad")
 
 include(":compilers:kickass")
 include(":compilers:kickass:adapters:in:gradle")

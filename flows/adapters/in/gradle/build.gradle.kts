@@ -10,4 +10,5 @@ dependencies {
   implementation(project(":shared:domain"))
   implementation(project(":compilers:kickass"))
   implementation(project(":flows:adapters:out:charpad"))
+  implementation(project(":flows:adapters:out:spritepad"))
 }

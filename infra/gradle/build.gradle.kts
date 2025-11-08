@@ -92,6 +92,7 @@ dependencies {
     compileOnly(project(":flows:adapters:in:gradle"))
     compileOnly(project(":flows:adapters:out:gradle"))
     compileOnly(project(":flows:adapters:out:charpad"))
+    compileOnly(project(":flows:adapters:out:spritepad"))
 
     compileOnly(project(":emulators:vice"))
     compileOnly(project(":emulators:vice:adapters:out:gradle"))

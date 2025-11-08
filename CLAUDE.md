@@ -91,6 +91,10 @@ Gradle itself is treated as a technology concern and must be isolated in adapter
 
 For parallel task execution, **always use Gradle's Workers API** (not custom threading).
 
+### Adding New Modules
+
+When adding a new module to the project, **you must also add it as `compileOnly` dependency in the `infra/gradle` module**. Failure to do this will result in `ClassNotFoundError` at runtime. The `infra/gradle` module is the entry point for the Gradle plugin and needs to have all domain modules available during compilation to properly integrate them.
+
 ## Testing
 
 - Tests use standard Kotlin test conventions with JUnit
