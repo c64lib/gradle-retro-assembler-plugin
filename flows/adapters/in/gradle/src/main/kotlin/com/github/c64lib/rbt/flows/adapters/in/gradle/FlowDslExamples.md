@@ -430,7 +430,27 @@ This can reduce build times from sequential execution (A + B + C + D) to paralle
 
 ## Binary Filters: Nybbler and Interleaver
 
-The CharPad step supports optional binary filters to transform charset and tile data at different granularity levels. These filters are useful for accessing and transforming data at nibble (4-bit) or byte level independently.
+The CharPad step supports optional binary filters on range-based outputs to transform charset and tile data at different granularity levels. These filters are useful for accessing and transforming data at nibble (4-bit) or byte level independently.
+
+### Filter Applicability
+
+Filters are applicable to **range-based outputs only** (those with `start` and `end` parameters):
+
+| Output Type | Supports Filters | Reason |
+|------------|-----------------|--------|
+| `charset` | ✅ Yes | Range-based output |
+| `charsetAttributes` | ✅ Yes | Range-based output |
+| `charsetColours` | ✅ Yes | Range-based output |
+| `charsetMaterials` | ✅ Yes | Range-based output |
+| `charsetScreenColours` | ✅ Yes | Range-based output |
+| `tiles` | ✅ Yes | Range-based output |
+| `tileTags` | ✅ Yes | Range-based output |
+| `tileColours` | ✅ Yes | Range-based output |
+| `tileScreenColours` | ✅ Yes | Range-based output |
+| `map` | ❌ No | Region-based (left/top/right/bottom), not range-based |
+| `meta` | ❌ No | Metadata/header output, not binary data |
+
+**Note:** Maps and metadata outputs do not support filters because they have different output semantics (rectangular regions and header generation respectively).
 
 ### Nybbler Filter
 
@@ -591,7 +611,11 @@ tiles {
 
 ### Filter Constraints and Behavior
 
-**Important:** Only one filter type (nybbler OR interleaver) can be applied per output. The following will compile but will only use the interleaver:
+**Important Constraints:**
+
+1. **Filter Applicability:** Only range-based outputs (charset, tiles, colors, attributes, etc.) support filters. Maps and metadata outputs do not.
+
+2. **Mutual Exclusivity:** Only one filter type (nybbler OR interleaver) can be applied per output. The following will compile but will only use the interleaver:
 
 ```kotlin
 // ❌ Invalid: Both filters specified (only interleaver will be used)
@@ -755,3 +779,130 @@ step("charpad") {
 ```
 
 This ensures proper build ordering and dependency resolution in the flow system.
+
+### Comprehensive Example: All Filterable Output Types
+
+This example demonstrates filters applied to all range-based output types available in CharPad:
+
+```kotlin
+step("all-outputs-with-filters") {
+    description = "Process all available output types with filters"
+    from("complete_charset.ctm")
+
+    // Charset - split into nibbles
+    charset {
+        output = "build/charset.chr"
+        nybbler {
+            loOutput = "build/charset_lo.chr"
+            hiOutput = "build/charset_hi.chr"
+        }
+    }
+
+    // Charset attributes - use interleaver
+    charsetAttributes {
+        output = "build/attributes.bin"
+        interleaver {
+            outputs = listOf(
+                "build/attr_stream0.bin",
+                "build/attr_stream1.bin"
+            )
+        }
+    }
+
+    // Charset colours - split into nibbles
+    charsetColours {
+        output = "build/colours.bin"
+        nybbler {
+            loOutput = "build/colours_lo.bin"
+            hiOutput = "build/colours_hi.bin"
+        }
+    }
+
+    // Charset materials - use interleaver
+    charsetMaterials {
+        output = "build/materials.bin"
+        interleaver {
+            outputs = listOf(
+                "build/mat_0.bin",
+                "build/mat_1.bin",
+                "build/mat_2.bin",
+                "build/mat_3.bin"
+            )
+        }
+    }
+
+    // Charset screen colours - split into nibbles
+    charsetScreenColours {
+        output = "build/screen_colours.bin"
+        nybbler {
+            loOutput = "build/screen_lo.bin"
+            hiOutput = "build/screen_hi.bin"
+        }
+    }
+
+    // Tiles - use interleaver with range
+    tiles {
+        output = "build/tiles.bin"
+        start = 0
+        end = 256
+        interleaver {
+            outputs = listOf(
+                "build/tiles_even.bin",
+                "build/tiles_odd.bin"
+            )
+        }
+    }
+
+    // Tile tags - split into nibbles
+    tileTags {
+        output = "build/tile_tags.bin"
+        nybbler {
+            loOutput = "build/tags_lo.bin"
+            hiOutput = "build/tags_hi.bin"
+        }
+    }
+
+    // Tile colours - use interleaver
+    tileColours {
+        output = "build/tile_colours.bin"
+        interleaver {
+            outputs = listOf(
+                "build/tilecolour_0.bin",
+                "build/tilecolour_1.bin"
+            )
+        }
+    }
+
+    // Tile screen colours - split into nibbles
+    tileScreenColours {
+        output = "build/tile_screen_colours.bin"
+        nybbler {
+            loOutput = "build/tsc_lo.bin"
+            hiOutput = "build/tsc_hi.bin"
+        }
+    }
+
+    // NOTE: Map and metadata outputs do NOT support filters
+    // (they use different output semantics)
+    map {
+        output = "build/map.bin"
+        left = 0
+        top = 0
+        right = 40
+        bottom = 25
+    }
+
+    meta {
+        output = "build/header.h"
+        namespace = "GAME"
+        prefix = "ASSET_"
+    }
+}
+```
+
+This comprehensive example shows:
+- All 9 range-based output types that support filters
+- Both nybbler and interleaver filters being used
+- Mix of filtered and non-filtered outputs in the same step
+- Range parameters combined with filters (tiles example)
+- Map and metadata outputs without filters (as they're not applicable)
