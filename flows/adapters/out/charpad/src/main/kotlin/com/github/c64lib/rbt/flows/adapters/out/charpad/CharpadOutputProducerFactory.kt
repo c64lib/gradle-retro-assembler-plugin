@@ -53,7 +53,7 @@ class CharpadOutputProducerFactory {
 
     // Create charset producers from dedicated charset outputs
     outputs.charsets.forEach { charsetOutput ->
-      val file = resolveOutputFile(charsetOutput.output, command.projectRootDir)
+      val file = if (charsetOutput.output.isNotEmpty()) resolveOutputFile(charsetOutput.output, command.projectRootDir) else null
       producers.add(
           CharsetProducer(
               start = charsetOutput.start,
@@ -63,7 +63,7 @@ class CharpadOutputProducerFactory {
 
     // Create charset attributes producers
     outputs.charAttributes.forEach { attrOutput ->
-      val file = resolveOutputFile(attrOutput.output, command.projectRootDir)
+      val file = if (attrOutput.output.isNotEmpty()) resolveOutputFile(attrOutput.output, command.projectRootDir) else null
       producers.add(
           CharAttributesProducer(
               start = attrOutput.start,
@@ -73,7 +73,7 @@ class CharpadOutputProducerFactory {
 
     // Create charset colours producers
     outputs.charColours.forEach { colourOutput ->
-      val file = resolveOutputFile(colourOutput.output, command.projectRootDir)
+      val file = if (colourOutput.output.isNotEmpty()) resolveOutputFile(colourOutput.output, command.projectRootDir) else null
       producers.add(
           CharColoursProducer(
               start = colourOutput.start,
@@ -83,7 +83,7 @@ class CharpadOutputProducerFactory {
 
     // Create charset materials producers
     outputs.charMaterials.forEach { materialOutput ->
-      val file = resolveOutputFile(materialOutput.output, command.projectRootDir)
+      val file = if (materialOutput.output.isNotEmpty()) resolveOutputFile(materialOutput.output, command.projectRootDir) else null
       producers.add(
           CharMaterialsProducer(
               start = materialOutput.start,
@@ -93,7 +93,7 @@ class CharpadOutputProducerFactory {
 
     // Create charset screen colours producers
     outputs.charScreenColours.forEach { screenColourOutput ->
-      val file = resolveOutputFile(screenColourOutput.output, command.projectRootDir)
+      val file = if (screenColourOutput.output.isNotEmpty()) resolveOutputFile(screenColourOutput.output, command.projectRootDir) else null
       producers.add(
           CharScreenColoursProducer(
               start = screenColourOutput.start,
@@ -103,7 +103,7 @@ class CharpadOutputProducerFactory {
 
     // Create tiles producers
     outputs.tiles.forEach { tileOutput ->
-      val file = resolveOutputFile(tileOutput.output, command.projectRootDir)
+      val file = if (tileOutput.output.isNotEmpty()) resolveOutputFile(tileOutput.output, command.projectRootDir) else null
       producers.add(
           TileProducer(
               start = tileOutput.start,
@@ -113,7 +113,7 @@ class CharpadOutputProducerFactory {
 
     // Create tile tags producers
     outputs.tileTags.forEach { tileTagOutput ->
-      val file = resolveOutputFile(tileTagOutput.output, command.projectRootDir)
+      val file = if (tileTagOutput.output.isNotEmpty()) resolveOutputFile(tileTagOutput.output, command.projectRootDir) else null
       producers.add(
           TileTagsProducer(
               start = tileTagOutput.start,
@@ -123,7 +123,7 @@ class CharpadOutputProducerFactory {
 
     // Create tile colours producers
     outputs.tileColours.forEach { tileColourOutput ->
-      val file = resolveOutputFile(tileColourOutput.output, command.projectRootDir)
+      val file = if (tileColourOutput.output.isNotEmpty()) resolveOutputFile(tileColourOutput.output, command.projectRootDir) else null
       producers.add(
           TileColoursProducer(
               start = tileColourOutput.start,
@@ -133,7 +133,7 @@ class CharpadOutputProducerFactory {
 
     // Create tile screen colours producers
     outputs.tileScreenColours.forEach { tileScreenColourOutput ->
-      val file = resolveOutputFile(tileScreenColourOutput.output, command.projectRootDir)
+      val file = if (tileScreenColourOutput.output.isNotEmpty()) resolveOutputFile(tileScreenColourOutput.output, command.projectRootDir) else null
       producers.add(
           TileScreenColoursProducer(
               start = tileScreenColourOutput.start,
@@ -144,7 +144,7 @@ class CharpadOutputProducerFactory {
 
     // Create map producers
     outputs.maps.forEach { mapOutput ->
-      val file = resolveOutputFile(mapOutput.output, command.projectRootDir)
+      val file = if (mapOutput.output.isNotEmpty()) resolveOutputFile(mapOutput.output, command.projectRootDir) else null
       producers.add(
           MapProducer(
               leftTop = MapCoord(mapOutput.left, mapOutput.top),
@@ -171,15 +171,26 @@ class CharpadOutputProducerFactory {
   }
 
   private fun createBinaryOutput(
-      outputFile: File,
+      outputFile: File?,
       filter: FilterConfig,
       projectRootDir: File
   ): Output<ByteArray> {
+    // When filter is None, we must have a primary output
+    // When filter is configured, primary output is optional (filter outputs are used)
     val baseOutput =
-        object : Output<ByteArray> {
-          override fun write(data: ByteArray) {
-            outputFile.parentFile?.mkdirs()
-            FileOutputStream(outputFile).use { it.write(data) }
+        if (outputFile != null) {
+          object : Output<ByteArray> {
+            override fun write(data: ByteArray) {
+              outputFile.parentFile?.mkdirs()
+              FileOutputStream(outputFile).use { it.write(data) }
+            }
+          }
+        } else {
+          // DevNull - discard primary output when only using filters
+          object : Output<ByteArray> {
+            override fun write(data: ByteArray) {
+              // Do nothing - discard output
+            }
           }
         }
 

@@ -254,7 +254,8 @@ class CharpadStepBuilderTest :
             val charset = step.charpadOutputs.charsets.first()
             charset.output shouldBe "charset.chr"
 
-            val filter = charset.filter as com.github.c64lib.rbt.flows.domain.config.FilterConfig.Nybbler
+            val filter =
+                charset.filter as com.github.c64lib.rbt.flows.domain.config.FilterConfig.Nybbler
             filter.loOutput shouldBe "charset_lo.chr"
             filter.hiOutput shouldBe "charset_hi.chr"
             filter.normalizeHi shouldBe true
@@ -279,7 +280,8 @@ class CharpadStepBuilderTest :
 
           Then("it should configure partial nybbler correctly") {
             val charset = step.charpadOutputs.charsets.first()
-            val filter = charset.filter as com.github.c64lib.rbt.flows.domain.config.FilterConfig.Nybbler
+            val filter =
+                charset.filter as com.github.c64lib.rbt.flows.domain.config.FilterConfig.Nybbler
             filter.loOutput shouldBe "charset_lo.chr"
             filter.hiOutput shouldBe null
             filter.normalizeHi shouldBe false
@@ -293,9 +295,7 @@ class CharpadStepBuilderTest :
           builder.from("input.ctm")
           builder.tiles {
             output = "tiles.bin"
-            interleaver {
-              outputs = listOf("tiles_0.bin", "tiles_1.bin", "tiles_2.bin")
-            }
+            interleaver { outputs = listOf("tiles_0.bin", "tiles_1.bin", "tiles_2.bin") }
           }
           val step = builder.build()
 
@@ -304,7 +304,8 @@ class CharpadStepBuilderTest :
             val tile = step.charpadOutputs.tiles.first()
             tile.output shouldBe "tiles.bin"
 
-            val filter = tile.filter as com.github.c64lib.rbt.flows.domain.config.FilterConfig.Interleaver
+            val filter =
+                tile.filter as com.github.c64lib.rbt.flows.domain.config.FilterConfig.Interleaver
             filter.outputs shouldBe listOf("tiles_0.bin", "tiles_1.bin", "tiles_2.bin")
 
             // Verify all outputs are tracked
@@ -324,15 +325,11 @@ class CharpadStepBuilderTest :
           }
           builder.tiles {
             output = "tiles.bin"
-            interleaver {
-              outputs = listOf("tiles_0.bin", "tiles_1.bin")
-            }
+            interleaver { outputs = listOf("tiles_0.bin", "tiles_1.bin") }
           }
           builder.map {
             output = "map.bin"
-            nybbler {
-              loOutput = "map_lo.bin"
-            }
+            nybbler { loOutput = "map_lo.bin" }
           }
           val step = builder.build()
 
@@ -341,7 +338,8 @@ class CharpadStepBuilderTest :
             step.charpadOutputs.tiles shouldHaveSize 1
             step.charpadOutputs.maps shouldHaveSize 1
 
-            // Verify total output count: 3 primary + 2 charset nybbler + 2 tile interleaver + 1 map nybbler = 8
+            // Verify total output count: 3 primary + 2 charset nybbler + 2 tile interleaver + 1 map
+            // nybbler = 8
             step.outputs shouldHaveSize 8
           }
         }
@@ -365,7 +363,8 @@ class CharpadStepBuilderTest :
             charset.start shouldBe 0
             charset.end shouldBe 128
 
-            val filter = charset.filter as com.github.c64lib.rbt.flows.domain.config.FilterConfig.Nybbler
+            val filter =
+                charset.filter as com.github.c64lib.rbt.flows.domain.config.FilterConfig.Nybbler
             filter.loOutput shouldBe "charset_lo.chr"
             filter.hiOutput shouldBe "charset_hi.chr"
           }

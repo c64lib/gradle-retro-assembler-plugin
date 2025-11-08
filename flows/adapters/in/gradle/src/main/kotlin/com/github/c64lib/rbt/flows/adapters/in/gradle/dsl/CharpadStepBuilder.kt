@@ -87,21 +87,24 @@ class CharpadStepBuilder(private val name: String) {
   fun charsetAttributes(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    charAttributesOutputs.add(CharAttributesOutput(builder.output, builder.start, builder.end, builder.filter))
+    charAttributesOutputs.add(
+        CharAttributesOutput(builder.output, builder.start, builder.end, builder.filter))
   }
 
   /** Configures charset colours output with optional start/end range and filter. */
   fun charsetColours(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    charColoursOutputs.add(CharColoursOutput(builder.output, builder.start, builder.end, builder.filter))
+    charColoursOutputs.add(
+        CharColoursOutput(builder.output, builder.start, builder.end, builder.filter))
   }
 
   /** Configures charset materials output with optional start/end range and filter. */
   fun charsetMaterials(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    charMaterialsOutputs.add(CharMaterialsOutput(builder.output, builder.start, builder.end, builder.filter))
+    charMaterialsOutputs.add(
+        CharMaterialsOutput(builder.output, builder.start, builder.end, builder.filter))
   }
 
   /** Configures charset screen colours output with optional start/end range and filter. */
@@ -130,7 +133,8 @@ class CharpadStepBuilder(private val name: String) {
   fun tileColours(block: RangeOutputBuilder.() -> Unit) {
     val builder = RangeOutputBuilder()
     builder.block()
-    tileColoursOutputs.add(TileColoursOutput(builder.output, builder.start, builder.end, builder.filter))
+    tileColoursOutputs.add(
+        TileColoursOutput(builder.output, builder.start, builder.end, builder.filter))
   }
 
   /** Configures tile screen colours output with optional start/end range and filter. */
@@ -146,7 +150,13 @@ class CharpadStepBuilder(private val name: String) {
     val builder = MapOutputBuilder()
     builder.block()
     mapOutputs.add(
-        MapOutput(builder.output, builder.left, builder.top, builder.right, builder.bottom, builder.filter))
+        MapOutput(
+            builder.output,
+            builder.left,
+            builder.top,
+            builder.right,
+            builder.bottom,
+            builder.filter))
   }
 
   /** Configures metadata output with optional parameters. */

@@ -31,7 +31,6 @@ import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.file.shouldExist
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.nio.file.Files
@@ -39,8 +38,8 @@ import java.nio.file.Files
 /**
  * Integration tests for Charpad processing with nybbler and interleaver filters.
  *
- * These tests exercise the full charpad pipeline including filter application with real CharPad
- * CTM files.
+ * These tests exercise the full charpad pipeline including filter application with real CharPad CTM
+ * files.
  */
 class CharpadIntegrationTest :
     BehaviorSpec({
@@ -57,7 +56,9 @@ class CharpadIntegrationTest :
             this.javaClass.getResourceAsStream("/test-integration.ctm")
                 ?: throw IllegalStateException("CTM test resource file not found")
 
-        ctmResourceStream.use { input -> ctmFile.outputStream().use { output -> input.copyTo(output) } }
+        ctmResourceStream.use { input ->
+          ctmFile.outputStream().use { output -> input.copyTo(output) }
+        }
 
         val step =
             CharpadStep(
@@ -119,7 +120,9 @@ class CharpadIntegrationTest :
             this.javaClass.getResourceAsStream("/test-integration.ctm")
                 ?: throw IllegalStateException("CTM test resource file not found")
 
-        ctmResourceStream.use { input -> ctmFile.outputStream().use { output -> input.copyTo(output) } }
+        ctmResourceStream.use { input ->
+          ctmFile.outputStream().use { output -> input.copyTo(output) }
+        }
 
         val step =
             CharpadStep(
@@ -177,7 +180,9 @@ class CharpadIntegrationTest :
             this.javaClass.getResourceAsStream("/test-integration.ctm")
                 ?: throw IllegalStateException("CTM test resource file not found")
 
-        ctmResourceStream.use { input -> ctmFile.outputStream().use { output -> input.copyTo(output) } }
+        ctmResourceStream.use { input ->
+          ctmFile.outputStream().use { output -> input.copyTo(output) }
+        }
 
         val step =
             CharpadStep(
@@ -198,8 +203,7 @@ class CharpadIntegrationTest :
                                     filter =
                                         FilterConfig.Interleaver(
                                             outputs =
-                                                listOf(
-                                                    "build/tiles_0.bin", "build/tiles_1.bin")))),
+                                                listOf("build/tiles_0.bin", "build/tiles_1.bin")))),
                         maps = listOf(MapOutput("build/map.bin"))))
 
         step.setCharpadPort(CharpadAdapter())
@@ -253,7 +257,9 @@ class CharpadIntegrationTest :
             this.javaClass.getResourceAsStream("/test-integration.ctm")
                 ?: throw IllegalStateException("CTM test resource file not found")
 
-        ctmResourceStream.use { input -> ctmFile.outputStream().use { output -> input.copyTo(output) } }
+        ctmResourceStream.use { input ->
+          ctmFile.outputStream().use { output -> input.copyTo(output) }
+        }
 
         val step =
             CharpadStep(
@@ -265,7 +271,8 @@ class CharpadIntegrationTest :
                             listOf(
                                 CharsetOutput(
                                     "build/charset.chr",
-                                    filter = FilterConfig.Nybbler(loOutput = "build/charset_lo.chr")))))
+                                    filter =
+                                        FilterConfig.Nybbler(loOutput = "build/charset_lo.chr")))))
 
         step.setCharpadPort(CharpadAdapter())
         val context = mapOf<String, Any>("projectRootDir" to tempDir)
