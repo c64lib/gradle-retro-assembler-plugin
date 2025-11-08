@@ -94,7 +94,16 @@ The CharpadStep currently has only a placeholder execute() method that prints de
 
 17. ✅ **Update integration and unit tests** - Updated all test files to use the new dedicated DSL structure. CharpadStepTest.kt (572 lines) updated with 17 test cases using CharpadOutputs. Added new test cases for multiple outputs of same type (line 528) and map rectangular regions (line 552). FlowDependencyGraphTest.kt updated with CharpadOutputs import and usage. CharpadAdapterTest.kt (357 lines) completely rewritten to use CharpadOutputs structure with tests for all 11 output types, multiple outputs, and region parameters. All tests passing: :flows:test and :flows:adapters:out:charpad:test BUILD SUCCESSFUL.
 
-18. **Update documentation** - Modify flows documentation to include charpad step usage examples and configuration options, emphasizing support for all output types including explicit metadata configuration parameters. Include examples of the new dedicated DSL methods and migration guide from generic "to" outputs.
+18. ✅ **Update documentation** - Updated FlowDslExamples.md with comprehensive CharPad documentation including:
+    * Updated "Parallel Processing Flows" example with dedicated DSL methods (charset, map, meta)
+    * New "Charpad Step Details" section with complete example showing all 11 output types
+    * Output Types Reference table with parameters and descriptions
+    * Range Parameters section with multi-output examples
+    * Rectangular Region Parameters section for map outputs
+    * Metadata Configuration section with all available flags
+    * New "Migration from Generic to Dedicated CharPad DSL" section showing before/after examples
+    * Key Improvements summary highlighting type safety, parameter support, and multiple outputs
+    * Backward Compatibility note with deprecation info
 
 19. **Validate against existing charpad tests** - Run existing charpad processor tests to ensure no regression in core functionality
 
