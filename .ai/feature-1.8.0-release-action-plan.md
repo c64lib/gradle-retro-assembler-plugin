@@ -11,6 +11,7 @@ Update the project documentation in the `doc` folder with descriptions of new fe
 - **Example Projects**: Will NOT be updated for this release (trex64, ctm-viewer)
 - **Migration Guide**: NOT needed (no user-facing API changes)
 - **Experimental Warnings**: All pipeline-related features must be marked as experimental/prototype
+- **UseCase to Service Naming Change**: Non-intentional, exceptional change limited to `flows` subdomain only - should be IGNORED in documentation (do NOT mention in user-facing or internal docs)
 
 ## Relevant Codebase Parts
 
@@ -62,6 +63,7 @@ Update the project documentation in the `doc` folder with descriptions of new fe
 3. Are there any breaking changes that require migration guides beyond what's in the release notes?
 4. What level of detail should processor documentation have - quick start or comprehensive guide?
 5. Should deprecated ExecuteStepPort be mentioned in user documentation, or only in internal/architecture docs?
+6. ~~Should UseCase to Service naming changes be reflected in documentation?~~ **NO - The naming change is non-intentional and limited to `flows` domain only; do not document it anywhere**
 
 ### Questions for Others
 
@@ -226,7 +228,8 @@ flow("compilation") {
 - The release notes indicate this is a substantial release with 28 commits and significant feature additions
 - The Pipeline DSL is flagged as important infrastructure that may need prominent documentation
 - Several processor improvements suggest that processor documentation may be spread across multiple files
-- Internal refactoring (use case to services renaming, ExecuteStepPort deprecation) should be reflected in `doc/kb/` but may not need user-facing documentation
+- Internal refactoring (ExecuteStepPort deprecation) should be reflected in `doc/kb/` but may not need user-facing documentation
+  - **NOTE**: UseCase to Service naming change in `flows` domain is non-intentional and exceptional - should be completely ignored in all documentation
 - Consider whether example projects need updates for 1.8.0
 - The release included documentation organization improvements that may affect how information is structured
 - Some features are marked as "experimental" (GoatTracker), so appropriate warnings should be included
