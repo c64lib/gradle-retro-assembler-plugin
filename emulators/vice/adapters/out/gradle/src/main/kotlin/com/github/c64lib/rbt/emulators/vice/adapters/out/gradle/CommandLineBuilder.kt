@@ -1,8 +1,8 @@
 /*
 MIT License
 
-Copyright (c) 2018-2023 c64lib: The Ultimate Commodore 64 Library
-Copyright (c) 2018-2023 Maciej Małecki
+Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2025 Maciej Małecki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -38,8 +38,10 @@ internal class CommandLineBuilder(
   }
 
   fun switch(name: String, value: String? = null): CommandLineBuilder {
+    require(name.isNotBlank()) { "Switch name cannot be blank" }
     switches += "-$name"
     if (value != null) {
+      require(value.isNotBlank()) { "Switch value cannot be blank" }
       switches += value
     }
     return this

@@ -9,7 +9,7 @@
 :docinfo:
 :actualKickAssVersion: 5.25
 :actualDockerVersion: 0.1.7
-:actualPluginVersion: 1.7.6
+:actualPluginVersion: 1.8.0
 
 Retro Build Tool brings automation to the C64 software building process.
 It is implemented as a Gradle plugin.
@@ -69,6 +69,12 @@ image::img/retro-tool-overview.png[]
 How does this tool differ from `make`?
 Well, in Retro Build Tool we rather declare what we want to do than code how to do it.
 This tool builds an abstraction layer around concrete tools and make the whole building process simple and portable.
+
+[NOTE]
+====
+*New in 1.8.0*: The Pipeline DSL is now available as an experimental feature for orchestrating complex build workflows.
+See <<Pipeline DSL (Experimental)>> for more details.
+====
 
 The Retro Build Tool is Continuous Integration capable.
 It is meant to automate release process, as shown in following example.
@@ -982,6 +988,247 @@ preprocess {
 ----
 
 Either hi or lo part can be ignored by not specifying `loOutput` or `hiOutput` respectively.
+
+== Pipeline DSL (Experimental)
+
+[WARNING]
+.Experimental Feature
+====
+The Pipeline DSL is an experimental feature in prototyped stage.
+The DSL syntax and behavior may change significantly in future releases.
+Use this feature at your own risk and be prepared for potential breaking changes in the next versions.
+====
+
+The Pipeline DSL provides a declarative way to define complex build workflows using a Gradle-based domain-specific language.
+Unlike the traditional `preprocess` section that applies processors globally, the Pipeline DSL allows you to orchestrate and coordinate multiple build steps with explicit dependencies and data flow.
+
+[NOTE]
+====
+The traditional `preprocess` section continues to be the recommended approach for most projects.
+The Pipeline DSL complements this existing functionality rather than replacing it.
+====
+
+=== Pipeline DSL Basics
+
+Pipelines are defined in the `flows` section of your `build.gradle` file:
+
+[source,groovy]
+----
+flows {
+    flow("myFlow") {
+        description = "Optional description of what this flow does"
+
+        // Define pipeline steps here
+    }
+}
+----
+
+=== Step Types
+
+The Pipeline DSL supports multiple step types, each tailored to a specific task:
+
+==== Assembly Step
+
+Compile assembly source code with symbol generation support:
+
+[source,groovy]
+----
+assembleStep("main") {
+    from("src/main.asm")
+    to("build/output/main.prg")
+    cpu = CpuType.MOS6510
+    generateSymbols = true
+    includePaths("lib/c64lib")
+    define("VERSION", "1.0")
+}
+----
+
+Properties::
+- `from(path)` / `from(vararg paths)` - Input assembly file(s)
+- `to(path)` / `to(vararg paths)` - Output file(s)
+- `cpu` - CPU type (e.g., `CpuType.MOS6510`)
+- `generateSymbols` - Generate symbol files for debugging
+- `includePaths(paths...)` - Add include directories
+- `define(name, value)` - Define preprocessor symbols
+
+==== CharPad Step
+
+Process CharPad CTM files to extract charset, maps, tiles, and other graphical assets:
+
+[source,groovy]
+----
+charpadStep("charset") {
+    from("src/charset.ctm")
+    charset { output = "build/charset.chr" }
+    map { output = "build/charset.map" }
+    compression = CharpadCompression.NONE
+}
+----
+
+Properties::
+- `from(path)` - Input CTM file
+- `charset { }` - Extract character set
+- `map { }` - Extract map data
+- `tiles { }` - Extract tile set
+- `tileColours { }` - Extract tile colors
+- `charsetAttributes { }` - Extract character attributes
+- Additional output options available for each type
+
+==== SpritePad Step
+
+Process SpritePad SPD files to extract sprite definitions:
+
+[source,groovy]
+----
+spritepadStep("sprites") {
+    from("src/sprites.spr")
+    sprites { output = "build/sprites.bin" }
+}
+----
+
+Properties::
+- `from(path)` - Input SPD file
+- `sprites { }` - Extract sprite data
+- `start` / `end` - Sprite range (optional)
+
+==== Image Step
+
+Process image files (PNG, etc.) into binary format:
+
+[source,groovy]
+----
+imageStep("background") {
+    from("src/background.png")
+    to("build/background.img")
+}
+----
+
+Properties::
+- `from(path)` - Input image file
+- `to(path)` - Output binary file
+
+==== GoatTracker Step
+
+[WARNING]
+.Experimental Feature
+====
+GoatTracker processor support is experimental.
+The syntax and behavior may change in future releases.
+====
+
+Convert GoatTracker 2 music files (SNG format) to SID format for embedding in programs:
+
+[source,groovy]
+----
+goattrackerStep("music") {
+    from("src/music.sng")
+    to("build/music.sid")
+    bufferedSidWrites = true
+    sfxSupport = true
+}
+----
+
+Properties::
+- `from(path)` - Input SNG file
+- `to(path)` - Output SID file
+- `bufferedSidWrites` - Enable SID register buffering for better quality
+- `sfxSupport` - Enable sound effects support
+- `disableOptimization` - Disable output optimization
+- `playerMemoryLocation` - Memory location for player code
+- `sidMemoryLocation` - SID chip base address
+- `storeAuthorInfo` - Include author information in output
+- `volumeChangeSupport` - Enable master volume control
+- `zeroPageLocation` - Zero page address for variables
+- `zeropageGhostRegisters` - Use zero page for internal variables
+- `executable` - Name of gt2reloc executable (default: "gt2reloc")
+
+==== Command Step
+
+Execute external CLI commands:
+
+[source,groovy]
+----
+commandStep("compress", "exomizer") {
+    from("build/output.prg")
+    to("build/output.exo")
+    param("sfx")
+    option("-o", "build/output.exo")
+    flag("--verbose")
+}
+----
+
+Properties::
+- `from(path)` / `from(vararg paths)` - Input file(s)
+- `to(path)` / `to(vararg paths)` - Output file(s)
+- `param(value)` - Add positional parameter
+- `option(name, value)` - Add named option
+- `flag(name)` - Add boolean flag
+
+=== Flow Dependencies
+
+Flows can depend on other flows to ensure correct execution order:
+
+[source,groovy]
+----
+flows {
+    flow("preprocessing") {
+        charpadStep("charset") {
+            from("src/game.ctm")
+            charset { output = "build/charset.chr" }
+        }
+    }
+
+    flow("compilation") {
+        dependsOn("preprocessing")
+
+        assembleStep("main") {
+            from("src/main.asm")
+            to("build/main.prg")
+        }
+    }
+}
+----
+
+=== Complete Example
+
+[source,groovy]
+----
+flows {
+    flow("build") {
+        description = "Complete game build pipeline"
+
+        charpadStep("graphics") {
+            from("src/game.ctm")
+            charset { output = "build/charset.chr" }
+            map { output = "build/map.bin" }
+        }
+
+        spritepadStep("sprites") {
+            from("src/sprites.spr")
+            sprites { output = "build/sprites.bin" }
+        }
+
+        goattrackerStep("music") {
+            from("src/soundtrack.sng")
+            to("build/music.sid")
+            bufferedSidWrites = true
+        }
+
+        assembleStep("main") {
+            from("src/main.asm")
+            to("build/game.prg")
+            includePaths("lib/c64lib")
+            generateSymbols = true
+        }
+
+        commandStep("pack") {
+            from("build/game.prg")
+            to("build/game.exo")
+            param("sfx")
+        }
+    }
+}
+----
 
 == Using continuous integration
 Gradle Retro Assembler Plugin can be used in CI builds launched in the Cloud.

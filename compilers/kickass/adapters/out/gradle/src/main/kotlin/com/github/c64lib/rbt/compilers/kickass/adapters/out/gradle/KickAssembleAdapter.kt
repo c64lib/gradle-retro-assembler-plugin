@@ -1,8 +1,8 @@
 /*
 MIT License
 
-Copyright (c) 2018-2023 c64lib: The Ultimate Commodore 64 Library
-Copyright (c) 2018-2023 Maciej Małecki
+Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2025 Maciej Małecki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,9 @@ class KickAssembleAdapter(
       defines: List<String>,
       values: Map<String, String>,
       source: File,
-      outputFormat: OutputFormat
+      outputFormat: OutputFormat,
+      outputFile: File?,
+      outputDirectory: File?
   ) {
     project.javaexec {
       it.classpath = project.files(settings.pathToExecutable)
@@ -50,6 +52,8 @@ class KickAssembleAdapter(
               .variables(values)
               .source(source.toPath())
               .outputFormat(outputFormat)
+              .outputFile(outputFile?.toPath())
+              .outputDirectory(outputDirectory?.toPath())
               .build()
       it.args = args
       printArgs(args)

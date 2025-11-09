@@ -1,8 +1,8 @@
 /*
 MIT License
 
-Copyright (c) 2018-2023 c64lib: The Ultimate Commodore 64 Library
-Copyright (c) 2018-2023 Maciej Małecki
+Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2025 Maciej Małecki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,12 +31,31 @@ import com.github.c64lib.rbt.dependencies.usecase.port.UntarDependencyPort
 import com.github.c64lib.rbt.shared.domain.DependencyVersion
 import java.net.URL
 
+/**
+ * Use case for resolving a GitHub dependency.
+ *
+ * This class handles the process of downloading, extracting, and saving the version of a dependency
+ * from GitHub. It uses various ports to perform these operations.
+ *
+ * @property downloadDependencyPort Port for downloading the dependency.
+ * @property untarDependencyPort Port for extracting the downloaded dependency.
+ * @property readDependencyVersionPort Port for reading the current version of the dependency.
+ * @property saveDependencyVersionPort Port for saving the version of the dependency.
+ */
 class ResolveGitHubDependencyUseCase(
     private val downloadDependencyPort: DownloadDependencyPort,
     private val untarDependencyPort: UntarDependencyPort,
     private val readDependencyVersionPort: ReadDependencyVersionPort,
     private val saveDependencyVersionPort: SaveDependencyVersionPort
 ) {
+  /**
+   * Applies the command to resolve the GitHub dependency.
+   *
+   * This method checks if the dependency needs to be updated or forced to update. If so, it
+   * downloads the dependency, extracts it, and saves the version information.
+   *
+   * @param command The command containing the details of the dependency to resolve.
+   */
   fun apply(command: ResolveGitHubDependencyCommand) {
     val versionFile = "${command.workDir}/depvers/${command.dependencyName}/version"
     if (command.force ||
@@ -56,6 +75,14 @@ class ResolveGitHubDependencyUseCase(
   }
 }
 
+/**
+ * Data class representing the command to resolve a GitHub dependency.
+ *
+ * @property dependencyName The name of the dependency to resolve.
+ * @property dependencyVersion The version of the dependency to resolve.
+ * @property force A flag indicating whether to force the update of the dependency.
+ * @property workDir The working directory where the dependency will be resolved.
+ */
 data class ResolveGitHubDependencyCommand(
     val dependencyName: String,
     val dependencyVersion: DependencyVersion,

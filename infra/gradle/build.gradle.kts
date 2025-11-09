@@ -88,6 +88,14 @@ dependencies {
     compileOnly(project(":compilers:kickass:adapters:out:gradle"))
     compileOnly(project(":compilers:kickass:adapters:out:filedownload"))
 
+    compileOnly(project(":flows:"))
+    compileOnly(project(":flows:adapters:in:gradle"))
+    compileOnly(project(":flows:adapters:out:gradle"))
+    compileOnly(project(":flows:adapters:out:charpad"))
+    compileOnly(project(":flows:adapters:out:spritepad"))
+    compileOnly(project(":flows:adapters:out:image"))
+    compileOnly(project(":flows:adapters:out:goattracker"))
+
     compileOnly(project(":emulators:vice"))
     compileOnly(project(":emulators:vice:adapters:out:gradle"))
 

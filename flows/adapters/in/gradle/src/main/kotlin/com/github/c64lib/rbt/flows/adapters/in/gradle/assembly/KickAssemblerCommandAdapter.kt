@@ -1,0 +1,64 @@
+/*
+MIT License
+
+Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2025 Maciej Małecki
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+package com.github.c64lib.rbt.flows.adapters.`in`.gradle.assembly
+
+import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleCommand
+import com.github.c64lib.rbt.flows.domain.config.AssemblyCommand
+
+/**
+ * Adapter that converts domain-level AssemblyCommand to KickAssembler-specific KickAssembleCommand.
+ *
+ * This adapter is responsible for bridging the architectural boundary between the flows domain and
+ * the specific KickAssembler compiler implementation.
+ */
+class KickAssemblerCommandAdapter {
+
+  /**
+   * Converts a domain AssemblyCommand to a KickAssembleCommand.
+   *
+   * @param assemblyCommand The domain-level assembly command
+   * @return KickAssembleCommand ready for KickAssembleUseCase execution
+   */
+  fun toKickAssembleCommand(assemblyCommand: AssemblyCommand): KickAssembleCommand {
+    return KickAssembleCommand(
+        libDirs = assemblyCommand.libDirs,
+        defines = assemblyCommand.defines,
+        values = assemblyCommand.values,
+        source = assemblyCommand.source,
+        outputFormat = assemblyCommand.outputFormat,
+        outputFile = assemblyCommand.outputFile,
+        outputDirectory = assemblyCommand.outputDirectory)
+  }
+
+  /**
+   * Converts multiple domain AssemblyCommands to KickAssembleCommands.
+   *
+   * @param assemblyCommands List of domain-level assembly commands
+   * @return List of KickAssembleCommands ready for execution
+   */
+  fun toKickAssembleCommands(assemblyCommands: List<AssemblyCommand>): List<KickAssembleCommand> {
+    return assemblyCommands.map { toKickAssembleCommand(it) }
+  }
+}

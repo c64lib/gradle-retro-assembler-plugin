@@ -1,8 +1,8 @@
 /*
 MIT License
 
-Copyright (c) 2018-2023 c64lib: The Ultimate Commodore 64 Library
-Copyright (c) 2018-2023 Maciej Małecki
+Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2025 Maciej Małecki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -49,6 +49,8 @@ import com.github.c64lib.rbt.dependencies.adapters.out.gradle.UntarDependencyAda
 import com.github.c64lib.rbt.dependencies.usecase.ResolveGitHubDependencyUseCase
 import com.github.c64lib.rbt.emulators.vice.adapters.out.gradle.RunTestOnViceAdapter
 import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowTasksGenerator
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowsExtension
 import com.github.c64lib.rbt.processors.charpad.adapters.`in`.gradle.Charpad
 import com.github.c64lib.rbt.processors.goattracker.adapters.`in`.gradle.Goattracker
 import com.github.c64lib.rbt.processors.goattracker.adapters.out.gradle.ExecuteGt2RelocAdapter
@@ -99,6 +101,9 @@ class RetroAssemblerPlugin : Plugin<Project> {
     val preprocessExtension =
         project.extensions.create(
             PREPROCESSING_EXTENSION_DSL_NAME, PreprocessingExtension::class.java)
+
+    // Register flows DSL extension
+    val flowsExtension = project.extensions.create("flows", FlowsExtension::class.java)
 
     project.afterEvaluate {
       // deps
@@ -189,6 +194,12 @@ class RetroAssemblerPlugin : Plugin<Project> {
       // build
       val build = project.tasks.create(TASK_BUILD, Build::class.java)
       build.dependsOn(assemble, runSpec)
+
+      // Create KickAssembleUseCase for flow tasks that contain AssembleSteps
+      val kickAssembleUseCase = KickAssembleUseCase(KickAssembleAdapter(project, settings))
+
+      // Register generated flow tasks leveraging Gradle parallelization with dependency injection
+      FlowTasksGenerator(project, flowsExtension.getFlows(), kickAssembleUseCase).registerTasks()
 
       if (project.defaultTasks.isEmpty()) {
         project.defaultTasks.add(TASK_BUILD)

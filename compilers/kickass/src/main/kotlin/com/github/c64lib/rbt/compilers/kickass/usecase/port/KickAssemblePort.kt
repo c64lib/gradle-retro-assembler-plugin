@@ -1,8 +1,8 @@
 /*
 MIT License
 
-Copyright (c) 2018-2023 c64lib: The Ultimate Commodore 64 Library
-Copyright (c) 2018-2023 Maciej Małecki
+Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2025 Maciej Małecki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,8 @@ interface KickAssemblePort {
       defines: List<String>,
       values: Map<String, String>,
       source: File,
-      outputFormat: OutputFormat
+      outputFormat: OutputFormat,
+      outputFile: File? = null,
+      outputDirectory: File? = null
   ): Unit
 }

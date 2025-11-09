@@ -1,8 +1,8 @@
 /*
 MIT License
 
-Copyright (c) 2018-2023 c64lib: The Ultimate Commodore 64 Library
-Copyright (c) 2018-2023 Maciej Małecki
+Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2025 Maciej Małecki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,13 @@ import java.io.File
 class KickAssembleUseCase(private val kickAssemblePort: KickAssemblePort) {
   fun apply(command: KickAssembleCommand) =
       kickAssemblePort.assemble(
-          command.libDirs, command.defines, command.values, command.source, command.outputFormat)
+          command.libDirs,
+          command.defines,
+          command.values,
+          command.source,
+          command.outputFormat,
+          command.outputFile,
+          command.outputDirectory)
 }
 
 data class KickAssembleCommand(
@@ -39,5 +45,7 @@ data class KickAssembleCommand(
     val defines: List<String>,
     val values: Map<String, String>,
     val source: File,
-    val outputFormat: OutputFormat
+    val outputFormat: OutputFormat,
+    val outputFile: File? = null,
+    val outputDirectory: File? = null
 )

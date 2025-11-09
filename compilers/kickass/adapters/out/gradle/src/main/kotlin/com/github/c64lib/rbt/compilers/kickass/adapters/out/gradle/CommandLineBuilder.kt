@@ -1,8 +1,8 @@
 /*
 MIT License
 
-Copyright (c) 2018-2023 c64lib: The Ultimate Commodore 64 Library
-Copyright (c) 2018-2023 Maciej Małecki
+Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Library
+Copyright (c) 2018-2025 Maciej Małecki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@ import com.github.c64lib.rbt.compilers.kickass.domain.KickAssemblerSettings
 import com.github.c64lib.rbt.shared.domain.OutputFormat
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.name
 
 internal class CommandLineBuilder(private val settings: KickAssemblerSettings) {
 
@@ -67,6 +68,20 @@ internal class CommandLineBuilder(private val settings: KickAssemblerSettings) {
 
   fun output(output: Path): CommandLineBuilder {
     args.addAll(listOf("-o", output.absolutePathString()))
+    return this
+  }
+
+  fun outputFile(outputFile: Path?): CommandLineBuilder {
+    if (outputFile != null) {
+      args.addAll(listOf("-o", outputFile.name))
+    }
+    return this
+  }
+
+  fun outputDirectory(outputDirectory: Path?): CommandLineBuilder {
+    if (outputDirectory != null) {
+      args.addAll(listOf("-odir", outputDirectory.absolutePathString()))
+    }
     return this
   }
 
