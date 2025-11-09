@@ -1,5 +1,18 @@
 # Action Plan for Issue #66: Goattracker Flow Step Implementation
 
+## Plan Update Summary (Latest)
+
+**Date Updated:** 2025-11-09
+
+**Key Changes:**
+- Removed `exportFormat` config from GoattrackerConfig (only SID format supported)
+- Removed `filterSupport` setting (confirmed it does not exist)
+- Added requirement for basic type validation helpers (hex values, ranges, booleans)
+- Updated testing strategy to note that no existing integration tests exist in processors/goattracker
+- All 5 "Questions for Others" have been answered and incorporated
+
+---
+
 ## Issue Description
 
 Implement complete flow step integration for GoatTracker processor. The current flow DSL has placeholder implementations that need to be replaced with actual processor integration. The goal is to support all capabilities of the legacy Gradle DSL within the new flow step system.
@@ -23,7 +36,8 @@ Implement complete flow step integration for GoatTracker processor. The current 
 - `config/ProcessorConfig.kt` - Configuration data classes
   - **Status:** Partially implemented (`GoattrackerConfig` exists with only 5 parameters)
   - **Issue:** Missing 9 parameters from old DSL (bufferedSidWrites, disableOptimization, playerMemoryLocation, sfxSupport, sidMemoryLocation, storeAuthorInfo, volumeChangeSupport, zeroPageLocation, zeropageGhostRegisters)
-  - **Current params:** exportFormat, optimization, frequency, channels, filterSupport
+  - **Current params:** optimization, frequency, channels
+  - **Removed params:** exportFormat (not needed, only SID format supported), filterSupport (does not exist)
   - **Missing:** Executable path configuration
 
 - **Missing:** `port/GoattrackerPort.kt` interface
@@ -134,14 +148,22 @@ Implement complete flow step integration for GoatTracker processor. The current 
 ### Questions for Others
 
 1. **Parameter Validation:** Which of the 9 parameters have constraints (ranges, hex values, boolean flags)? How should validation errors be reported?
+   - **ANSWERED:** Parameters should support basic type validation only:
+     - Hex values should accept only hex values
+     - Ranges should support number ranges
+     - Booleans should accept two values
 
 2. **Export Format:** The GoattrackerConfig has `exportFormat: GoattrackerFormat` enum (SID_ONLY, ASM_ONLY, SID_AND_ASM). Does this replace the single output path, or work alongside it?
+   - **ANSWERED:** Only SID format is supported. Remove exportFormat config entry entirely.
 
 3. **Frequency Handling:** The Frequency enum (PAL, NTSC) affects timing. Are there any frequency-dependent parameters that need special handling?
+   - **ANSWERED:** No special handling needed.
 
 4. **Filter Support:** What does `filterSupport: Boolean` do? Is it related to sound filters or data filtering? Should flow DSL expose this?
+   - **ANSWERED:** This setting does not exist. Remove all support for filterSupport.
 
 5. **Legacy Processor:** Are there any existing integration tests for processors/goattracker that demonstrate expected behavior?
+   - **ANSWERED:** No existing integration tests. New tests will need to be created for flow integration.
 
 ---
 
@@ -154,6 +176,9 @@ Implement complete flow step integration for GoatTracker processor. The current 
    - Add executable: String = "gt2reloc"
    - Map parameter names to match old DSL naming conventions
    - Provide sensible defaults matching old processor behavior
+   - **REMOVE:** exportFormat (only SID format supported, single output path used)
+   - **REMOVE:** filterSupport (setting does not exist)
+   - **ADD:** Type validation helpers for hex values and ranges in Kotlin
 
 2. **Create GoattrackerCommand** in `flows/src/main/kotlin/.../config/GoattrackerCommand.kt`
    - Data class with: inputFile, output, config, projectRootDir, workingDirectory
@@ -235,9 +260,11 @@ Implement complete flow step integration for GoatTracker processor. The current 
     - Test all 9 parameters are correctly passed through
 
 14. **Integration Tests for GoattrackerTask**
-    - Test end-to-end flow with sample .sng files (if available)
+    - Create mock .sng test files for integration testing
+    - Test end-to-end flow with sample .sng files
     - Validate task inputs/outputs are properly tracked
     - Test incremental build behavior
+    - Note: No existing integration tests in processors/goattracker to reference
 
 15. **DSL Tests for GoattrackerStepBuilder**
     - Test all 9 parameters are configurable via builder
