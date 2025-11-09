@@ -1,8 +1,9 @@
 # General architecture
 The project uses hexagonal architecture.
 
-Top level split is based on domain analysis. The following domains are idenfified: compilers, dependencies, emulators, processors, and testing.
+Top level split is based on domain analysis. The following domains are identified: compilers, dependencies, emulators, processors, testing, flows, and shared.
 Domain "shared" is reserved for shared kernel elements.
+Domain "flows" is the orchestration layer for build pipelines using the Pipeline DSL.
 
 Inside each domain there is a room for optional subdomains. Each leaf subdomain consists src folder that implements business logic.
 Inside business logic we always identify domain folder that contains domain data structures and usecases folder that contains domain functions.

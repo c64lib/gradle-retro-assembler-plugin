@@ -177,11 +177,11 @@ flow("compilation") {
 
 ## Next Steps
 
-1. **Update version number in `doc/index.adoc`**
+✅ 1. **Update version number in `doc/index.adoc`**
    - Change `:actualPluginVersion: 1.7.6` to `:actualPluginVersion: 1.8.0`
    - Verify all other version attributes are current
 
-2. **Add Pipeline DSL as separate experimental section in `doc/index.adoc`**
+✅ 2. **Add Pipeline DSL as separate experimental section in `doc/index.adoc`**
    - Create new dedicated section for Pipeline DSL (NOT replacing Processors section)
    - Mark feature as experimental/prototype stage
    - Add remark in "Functional overview" section that Pipeline DSL is prototyped in experimental stage
@@ -189,35 +189,35 @@ flow("compilation") {
    - Document each step type with brief examples: assembleStep, charpadStep, spritepadStep, imageStep, goattrackerStep, commandStep
    - Include warning about experimental feature status and potential for change
 
-3. **Document Pipeline Steps independently** (separate from traditional Processors section)
+✅ 3. **Document Pipeline Steps independently** (separate from traditional Processors section)
    - Document GoatTracker step independently, together with other pipeline steps (charpad, spritepad, png)
    - Each step should have its own documentation entry with examples and parameters
    - Mark GoatTracker processor with experimental status warning
 
-4. **Update "External dependencies" documentation**
+✅ 4. **Update "External dependencies" documentation**
    - Review `doc/concept/_04_requirements.adoc` to ensure GoatTracker and other tools are properly documented
    - Add any new version requirements
 
-5. **Update `CHANGES.adoc` with release notes**
+✅ 5. **Update `CHANGES.adoc` with release notes**
    - Copy release notes section from `.ai/release-1.8.0.md` (lines 145-165) into `CHANGES.adoc`
    - Ensure proper AsciiDoc formatting and structure
    - Add changelog entry dated for version 1.8.0
    - Note: No migration guide needed (no user-facing API changes)
 
-6. **Review and integrate architecture documentation updates**
+✅ 6. **Review and integrate architecture documentation updates**
    - Verify that documentation added during this release (architecture, adapters, domain) is properly reflected in user-facing docs
    - Ensure internal knowledge base docs are not accidentally exposed to users
 
-7. **Verify internal documentation consistency**
+✅ 7. **Verify internal documentation consistency**
    - Ensure `doc/kb/architecture.md`, `doc/kb/adapters.md`, and `doc/kb/domain.md` are consistent with code changes
    - Update Copilot instructions if needed to reflect new patterns
 
-8. **Test documentation builds**
+✅ 8. **Test documentation builds**
    - Ensure all `.adoc` files render correctly with AsciiDoctor
    - Verify all cross-references and includes are valid
    - Check that generated HTML output looks correct
 
-9. **Create summary validation document**
+✅ 9. **Create summary validation document**
    - Verify all features from release notes are documented somewhere in `doc/`
    - Ensure no contradictions between release notes and documentation
    - Check for completeness of examples
