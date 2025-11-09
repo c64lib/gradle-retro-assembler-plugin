@@ -80,6 +80,99 @@ Update the project documentation in the `doc` folder with descriptions of new fe
 5. **Should the "Functional overview" section in `doc/index.adoc` be restructured to emphasize Pipeline DSL?**
    - ✅ **ANSWERED**: Only via remark that such feature is prototyped in experimental stage
 
+## Pipeline DSL Syntax Reference
+
+**Derived from adapter code in `/flows` domain** (FlowDsl.kt, step builders):
+
+### Basic Structure
+```kotlin
+flows {
+    flow("flowName") {
+        description = "Optional description"
+
+        // Define steps
+        charpadStep("stepName") { ... }
+        spritepadStep("stepName") { ... }
+        assembleStep("stepName") { ... }
+        imageStep("stepName") { ... }
+        goattrackerStep("stepName") { ... }
+        commandStep("stepName", "command") { ... }
+    }
+}
+```
+
+### Common Step Methods
+- `from(path)` / `from(vararg paths)` - Input file(s)
+- `to(path)` / `to(vararg paths)` - Output file(s)
+- Step-specific configuration properties
+
+### Step Types
+
+**assembleStep**: CPU assembly with symbol generation
+```kotlin
+assembleStep("main") {
+    from("src/main.asm")
+    to("build/output/main.prg")
+    cpu = CpuType.MOS6510
+    generateSymbols = true
+    includePaths("lib/c64lib")
+    define("VERSION", "1.0")
+}
+```
+
+**charpadStep**: CharPad charset processing with filters
+```kotlin
+charpadStep("charset") {
+    from("src/charset.ctm")
+    charset { output = "build/charset.chr" }
+    map { output = "build/charset.map" }
+    compression = CharpadCompression.NONE
+}
+```
+
+**spritepadStep**: SpritePad sprite processing
+```kotlin
+spritepadStep("sprites") {
+    from("src/sprites.spr")
+    // Dedicated output methods for sprite types
+}
+```
+
+**imageStep**: Image file processing (PNG, etc.)
+```kotlin
+imageStep("background") {
+    from("src/background.png")
+    to("build/background.img")
+}
+```
+
+**goattrackerStep**: GoatTracker music/SID processing
+```kotlin
+goattrackerStep("music") {
+    from("src/music.sng")
+    to("build/music.prg")
+}
+```
+
+**commandStep**: Execute external CLI commands
+```kotlin
+commandStep("compress", "exomizer") {
+    from("build/output.prg")
+    to("build/output.exo")
+    param("sfx")
+    option("-o", "build/output.exo")
+    flag("--verbose")
+}
+```
+
+### Flow Dependencies
+```kotlin
+flow("compilation") {
+    dependsOn("preprocessing")  // Execute after "preprocessing" flow
+    // ... steps ...
+}
+```
+
 ## Next Steps
 
 1. **Update version number in `doc/index.adoc`**
@@ -90,7 +183,8 @@ Update the project documentation in the `doc` folder with descriptions of new fe
    - Create new dedicated section for Pipeline DSL (NOT replacing Processors section)
    - Mark feature as experimental/prototype stage
    - Add remark in "Functional overview" section that Pipeline DSL is prototyped in experimental stage
-   - Include basic examples of how to use pipelines for processor orchestration
+   - Include syntax documentation derived from adapter code (see "Pipeline DSL Syntax Reference" section above)
+   - Document each step type with brief examples: assembleStep, charpadStep, spritepadStep, imageStep, goattrackerStep, commandStep
    - Include warning about experimental feature status and potential for change
 
 3. **Document Pipeline Steps independently** (separate from traditional Processors section)
