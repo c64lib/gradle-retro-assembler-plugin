@@ -11,4 +11,8 @@ dependencies {
   implementation(project(":compilers:kickass"))
   implementation(project(":flows:adapters:out:charpad"))
   implementation(project(":flows:adapters:out:spritepad"))
+  implementation(project(":flows:adapters:out:goattracker"))
+  implementation(project(":processors:goattracker"))
+  implementation(project(":processors:goattracker:adapters:in:gradle"))
+  implementation(project(":processors:goattracker:adapters:out:gradle"))
 }

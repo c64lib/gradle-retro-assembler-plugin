@@ -25,7 +25,10 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.domain.steps
 
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.config.GoattrackerCommand
 import com.github.c64lib.rbt.flows.domain.config.GoattrackerConfig
+import com.github.c64lib.rbt.flows.domain.port.GoattrackerPort
+import java.io.File
 
 /** Domain model for GoatTracker processing steps with type-safe configuration. */
 class GoattrackerStep(
@@ -35,18 +38,74 @@ class GoattrackerStep(
     val config: GoattrackerConfig = GoattrackerConfig()
 ) : FlowStep(name, "goattracker", inputs, outputs) {
 
-  override fun execute(context: Map<String, Any>) {
-    println("Executing GoatTracker step: $name")
-    println("  Configuration: $config")
-    println("  Processing ${inputs.size} input file(s)")
+  private var goattrackerPort: GoattrackerPort? = null
 
-    // TODO: Integrate with actual GoatTracker processor
-    inputs.forEach { inputPath ->
-      println("  Processing: $inputPath")
-      // The actual implementation will use the goattracker processor module
+  fun setGoattrackerPort(port: GoattrackerPort) {
+    goattrackerPort = port
+  }
+
+  override fun execute(context: Map<String, Any>) {
+    val port =
+        goattrackerPort
+            ?: throw IllegalStateException(
+                "GoatTracker port is not injected. Cannot execute GoattrackerStep '$name'")
+
+    // Extract project root from context
+    @Suppress("UNCHECKED_CAST")
+    val projectRootDir =
+        (context["projectRootDir"] as? File)
+            ?: throw IllegalStateException(
+                "projectRootDir not found in execution context for GoattrackerStep '$name'")
+
+    // Create GoattrackerCommand for each input/output pair
+    val commands = mutableListOf<GoattrackerCommand>()
+
+    inputs.forEachIndexed { index, inputPath ->
+      val inputFile =
+          File(inputPath).let { file ->
+            if (file.isAbsolute) file else File(projectRootDir, inputPath)
+          }
+
+      // Validate input file
+      if (!inputFile.exists()) {
+        throw IllegalArgumentException(
+            "Input file not found for GoattrackerStep '$name': $inputPath (resolved to ${inputFile.absolutePath})")
+      }
+
+      if (!inputFile.isFile) {
+        throw IllegalArgumentException(
+            "Input path is not a file for GoattrackerStep '$name': $inputPath (resolved to ${inputFile.absolutePath})")
+      }
+
+      if (!inputFile.canRead()) {
+        throw IllegalArgumentException(
+            "Input file is not readable for GoattrackerStep '$name': $inputPath (resolved to ${inputFile.absolutePath})")
+      }
+
+      // Get output file for this input
+      val outputPath =
+          if (index < outputs.size) outputs[index]
+          else {
+            throw IllegalStateException(
+                "GoattrackerStep '$name' has ${inputs.size} inputs but only ${outputs.size} outputs")
+          }
+
+      val outputFile =
+          File(outputPath).let { file ->
+            if (file.isAbsolute) file else File(projectRootDir, outputPath)
+          }
+
+      // Create command
+      commands.add(
+          GoattrackerCommand(
+              inputFile = inputFile,
+              output = outputFile,
+              config = config,
+              projectRootDir = projectRootDir))
     }
 
-    outputs.forEach { outputPath -> println("  Generating: $outputPath") }
+    // Process all commands
+    port.process(commands)
   }
 
   override fun validate(): List<String> {
@@ -77,12 +136,25 @@ class GoattrackerStep(
   }
 
   override fun getConfiguration(): Map<String, Any> {
-    return mapOf(
-        "exportFormat" to config.exportFormat.name,
-        "optimization" to config.optimization,
-        "frequency" to config.frequency.name,
-        "channels" to config.channels,
-        "filterSupport" to config.filterSupport)
+    val configMap =
+        mutableMapOf<String, Any>(
+            "frequency" to config.frequency.name,
+            "channels" to config.channels,
+            "optimization" to config.optimization,
+            "executable" to config.executable)
+
+    // Add optional parameters if set
+    config.bufferedSidWrites?.let { configMap["bufferedSidWrites"] = it }
+    config.disableOptimization?.let { configMap["disableOptimization"] = it }
+    config.playerMemoryLocation?.let { configMap["playerMemoryLocation"] = it }
+    config.sfxSupport?.let { configMap["sfxSupport"] = it }
+    config.sidMemoryLocation?.let { configMap["sidMemoryLocation"] = it }
+    config.storeAuthorInfo?.let { configMap["storeAuthorInfo"] = it }
+    config.volumeChangeSupport?.let { configMap["volumeChangeSupport"] = it }
+    config.zeroPageLocation?.let { configMap["zeroPageLocation"] = it }
+    config.zeropageGhostRegisters?.let { configMap["zeropageGhostRegisters"] = it }
+
+    return configMap
   }
 
   override fun toString(): String {

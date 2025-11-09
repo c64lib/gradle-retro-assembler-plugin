@@ -79,23 +79,25 @@ data class SpritepadConfig(
 )
 
 // GoatTracker Configuration
-enum class GoattrackerFormat {
-  SID_ONLY,
-  ASM_ONLY,
-  SID_AND_ASM
-}
-
 enum class Frequency {
   PAL,
   NTSC
 }
 
 data class GoattrackerConfig(
-    val exportFormat: GoattrackerFormat = GoattrackerFormat.SID_AND_ASM,
-    val optimization: Boolean = true,
     val frequency: Frequency = Frequency.PAL,
     val channels: Int = 3,
-    val filterSupport: Boolean = true
+    val optimization: Boolean = true,
+    val executable: String = "gt2reloc",
+    val bufferedSidWrites: Boolean? = null,
+    val disableOptimization: Boolean? = null,
+    val playerMemoryLocation: Int? = null,
+    val sfxSupport: Boolean? = null,
+    val sidMemoryLocation: Int? = null,
+    val storeAuthorInfo: Boolean? = null,
+    val volumeChangeSupport: Boolean? = null,
+    val zeroPageLocation: Int? = null,
+    val zeropageGhostRegisters: Boolean? = null
 )
 
 // Assembly Configuration

@@ -24,7 +24,10 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks
 
+import com.github.c64lib.rbt.flows.adapters.out.goattracker.GoattrackerAdapter
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.steps.GoattrackerStep
+import com.github.c64lib.rbt.processors.goattracker.adapters.out.gradle.ExecuteGt2RelocAdapter
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.tasks.OutputFiles
 
@@ -44,48 +47,47 @@ abstract class GoattrackerTask : BaseFlowStepTask() {
           "GoatTracker step validation failed: ${validationErrors.joinToString(", ")}")
     }
 
-    logger.info("Processing GoatTracker files from inputs: ${step.inputs}")
+    if (step !is GoattrackerStep) {
+      throw IllegalStateException("Expected GoattrackerStep but got ${step::class.simpleName}")
+    }
+
+    logger.info("Executing GoattrackerStep '${step.name}' with configuration: ${step.config}")
+    logger.info("Input files: ${step.inputs}")
     logger.info("Output directory: ${outputDirectory.get().asFile.absolutePath}")
 
-    // TODO: Integrate with actual GoatTracker processor from processors/goattracker module
-    // For now, simulate the processing
-    step.inputs.forEach { inputPath ->
-      logger.info("Processing GoatTracker file: $inputPath")
+    try {
+      // Create GoattrackerAdapter for actual goattracker processing
+      val executeGt2RelocAdapter = ExecuteGt2RelocAdapter(project)
+      val goattrackerAdapter = GoattrackerAdapter(executeGt2RelocAdapter)
+      step.setGoattrackerPort(goattrackerAdapter)
 
-      val inputFile = project.file(inputPath)
-      if (inputFile.exists() && inputFile.extension == "sng") {
-        val baseName = inputFile.nameWithoutExtension
-        val outputDir = outputDirectory.get().asFile
+      // Create execution context with project information
+      val executionContext =
+          mapOf(
+              "projectRootDir" to project.projectDir,
+              "outputDirectory" to outputDirectory.get().asFile,
+              "logger" to logger)
 
-        // Create output files (placeholder - actual implementation will use goattracker processor)
-        val sidFile = outputDir.resolve("$baseName.sid")
-        val dataFile = outputDir.resolve("$baseName.asm")
+      // Execute the step using its domain logic
+      step.execute(executionContext)
 
-        sidFile.writeText("// Generated SID music from $inputPath\n")
-        dataFile.writeText("// Generated music data from $inputPath\n")
-
-        logger.info("Generated: ${sidFile.absolutePath}")
-        logger.info("Generated: ${dataFile.absolutePath}")
-      } else {
-        logger.warn("Input file not found or not a .sng file: $inputPath")
-      }
+      logger.info("Successfully completed goattracker step '${step.name}'")
+    } catch (e: Exception) {
+      logger.error("GoatTracker processing failed for step '${step.name}': ${e.message}", e)
+      throw e
     }
   }
 
   override fun validateStep(step: FlowStep): List<String> {
     val errors = super.validateStep(step).toMutableList()
 
-    // GoatTracker-specific validations
-    if (step.inputs.isEmpty()) {
-      errors.add("GoatTracker step requires at least one input .sng file")
+    if (step !is GoattrackerStep) {
+      errors.add("Expected GoattrackerStep but got ${step::class.simpleName}")
+      return errors
     }
 
-    step.inputs.forEach { inputPath ->
-      val inputFile = project.file(inputPath)
-      if (!inputFile.name.endsWith(".sng")) {
-        errors.add("GoatTracker step expects .sng files, but got: $inputPath")
-      }
-    }
+    // Use the domain validation from GoattrackerStep
+    errors.addAll(step.validate())
 
     return errors
   }
