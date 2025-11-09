@@ -32,11 +32,19 @@ class GoattrackerStepBuilder(private val name: String) {
   private val inputs = mutableListOf<String>()
   private val outputs = mutableListOf<String>()
 
-  var exportFormat: GoattrackerFormat = GoattrackerFormat.SID_AND_ASM
-  var optimization: Boolean = true
   var frequency: Frequency = Frequency.PAL
   var channels: Int = 3
-  var filterSupport: Boolean = true
+  var optimization: Boolean = true
+  var executable: String = "gt2reloc"
+  var bufferedSidWrites: Boolean? = null
+  var disableOptimization: Boolean? = null
+  var playerMemoryLocation: Int? = null
+  var sfxSupport: Boolean? = null
+  var sidMemoryLocation: Int? = null
+  var storeAuthorInfo: Boolean? = null
+  var volumeChangeSupport: Boolean? = null
+  var zeroPageLocation: Int? = null
+  var zeropageGhostRegisters: Boolean? = null
 
   /** Specifies input sources for this GoatTracker step. */
   fun from(path: String) {
@@ -61,11 +69,19 @@ class GoattrackerStepBuilder(private val name: String) {
   internal fun build(): GoattrackerStep {
     val config =
         GoattrackerConfig(
-            exportFormat = exportFormat,
-            optimization = optimization,
             frequency = frequency,
             channels = channels,
-            filterSupport = filterSupport)
+            optimization = optimization,
+            executable = executable,
+            bufferedSidWrites = bufferedSidWrites,
+            disableOptimization = disableOptimization,
+            playerMemoryLocation = playerMemoryLocation,
+            sfxSupport = sfxSupport,
+            sidMemoryLocation = sidMemoryLocation,
+            storeAuthorInfo = storeAuthorInfo,
+            volumeChangeSupport = volumeChangeSupport,
+            zeroPageLocation = zeroPageLocation,
+            zeropageGhostRegisters = zeropageGhostRegisters)
     return GoattrackerStep(name, inputs, outputs, config)
   }
 }
