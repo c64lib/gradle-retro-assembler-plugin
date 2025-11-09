@@ -1,5 +1,25 @@
 = Change log
 
+1.8.0::
+* Processors: Add GoatTracker music processor support (#122)
+* Processors: Enhance PNG image processor step support (#121)
+* Processors: Improve SpritePad asset processor functionality (#119)
+* Features: Add nybbler interleaver utility (#118)
+* Features: Add CharPad processor documentation and tests (#116)
+* Flows: Add pipeline DSL support for CharPad processor (#115)
+* Flows: Add pipeline DSL support for CLI tools (#114)
+* Flows: Add pipeline DSL support for compiler (#112)
+* Flows: Implement core pipelines feature (#111)
+* Infrastructure: Refactor ExecuteFlowService to use ExecuteTaskPort
+* Infrastructure: Refactor BuildFlowsGraphService with improved dependency management
+* Infrastructure: Rename use case classes to services
+* Infrastructure: Reorganize use case package structure
+* Infrastructure: Mark service classes as internal for cleaner API boundaries
+* Infrastructure: Mark ExecuteStepPort as deprecated
+* Documentation: Add comprehensive architecture and domain documentation
+* Documentation: Update copyright years to 2025
+* Quality: Improve code quality and add additional unit tests
+
 1.7.6::
 * `Charpad`: Support for CTM 9 file format.
 
