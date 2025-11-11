@@ -32,8 +32,8 @@ import com.github.c64lib.rbt.flows.domain.port.ImagePort
 import java.io.File
 
 /**
- * Processes image files with transformations (cut, split, extend, flip, reduce resolution)
- * and outputs (sprite, bitmap formats). Uses ImagePort for processing.
+ * Processes image files with transformations (cut, split, extend, flip, reduce resolution) and
+ * outputs (sprite, bitmap formats). Uses ImagePort for processing.
  */
 data class ImageStep(
     override val name: String,
@@ -145,5 +145,4 @@ data class ImageStep(
         "spriteOutputs" to imageOutputs.spriteOutputs.size,
         "bitmapOutputs" to imageOutputs.bitmapOutputs.size)
   }
-
 }

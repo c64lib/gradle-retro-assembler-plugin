@@ -33,8 +33,8 @@ import java.io.File
 /**
  * GoatTracker music processor step.
  *
- * Validates: .sng file inputs, output file specification, channels (1-3)
- * Requires: GoattrackerPort injection via Gradle task
+ * Validates: .sng file inputs, output file specification, channels (1-3) Requires: GoattrackerPort
+ * injection via Gradle task
  */
 data class GoattrackerStep(
     override val name: String,
@@ -139,5 +139,4 @@ data class GoattrackerStep(
 
     return configMap
   }
-
 }

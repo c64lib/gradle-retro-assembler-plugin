@@ -32,8 +32,8 @@ import com.github.c64lib.rbt.flows.domain.port.SpritepadPort
 import java.io.File
 
 /**
- * Processes SpritePad (.spd) files and generates sprite outputs with configurable
- * format, optimization, and animation support. Uses SpritepadPort for processing.
+ * Processes SpritePad (.spd) files and generates sprite outputs with configurable format,
+ * optimization, and animation support. Uses SpritepadPort for processing.
  */
 data class SpritepadStep(
     override val name: String,
@@ -129,5 +129,4 @@ data class SpritepadStep(
         "animationSupport" to config.animationSupport,
         "spriteOutputs" to spritepadOutputs.sprites.size)
   }
-
 }

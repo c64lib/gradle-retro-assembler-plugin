@@ -32,8 +32,7 @@ import java.io.File
 /**
  * Generic CLI command execution step.
  *
- * Validates: command name format, parameter safety
- * Requires: CommandPort injection via Gradle task
+ * Validates: command name format, parameter safety Requires: CommandPort injection via Gradle task
  */
 data class CommandStep(
     override val name: String,
@@ -284,5 +283,4 @@ data class CommandStep(
     result = 31 * result + parameters.hashCode()
     return result
   }
-
 }

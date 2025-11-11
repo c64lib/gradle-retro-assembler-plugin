@@ -35,8 +35,8 @@ import java.io.File
 /**
  * CharPad file processor step.
  *
- * Validates: .ctm file inputs, output configurations, tile size (8/16/32)
- * Requires: CharpadPort injection via Gradle task
+ * Validates: .ctm file inputs, output configurations, tile size (8/16/32) Requires: CharpadPort
+ * injection via Gradle task
  */
 data class CharpadStep(
     override val name: String,
@@ -180,5 +180,4 @@ data class CharpadStep(
         "mapOutputs" to charpadOutputs.maps.size,
         "metadataOutputs" to charpadOutputs.metadata.size)
   }
-
 }

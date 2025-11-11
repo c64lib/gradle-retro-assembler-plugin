@@ -33,8 +33,8 @@ import java.io.File
 /**
  * Assembly step for compiling 6502 assembly files.
  *
- * Validates: file extensions (.asm/.s) and output file specification
- * Requires: AssemblyPort injection via Gradle task
+ * Validates: file extensions (.asm/.s) and output file specification Requires: AssemblyPort
+ * injection via Gradle task
  */
 data class AssembleStep(
     override val name: String,
@@ -150,5 +150,4 @@ data class AssembleStep(
     result = 31 * result + config.hashCode()
     return result
   }
-
 }

@@ -73,11 +73,13 @@ abstract class FlowStep(
    */
   protected fun getProjectRootDir(context: Map<String, Any>): File {
     return context["projectRootDir"] as? File
-        ?: throw StepExecutionException("Project root directory not found in execution context", name)
+        ?: throw StepExecutionException(
+            "Project root directory not found in execution context", name)
   }
 
   /**
-   * Resolves a list of input file paths to File objects, with support for both absolute and relative paths.
+   * Resolves a list of input file paths to File objects, with support for both absolute and
+   * relative paths.
    *
    * @param inputPaths The input file paths to resolve
    * @param projectRootDir The project root directory for relative path resolution
@@ -114,7 +116,8 @@ abstract class FlowStep(
   }
 
   /**
-   * Resolves an output file path to a File object, with support for both absolute and relative paths.
+   * Resolves an output file path to a File object, with support for both absolute and relative
+   * paths.
    *
    * @param outputPath The output file path to resolve
    * @param projectRootDir The project root directory for relative path resolution
@@ -147,7 +150,8 @@ abstract class FlowStep(
  * @param message The error message describing the validation failure
  * @param stepName The name of the step that failed validation
  */
-class StepValidationException(override val message: String, val stepName: String) : Exception(message) {
+class StepValidationException(override val message: String, val stepName: String) :
+    Exception(message) {
   override fun toString(): String = "Step '$stepName': $message"
 }
 
@@ -158,7 +162,11 @@ class StepValidationException(override val message: String, val stepName: String
  * @param stepName The name of the step that failed
  * @param cause The underlying exception that caused the failure, if any
  */
-class StepExecutionException(override val message: String, val stepName: String, override val cause: Throwable? = null) : Exception(message, cause) {
+class StepExecutionException(
+    override val message: String,
+    val stepName: String,
+    override val cause: Throwable? = null
+) : Exception(message, cause) {
   override fun toString(): String = "Step '$stepName': $message"
 }
 
