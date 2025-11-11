@@ -173,25 +173,47 @@ After refactoring, the flows subdomain should:
 
 ### Unresolved Questions
 
-- [ ] **Validation Consistency**: Should all steps validate input file existence, or should this be deferred to port adapters? Currently mixed.
-  - Currently: AssembleStep and CharpadStep validate file existence; CommandStep doesn't (lets ProcessBuilder fail)
-  - Question: Where should file existence validation happen - steps or adapters?
+- [x] **ANSWERED - Validation Consistency**: Where should file existence validation happen?
+  - **Decision**: File existence validation should happen in **adapters**, not steps
+  - **Reasoning**: Steps focus on critical domain rules, adapters handle execution-level checks
+  - **Impact**: Remove file existence checks from all step classes; adapters will validate files before execution
+  - **Implication**: This changes Phase 2 Step 2.1 - validation can be even simpler, removing file existence checks entirely
 
-- [ ] **Error Message Format**: Should we create a standard error message format for better UX, or keep current approach?
-  - Currently: Varies (some include step name, some don't, some wrap exceptions)
-  - Question: Should we define standard like "Step '<name>': {error}" or keep current?
+- [x] **ANSWERED - Error Message Format**: Should we create a standard error message format?
+  - **Decision**: Yes, **standardize error message format**
+  - **Format**: Use "Step '<name>': {error description}" for all validation and execution errors
+  - **Reasoning**: Better UX, consistent error reporting users can rely on
+  - **Example**: "Step 'charpad': Invalid tile size: 24 (expected 8, 16, or 32)"
+  - **Impact**: All steps must use consistent error format in StepValidationException and StepExecutionException
 
-- [ ] **Port Injection Pattern**: Should we use constructor injection (type-safer) or current mutable property injection?
-  - Currently: Uses mutable `var port: XyzPort? = null` with setter (required because FlowStep is abstract)
-  - Question: Is current pattern acceptable or should we refactor to constructor injection?
+- [x] **ANSWERED - Port Injection Pattern**: Constructor injection or mutable property injection?
+  - **Decision**: **Refactor to constructor injection** (instead of current mutable property pattern)
+  - **Reasoning**: Type-safer, immutable references, eliminates null-checking in validation
+  - **Current pattern**: `var port: XyzPort? = null` (mutable, requires null checks)
+  - **New pattern**: `port: XyzPort` parameter in data class constructor (immutable, type-safe)
+  - **Implementation approach**:
+    - FlowStep abstract class will have abstract `getAssemblyPort()`, `getCharpadPort()`, etc. methods
+    - Each concrete step class will implement port accessor method
+    - Gradle task infrastructure will call setter to inject port before execution
+    - Data class constructor will ensure port is not null
+  - **Impact**: Changes how steps are constructed and ports are accessed
+  - **Note**: This is a significant refactoring requiring careful testing
 
-- [ ] **equals/hashCode Usage**: Are these methods actually necessary in FlowStep subclasses, or are they only needed in data classes?
-  - Currently: All steps override equals/hashCode
-  - Question: What's the actual use case for these in the codebase?
+- [x] **ANSWERED - equals/hashCode Usage**: Are they necessary?
+  - **Decision**: **No, remove them** - use data class auto-generated versions only
+  - **Reasoning**: Steps are immutable value objects; data class auto-generation is standard Kotlin pattern
+  - **Verification**: FlowDependencyGraph artifact comparison should work with auto-generated equals/hashCode
+  - **Impact**: Eliminates 30+ lines per step class
 
-- [ ] **Documentation Standard**: Should we follow Kdoc style guide more strictly, or create custom documentation style?
-  - Currently: Mixes Kdoc, markdown, code examples, long paragraphs
-  - Question: Should we create documentation guidelines for flows subdomain?
+- [x] **ANSWERED - Documentation Standard**: Kdoc style guide or custom guide?
+  - **Decision**: **Follow Kdoc style guide strictly**
+  - **Reasoning**: Professional standard, consistency with Kotlin ecosystem
+  - **Approach**:
+    - Use Kdoc for all public classes and methods
+    - Keep Kdoc concise (3-5 lines for class documentation)
+    - Use only essential inline comments for non-obvious logic
+    - Remove verbose documentation blocks, markdown headers, code examples
+  - **Impact**: Clean, professional documentation matching codebase standards
 
 ### Design Decisions
 
@@ -243,17 +265,22 @@ After refactoring, the flows subdomain should:
   - Remove code examples from class documentation
 - **Rationale**: Professional, readable code that doesn't sacrifice clarity
 
-#### Decision 6: Port Injection Pattern
-- **What to decide**: Keep current mutable injection or change to constructor injection?
-- **Options**:
-  - **Option A**: Keep current property injection (no changes needed)
-  - **Option B**: Change to constructor injection (type-safer)
-  - **Option C**: Use dependency injection framework
-- **Recommendation**: **Option A** - Keep current pattern
-  - Reason: FlowStep is abstract, subclasses can't mandate port in constructor
-  - Current pattern (mutable property + setter) is pragmatic
-  - Matches Gradle task pattern (tasks often have property injection)
-  - Change would require significant restructuring
+#### Decision 6: Port Injection Pattern ✓ APPROVED
+- **User Choice**: Constructor injection (type-safer)
+- **Approach**: Refactor from mutable property to immutable constructor injection
+  - Remove `var port: XyzPort? = null` pattern
+  - Add abstract port accessor methods to FlowStep
+  - Each step implements specific port accessor (getAssemblyPort(), getCharpadPort(), etc.)
+  - Gradle task infrastructure injects port via property before task execution
+  - Data class constructor ensures port is not null
+- **Rationale**: Type-safer, eliminates null-checking, immutable references
+- **Implementation Details**:
+  - FlowStep gets abstract methods: `abstract fun getAssemblyPort(): AssemblyPort?` (nullable for flexibility)
+  - Each step implements accessor: `override fun getAssemblyPort(): AssemblyPort = port` (immutable property)
+  - Gradle task sets port property before calling execute()
+  - Validation can now assume port is not null after injection
+- **Impact**: Significant refactoring requiring careful testing of port injection in Gradle tasks
+- **Note**: This is more complex than originally recommended in Decision 6 but provides better type safety
 
 ## 5. Implementation Plan
 
@@ -313,14 +340,16 @@ After refactoring, the flows subdomain should:
 #### Step 2.1: Simplify all step validation to minimal level
 - **Files to modify**: All 6 step classes (AssembleStep, CharpadStep, CommandStep, GoattrackerStep, ImageStep, SpritepadStep)
 - **Description**:
-  - Apply minimal validation approach (20-30 lines per step)
-  - Keep only critical checks: file existence, extension validation, range validation (tile size, channels, etc.)
-  - Remove defensive checks: parameter pairing, Windows path length, suspicious characters
-  - Remove complexity: multi-level validation methods, defer edge cases to adapters
-  - CommandStep: Reduce from 146 to ~25 lines
-  - GoattrackerStep: Keep as-is (already ~36 lines with critical checks)
+  - Apply minimal validation approach (15-25 lines per step)
+  - Keep only critical domain rule checks: range validation (tile size 8/16/32, channels 1-4), extension validation
+  - **REMOVE**: File existence checks (moved to adapters per decision above)
+  - **REMOVE**: Defensive checks for parameter pairing, path length, suspicious characters
+  - **REMOVE**: Complexity from multi-level validation methods (defer edge cases to adapters)
+  - CommandStep: Reduce from 146 to ~15 lines (much simpler without file checks)
+  - GoattrackerStep: Reduce from ~36 to ~25 lines (remove file existence check)
+  - Other steps: Similar reduction by removing file existence validation
 - **Testing**: Unit tests ensuring critical validation works, edge cases tested in adapters
-- **Impact**: Simpler, focused validation logic across all steps
+- **Impact**: Significantly simpler validation logic, truly minimal per step
 
 #### Step 2.2: Create custom exception classes
 - **Files to modify**: `flows/src/main/kotlin/.../domain/Flow.kt`
@@ -332,42 +361,50 @@ After refactoring, the flows subdomain should:
 - **Testing**: Unit tests verifying exception creation and formatting
 - **Impact**: Clear, consistent error handling across all steps
 
-#### Step 2.3: Update all steps to use custom exceptions
+#### Step 2.3: Update all steps to use custom exceptions with standardized format
 - **Files to modify**: All 6 step classes (AssembleStep, CharpadStep, CommandStep, GoattrackerStep, ImageStep, SpritepadStep)
 - **Description**:
   - Replace all IllegalStateException/IllegalArgumentException with custom exceptions
-  - Port/context missing → throw StepExecutionException("Port not injected", stepName)
-  - Config/file validation errors → throw StepValidationException("description", stepName)
-  - Use consistent message format: "description of what's wrong and why"
-  - Example: `StepValidationException("Invalid tile size: 24 (expected 8, 16, or 32)", "charpad")`
-- **Testing**: Unit tests verifying each step throws correct exception types
-- **Impact**: Clear, consistent error handling users can rely on
+  - Use standard error message format: "Step '<name>': {description}"
+  - Port/context missing → `throw StepExecutionException("Port not injected")`
+  - Config validation errors → `throw StepValidationException("Invalid tile size: 24 (expected 8, 16, or 32)")`
+  - Exception classes automatically prepend step name to message
+  - Example final message: "Step 'charpad': Invalid tile size: 24 (expected 8, 16, or 32)"
+  - Constructor signature: `StepValidationException(message: String, stepName: String)`
+  - toString() format: `"Step '${stepName}': ${message}"`
+- **Testing**: Unit tests verifying each step throws correct exception types with proper format
+- **Impact**: Clear, consistent error handling with standardized format users can rely on
 
-#### Step 2.4: Add minimal documentation to step classes
+#### Step 2.4: Add Kdoc documentation following style guide
 - **Files to modify**: All 6 step classes
 - **Description**:
-  - Add Kdoc explaining: what the step does, what port it uses, critical validation rules
-  - Keep to 3-5 lines maximum per class
+  - Add Kdoc following strict Kotlin style guide
+  - Document: purpose of step, what port it uses, critical validation rules
+  - Keep to 3-5 lines maximum per class (concise Kdoc)
+  - Use proper Kdoc format with tags (@param, @throws if applicable)
   - Example format:
     ```kotlin
     /**
      * Assembly step for compiling 6502 assembly files.
-     * Validates: input file existence and extensions (.asm/.s)
+     *
+     * Validates: extension validation (.asm/.s)
      * Requires: AssemblyPort injection via Gradle task
      */
     ```
-  - Remove verbose multi-paragraph documentation
-  - Remove code examples from class docs
-- **Testing**: Code review for clarity
-- **Impact**: Clean, focused documentation
+  - Remove all verbose multi-paragraph documentation blocks
+  - Remove code examples from class documentation
+  - Remove markdown-style headers and formatting
+  - Use only essential inline comments for non-obvious logic
+- **Testing**: Code review for clarity and Kdoc compliance
+- **Impact**: Professional, consistent documentation matching Kotlin conventions
 
 **Phase 2 Deliverable**:
-- Minimal validation approach across all steps (20-30 lines each)
-- Custom exception types (StepValidationException, StepExecutionException)
-- Clear, consistent error messages
-- Focused documentation per step class
+- Minimal validation approach across all steps (15-25 lines each - even simpler with file checks removed)
+- Custom exception types with standardized format: "Step '<name>': {message}"
+- Clear, consistent error messages following standard format
+- Kdoc documentation per step class following Kotlin style guide
 - All tests passing
-- Better error reporting for users
+- Better error reporting for users with standardized format
 
 ---
 
