@@ -24,6 +24,8 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
+import java.io.File
+
 /** Represents a flow - a chain of related tasks that can be executed as a unit */
 data class Flow(
     val name: String,
@@ -48,10 +50,10 @@ data class Flow(
 
 /** Represents a single step within a flow */
 abstract class FlowStep(
-    val name: String,
+    open val name: String,
     val taskType: String,
-    val inputs: List<String> = emptyList(),
-    val outputs: List<String> = emptyList()
+    open val inputs: List<String> = emptyList(),
+    open val outputs: List<String> = emptyList()
 ) {
   /** Execute this step with the given context */
   abstract fun execute(context: Map<String, Any> = emptyMap())
@@ -61,6 +63,103 @@ abstract class FlowStep(
 
   /** Get step-specific configuration for display/debugging */
   open fun getConfiguration(): Map<String, Any> = emptyMap()
+
+  /**
+   * Extracts the project root directory from the execution context.
+   *
+   * @param context The execution context map
+   * @return The project root directory as a File
+   * @throws StepExecutionException if project root directory is not found
+   */
+  protected fun getProjectRootDir(context: Map<String, Any>): File {
+    return context["projectRootDir"] as? File
+        ?: throw StepExecutionException("Project root directory not found in execution context", name)
+  }
+
+  /**
+   * Resolves a list of input file paths to File objects, with support for both absolute and relative paths.
+   *
+   * @param inputPaths The input file paths to resolve
+   * @param projectRootDir The project root directory for relative path resolution
+   * @return A list of resolved File objects
+   * @throws IllegalArgumentException if any file does not exist
+   */
+  protected fun resolveInputFiles(inputPaths: List<String>, projectRootDir: File): List<File> {
+    return inputPaths.map { inputPath ->
+      val file =
+          if (File(inputPath).isAbsolute) {
+            File(inputPath)
+          } else {
+            File(projectRootDir, inputPath)
+          }
+
+      if (!file.exists()) {
+        throw IllegalArgumentException("Source file does not exist: ${file.absolutePath}")
+      }
+
+      file
+    }
+  }
+
+  /**
+   * Resolves a single input file path to a File object.
+   *
+   * @param inputPath The input file path to resolve
+   * @param projectRootDir The project root directory for relative path resolution
+   * @return The resolved File object
+   * @throws StepExecutionException if the file does not exist
+   */
+  protected fun resolveInputFile(inputPath: String, projectRootDir: File): File {
+    return resolveInputFiles(listOf(inputPath), projectRootDir).first()
+  }
+
+  /**
+   * Resolves an output file path to a File object, with support for both absolute and relative paths.
+   *
+   * @param outputPath The output file path to resolve
+   * @param projectRootDir The project root directory for relative path resolution
+   * @return The resolved File object
+   */
+  protected fun resolveOutputFile(outputPath: String, projectRootDir: File): File {
+    return if (File(outputPath).isAbsolute) {
+      File(outputPath)
+    } else {
+      File(projectRootDir, outputPath)
+    }
+  }
+
+  /**
+   * Validates that a port is properly injected and returns it.
+   *
+   * @param port The port to validate
+   * @param portName The name of the port (e.g., "AssemblyPort")
+   * @return The port if not null
+   * @throws StepExecutionException if the port is not injected
+   */
+  protected fun <T> validatePort(port: T?, portName: String): T {
+    return port ?: throw StepExecutionException("$portName not injected", name)
+  }
+}
+
+/**
+ * Exception thrown during step validation when configuration is invalid.
+ *
+ * @param message The error message describing the validation failure
+ * @param stepName The name of the step that failed validation
+ */
+class StepValidationException(override val message: String, val stepName: String) : Exception(message) {
+  override fun toString(): String = "Step '$stepName': $message"
+}
+
+/**
+ * Exception thrown during step execution when the step cannot complete.
+ *
+ * @param message The error message describing the execution failure
+ * @param stepName The name of the step that failed
+ * @param cause The underlying exception that caused the failure, if any
+ */
+class StepExecutionException(override val message: String, val stepName: String, override val cause: Throwable? = null) : Exception(message, cause) {
+  override fun toString(): String = "Step '$stepName': $message"
 }
 
 /** Represents an artifact (file or resource) that flows between different flows */

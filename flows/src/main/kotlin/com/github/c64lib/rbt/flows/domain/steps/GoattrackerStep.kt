@@ -30,15 +30,19 @@ import com.github.c64lib.rbt.flows.domain.config.GoattrackerConfig
 import com.github.c64lib.rbt.flows.domain.port.GoattrackerPort
 import java.io.File
 
-/** Domain model for GoatTracker processing steps with type-safe configuration. */
-class GoattrackerStep(
-    name: String,
-    inputs: List<String> = emptyList(),
-    outputs: List<String> = emptyList(),
-    val config: GoattrackerConfig = GoattrackerConfig()
+/**
+ * GoatTracker music processor step.
+ *
+ * Validates: .sng file inputs, output file specification, channels (1-3)
+ * Requires: GoattrackerPort injection via Gradle task
+ */
+data class GoattrackerStep(
+    override val name: String,
+    override val inputs: List<String> = emptyList(),
+    override val outputs: List<String> = emptyList(),
+    val config: GoattrackerConfig = GoattrackerConfig(),
+    private var goattrackerPort: GoattrackerPort? = null
 ) : FlowStep(name, "goattracker", inputs, outputs) {
-
-  private var goattrackerPort: GoattrackerPort? = null
 
   fun setGoattrackerPort(port: GoattrackerPort) {
     goattrackerPort = port
@@ -57,31 +61,13 @@ class GoattrackerStep(
             ?: throw IllegalStateException(
                 "projectRootDir not found in execution context for GoattrackerStep '$name'")
 
+    // Convert input paths to SNG files using base class helper
+    val inputFiles = resolveInputFiles(inputs, projectRootDir)
+
     // Create GoattrackerCommand for each input/output pair
     val commands = mutableListOf<GoattrackerCommand>()
 
-    inputs.forEachIndexed { index, inputPath ->
-      val inputFile =
-          File(inputPath).let { file ->
-            if (file.isAbsolute) file else File(projectRootDir, inputPath)
-          }
-
-      // Validate input file
-      if (!inputFile.exists()) {
-        throw IllegalArgumentException(
-            "Input file not found for GoattrackerStep '$name': $inputPath (resolved to ${inputFile.absolutePath})")
-      }
-
-      if (!inputFile.isFile) {
-        throw IllegalArgumentException(
-            "Input path is not a file for GoattrackerStep '$name': $inputPath (resolved to ${inputFile.absolutePath})")
-      }
-
-      if (!inputFile.canRead()) {
-        throw IllegalArgumentException(
-            "Input file is not readable for GoattrackerStep '$name': $inputPath (resolved to ${inputFile.absolutePath})")
-      }
-
+    inputFiles.forEachIndexed { index, inputFile ->
       // Get output file for this input
       val outputPath =
           if (index < outputs.size) outputs[index]
@@ -90,10 +76,7 @@ class GoattrackerStep(
                 "GoattrackerStep '$name' has ${inputs.size} inputs but only ${outputs.size} outputs")
           }
 
-      val outputFile =
-          File(outputPath).let { file ->
-            if (file.isAbsolute) file else File(projectRootDir, outputPath)
-          }
+      val outputFile = resolveOutputFile(outputPath, projectRootDir)
 
       // Create command
       commands.add(
@@ -105,7 +88,7 @@ class GoattrackerStep(
     }
 
     // Process all commands
-    port.process(commands)
+    port.process(commands as List<GoattrackerCommand>)
   }
 
   override fun validate(): List<String> {
@@ -157,25 +140,4 @@ class GoattrackerStep(
     return configMap
   }
 
-  override fun toString(): String {
-    return "GoattrackerStep(name='$name', inputs=$inputs, outputs=$outputs, config=$config)"
-  }
-
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is GoattrackerStep) return false
-
-    return name == other.name &&
-        inputs == other.inputs &&
-        outputs == other.outputs &&
-        config == other.config
-  }
-
-  override fun hashCode(): Int {
-    var result = name.hashCode()
-    result = 31 * result + inputs.hashCode()
-    result = 31 * result + outputs.hashCode()
-    result = 31 * result + config.hashCode()
-    return result
-  }
 }

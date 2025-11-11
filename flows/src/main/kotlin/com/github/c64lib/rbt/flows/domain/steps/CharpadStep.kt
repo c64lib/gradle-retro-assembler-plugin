@@ -32,10 +32,15 @@ import com.github.c64lib.rbt.flows.domain.config.FilterConfig
 import com.github.c64lib.rbt.flows.domain.port.CharpadPort
 import java.io.File
 
-/** Domain model for Charpad processing steps with type-safe configuration. */
-class CharpadStep(
-    name: String,
-    inputs: List<String> = emptyList(),
+/**
+ * CharPad file processor step.
+ *
+ * Validates: .ctm file inputs, output configurations, tile size (8/16/32)
+ * Requires: CharpadPort injection via Gradle task
+ */
+data class CharpadStep(
+    override val name: String,
+    override val inputs: List<String> = emptyList(),
     val charpadOutputs: CharpadOutputs,
     val config: CharpadConfig = CharpadConfig(),
     private var charpadPort: CharpadPort? = null
@@ -78,7 +83,7 @@ class CharpadStep(
         }
 
     // Create CharpadCommand instances for each input file
-    val charpadCommands =
+    val charpadCommands: List<CharpadCommand> =
         inputFiles.map { inputFile ->
           CharpadCommand(
               inputFile = inputFile,
@@ -89,7 +94,7 @@ class CharpadStep(
 
     // Execute charpad processing through the port
     try {
-      port.process(charpadCommands)
+      port.process(charpadCommands as List<CharpadCommand>)
     } catch (e: Exception) {
       throw RuntimeException("Charpad processing failed for step '$name': ${e.message}", e)
     }
@@ -176,25 +181,4 @@ class CharpadStep(
         "metadataOutputs" to charpadOutputs.metadata.size)
   }
 
-  override fun toString(): String {
-    return "CharpadStep(name='$name', inputs=$inputs, outputs=${charpadOutputs.getAllOutputPaths()}, config=$config)"
-  }
-
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is CharpadStep) return false
-
-    return name == other.name &&
-        inputs == other.inputs &&
-        charpadOutputs == other.charpadOutputs &&
-        config == other.config
-  }
-
-  override fun hashCode(): Int {
-    var result = name.hashCode()
-    result = 31 * result + inputs.hashCode()
-    result = 31 * result + charpadOutputs.hashCode()
-    result = 31 * result + config.hashCode()
-    return result
-  }
 }

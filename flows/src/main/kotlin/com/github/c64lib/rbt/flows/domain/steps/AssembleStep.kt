@@ -30,11 +30,16 @@ import com.github.c64lib.rbt.flows.domain.config.AssemblyConfigMapper
 import com.github.c64lib.rbt.flows.domain.port.AssemblyPort
 import java.io.File
 
-/** Domain model for Assembly processing steps with type-safe configuration. */
-class AssembleStep(
-    name: String,
-    inputs: List<String> = emptyList(),
-    outputs: List<String> = emptyList(),
+/**
+ * Assembly step for compiling 6502 assembly files.
+ *
+ * Validates: file extensions (.asm/.s) and output file specification
+ * Requires: AssemblyPort injection via Gradle task
+ */
+data class AssembleStep(
+    override val name: String,
+    override val inputs: List<String> = emptyList(),
+    override val outputs: List<String> = emptyList(),
     val config: AssemblyConfig = AssemblyConfig(),
     private var assemblyPort: AssemblyPort? = null,
     private val configMapper: AssemblyConfigMapper = AssemblyConfigMapper()
@@ -59,22 +64,8 @@ class AssembleStep(
         context["projectRootDir"] as? File
             ?: throw IllegalStateException("Project root directory not found in execution context")
 
-    // Convert input paths to source files
-    val sourceFiles =
-        inputs.map { inputPath ->
-          val file =
-              if (File(inputPath).isAbsolute) {
-                File(inputPath)
-              } else {
-                File(projectRootDir, inputPath)
-              }
-
-          if (!file.exists()) {
-            throw IllegalArgumentException("Source file does not exist: ${file.absolutePath}")
-          }
-
-          file
-        }
+    // Convert input paths to source files using base class helper
+    val sourceFiles = resolveInputFiles(inputs, projectRootDir)
 
     // Map configuration to assembly commands with output handling
     val assemblyCommands =
@@ -159,4 +150,5 @@ class AssembleStep(
     result = 31 * result + config.hashCode()
     return result
   }
+
 }

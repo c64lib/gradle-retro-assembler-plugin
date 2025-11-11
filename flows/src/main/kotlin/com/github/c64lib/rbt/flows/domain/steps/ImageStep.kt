@@ -32,15 +32,12 @@ import com.github.c64lib.rbt.flows.domain.port.ImagePort
 import java.io.File
 
 /**
- * Domain model for image processing steps within the flows pipeline.
- *
- * ImageStep orchestrates image processing by coordinating transformations (cut, split, extend,
- * flip, reduce resolution) and output generation (sprite, bitmap formats) through the ImagePort. It
- * follows the hexagonal architecture pattern with dependency injection of the ImagePort.
+ * Processes image files with transformations (cut, split, extend, flip, reduce resolution)
+ * and outputs (sprite, bitmap formats). Uses ImagePort for processing.
  */
-class ImageStep(
-    name: String,
-    inputs: List<String> = emptyList(),
+data class ImageStep(
+    override val name: String,
+    override val inputs: List<String> = emptyList(),
     val imageOutputs: ImageOutputs = ImageOutputs(),
     val config: ImageConfig = ImageConfig()
 ) : FlowStep(name, "image", inputs, imageOutputs.getAllOutputPaths()) {
@@ -58,32 +55,18 @@ class ImageStep(
     val port =
         imagePort
             ?: throw IllegalStateException(
-                "ImagePort not injected. This step must be executed through a Gradle task.")
+                "ImagePort not injected for step '$name'. Call setImagePort() before execution.")
 
     // Extract required context values
     val projectRootDir =
         context["projectRootDir"] as? File
-            ?: throw IllegalStateException("projectRootDir not provided in execution context")
+            ?: throw IllegalStateException("Project root directory not found in execution context")
 
-    // Convert input paths to absolute File objects
-    val inputFiles =
-        inputs.map { inputPath ->
-          val file =
-              if (File(inputPath).isAbsolute) {
-                File(inputPath)
-              } else {
-                File(projectRootDir, inputPath)
-              }
-
-          if (!file.exists()) {
-            throw IllegalArgumentException("Input image file does not exist: ${file.absolutePath}")
-          }
-
-          file
-        }
+    // Convert input paths to absolute File objects using base class helper
+    val inputFiles = resolveInputFiles(inputs, projectRootDir)
 
     // Create command objects for each input image
-    val imageCommands =
+    val imageCommands: List<ImageCommand> =
         inputFiles.map { inputFile ->
           ImageCommand(
               inputFile = inputFile,
@@ -94,7 +77,7 @@ class ImageStep(
 
     // Execute image processing through port
     try {
-      port.process(imageCommands)
+      port.process(imageCommands as List<ImageCommand>)
     } catch (e: Exception) {
       throw RuntimeException("Image processing failed for step '$name': ${e.message}", e)
     }
@@ -163,25 +146,4 @@ class ImageStep(
         "bitmapOutputs" to imageOutputs.bitmapOutputs.size)
   }
 
-  override fun toString(): String {
-    return "ImageStep(name='$name', inputs=$inputs, imageOutputs=$imageOutputs, config=$config)"
-  }
-
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is ImageStep) return false
-
-    return name == other.name &&
-        inputs == other.inputs &&
-        imageOutputs == other.imageOutputs &&
-        config == other.config
-  }
-
-  override fun hashCode(): Int {
-    var result = name.hashCode()
-    result = 31 * result + inputs.hashCode()
-    result = 31 * result + imageOutputs.hashCode()
-    result = 31 * result + config.hashCode()
-    return result
-  }
 }

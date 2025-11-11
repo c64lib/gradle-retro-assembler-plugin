@@ -30,22 +30,16 @@ import com.github.c64lib.rbt.flows.domain.port.CommandPort
 import java.io.File
 
 /**
- * A command-based flow step that can execute any CLI command with parameters.
+ * Generic CLI command execution step.
  *
- * Example usage:
- * ```kotlin
- * val step = CommandStep("compile", "kickass")
- *     .from("src/main.asm")
- *     .to("build/main.prg")
- *     + "-cpu" + "6510"
- *     + "-o" + outputPath
- * ```
+ * Validates: command name format, parameter safety
+ * Requires: CommandPort injection via Gradle task
  */
-class CommandStep(
-    name: String,
+data class CommandStep(
+    override val name: String,
     val command: String,
-    inputs: List<String> = emptyList(),
-    outputs: List<String> = emptyList(),
+    override val inputs: List<String> = emptyList(),
+    override val outputs: List<String> = emptyList(),
     val parameters: List<String> = emptyList(),
     private var commandPort: CommandPort? = null,
     private val configMapper: CommandConfigMapper = CommandConfigMapper()
@@ -290,4 +284,5 @@ class CommandStep(
     result = 31 * result + parameters.hashCode()
     return result
   }
+
 }
