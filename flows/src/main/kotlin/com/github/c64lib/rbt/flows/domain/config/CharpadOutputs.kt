@@ -44,15 +44,14 @@ sealed class FilterConfig {
   ) : FilterConfig()
 
   /**
-   * Interleaver filter: Distributes binary data across multiple output streams in round-robin fashion.
+   * Interleaver filter: Distributes binary data across multiple output streams in round-robin
+   * fashion.
    *
    * @param outputs List of file paths for interleaved outputs (relative to project root)
    */
   data class Interleaver(val outputs: List<String>) : FilterConfig()
 
-  /**
-   * No filter applied to this output (default).
-   */
+  /** No filter applied to this output (default). */
   object None : FilterConfig()
 }
 
