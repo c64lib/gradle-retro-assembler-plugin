@@ -25,22 +25,21 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.domain.steps
 
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.config.ImageCommand
 import com.github.c64lib.rbt.flows.domain.config.ImageConfig
 import com.github.c64lib.rbt.flows.domain.config.ImageOutputs
 import com.github.c64lib.rbt.flows.domain.port.ImagePort
-import java.io.File
 
 /**
- * Domain model for image processing steps within the flows pipeline.
+ * Image file processor step.
  *
- * ImageStep orchestrates image processing by coordinating transformations (cut, split, extend,
- * flip, reduce resolution) and output generation (sprite, bitmap formats) through the ImagePort. It
- * follows the hexagonal architecture pattern with dependency injection of the ImagePort.
+ * Processes PNG files with transformations and outputs. Validates input file extensions (.png) and
+ * output configurations. Requires ImagePort injection via Gradle task.
  */
-class ImageStep(
-    name: String,
-    inputs: List<String> = emptyList(),
+data class ImageStep(
+    override val name: String,
+    override val inputs: List<String> = emptyList(),
     val imageOutputs: ImageOutputs = ImageOutputs(),
     val config: ImageConfig = ImageConfig()
 ) : FlowStep(name, "image", inputs, imageOutputs.getAllOutputPaths()) {
@@ -55,35 +54,16 @@ class ImageStep(
 
   override fun execute(context: Map<String, Any>) {
     // Get port or throw - ensures proper initialization by adapter layer
-    val port =
-        imagePort
-            ?: throw IllegalStateException(
-                "ImagePort not injected. This step must be executed through a Gradle task.")
+    val port = imagePort ?: throw StepExecutionException("ImagePort not injected", name)
 
     // Extract required context values
-    val projectRootDir =
-        context["projectRootDir"] as? File
-            ?: throw IllegalStateException("projectRootDir not provided in execution context")
+    val projectRootDir = getProjectRootDir(context)
 
-    // Convert input paths to absolute File objects
-    val inputFiles =
-        inputs.map { inputPath ->
-          val file =
-              if (File(inputPath).isAbsolute) {
-                File(inputPath)
-              } else {
-                File(projectRootDir, inputPath)
-              }
-
-          if (!file.exists()) {
-            throw IllegalArgumentException("Input image file does not exist: ${file.absolutePath}")
-          }
-
-          file
-        }
+    // Convert input paths to absolute File objects using base class helper
+    val inputFiles = resolveInputFiles(inputs, projectRootDir)
 
     // Create command objects for each input image
-    val imageCommands =
+    val imageCommands: List<ImageCommand> =
         inputFiles.map { inputFile ->
           ImageCommand(
               inputFile = inputFile,
@@ -94,9 +74,9 @@ class ImageStep(
 
     // Execute image processing through port
     try {
-      port.process(imageCommands)
+      port.process(imageCommands as List<ImageCommand>)
     } catch (e: Exception) {
-      throw RuntimeException("Image processing failed for step '$name': ${e.message}", e)
+      throw StepExecutionException("Image processing failed: ${e.message}", name, e)
     }
 
     // Log generated outputs
@@ -113,7 +93,7 @@ class ImageStep(
       errors.add("Image step '$name' requires at least one input image file")
     }
 
-    // Validate that input files have appropriate extensions
+    // Validate input file extensions
     inputs.forEach { inputPath ->
       val extension = inputPath.substringAfterLast('.', "").lowercase()
       if (extension != "png") {
@@ -125,27 +105,6 @@ class ImageStep(
     // Validate outputs are configured
     if (!imageOutputs.hasOutputs()) {
       errors.add("Image step '$name' requires at least one output (sprite or bitmap format)")
-    }
-
-    // Validate that transformations don't violate constraints
-    val transformationTypeCounts = mutableMapOf<String, Int>()
-    imageOutputs.transformations.forEach { transformation ->
-      val typeName = transformation::class.simpleName ?: "Unknown"
-      transformationTypeCounts[typeName] = (transformationTypeCounts[typeName] ?: 0) + 1
-    }
-
-    transformationTypeCounts.forEach { (typeName, count) ->
-      if (count > 1) {
-        errors.add(
-            "Image step '$name' cannot apply the same transformation multiple times. " +
-                "Found $count instances of $typeName (maximum 1 allowed)")
-      }
-    }
-
-    // Validate config parameters
-    if (config.backgroundColor !in 0..255) {
-      errors.add(
-          "Image step '$name' background color must be between 0 and 255, but got: ${config.backgroundColor}")
     }
 
     return errors
@@ -161,27 +120,5 @@ class ImageStep(
         "transformations" to imageOutputs.transformations.size,
         "spriteOutputs" to imageOutputs.spriteOutputs.size,
         "bitmapOutputs" to imageOutputs.bitmapOutputs.size)
-  }
-
-  override fun toString(): String {
-    return "ImageStep(name='$name', inputs=$inputs, imageOutputs=$imageOutputs, config=$config)"
-  }
-
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is ImageStep) return false
-
-    return name == other.name &&
-        inputs == other.inputs &&
-        imageOutputs == other.imageOutputs &&
-        config == other.config
-  }
-
-  override fun hashCode(): Int {
-    var result = name.hashCode()
-    result = 31 * result + inputs.hashCode()
-    result = 31 * result + imageOutputs.hashCode()
-    result = 31 * result + config.hashCode()
-    return result
   }
 }

@@ -113,6 +113,84 @@ When adding a new module to the project, **you must also add it as `compileOnly`
 
 - Do not suggest including implementation details in API comments
 
+## Flows Subdomain Patterns
+
+The flows subdomain is an orchestrator domain that coordinates multiple processor and compiler subdomains into processing pipelines with dependency tracking and incremental build support.
+
+### Step Classes (Domain Layer)
+
+Step classes are immutable data classes representing individual processing steps within a flow:
+
+- **Base class**: All steps extend `FlowStep` abstract base class
+- **Pattern**: Use Kotlin `data class` for immutable value objects with auto-generated equals/hashCode
+- **Structure**: Each step has:
+  - `name: String` - Unique step identifier
+  - `inputs: List<String>` - Input file paths for change detection
+  - `outputs: List<String>` - Output file paths for incremental builds
+  - Step-specific configuration properties (e.g., `compression`, `tileSize`, `channels`)
+  - Port field (injected by Gradle task infrastructure)
+
+### Common Patterns
+
+**Port Injection**: Each step has a port field (e.g., `var port: AssemblyPort? = null`) that is injected by Gradle task infrastructure before execution. The `validatePort()` method in FlowStep base class validates the port is not null before use.
+
+**File Resolution**: Use protected methods from FlowStep base class:
+- `resolveInputFiles(inputPaths, projectRootDir)` - Resolves and validates multiple input files
+- `resolveOutputFile(outputPath, projectRootDir)` - Resolves single output file
+- These methods handle relative path resolution from project root directory
+
+**Validation**: Keep validation minimal and focused on critical domain rules:
+- Range validation (e.g., tile size must be 8, 16, or 32)
+- File extension validation
+- Required vs. optional parameter consistency
+- Defer edge cases and execution-level checks to adapters
+
+**Error Handling**: Use custom exception classes for consistent error reporting:
+- `StepValidationException` for configuration/validation errors
+- `StepExecutionException` for runtime/execution errors
+- Exception messages automatically prepend step name: "Step '<name>': {message}"
+
+**Documentation**: Use concise Kdoc following Kotlin style guide:
+- 3-5 lines per class documenting purpose and validation rules
+- Remove verbose multi-paragraph documentation and code examples
+- Add inline comments only for non-obvious logic
+
+### Example Step Implementation
+
+```kotlin
+data class CharpadStep(
+    override val name: String,
+    override val inputs: List<String>,
+    override val outputs: List<String>,
+    val compression: CharpadCompression,
+    var port: CharpadPort? = null
+) : FlowStep(name, inputs, outputs) {
+
+  /**
+   * CharPad file processor step.
+   *
+   * Validates compression type and file paths.
+   */
+  override fun execute(context: Map<String, Any>) {
+    val validPort = validatePort(port, "CharpadPort")
+    val projectRootDir = getProjectRootDir(context)
+    val inputFile = resolveInputFile(inputs[0], projectRootDir)
+
+    try {
+      validPort.processCharpad(inputFile, compression)
+    } catch (e: Exception) {
+      throw StepExecutionException("Failed to process CharPad", name, e)
+    }
+  }
+
+  override fun validate() {
+    if (compression == null) {
+      throw StepValidationException("Compression type is required", name)
+    }
+  }
+}
+```
+
 ## Technology Stack
 
 - **Language**: Kotlin

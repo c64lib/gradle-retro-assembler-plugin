@@ -24,6 +24,7 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain.steps
 
+import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.config.AssemblyCommand
 import com.github.c64lib.rbt.flows.domain.config.AssemblyConfig
 import com.github.c64lib.rbt.flows.domain.port.AssemblyPort
@@ -115,11 +116,11 @@ class AssembleStepTest :
         val context = mapOf<String, Any>("projectRootDir" to tempDir)
 
         When("executing without assembly port injection") {
-          val exception = shouldThrow<IllegalStateException> { step.execute(context) }
+          val exception = shouldThrow<StepExecutionException> { step.execute(context) }
 
           Then("it should throw an exception about missing assembly port") {
-            exception.message shouldBe
-                "AssemblyPort not injected for step 'testAssemble'. Call setAssemblyPort() before execution."
+            exception.message shouldBe "AssemblyPort not injected"
+            exception.stepName shouldBe "testAssemble"
           }
         }
 
@@ -285,8 +286,8 @@ class AssembleStepTest :
 
           val errors = step.validate()
 
-          Then("it should report blank include paths") {
-            errors shouldContain "Assembly step 'blankPaths' include path cannot be blank"
+          Then("it should pass validation (include path validation deferred to adapters)") {
+            errors shouldHaveSize 0
           }
         }
 
@@ -317,7 +318,7 @@ class AssembleStepTest :
         When("executing without project root directory in context") {
           val context = emptyMap<String, Any>()
 
-          val exception = shouldThrow<IllegalStateException> { step.execute(context) }
+          val exception = shouldThrow<StepExecutionException> { step.execute(context) }
 
           Then("it should throw exception about missing project root") {
             exception.message shouldBe "Project root directory not found in execution context"

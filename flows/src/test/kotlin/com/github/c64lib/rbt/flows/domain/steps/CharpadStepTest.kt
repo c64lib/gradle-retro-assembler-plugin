@@ -26,6 +26,8 @@ package com.github.c64lib.rbt.flows.domain.steps
 
 import com.github.c64lib.rbt.flows.adapters.out.charpad.CharpadAdapter
 import com.github.c64lib.rbt.flows.domain.FlowValidationException
+import com.github.c64lib.rbt.flows.domain.StepExecutionException
+import com.github.c64lib.rbt.flows.domain.StepValidationException
 import com.github.c64lib.rbt.flows.domain.config.*
 import com.github.c64lib.rbt.flows.domain.port.CharpadPort
 import io.kotest.assertions.throwables.shouldThrow
@@ -145,11 +147,11 @@ class CharpadStepTest :
         val context = mapOf<String, Any>("projectRootDir" to tempDir)
 
         When("executing without charpad port injection") {
-          val exception = shouldThrow<IllegalStateException> { step.execute(context) }
+          val exception = shouldThrow<StepExecutionException> { step.execute(context) }
 
           Then("it should throw an exception about missing charpad port") {
-            exception.message shouldBe
-                "CharpadPort not injected for step 'testCharpad'. Call setCharpadPort() before execution."
+            exception.message shouldBe "CharpadPort not injected"
+            exception.stepName shouldBe "testCharpad"
           }
         }
 
@@ -328,7 +330,7 @@ class CharpadStepTest :
         val context = mapOf<String, Any>("projectRootDir" to tempDir)
 
         When("executing with missing input file") {
-          val exception = shouldThrow<IllegalArgumentException> { step.execute(context) }
+          val exception = shouldThrow<StepValidationException> { step.execute(context) }
 
           Then("it should throw an exception about missing file") {
             exception.message shouldContain "CTM file does not exist"

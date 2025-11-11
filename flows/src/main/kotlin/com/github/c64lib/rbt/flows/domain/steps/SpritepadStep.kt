@@ -25,20 +25,27 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.domain.steps
 
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.config.SpritepadCommand
 import com.github.c64lib.rbt.flows.domain.config.SpritepadConfig
 import com.github.c64lib.rbt.flows.domain.config.SpritepadOutputs
 import com.github.c64lib.rbt.flows.domain.port.SpritepadPort
-import java.io.File
 
-/** Domain model for Spritepad processing steps with type-safe configuration. */
-class SpritepadStep(
-    name: String,
-    inputs: List<String> = emptyList(),
+/**
+ * SpritePad file processor step.
+ *
+ * Validates .spd file inputs and sprite output configurations. Requires SpritepadPort injection via
+ * Gradle task.
+ */
+data class SpritepadStep(
+    override val name: String,
+    override val inputs: List<String> = emptyList(),
     val spritepadOutputs: SpritepadOutputs,
-    val config: SpritepadConfig = SpritepadConfig(),
-    private var spritepadPort: SpritepadPort? = null
+    val config: SpritepadConfig = SpritepadConfig()
 ) : FlowStep(name, "spritepad", inputs, spritepadOutputs.getAllOutputPaths()) {
+
+  // Port injection - set by task adapter before execution
+  private var spritepadPort: SpritepadPort? = null
 
   /**
    * Injects the spritepad port dependency. This is called by the adapter layer when the step is
@@ -49,35 +56,16 @@ class SpritepadStep(
   }
 
   override fun execute(context: Map<String, Any>) {
-    val port =
-        spritepadPort
-            ?: throw IllegalStateException(
-                "SpritepadPort not injected for step '$name'. Call setSpritepadPort() before execution.")
+    val port = spritepadPort ?: throw StepExecutionException("SpritepadPort not injected", name)
 
     // Extract project root directory from context
-    val projectRootDir =
-        context["projectRootDir"] as? File
-            ?: throw IllegalStateException("Project root directory not found in execution context")
+    val projectRootDir = getProjectRootDir(context)
 
-    // Convert input paths to SPD files
-    val inputFiles =
-        inputs.map { inputPath ->
-          val file =
-              if (File(inputPath).isAbsolute) {
-                File(inputPath)
-              } else {
-                File(projectRootDir, inputPath)
-              }
-
-          if (!file.exists()) {
-            throw IllegalArgumentException("SPD file does not exist: ${file.absolutePath}")
-          }
-
-          file
-        }
+    // Convert input paths to SPD files using base class helper
+    val inputFiles = resolveInputFiles(inputs, projectRootDir)
 
     // Create SpritepadCommand instances for each input file
-    val spritepadCommands =
+    val spritepadCommands: List<SpritepadCommand> =
         inputFiles.map { inputFile ->
           SpritepadCommand(
               inputFile = inputFile,
@@ -88,9 +76,9 @@ class SpritepadStep(
 
     // Execute spritepad processing through the port
     try {
-      port.process(spritepadCommands)
+      port.process(spritepadCommands as List<SpritepadCommand>)
     } catch (e: Exception) {
-      throw RuntimeException("Spritepad processing failed for step '$name': ${e.message}", e)
+      throw StepExecutionException("Spritepad processing failed: ${e.message}", name, e)
     }
 
     outputs.forEach { outputPath -> println("  Generated output: $outputPath") }
@@ -114,18 +102,6 @@ class SpritepadStep(
       }
     }
 
-    // Validate output configurations
-    spritepadOutputs.sprites.forEach { sprite ->
-      // Allow empty output path only if no output is configured, which is caught above
-      if (sprite.output.isEmpty()) {
-        errors.add("Spritepad step '$name': sprite output path cannot be empty")
-      }
-      if (sprite.start < 0 || sprite.end < 0 || sprite.start >= sprite.end) {
-        errors.add(
-            "Spritepad step '$name': sprite start/end range invalid: start=${sprite.start}, end=${sprite.end}")
-      }
-    }
-
     return errors
   }
 
@@ -137,27 +113,5 @@ class SpritepadStep(
         "exportOptimized" to config.exportOptimized,
         "animationSupport" to config.animationSupport,
         "spriteOutputs" to spritepadOutputs.sprites.size)
-  }
-
-  override fun toString(): String {
-    return "SpritepadStep(name='$name', inputs=$inputs, outputs=${spritepadOutputs.getAllOutputPaths()}, config=$config)"
-  }
-
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is SpritepadStep) return false
-
-    return name == other.name &&
-        inputs == other.inputs &&
-        spritepadOutputs == other.spritepadOutputs &&
-        config == other.config
-  }
-
-  override fun hashCode(): Int {
-    var result = name.hashCode()
-    result = 31 * result + inputs.hashCode()
-    result = 31 * result + spritepadOutputs.hashCode()
-    result = 31 * result + config.hashCode()
-    return result
   }
 }
