@@ -25,85 +25,17 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.domain.config
 
 /**
- * Domain models for dedicated Charpad output configurations.
- *
- * These data classes represent different types of outputs that can be generated from CharPad CTM
- * files, matching the functionality of the original processor DSL.
- */
-
-/**
  * Filter configuration for binary outputs (nybbler or interleaver).
  *
- * Binary filters allow transforming extracted charset/tile data at different granularity levels:
- * - **Nybbler**: Splits bytes into 4-bit halves (nibbles) for independent processing
- * - **Interleaver**: Distributes bytes across multiple outputs in round-robin fashion
- *
- * Filters are **mutually exclusive per output** - only one filter type can be applied to any single
- * output. This design prevents filter composition complexity while supporting flexible data
- * transformation pipelines.
- *
- * ## Usage Examples:
- * ```kotlin
- * // Nybbler: Split charset into low and high nibbles
- * val nybblerFilter = FilterConfig.Nybbler(
- *     loOutput = "build/charset_lo.chr",
- *     hiOutput = "build/charset_hi.chr",
- *     normalizeHi = true
- * )
- *
- * // Interleaver: Split charset across 2 outputs (even/odd bytes)
- * val interleaverFilter = FilterConfig.Interleaver(
- *     outputs = listOf("build/charset_even.chr", "build/charset_odd.chr")
- * )
- *
- * // Apply to charset output
- * CharsetOutput(
- *     "build/charset.chr",
- *     filter = nybblerFilter
- * )
- * ```
- *
- * Uses a sealed class hierarchy to enforce mutual exclusivity:
- * - Only one filter type per output (nybbler, interleaver, or none)
- * - Type-safe configuration prevents invalid combinations at compile time
+ * Filters are mutually exclusive per output: only one filter type can be applied to any output.
  */
 sealed class FilterConfig {
   /**
    * Nybbler filter: Splits bytes into low and high nibbles (4-bit halves).
    *
-   * The nybbler filter is useful for accessing individual 4-bit values independently. For example,
-   * in Commodore 64 graphics, character codes often pack two nybbles per byte, and the nybbler
-   * allows extracting and transforming them separately.
-   *
-   * ## How it works:
-   * - Input byte `0xA5` (binary: 1010 0101)
-   * - Low nibble output: `0x5` (binary: 0000 0101)
-   * - High nibble output: `0xA` (binary: 0000 1010) when normalized, or `0xA0` when not
-   *
-   * ## Parameters:
-   * @param loOutput Optional file path for low nibbles (lower 4 bits). If null, low nibbles are
-   * ```
-   *     discarded. Relative paths are resolved from project root.
-   * @param hiOutput
-   * ```
-   * Optional file path for high nibbles (upper 4 bits). If null, high nibbles are
-   * ```
-   *     discarded. Relative paths are resolved from project root.
-   * @param normalizeHi
-   * ```
-   * Whether to normalize high nibbles by shifting right 4 bits (default: true).
-   * ```
-   *     When true, high nibble 0xA becomes 0x0A. When false, it remains 0xA0. Set to false
-   *     if you need the original bit positions preserved.
-   * ```
-   * ## Example:
-   * ```kotlin
-   * FilterConfig.Nybbler(
-   *     loOutput = "build/lo.bin",
-   *     hiOutput = "build/hi.bin",
-   *     normalizeHi = true
-   * )
-   * ```
+   * @param loOutput File path for low nibbles (optional, relative to project root)
+   * @param hiOutput File path for high nibbles (optional, relative to project root)
+   * @param normalizeHi Whether to normalize high nibbles by shifting right 4 bits
    */
   data class Nybbler(
       val loOutput: String? = null,
@@ -112,47 +44,14 @@ sealed class FilterConfig {
   ) : FilterConfig()
 
   /**
-   * Interleaver filter: Distributes binary data across multiple output streams in round-robin.
+   * Interleaver filter: Distributes binary data across multiple output streams in round-robin fashion.
    *
-   * The interleaver filter is useful for accessing bytes within larger chunks independently. For
-   * example, in word-aligned data (2 bytes per element), the interleaver can separate upper and
-   * lower bytes for independent processing.
-   *
-   * ## How it works:
-   * - Input bytes: [0x01, 0x02, 0x03, 0x04]
-   * - With 2 outputs (even/odd distribution):
-   * - Output 0: [0x01, 0x03]
-   * - Output 1: [0x02, 0x04]
-   * - With 3 outputs:
-   * - Output 0: [0x01, 0x04]
-   * - Output 1: [0x02]
-   * - Output 2: [0x03]
-   *
-   * ## Parameters:
-   * @param outputs List of file paths for interleaved outputs. Must have at least 1 entry.
-   * ```
-   *     Input data size must be evenly divisible by the number of outputs, otherwise an
-   *     exception is thrown. Relative paths are resolved from project root.
-   * ```
-   * ## Example:
-   * ```kotlin
-   * FilterConfig.Interleaver(
-   *     outputs = listOf(
-   *         "build/charset_even.chr",
-   *         "build/charset_odd.chr"
-   *     )
-   * )
-   * ```
-   *
-   * @throws IllegalInputException if input data size is not evenly divisible by output count
+   * @param outputs List of file paths for interleaved outputs (relative to project root)
    */
   data class Interleaver(val outputs: List<String>) : FilterConfig()
 
   /**
-   * No filter applied to this output.
-   *
-   * This is the default filter configuration for all outputs. When applied, the binary data is
-   * written directly to the output file without any transformation.
+   * No filter applied to this output (default).
    */
   object None : FilterConfig()
 }
