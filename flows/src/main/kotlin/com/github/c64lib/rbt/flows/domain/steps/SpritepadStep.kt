@@ -25,15 +25,17 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.domain.steps
 
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.config.SpritepadCommand
 import com.github.c64lib.rbt.flows.domain.config.SpritepadConfig
 import com.github.c64lib.rbt.flows.domain.config.SpritepadOutputs
 import com.github.c64lib.rbt.flows.domain.port.SpritepadPort
-import java.io.File
 
 /**
- * Processes SpritePad (.spd) files and generates sprite outputs with configurable format,
- * optimization, and animation support. Uses SpritepadPort for processing.
+ * SpritePad file processor step.
+ *
+ * Validates .spd file inputs and sprite output configurations. Requires SpritepadPort injection via
+ * Gradle task.
  */
 data class SpritepadStep(
     override val name: String,
@@ -54,15 +56,10 @@ data class SpritepadStep(
   }
 
   override fun execute(context: Map<String, Any>) {
-    val port =
-        spritepadPort
-            ?: throw IllegalStateException(
-                "SpritepadPort not injected for step '$name'. Call setSpritepadPort() before execution.")
+    val port = spritepadPort ?: throw StepExecutionException("SpritepadPort not injected", name)
 
     // Extract project root directory from context
-    val projectRootDir =
-        context["projectRootDir"] as? File
-            ?: throw IllegalStateException("Project root directory not found in execution context")
+    val projectRootDir = getProjectRootDir(context)
 
     // Convert input paths to SPD files using base class helper
     val inputFiles = resolveInputFiles(inputs, projectRootDir)
@@ -81,7 +78,7 @@ data class SpritepadStep(
     try {
       port.process(spritepadCommands as List<SpritepadCommand>)
     } catch (e: Exception) {
-      throw RuntimeException("Spritepad processing failed for step '$name': ${e.message}", e)
+      throw StepExecutionException("Spritepad processing failed: ${e.message}", name, e)
     }
 
     outputs.forEach { outputPath -> println("  Generated output: $outputPath") }
@@ -102,18 +99,6 @@ data class SpritepadStep(
     inputs.forEach { inputPath ->
       if (!inputPath.endsWith(".spd", ignoreCase = true)) {
         errors.add("Spritepad step '$name' expects .spd files, but got: $inputPath")
-      }
-    }
-
-    // Validate output configurations
-    spritepadOutputs.sprites.forEach { sprite ->
-      // Allow empty output path only if no output is configured, which is caught above
-      if (sprite.output.isEmpty()) {
-        errors.add("Spritepad step '$name': sprite output path cannot be empty")
-      }
-      if (sprite.start < 0 || sprite.end < 0 || sprite.start >= sprite.end) {
-        errors.add(
-            "Spritepad step '$name': sprite start/end range invalid: start=${sprite.start}, end=${sprite.end}")
       }
     }
 

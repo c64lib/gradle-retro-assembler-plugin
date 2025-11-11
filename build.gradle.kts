@@ -11,7 +11,7 @@ plugins {
 allprojects {
 
     group = "com.github.c64lib"
-    version = "1.8.0"
+    version = "1.8.1-SNAPSHOT"
 
     if (project.hasProperty(tagPropertyName)) {
         version = project.property(tagPropertyName) ?: version

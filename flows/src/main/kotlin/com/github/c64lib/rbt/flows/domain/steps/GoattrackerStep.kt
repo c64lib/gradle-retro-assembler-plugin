@@ -25,16 +25,16 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.domain.steps
 
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.config.GoattrackerCommand
 import com.github.c64lib.rbt.flows.domain.config.GoattrackerConfig
 import com.github.c64lib.rbt.flows.domain.port.GoattrackerPort
-import java.io.File
 
 /**
  * GoatTracker music processor step.
  *
- * Validates: .sng file inputs, output file specification, channels (1-3) Requires: GoattrackerPort
- * injection via Gradle task
+ * Validates .sng file inputs, output file specification, and channels (1-3). Requires
+ * GoattrackerPort injection via Gradle task.
  */
 data class GoattrackerStep(
     override val name: String,
@@ -49,17 +49,10 @@ data class GoattrackerStep(
   }
 
   override fun execute(context: Map<String, Any>) {
-    val port =
-        goattrackerPort
-            ?: throw IllegalStateException(
-                "GoatTracker port is not injected. Cannot execute GoattrackerStep '$name'")
+    val port = goattrackerPort ?: throw StepExecutionException("GoattrackerPort not injected", name)
 
     // Extract project root from context
-    @Suppress("UNCHECKED_CAST")
-    val projectRootDir =
-        (context["projectRootDir"] as? File)
-            ?: throw IllegalStateException(
-                "projectRootDir not found in execution context for GoattrackerStep '$name'")
+    val projectRootDir = getProjectRootDir(context)
 
     // Convert input paths to SNG files using base class helper
     val inputFiles = resolveInputFiles(inputs, projectRootDir)
@@ -72,8 +65,9 @@ data class GoattrackerStep(
       val outputPath =
           if (index < outputs.size) outputs[index]
           else {
-            throw IllegalStateException(
-                "GoattrackerStep '$name' has ${inputs.size} inputs but only ${outputs.size} outputs")
+            throw StepExecutionException(
+                "Input/output count mismatch: ${inputs.size} inputs but only ${outputs.size} outputs",
+                name)
           }
 
       val outputFile = resolveOutputFile(outputPath, projectRootDir)
@@ -88,7 +82,11 @@ data class GoattrackerStep(
     }
 
     // Process all commands
-    port.process(commands as List<GoattrackerCommand>)
+    try {
+      port.process(commands as List<GoattrackerCommand>)
+    } catch (e: Exception) {
+      throw StepExecutionException("Goattracker processing failed: ${e.message}", name, e)
+    }
   }
 
   override fun validate(): List<String> {
@@ -109,7 +107,7 @@ data class GoattrackerStep(
       }
     }
 
-    // Validate channels
+    // Validate channels (critical domain rule)
     if (config.channels !in 1..3) {
       errors.add(
           "GoatTracker step '$name' channels must be between 1 and 3, but got: ${config.channels}")

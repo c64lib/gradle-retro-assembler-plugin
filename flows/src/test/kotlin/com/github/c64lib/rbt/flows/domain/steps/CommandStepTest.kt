@@ -56,10 +56,8 @@ class CommandStepTest :
         `when`("validating the step") {
           val errors = step.validate()
 
-          then("it should require inputs or outputs") {
-            errors shouldHaveSize 1
-            errors shouldContain
-                "Command step should declare either input files, output files, or both"
+          then("it should pass validation (input/output requirement deferred to adapters)") {
+            errors shouldHaveSize 0
           }
         }
       }
@@ -93,9 +91,8 @@ class CommandStepTest :
           then("it should contain command details") {
             config shouldContainKey "command"
             config shouldContainKey "parameters"
-            config shouldContainKey "commandLine"
             config["command"] shouldBe "kickass"
-            config["commandLine"] shouldBe "kickass -cpu 6510 -o build/main.prg"
+            config["parameters"] shouldBe listOf("-cpu", "6510", "-o", "build/main.prg")
           }
         }
       }

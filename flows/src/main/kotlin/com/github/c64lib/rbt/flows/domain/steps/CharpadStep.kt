@@ -25,18 +25,19 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.domain.steps
 
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.StepExecutionException
+import com.github.c64lib.rbt.flows.domain.StepValidationException
 import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
 import com.github.c64lib.rbt.flows.domain.config.CharpadConfig
 import com.github.c64lib.rbt.flows.domain.config.CharpadOutputs
-import com.github.c64lib.rbt.flows.domain.config.FilterConfig
 import com.github.c64lib.rbt.flows.domain.port.CharpadPort
 import java.io.File
 
 /**
  * CharPad file processor step.
  *
- * Validates: .ctm file inputs, output configurations, tile size (8/16/32) Requires: CharpadPort
- * injection via Gradle task
+ * Validates .ctm file inputs, output configurations, and tile size (8/16/32). Requires CharpadPort
+ * injection via Gradle task.
  */
 data class CharpadStep(
     override val name: String,
@@ -55,15 +56,10 @@ data class CharpadStep(
   }
 
   override fun execute(context: Map<String, Any>) {
-    val port =
-        charpadPort
-            ?: throw IllegalStateException(
-                "CharpadPort not injected for step '$name'. Call setCharpadPort() before execution.")
+    val port = charpadPort ?: throw StepExecutionException("CharpadPort not injected", name)
 
     // Extract project root directory from context
-    val projectRootDir =
-        context["projectRootDir"] as? File
-            ?: throw IllegalStateException("Project root directory not found in execution context")
+    val projectRootDir = getProjectRootDir(context)
 
     // Convert input paths to CTM files
     val inputFiles =
@@ -76,7 +72,7 @@ data class CharpadStep(
               }
 
           if (!file.exists()) {
-            throw IllegalArgumentException("CTM file does not exist: ${file.absolutePath}")
+            throw StepValidationException("CTM file does not exist: ${file.absolutePath}", name)
           }
 
           file
@@ -96,7 +92,7 @@ data class CharpadStep(
     try {
       port.process(charpadCommands as List<CharpadCommand>)
     } catch (e: Exception) {
-      throw RuntimeException("Charpad processing failed for step '$name': ${e.message}", e)
+      throw StepExecutionException("Charpad processing failed: ${e.message}", name, e)
     }
 
     outputs.forEach { outputPath -> println("  Generated output: $outputPath") }
@@ -120,42 +116,9 @@ data class CharpadStep(
       }
     }
 
-    // Validate tile size
+    // Validate tile size (critical domain rule)
     if (config.tileSize !in listOf(8, 16, 32)) {
       errors.add("Charpad step '$name' tile size must be 8, 16, or 32, but got: ${config.tileSize}")
-    }
-
-    // Validate output configurations
-    charpadOutputs.charsets.forEach { charset ->
-      // Allow empty output path only if a filter is configured
-      if (charset.output.isEmpty() && charset.filter == FilterConfig.None) {
-        errors.add("Charpad step '$name': charset output path cannot be empty")
-      }
-      if (charset.start < 0 || charset.end < 0 || charset.start >= charset.end) {
-        errors.add(
-            "Charpad step '$name': charset start/end range invalid: start=${charset.start}, end=${charset.end}")
-      }
-    }
-
-    charpadOutputs.maps.forEach { map ->
-      // Allow empty output path only if a filter is configured
-      if (map.output.isEmpty() && map.filter == FilterConfig.None) {
-        errors.add("Charpad step '$name': map output path cannot be empty")
-      }
-      if (map.left < 0 || map.top < 0 || map.right < 0 || map.bottom < 0) {
-        errors.add(
-            "Charpad step '$name': map coordinates cannot be negative: left=${map.left}, top=${map.top}, right=${map.right}, bottom=${map.bottom}")
-      }
-      if (map.left >= map.right || map.top >= map.bottom) {
-        errors.add(
-            "Charpad step '$name': map rectangular region invalid: left=${map.left}, top=${map.top}, right=${map.right}, bottom=${map.bottom}")
-      }
-    }
-
-    charpadOutputs.metadata.forEach { meta ->
-      if (meta.output.isEmpty()) {
-        errors.add("Charpad step '$name': metadata output path cannot be empty")
-      }
     }
 
     return errors
