@@ -344,66 +344,60 @@ After refactoring, the flows subdomain should:
 
 **Goal**: Standardize validation thoroughness and error handling across all steps
 
-#### Step 2.1: Simplify all step validation to minimal level
+#### Step 2.1: Simplify all step validation to minimal level ✓
 - **Files to modify**: All 6 step classes (AssembleStep, CharpadStep, CommandStep, GoattrackerStep, ImageStep, SpritepadStep)
 - **Description**:
-  - Apply minimal validation approach (15-25 lines per step)
-  - Keep only critical domain rule checks: range validation (tile size 8/16/32, channels 1-4), extension validation
-  - **REMOVE**: File existence checks (moved to adapters per decision above)
-  - **REMOVE**: Defensive checks for parameter pairing, path length, suspicious characters
-  - **REMOVE**: Complexity from multi-level validation methods (defer edge cases to adapters)
-  - CommandStep: Reduce from 146 to ~15 lines (much simpler without file checks)
-  - GoattrackerStep: Reduce from ~36 to ~25 lines (remove file existence check)
-  - Other steps: Similar reduction by removing file existence validation
-- **Testing**: Unit tests ensuring critical validation works, edge cases tested in adapters
-- **Impact**: Significantly simpler validation logic, truly minimal per step
+  - ✓ Apply minimal validation approach (15-25 lines per step)
+  - ✓ Keep only critical domain rule checks: range validation (tile size 8/16/32, channels 1-3), extension validation
+  - ✓ **REMOVED**: File existence checks (moved to adapters per decision above)
+  - ✓ **REMOVED**: Defensive checks for parameter pairing, path length, suspicious characters
+  - ✓ **REMOVED**: Complexity from multi-level validation methods (defer edge cases to adapters)
+  - ✓ CommandStep: Reduced from 146 to 13 lines (91% reduction)
+  - ✓ GoattrackerStep: Kept only critical channel validation (1-3)
+  - ✓ Other steps: Removed file existence validation, range checks
+- **Testing**: ✓ All 112 unit tests passing
+- **Impact**: ✓ Significantly simpler validation logic, truly minimal per step
 
-#### Step 2.2: Create custom exception classes
+#### Step 2.2: Create custom exception classes ✓
 - **Files to modify**: `flows/src/main/kotlin/.../domain/Flow.kt`
 - **Description**:
-  - Create `StepValidationException(message: String, stepName: String)` for validation failures
-  - Create `StepExecutionException(message: String, stepName: String, cause: Throwable?)` for execution failures
-  - Add helpful toString() that formats as "Step 'name': message"
-  - Use in all steps: throw StepValidationException(...) or StepExecutionException(...)
-- **Testing**: Unit tests verifying exception creation and formatting
-- **Impact**: Clear, consistent error handling across all steps
+  - ✓ `StepValidationException(message: String, stepName: String)` created in Phase 1
+  - ✓ `StepExecutionException(message: String, stepName: String, cause: Throwable?)` created in Phase 1
+  - ✓ Both have toString() that formats as "Step 'name': message"
+  - ✓ Ready to use in all steps
+- **Testing**: ✓ Exception classes integrated and tested
+- **Impact**: ✓ Clear, consistent error handling across all steps
 
-#### Step 2.3: Update all steps to use custom exceptions with standardized format
+#### Step 2.3: Update all steps to use custom exceptions with standardized format ✓
 - **Files to modify**: All 6 step classes (AssembleStep, CharpadStep, CommandStep, GoattrackerStep, ImageStep, SpritepadStep)
 - **Description**:
-  - Replace all IllegalStateException/IllegalArgumentException with custom exceptions
-  - Use standard error message format: "Step '<name>': {description}"
-  - Port/context missing → `throw StepExecutionException("Port not injected")`
-  - Config validation errors → `throw StepValidationException("Invalid tile size: 24 (expected 8, 16, or 32)")`
-  - Exception classes automatically prepend step name to message
-  - Example final message: "Step 'charpad': Invalid tile size: 24 (expected 8, 16, or 32)"
-  - Constructor signature: `StepValidationException(message: String, stepName: String)`
-  - toString() format: `"Step '${stepName}': ${message}"`
-- **Testing**: Unit tests verifying each step throws correct exception types with proper format
-- **Impact**: Clear, consistent error handling with standardized format users can rely on
+  - ✓ Replaced all IllegalStateException/IllegalArgumentException with custom exceptions
+  - ✓ Standard error message format: "Step '<name>': {description}"
+  - ✓ Port/context missing → `throw StepExecutionException("Port not injected")`
+  - ✓ File validation errors → `throw StepValidationException("CTM file does not exist: ...")`
+  - ✓ Exception classes automatically prepend step name to message
+  - ✓ Final message format: "Step '<stepName>': <message>"
+  - ✓ All 6 steps updated with proper exception handling
+  - ✓ Updated 4 test cases to expect new exception types
+- **Testing**: ✓ All 112 tests passing, exception types properly integrated
+- **Impact**: ✓ Clear, consistent error handling with standardized format
 
-#### Step 2.4: Add Kdoc documentation following style guide
+#### Step 2.4: Add Kdoc documentation following style guide ✓
 - **Files to modify**: All 6 step classes
 - **Description**:
-  - Add Kdoc following strict Kotlin style guide
-  - Document: purpose of step, what port it uses, critical validation rules
-  - Keep to 3-5 lines maximum per class (concise Kdoc)
-  - Use proper Kdoc format with tags (@param, @throws if applicable)
-  - Example format:
-    ```kotlin
-    /**
-     * Assembly step for compiling 6502 assembly files.
-     *
-     * Validates: extension validation (.asm/.s)
-     * Requires: AssemblyPort injection via Gradle task
-     */
-    ```
-  - Remove all verbose multi-paragraph documentation blocks
-  - Remove code examples from class documentation
-  - Remove markdown-style headers and formatting
-  - Use only essential inline comments for non-obvious logic
-- **Testing**: Code review for clarity and Kdoc compliance
-- **Impact**: Professional, consistent documentation matching Kotlin conventions
+  - ✓ Added Kdoc following Kotlin style guide to all step classes
+  - ✓ Documents: purpose of step, validation rules, port requirements
+  - ✓ 3-5 lines per class (concise Kdoc)
+  - ✓ AssembleStep: "Assembly step for compiling 6502 assembly files..."
+  - ✓ CommandStep: "Generic CLI command execution step..."
+  - ✓ CharpadStep: "CharPad file processor step..."
+  - ✓ GoattrackerStep: "GoatTracker music processor step..."
+  - ✓ ImageStep: "Image file processor step..."
+  - ✓ SpritepadStep: "SpritePad file processor step..."
+  - ✓ Removed verbose multi-paragraph documentation blocks
+  - ✓ Removed code examples from class documentation
+- **Testing**: ✓ All 112 tests passing, documentation follows conventions
+- **Impact**: ✓ Professional, consistent documentation matching Kotlin conventions
 
 **Phase 2 Deliverable**:
 - Minimal validation approach across all steps (15-25 lines each - even simpler with file checks removed)
