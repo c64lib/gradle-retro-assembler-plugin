@@ -1,51 +1,224 @@
-You are an experienced software developer tasked with creating an action plan to address an issue. Your goal is to produce a comprehensive, step-by-step plan that will guide the resolution of this issue.
+# Plan Command
 
-First, ask the user for:
-- Issue number
-- Issue name/title
-- Issue description
+You are tasked with creating a comprehensive development plan for a new feature or issue. Follow this workflow exactly:
 
-Then create an action plan document following these steps:
+## Step 1: Gather Information
 
-1. **Identify Relevant Codebase Parts**: Based on the issue description and CLAUDE.md, determine which parts of the codebase are most likely connected to this issue. List and number specific parts of the codebase. Explain your reasoning for each.
+First, collect the following information from the user:
 
-2. **Hypothesize Root Cause**: Based on the information gathered, list potential causes for the issue. Then, choose the most likely cause and explain your reasoning.
+1. **Issue Number**: The GitHub issue number or ticket ID
+2. **Feature Short Name**: A brief, kebab-case name for the feature (e.g., "bitmap-step", "flow-optimization")
+3. **Task Specification**: Detailed description of what needs to be implemented
 
-3. **Identify Potential Contacts**: List names or roles that might be helpful to contact for assistance with this issue. For each contact, explain why they would be valuable to consult.
+Use the AskUserQuestion tool to gather this information if not already provided.
 
-4. **Self-Reflection Questions**: Generate a list of questions that should be asked to further investigate and understand the issue. Include both self-reflective questions and questions for others. Number each question.
+## Step 2: Codebase Analysis
 
-5. **Next Steps**: Outline the next steps for addressing this issue, including specific actions for logging and debugging. Provide a clear, actionable plan. Number each step and provide a brief rationale for why it's necessary.
+Before creating the plan, you must:
 
-After completing your analysis, create a Markdown document with the following structure:
+1. Review the project structure and architecture (use Task tool with subagent_type=Explore)
+2. Identify relevant existing code that relates to this feature
+3. Understand how similar features are implemented
+4. Review relevant documentation files
+5. Analyze dependencies and integration points
+
+## Step 3: Create the Plan
+
+Create a markdown file at `.ai/{issue-number}-{feature-short-name}/feature-{issue-number}-{feature-short-name}-action-plan.md`
+
+The plan must follow this exact structure:
 
 ```markdown
-# Action Plan for [Issue Name]
+# Feature: {Feature Name}
 
-## Issue Description
-[Briefly summarize the issue]
+**Issue**: #{issue-number}
+**Status**: Planning
+**Created**: {YYYY-MM-DD}
 
-## Relevant Codebase Parts
-[List and briefly describe the relevant parts of the codebase]
+## 1. Feature Description
 
-## Root Cause Hypothesis
-[State and explain your hypothesis]
+### Overview
+{Concise description of what needs to be implemented}
 
-## Investigation Questions
+### Requirements
+- {Requirement 1}
+- {Requirement 2}
+- {etc.}
+
+### Success Criteria
+- {Criterion 1}
+- {Criterion 2}
+- {etc.}
+
+## 2. Root Cause Analysis
+
+{If this is a bug fix or improvement, explain the root cause. If it's a new feature, explain why it's needed and what problem it solves.}
+
+### Current State
+{Description of how things work currently}
+
+### Desired State
+{Description of how things should work after implementation}
+
+### Gap Analysis
+{What needs to change to bridge the gap}
+
+## 3. Relevant Code Parts
+
+### Existing Components
+- **{Component/File Name}**: {Brief description and relevance}
+  - Location: `{path/to/file}`
+  - Purpose: {Why this is relevant}
+  - Integration Point: {How the new feature will interact with this}
+
+### Architecture Alignment
+{How this feature fits into the hexagonal architecture:}
+- **Domain**: {Which domain this belongs to}
+- **Use Cases**: {What use cases will be created/modified}
+- **Ports**: {What interfaces will be needed}
+- **Adapters**: {What adapters will be needed (in/out, gradle, etc.)}
+
+### Dependencies
+- {Dependency 1 and why it's needed}
+- {Dependency 2 and why it's needed}
+
+## 4. Questions and Clarifications
 
 ### Self-Reflection Questions
-[List self-reflection questions]
+{Questions you've answered through research:}
+- **Q**: {Question}
+  - **A**: {Answer based on codebase analysis}
 
-### Questions for Others
-[List questions for others]
+### Unresolved Questions
+{Questions that need clarification from stakeholders:}
+- [ ] {Question 1}
+- [ ] {Question 2}
 
-## Next Steps
-[Provide a numbered list of actionable steps, including logging and debugging tasks]
+### Design Decisions
+{Key decisions that need to be made:}
+- **Decision**: {What needs to be decided}
+  - **Options**: {Option A, Option B, etc.}
+  - **Recommendation**: {Your recommendation and why}
 
-## Additional Notes
-[Any other relevant information or considerations]
+## 5. Implementation Plan
+
+### Phase 1: Foundation ({Deliverable: What can be merged})
+**Goal**: {What this phase achieves}
+
+1. **Step 1.1**: {Action item}
+   - Files: `{files to create/modify}`
+   - Description: {What to do}
+   - Testing: {How to verify}
+
+2. **Step 1.2**: {Action item}
+   - Files: `{files to create/modify}`
+   - Description: {What to do}
+   - Testing: {How to verify}
+
+**Phase 1 Deliverable**: {What can be safely merged and released after this phase}
+
+### Phase 2: Core Implementation ({Deliverable: What can be merged})
+**Goal**: {What this phase achieves}
+
+1. **Step 2.1**: {Action item}
+   - Files: `{files to create/modify}`
+   - Description: {What to do}
+   - Testing: {How to verify}
+
+2. **Step 2.2**: {Action item}
+   - Files: `{files to create/modify}`
+   - Description: {What to do}
+   - Testing: {How to verify}
+
+**Phase 2 Deliverable**: {What can be safely merged and released after this phase}
+
+### Phase 3: Integration and Polish ({Deliverable: What can be merged})
+**Goal**: {What this phase achieves}
+
+1. **Step 3.1**: {Action item}
+   - Files: `{files to create/modify}`
+   - Description: {What to do}
+   - Testing: {How to verify}
+
+2. **Step 3.2**: {Action item}
+   - Files: `{files to create/modify}`
+   - Description: {What to do}
+   - Testing: {How to verify}
+
+**Phase 3 Deliverable**: {What can be safely merged and released after this phase}
+
+## 6. Testing Strategy
+
+### Unit Tests
+- {What needs unit tests}
+- {Testing approach}
+
+### Integration Tests
+- {What needs integration tests}
+- {Testing approach}
+
+### Manual Testing
+- {Manual test scenarios}
+
+## 7. Risks and Mitigation
+
+| Risk | Impact | Probability | Mitigation |
+|------|--------|-------------|------------|
+| {Risk 1} | {High/Medium/Low} | {High/Medium/Low} | {How to mitigate} |
+| {Risk 2} | {High/Medium/Low} | {High/Medium/Low} | {How to mitigate} |
+
+## 8. Documentation Updates
+
+- [ ] Update README if needed
+- [ ] Update CLAUDE.md if adding new patterns
+- [ ] Add inline documentation
+- [ ] Update any relevant architectural docs
+
+## 9. Rollout Plan
+
+1. {How to release this safely}
+2. {What to monitor}
+3. {Rollback strategy if needed}
+
+---
+
+**Note**: This plan should be reviewed and approved before implementation begins.
 ```
 
-Save the final document as `.ai/feature-[issue-number]-[issue-name]-action-plan.md`.
+## Step 4: Interactive Refinement
 
-Your final output should consist only of the Markdown document content and the creation of the file.
+After creating the initial plan:
+
+1. Present the plan to the user
+2. Specifically highlight the "Unresolved Questions" section
+3. Specifically highlight the "Design Decisions" section
+4. Ask if they want to clarify any questions or make any design decisions now
+5. If yes, use AskUserQuestion tool to gather clarifications
+6. Update the plan with the new information
+7. Repeat until the user is satisfied
+
+## Step 5: Finalization
+
+Once the plan is complete:
+
+1. Ensure the file is saved in the correct location
+2. Confirm with the user that the plan is ready
+3. Suggest next steps (e.g., "You can now start implementing Phase 1" or "Run /exec to begin execution")
+
+## Important Notes
+
+- **Architecture Compliance**: Ensure the plan follows hexagonal architecture principles
+- **Incremental Delivery**: Each phase must produce a mergeable, releasable increment
+- **Safety First**: Never suggest changes that could break existing functionality without proper testing
+- **Use Case Pattern**: Remember that use cases are single-method classes with `apply` method
+- **Port Pattern**: Technology-specific code must be hidden behind ports
+- **Gradle Module**: If adding new modules, remind about updating `infra/gradle` dependencies
+- **Parallel Execution**: Always use Gradle Workers API for parallel tasks
+
+## Thoroughness
+
+- Use the Task tool with subagent_type=Explore to thoroughly understand the codebase
+- Look for similar features to understand patterns
+- Check existing tests to understand testing patterns
+- Review recent commits to understand coding conventions
+- Don't guess - if unsure, explore more or ask the user
