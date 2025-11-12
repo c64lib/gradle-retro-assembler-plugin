@@ -44,33 +44,87 @@ This implementation will create new files and follow patterns from existing proc
 - `crunchers/exomizer/adapters/in/gradle/src/test/kotlin/...` - Adapter tests
 - `flows/adapters/in/gradle/src/test/kotlin/.../ExomizerStepBuilderTest.kt` - Step builder tests
 
+## Exomizer Command Structure and Options
+
+Based on examination of the `exomizer` tool, here's what we learned:
+
+### General Invocation
+```
+exomizer level|mem|sfx|raw|desfx [option]... infile[,<address>]...
+```
+
+The tool supports 5 modes: `level`, `mem`, `sfx`, `raw`, `desfx`. We're implementing `raw` and `mem`.
+
+### Raw Mode Options
+Command: `exomizer raw [options] <infile>`
+
+Common useful options:
+- `-o <outfile>` - Output filename (default: "a.out")
+- `-b` - Crunch/decrunch backwards instead of forward
+- `-r` - Write outfile in reverse order
+- `-d` - Decrunch (instead of crunch)
+- `-c` - Compatibility mode (disables literal sequences)
+- `-C` - Favor compression speed over ratio
+- `-e <encoding>` - Use given encoding for crunching
+- `-E` - Don't write encoding to outfile
+- `-m <offset>` - Max sequence offset (default: 65535)
+- `-M <length>` - Max sequence length (default: 65535)
+- `-p <passes>` - Limit optimization passes (default: 100)
+- `-T <options>` - Bitfield for bit stream traits [0-7]
+- `-P <options>` - Bitfield for bit stream format [0-63]
+- `-N <nr_file>` - Control addresses not to be read
+- `-q` - Quiet mode
+- `-B` - Brief mode (less output)
+
+### Memory Mode Options
+Command: `exomizer mem [options] infile[,<address>]...`
+
+Key differences from raw:
+- `-l <address>` - Add load address to outfile (default: "auto", "none" to skip)
+- `-f` - Crunch forward (opposite of default backward)
+- Supports multiple input files with optional addresses: `infile1[,address1] infile2[,address2]`
+- All other options same as raw mode
+
+### Initial Implementation Scope
+
+For Phase 1, we'll support:
+- **Raw mode**: Basic compression with `-o` output and optional common flags
+- **Memory mode**: Compression with `-l` load address option and `-f` forward flag
+
+We can add support for advanced options (encoding, bit stream control, optimization passes) in future phases.
+
 ## Questions
 
 ### Self-Reflection Questions
 
-1. **Edge cases for file handling**: What should happen if input file doesn't exist? If output directory doesn't exist? Should we validate file permissions?
+1. **Configuration granularity**: Should we expose all exomizer options (17+ flags) or start with a minimal set? For raw: `-o`, `-b`, `-r`, `-c`, `-C`. For mem: `-l`, `-f`, plus raw options.
 
-2. **Exomizer invocation options**: Beyond raw and mem modes, are there other Exomizer options we should support in the initial implementation? (e.g., compression levels, target memory addresses)
+2. **Multiple input files**: The mem mode supports multiple input files with addresses. Should the initial implementation support this, or start with single-file compression?
 
-3. **Output format**: Should Exomizer produce just the compressed binary, or should it also generate a decompression stub? Will we need multiple output files?
+3. **Output format**: Exomizer produces compressed binary files. The `-d` flag can decompress. Should we support decompression in the initial phase?
 
-4. **Error handling**: How should we handle Exomizer execution failures? Should we capture stderr for detailed error messages?
+4. **Error handling**: How strictly should we validate options? Should we restrict to safe/recommended combinations or allow any valid exomizer flags?
 
 5. **File resolution**: Should the use case handle file path resolution, or should the adapter handle it before passing to the use case?
 
 6. **Testing**: How will we test Exomizer integration without relying on the actual exomizer binary in unit tests? Should we mock the ExecuteExomizerPort?
 
-### Questions for Clarification
+### Questions for Implementation Decisions
 
-1. **Raw mode specifics**: For the raw compression use case, what are the exact command-line parameters? (e.g., `exomizer raw -o <output> <input>`)
+1. **Raw mode configuration**: Should we support all options or a minimal subset? Recommended: `-o` (required), `-b`, `-r`, `-c`, `-C` (optional).
 
-2. **Memory mode specifics**: For the memory compression use case, what memory-related options need to be configurable? What are typical defaults?
+2. **Memory mode configuration**: Should we support multiple input files? Recommended: Start with single file, `loadAddress` (optional, default "auto"), `forward` flag (default false).
 
-3. **Output files**: Will each use case produce one output file, or should we support multiple outputs (e.g., compressed data + decompression loader)?
+3. **Load address handling**: For mem mode, should "auto" be the default, or should it be required? What about "none"?
 
-4. **Step naming in DSL**: What should the Gradle DSL method be named? `exomizerStep()` or something more specific like `crunchWithExomizer()`?
+4. **Advanced compression options**: Should `-e`, `-E`, `-m`, `-M`, `-p`, `-T`, `-P` be exposed? Recommended: Defer to Phase 2.
 
-5. **Validation rules**: What are critical validation rules for the use cases? (e.g., required parameters, valid ranges for memory options)
+5. **Step naming in DSL**: What should the Gradle DSL method be named? `exomizerStep()` is clear and consistent.
+
+6. **Validation rules**: What are critical validation rules?
+   - Input file must exist
+   - Output path must be writable
+   - Load address format validation for mem mode (optional)
 
 ## Execution Plan
 
@@ -106,15 +160,21 @@ This phase creates the core domain logic for compression operations.
 
 1. **Step 2.1: Create Exomizer port interface**
    - Create `ExecuteExomizerPort.kt` in `crunchers/exomizer/src/main/kotlin/.../usecase/port/`
-   - Define method signatures: `fun executeRaw(source: File, output: File): Unit` and `fun executeMem(source: File, output: File, memOptions: String): Unit`
+   - Define method signatures based on exomizer's 5 modes. For initial phase:
+     - `fun executeRaw(source: File, output: File, options: RawOptions): Unit`
+     - `fun executeMem(source: File, output: File, options: MemOptions): Unit`
+   - Isolate technology details from domain logic
    - Add Kdoc explaining port purpose
    - Deliverable: Port interface that abstracts Exomizer execution
    - Testing: Verify interface compiles
    - Safe to merge: Yes (interface definition)
 
 2. **Step 2.2: Create domain data structures**
+   - Create option data classes: `RawOptions`, `MemOptions`
+     - `RawOptions`: backwards (default false), reverse (default false), compatibility (default false), speedOverRatio (default false)
+     - `MemOptions`: loadAddress (default "auto"), forward (default false), plus all RawOptions
    - Create command/parameter data classes: `CrunchRawCommand`, `CrunchMemCommand`
-   - Include fields for source file, output file, and mode-specific options
+   - Fields: source: File, output: File, options: RawOptions/MemOptions
    - Use immutable Kotlin data classes
    - Deliverable: Command data classes ready for use cases
    - Testing: Verify data classes compile and support equality/hashing
@@ -122,21 +182,24 @@ This phase creates the core domain logic for compression operations.
 
 3. **Step 2.3: Implement CrunchRawUseCase**
    - Create `CrunchRawUseCase.kt` in `usecase/` directory
-   - Implement single public `apply` method taking `CrunchRawCommand`
-   - Call `ExecuteExomizerPort` with source and output files
-   - Add error handling with custom exception types (`StepExecutionException`)
+   - Constructor: `CrunchRawUseCase(private val executeExomizerPort: ExecuteExomizerPort)`
+   - Implement single public `apply(command: CrunchRawCommand): Unit` method
+   - Validate: source file exists, output path is writable
+   - Call `executeExomizerPort.executeRaw(command.source, command.output, command.options)`
+   - Add error handling with `StepExecutionException` wrapping port exceptions
    - Deliverable: Functional use case for raw compression
    - Testing: Unit test with mocked port, verify correct parameters passed
    - Safe to merge: Yes (use case with port injection)
 
 4. **Step 2.4: Implement CrunchMemUseCase**
    - Create `CrunchMemUseCase.kt` in `usecase/` directory
-   - Implement single public `apply` method taking `CrunchMemCommand` with memory options
-   - Call `ExecuteExomizerPort` with source, output, and memory options
-   - Add validation for memory option format/ranges
+   - Constructor: `CrunchMemUseCase(private val executeExomizerPort: ExecuteExomizerPort)`
+   - Implement single public `apply(command: CrunchMemCommand): Unit` method
+   - Validate: source file exists, output path writable, loadAddress format (if not "auto" or "none")
+   - Call `executeExomizerPort.executeMem(command.source, command.output, command.options)`
    - Add error handling matching CrunchRawUseCase pattern
    - Deliverable: Functional use case for memory-optimized compression
-   - Testing: Unit test with mocked port, test validation rules
+   - Testing: Unit test with mocked port, test validation rules, test various loadAddress values
    - Safe to merge: Yes (use case with validation)
 
 ### Phase 3: Implement Adapter Layer - Gradle Integration
@@ -146,29 +209,42 @@ This phase creates the Gradle task adapter to expose Exomizer to end users.
 1. **Step 3.1: Create Gradle task for raw crunching**
    - Create `CrunchRaw.kt` in `adapters/in/gradle/src/main/kotlin/.../adapters/in/gradle/`
    - Extend Gradle `DefaultTask`
-   - Define input/output properties with Gradle file handling
-   - Inject `CrunchRawUseCase` via constructor
-   - Implement task action that resolves files and calls use case
+   - Properties: `@get:InputFile val input: RegularFileProperty`, `@get:OutputFile val output: RegularFileProperty`
+   - Options properties: backwards, reverse, compatibility, speedOverRatio (all Boolean)
+   - Inject `CrunchRawUseCase` via constructor (or property injection)
+   - Implement `@TaskAction fun crunch()` that:
+     - Gets input/output files
+     - Creates RawOptions from boolean properties
+     - Creates CrunchRawCommand
+     - Calls useCase.apply(command)
+     - Catches and reports errors
    - Deliverable: Functional Gradle task for raw compression
    - Testing: Functional test using Gradle test fixtures, verify task executes
    - Safe to merge: Yes (task implementation)
 
 2. **Step 3.2: Create Gradle task for memory crunching**
    - Create `CrunchMem.kt` in `adapters/in/gradle/src/main/kotlin/.../adapters/in/gradle/`
-   - Extend Gradle `DefaultTask` with memory options property
-   - Implement task action that validates memory options and calls use case
-   - Follow same pattern as CrunchRaw task
+   - Extend Gradle `DefaultTask`
+   - Properties: `@get:InputFile val input`, `@get:OutputFile val output`
+   - Options: loadAddress: String (default "auto"), forward: Boolean (default false), plus all RawOptions
+   - Inject `CrunchMemUseCase` via constructor
+   - Implement `@TaskAction fun crunch()` that creates MemOptions and calls useCase
+   - Follow same error handling as CrunchRaw task
    - Deliverable: Functional Gradle task for memory compression
    - Testing: Functional test with memory options configuration
    - Safe to merge: Yes (task implementation)
 
 3. **Step 3.3: Implement ExecuteExomizerPort adapter**
-   - Create `GradleExomizerAdapter.kt` in `adapters/out/gradle/` (or in `adapters/in/gradle/` if simpler)
-   - Implement `ExecuteExomizerPort` interface
-   - Use Gradle Workers API for parallel execution (or direct execution if not parallel)
-   - Capture exomizer command output and map exit codes to meaningful errors
+   - Create `GradleExomizerAdapter.kt` in `adapters/in/gradle/` (keep adapters simple)
+   - Implement `ExecuteExomizerPort` interface with executeRaw() and executeMem() methods
+   - Build exomizer command-line arguments from options:
+     - Raw: `["exomizer", "raw", "-o", output.path, ...optionFlags..., input.path]`
+     - Mem: `["exomizer", "mem", "-o", output.path, "-l", loadAddress, ...optionFlags..., input.path]`
+   - Use ProcessBuilder to execute exomizer binary (direct execution, not Workers API for now)
+   - Capture stdout/stderr and throw meaningful exceptions on non-zero exit codes
+   - Map exit code to exception: exit 1 = execution error, exit 2 = configuration error
    - Deliverable: Working port implementation that executes exomizer binary
-   - Testing: Integration test that executes actual exomizer binary
+   - Testing: Integration test that executes actual exomizer binary with test files
    - Safe to merge: Yes (port implementation)
 
 ### Phase 4: Create Flows Integration - Step and DSL Support
