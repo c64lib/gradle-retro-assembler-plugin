@@ -88,43 +88,66 @@ Key differences from raw:
 ### Initial Implementation Scope
 
 For Phase 1, we'll support:
-- **Raw mode**: Basic compression with `-o` output and optional common flags
-- **Memory mode**: Compression with `-l` load address option and `-f` forward flag
+- **Raw mode**: All exomizer raw mode options including `-o` (output), `-b`, `-r`, `-c`, `-C`, `-e`, `-E`, `-m`, `-M`, `-p`, `-T`, `-P`, `-N`, `-q`, `-B`
+- **Memory mode**: All raw mode options plus memory-specific options: `-l` (load address, default "auto"), `-f` (forward compression)
+- **Single input file**: Initial implementation supports single-file compression; multi-file support deferred to Phase 2
+- **Validation**: Safe option combinations only; decompression (`-d` flag) deferred to future phases
 
-We can add support for advanced options (encoding, bit stream control, optimization passes) in future phases.
+We can add support for decompression and multi-file input in future phases.
 
 ## Questions
 
 ### Self-Reflection Questions
 
-1. **Configuration granularity**: Should we expose all exomizer options (17+ flags) or start with a minimal set? For raw: `-o`, `-b`, `-r`, `-c`, `-C`. For mem: `-l`, `-f`, plus raw options.
+1. **ANSWERED: Configuration granularity**: Should we expose all exomizer options (17+ flags) or start with a minimal set?
+   - **Decision**: Expose all exomizer options (17+ flags) to give users maximum flexibility from day one.
+   - **Rationale**: This allows advanced users to leverage all compression features while basic users can stick to simple configurations.
 
-2. **Multiple input files**: The mem mode supports multiple input files with addresses. Should the initial implementation support this, or start with single-file compression?
+2. **ANSWERED: Multiple input files**: The mem mode supports multiple input files with addresses. Should the initial implementation support this?
+   - **Decision**: Start with single-file compression only.
+   - **Rationale**: Keeps Phase 1 focused and manageable. Multi-file support can be added in Phase 2 if needed.
 
-3. **Output format**: Exomizer produces compressed binary files. The `-d` flag can decompress. Should we support decompression in the initial phase?
+3. **ANSWERED: Output format**: Exomizer produces compressed binary files. The `-d` flag can decompress. Should we support decompression?
+   - **Decision**: Support compression only in the initial phase.
+   - **Rationale**: Focuses on the primary use case of compression. Decompression can be added as a separate domain feature in the future if needed.
 
-4. **Error handling**: How strictly should we validate options? Should we restrict to safe/recommended combinations or allow any valid exomizer flags?
+4. **ANSWERED: Error handling**: How strictly should we validate options? Should we restrict to safe/recommended combinations?
+   - **Decision**: Restrict validation to safe/recommended combinations only.
+   - **Rationale**: Prevents users from accidentally creating broken configurations while still allowing full feature access through tested paths.
 
-5. **File resolution**: Should the use case handle file path resolution, or should the adapter handle it before passing to the use case?
+5. **ANSWERED: File resolution**: Should the use case handle file path resolution, or should the adapter handle it?
+   - **Decision**: Adapter handles file path resolution before passing to use case.
+   - **Rationale**: Keeps domain layer pure and file-agnostic; separation of concerns aligns with hexagonal architecture.
 
-6. **Testing**: How will we test Exomizer integration without relying on the actual exomizer binary in unit tests? Should we mock the ExecuteExomizerPort?
+6. **ANSWERED: Testing**: How will we test Exomizer integration without the actual binary in unit tests?
+   - **Decision**: Mock the ExecuteExomizerPort in unit tests; use real binary only in integration tests.
+   - **Rationale**: Allows fast unit tests independent of exomizer availability; integration tests verify real-world execution.
 
 ### Questions for Implementation Decisions
 
-1. **Raw mode configuration**: Should we support all options or a minimal subset? Recommended: `-o` (required), `-b`, `-r`, `-c`, `-C` (optional).
+1. **ANSWERED: Raw mode configuration**: Should we support all options or a minimal subset?
+   - **Decision**: Follow the plan recommendation with support for all exomizer flags (aligns with decision to expose all options).
+   - **Rationale**: Consistent with decision to expose all flags; users get full control.
 
-2. **Memory mode configuration**: Should we support multiple input files? Recommended: Start with single file, `loadAddress` (optional, default "auto"), `forward` flag (default false).
+2. **ANSWERED: Memory mode configuration**: Should we support multiple input files?
+   - **Decision**: Follow the plan recommendation - single file support with `loadAddress` (optional, default "auto") and `forward` flag (default false).
+   - **Rationale**: Consistent with earlier multi-file decision; keeps Phase 1 focused.
 
-3. **Load address handling**: For mem mode, should "auto" be the default, or should it be required? What about "none"?
+3. **ANSWERED: Load address handling**: For mem mode, should "auto" be the default?
+   - **Decision**: Use "auto" as the default; "none" also supported as alternative.
+   - **Rationale**: Provides sensible default for most users; flexibility for power users who need explicit control.
 
-4. **Advanced compression options**: Should `-e`, `-E`, `-m`, `-M`, `-p`, `-T`, `-P` be exposed? Recommended: Defer to Phase 2.
+4. **ANSWERED: Advanced compression options**: Should `-e`, `-E`, `-m`, `-M`, `-p`, `-T`, `-P` be exposed?
+   - **Decision**: Defer to Phase 2.
+   - **Rationale**: Simplifies Phase 1 implementation and testing while keeping door open for future enhancements.
 
-5. **Step naming in DSL**: What should the Gradle DSL method be named? `exomizerStep()` is clear and consistent.
+5. **ANSWERED: Step naming in DSL**: What should the Gradle DSL method be named?
+   - **Decision**: Use `exomizerStep()`.
+   - **Rationale**: Clear, consistent with other step methods like `charpadStep()` and `spritepadStep()` in the flows DSL.
 
-6. **Validation rules**: What are critical validation rules?
-   - Input file must exist
-   - Output path must be writable
-   - Load address format validation for mem mode (optional)
+6. **ANSWERED: Validation rules**: What are critical validation rules?
+   - **Decision**: Use plan recommendations - input file exists, output path writable, load address format validation (if not "auto" or "none").
+   - **Rationale**: Balances safety with usability; lets exomizer handle edge cases while preventing obvious configuration errors.
 
 ## Execution Plan
 
@@ -171,12 +194,19 @@ This phase creates the core domain logic for compression operations.
 
 2. **Step 2.2: Create domain data structures**
    - Create option data classes: `RawOptions`, `MemOptions`
-     - `RawOptions`: backwards (default false), reverse (default false), compatibility (default false), speedOverRatio (default false)
-     - `MemOptions`: loadAddress (default "auto"), forward (default false), plus all RawOptions
+     - `RawOptions`: All exomizer raw mode options as optional properties (with sensible defaults):
+       - `backwards: Boolean = false`, `reverse: Boolean = false`, `compatibility: Boolean = false`, `speedOverRatio: Boolean = false`
+       - `encoding: String? = null`, `skipEncoding: Boolean = false`
+       - `maxOffset: Int = 65535`, `maxLength: Int = 65535`, `passes: Int = 100`
+       - `bitStreamTraits: Int? = null`, `bitStreamFormat: Int? = null`
+       - `controlAddresses: String? = null`
+       - `quiet: Boolean = false`, `brief: Boolean = false`
+     - `MemOptions`: All RawOptions plus memory-specific:
+       - `loadAddress: String = "auto"`, `forward: Boolean = false`
    - Create command/parameter data classes: `CrunchRawCommand`, `CrunchMemCommand`
    - Fields: source: File, output: File, options: RawOptions/MemOptions
    - Use immutable Kotlin data classes
-   - Deliverable: Command data classes ready for use cases
+   - Deliverable: Command data classes ready for use cases with full exomizer option support
    - Testing: Verify data classes compile and support equality/hashing
    - Safe to merge: Yes (data structures)
 
@@ -209,29 +239,36 @@ This phase creates the Gradle task adapter to expose Exomizer to end users.
 1. **Step 3.1: Create Gradle task for raw crunching**
    - Create `CrunchRaw.kt` in `adapters/in/gradle/src/main/kotlin/.../adapters/in/gradle/`
    - Extend Gradle `DefaultTask`
-   - Properties: `@get:InputFile val input: RegularFileProperty`, `@get:OutputFile val output: RegularFileProperty`
-   - Options properties: backwards, reverse, compatibility, speedOverRatio (all Boolean)
+   - File Properties: `@get:InputFile val input: RegularFileProperty`, `@get:OutputFile val output: RegularFileProperty`
+   - All RawOptions as Gradle properties: backwards, reverse, compatibility, speedOverRatio, encoding, skipEncoding, maxOffset, maxLength, passes, bitStreamTraits, bitStreamFormat, controlAddresses, quiet, brief
    - Inject `CrunchRawUseCase` via constructor (or property injection)
    - Implement `@TaskAction fun crunch()` that:
-     - Gets input/output files
-     - Creates RawOptions from boolean properties
+     - Gets input/output files and resolves to absolute paths
+     - Creates RawOptions from all option properties
+     - Validates safe option combinations
      - Creates CrunchRawCommand
      - Calls useCase.apply(command)
      - Catches and reports errors
-   - Deliverable: Functional Gradle task for raw compression
-   - Testing: Functional test using Gradle test fixtures, verify task executes
+   - Deliverable: Functional Gradle task for raw compression with full option support
+   - Testing: Functional test using Gradle test fixtures, verify task executes with various option combinations
    - Safe to merge: Yes (task implementation)
 
 2. **Step 3.2: Create Gradle task for memory crunching**
    - Create `CrunchMem.kt` in `adapters/in/gradle/src/main/kotlin/.../adapters/in/gradle/`
    - Extend Gradle `DefaultTask`
-   - Properties: `@get:InputFile val input`, `@get:OutputFile val output`
-   - Options: loadAddress: String (default "auto"), forward: Boolean (default false), plus all RawOptions
+   - File Properties: `@get:InputFile val input: RegularFileProperty`, `@get:OutputFile val output: RegularFileProperty`
+   - Memory-specific options: `loadAddress: String = "auto"`, `forward: Boolean = false`
+   - All RawOptions as Gradle properties (same as CrunchRaw)
    - Inject `CrunchMemUseCase` via constructor
-   - Implement `@TaskAction fun crunch()` that creates MemOptions and calls useCase
-   - Follow same error handling as CrunchRaw task
-   - Deliverable: Functional Gradle task for memory compression
-   - Testing: Functional test with memory options configuration
+   - Implement `@TaskAction fun crunch()` that:
+     - Gets input/output files and resolves to absolute paths
+     - Creates MemOptions from all option properties
+     - Validates safe option combinations and loadAddress format
+     - Creates CrunchMemCommand
+     - Calls useCase.apply(command)
+     - Catches and reports errors
+   - Deliverable: Functional Gradle task for memory compression with full option support
+   - Testing: Functional test with various memory options, load address values, and option combinations
    - Safe to merge: Yes (task implementation)
 
 3. **Step 3.3: Implement ExecuteExomizerPort adapter**
