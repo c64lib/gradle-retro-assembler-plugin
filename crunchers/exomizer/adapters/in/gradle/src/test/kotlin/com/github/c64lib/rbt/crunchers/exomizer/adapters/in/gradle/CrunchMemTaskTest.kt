@@ -32,9 +32,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import java.io.File
 
-class CrunchRawTaskTest :
+class CrunchMemTaskTest :
     BehaviorSpec({
-      given("CrunchRaw adapter") {
+      given("CrunchMem adapter") {
         `when`("port is created") {
           then("should not be null") {
             val mockPort = MockExecuteExomizerPort()
@@ -42,31 +42,57 @@ class CrunchRawTaskTest :
           }
         }
 
-        `when`("executeRaw is called") {
-          then("should store correct parameters") {
+        `when`("executeMem is called") {
+          then("should store correct parameters with default load address") {
             val mockPort = MockExecuteExomizerPort()
             val tempDir = java.nio.file.Files.createTempDirectory("test").toFile()
             val source = File(tempDir, "input.bin")
             source.writeText("test data")
             val output = File(tempDir, "output.bin")
 
-            val options = RawOptions(backwards = true, quiet = false)
-            mockPort.executeRaw(source, output, options)
+            val options = MemOptions(loadAddress = "auto", forward = false)
+            mockPort.executeMem(source, output, options)
 
             mockPort.lastSource shouldBe source
             mockPort.lastOutput shouldBe output
-            mockPort.lastRawOptions shouldBe options
+            mockPort.lastMemOptions shouldBe options
             tempDir.deleteRecursively()
           }
 
-          then("should handle all option combinations") {
+          then("should handle custom load addresses") {
             val mockPort = MockExecuteExomizerPort()
             val tempDir = java.nio.file.Files.createTempDirectory("test").toFile()
             val source = File(tempDir, "input.bin")
             source.writeText("test data")
             val output = File(tempDir, "output.bin")
 
-            val options =
+            val optionsHex = MemOptions(loadAddress = "0x0800")
+            mockPort.executeMem(source, output, optionsHex)
+            mockPort.lastMemOptions?.loadAddress shouldBe "0x0800"
+
+            val optionsDollar = MemOptions(loadAddress = "$2000")
+            mockPort.executeMem(source, output, optionsDollar)
+            mockPort.lastMemOptions?.loadAddress shouldBe "$2000"
+
+            val optionsDecimal = MemOptions(loadAddress = "2048")
+            mockPort.executeMem(source, output, optionsDecimal)
+            mockPort.lastMemOptions?.loadAddress shouldBe "2048"
+
+            val optionsNone = MemOptions(loadAddress = "none")
+            mockPort.executeMem(source, output, optionsNone)
+            mockPort.lastMemOptions?.loadAddress shouldBe "none"
+
+            tempDir.deleteRecursively()
+          }
+
+          then("should handle all option combinations including memory-specific") {
+            val mockPort = MockExecuteExomizerPort()
+            val tempDir = java.nio.file.Files.createTempDirectory("test").toFile()
+            val source = File(tempDir, "input.bin")
+            source.writeText("test data")
+            val output = File(tempDir, "output.bin")
+
+            val rawOptions =
                 RawOptions(
                     backwards = true,
                     reverse = true,
@@ -83,9 +109,14 @@ class CrunchRawTaskTest :
                     quiet = true,
                     brief = true)
 
-            mockPort.executeRaw(source, output, options)
+            val options =
+                MemOptions(rawOptions = rawOptions, loadAddress = "0x0801", forward = true)
 
-            mockPort.lastRawOptions shouldBe options
+            mockPort.executeMem(source, output, options)
+
+            mockPort.lastMemOptions shouldBe options
+            mockPort.lastMemOptions?.loadAddress shouldBe "0x0801"
+            mockPort.lastMemOptions?.forward shouldBe true
             tempDir.deleteRecursively()
           }
         }
