@@ -95,6 +95,7 @@ dependencies {
     compileOnly(project(":flows:adapters:out:spritepad"))
     compileOnly(project(":flows:adapters:out:image"))
     compileOnly(project(":flows:adapters:out:goattracker"))
+    compileOnly(project(":flows:adapters:out:exomizer"))
 
     compileOnly(project(":emulators:vice"))
     compileOnly(project(":emulators:vice:adapters:out:gradle"))
@@ -120,6 +121,9 @@ dependencies {
     compileOnly(project(":processors:image:adapters:in:gradle"))
     compileOnly(project(":processors:image:adapters:out:png"))
     compileOnly(project(":processors:image:adapters:out:file"))
+
+    compileOnly(project(":crunchers:exomizer"))
+    compileOnly(project(":crunchers:exomizer:adapters:in:gradle"))
 }
 
 publishing { repositories { maven { url = uri("../../../consuming/maven-repo") } } }

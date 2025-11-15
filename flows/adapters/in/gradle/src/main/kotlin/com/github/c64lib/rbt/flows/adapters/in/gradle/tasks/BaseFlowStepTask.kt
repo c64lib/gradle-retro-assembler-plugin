@@ -74,7 +74,10 @@ abstract class BaseFlowStepTask : DefaultTask() {
   }
 
   /** Subclasses implement this method to perform the actual step execution. */
-  protected abstract fun executeStepLogic(step: FlowStep)
+  protected open fun executeStepLogic(step: FlowStep) {
+    throw UnsupportedOperationException(
+        "executeStepLogic must be implemented by subclass for step: ${step.name}")
+  }
 
   /** Validates that the step can be executed with current inputs. */
   protected open fun validateStep(step: FlowStep): List<String> {

@@ -1,178 +1,125 @@
-# Action Plan Implementation Executor
+# Execute Action Plan
 
-You are an expert action plan executor and orchestrator. Your goal is to guide software engineers through the implementation of detailed action plans that were previously created with the `.claude/commands/plan.md` command.
+You are an AI Agent tasked with implementing an action plan for this software project.
 
-## Workflow
+## Context
+
+This project uses action plans stored in the `.ai` folder to guide feature implementation and changes. Action plans are created with the `/plan` command and can be updated with `/plan-update`.
+
+Current branch: {{git_branch}}
+
+## Your Task
+
+Follow these steps systematically:
 
 ### Step 1: Identify the Action Plan
 
-Ask the user to identify which action plan should be executed:
+Ask the user which action plan should be executed. To help them:
+- List available action plans in the `.ai` folder
+- Consider the current branch name as context for suggesting relevant plans
+- Ask the user to confirm or specify the action plan file path
 
-1. **Scan for available plans**:
-   - Look in the `.ai` folder for existing `.md` files containing action plans
-   - Check the current git branch name for context (it often contains the issue number)
-   - List available plans to the user
+### Step 2: Read and Analyze the Plan
 
-2. **Ask for the plan to execute** using AskUserQuestion:
-   - Provide options based on available plans in the `.ai` folder
-   - Allow user to specify a custom path if their plan is elsewhere
-   - Or accept the current branch name as context to auto-locate the plan
+Once the action plan is identified:
+- Read the action plan file completely
+- Understand the overall structure (phases, steps, tasks)
+- Identify which items are already completed, pending, or blocked
+- Present a summary showing:
+  - Total phases and their names
+  - Total steps within each phase
+  - Current completion status
 
-3. **Load and review the plan**:
-   - Read the identified plan file
-   - Parse its structure (Execution Plan with Phases and Steps)
-   - Extract all phases and steps with their deliverables and testing approaches
+### Step 3: Determine Scope of Execution
 
-### Step 2: Determine Execution Scope
+Ask the user which steps or phases to implement:
+- Allow single step/phase: "Phase 1", "Step 2.3"
+- Allow ranges: "Phase 1-3", "Steps 1.1-1.5"
+- Allow "all" to execute everything that's pending
+- Allow comma-separated combinations: "Phase 1, Phase 3, Step 4.2"
 
-Ask the user which steps/phases should be implemented using AskUserQuestion:
+Parse the user's input and confirm which specific items will be executed.
 
-1. **Ask for execution range**:
-   - Option 1: Execute all phases and steps
-   - Option 2: Execute specific phase (e.g., "Phase 1")
-   - Option 3: Execute specific steps (e.g., "1.1, 1.2, 2.1")
-   - Option 4: Execute step range (e.g., "1.1 to 2.3")
+### Step 4: Determine Interaction Mode
 
-2. **Store the selected execution scope**
+Ask the user: "Should I ask for confirmation after each step/phase before continuing?"
+- If YES: Pause after each completed step/phase and wait for user approval to continue
+- If NO: Execute all items in the specified range autonomously
 
-### Step 3: Determine User Engagement Mode
+### Step 5: Execute the Plan
 
-Ask the user how they want to proceed using AskUserQuestion:
+For each step or phase in scope:
+1. Create a todo list using TodoWrite tool with all tasks for this execution
+2. Mark the current step/phase as "in progress" in your tracking
+3. Read and understand the requirements
+4. Implement the required changes following the project's architecture guidelines
+5. Test the changes as specified in the action plan
+6. Mark the step/phase as completed in your tracking
+7. If interaction mode is ON, ask user: "Step X.Y completed. Continue to next step? (yes/no/skip)"
+   - yes: Continue to next step
+   - no: Stop execution and proceed to final update
+   - skip: Mark current as skipped and move to next
 
-1. **Ask for confirmation mode**:
-   - Option 1: Ask for confirmation after each step (interactive mode)
-   - Option 2: Ask for confirmation after each phase (batch mode)
-   - Option 3: Execute all steps without asking (automation mode)
+### Step 6: Handle Blockers and Issues
 
-2. **Store the selected mode**
+If you encounter issues during execution:
+- Document the blocker clearly
+- Mark the step as "blocked" with reason
+- Ask user for guidance or decision
+- If user chooses to skip, mark as "skipped" with reason
+- Update the action plan accordingly
 
-### Step 4: Execute the Selected Steps/Phases
+### Step 7: Update the Action Plan
 
-Based on the user's scope and mode selection:
+After execution is complete (or stopped):
+1. Update the action plan file to reflect:
+   - Steps/phases marked as COMPLETED (✓)
+   - Steps/phases marked as SKIPPED with reason in parentheses
+   - Steps/phases marked as BLOCKED with reason in parentheses
+   - Timestamp of execution
+2. Preserve the original plan structure and formatting
+3. Add an execution log entry at the end with:
+   - Date and time
+   - Items executed
+   - Items skipped/blocked with reasons
+   - Overall outcome
 
-1. **For each selected step/phase**:
-   - Display the step/phase name and description
-   - Display the deliverable that should be completed
-   - Display the testing/verification approach
-   - Mark the step as `in_progress` in the TodoWrite todo list
+### Step 8: Provide Summary
 
-2. **Execute the step**:
-   - Follow the specific action described in the step
-   - Use appropriate tools (Bash, Read, Edit, Write, etc.) to implement changes
-   - Write code, modify files, run tests, or perform other needed actions
+Present a final summary to the user:
+- What was completed successfully
+- What was skipped and why
+- What is blocked and needs attention
+- Suggested next steps
+- Updated action plan file location
 
-3. **Verify the step**:
-   - Run the testing/verification approach described
-   - Ensure the deliverable is complete
-   - Address any errors or issues that arise
+## Important Guidelines
 
-4. **Handle confirmation/continuation**:
-   - In interactive mode: Ask user "Ready to continue to next step?" after each step
-   - In batch mode: Ask user "Ready to continue to next phase?" after each phase
-   - In automation mode: Proceed to next step without asking
+- **Follow Architecture**: Adhere to the Hexagonal Architecture described in CLAUDE.md
+- **Use TodoWrite**: Always use TodoWrite tool to track your implementation tasks
+- **Test Your Changes**: Run tests after significant changes using `./gradlew test`
+- **Commit Appropriately**: Follow commit message guidelines from CLAUDE.md
+- **Stay Focused**: Only implement what's specified in the action plan steps
+- **Ask When Uncertain**: Use AskUserQuestion tool when you need clarification
+- **Update Incrementally**: Keep the action plan updated as you progress, not just at the end
 
-5. **Mark completion**:
-   - Mark the step as `completed` in the TodoWrite todo list once verified
+## Error Handling
 
-### Step 5: Handle Execution Issues
+If builds fail or tests break:
+1. Show the error to the user
+2. Attempt to fix if the issue is clear
+3. If uncertain, ask the user how to proceed
+4. Document the issue in the action plan update
 
-If a step fails or cannot be completed:
+## Example Interaction Flow
 
-1. **Document the issue**:
-   - Explain what went wrong
-   - Show any error messages or output
-   - Ask the user if they want to:
-     - Retry the step
-     - Skip the step (mark as skipped with reason)
-     - Modify the approach and retry
-
-2. **If skipping**:
-   - Mark the step as `completed` but note it was skipped
-   - Record the reason for skipping in the action plan update
-
-### Step 6: Create Summary and Update Plan
-
-After execution is complete:
-
-1. **Summarize execution results**:
-   - List all executed steps and their status
-   - List any skipped steps and reasons
-   - Highlight any remaining steps that weren't executed
-
-2. **Update the action plan**:
-   - Use the plan-update workflow to mark executed steps
-   - Mark skipped steps with reasons
-   - Prepare the plan for potential future execution phases
-   - Save the updated plan back to its original location
-
-3. **Offer git operations**:
-   - Ask if user wants to create a commit with the changes
-   - Ask if user wants to create a pull request (if applicable)
-
-## Key Requirements
-
-✅ **Plan Identification**: Reliably locate and load action plans from `.ai` folder
-✅ **Scope Selection**: Allow flexible selection of what to execute (all, phases, steps, ranges)
-✅ **User Engagement**: Support multiple engagement modes (interactive, batch, automation)
-✅ **Step Execution**: Follow each step precisely as written in the plan
-✅ **Verification**: Test deliverables match the testing approach in the plan
-✅ **Error Handling**: Handle and document failures gracefully
-✅ **Progress Tracking**: Use TodoWrite to track execution progress visibly
-✅ **Plan Updates**: Update the plan with execution results
-✅ **Clear Communication**: Keep user informed of progress and decisions
-
-## Important Notes
-
-- Always read the full action plan before starting execution
-- Parse the plan structure carefully to extract phases and steps
-- Use TodoWrite to create and update the execution progress list
-- Follow the exact action described in each step
-- Run all specified tests before marking a step as complete
-- Handle errors gracefully - don't leave steps half-done
-- Update the plan only after all execution is complete
-- Reference the project's CLAUDE.md guidelines to ensure consistency
-- Use Explore agent for codebase analysis if needed during execution
-- Always ask clarifying questions if a step's instructions are ambiguous
-
-## Implementation Details
-
-### Parsing Action Plans
-
-The action plan structure follows this format:
 ```
-## Execution Plan
+Assistant: I'll help you execute an action plan. Let me first find available plans...
 
-### Phase N: [Phase Name]
-[Description of what this phase accomplishes]
+[Lists plans from .ai folder]
 
-1. **Step N.M**: [Specific action]
-   - Deliverable: [What will be completed]
-   - Testing: [How to verify]
-   - Safe to merge: Yes/No
+Based on your current branch "feature-X", I suggest: .ai/feature-X-action-plan.md
 
-2. **Step N.M+1**: [Specific action]
-   ...
-```
+Which action plan would you like to execute?
 
-Extract all phases and steps systematically so they can be presented to the user.
-
-### TodoWrite Integration
-
-Create todos with clear structure:
-- Step name as content
-- Status tracking (pending, in_progress, completed)
-- Active form for present continuous (e.g., "Implementing user authentication")
-
-Update the todo list:
-- After each step completion
-- To reflect execution progress
-- To maintain visibility for the user
-
-### Progress Communication
-
-Keep the user informed:
-- Show which step is currently executing
-- Display step deliverables and testing approach
-- Report test results
-- Ask for confirmation before proceeding
-- Summarize progress at key milestones
+User: Yes, that one
