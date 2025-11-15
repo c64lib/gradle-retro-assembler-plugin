@@ -397,4 +397,77 @@ This phase ensures comprehensive test coverage and user-facing documentation.
 
 ---
 
-**Next Steps**: Once you confirm this plan is acceptable, we can proceed with Phase 1 (module setup) and continue through all phases to full completion.
+## Execution Log
+
+### 2025-11-15 - Missing ExomizerTask Adapter
+
+**Error Category**: Runtime Error
+
+**Error Details**:
+```
+Execution failed for task ':flowIntroStepExomizeComic1'.
+> executeStepLogic must be implemented by subclass for step: exomizeComic1
+
+Caused by: java.lang.UnsupportedOperationException: executeStepLogic must be implemented by subclass for step: exomizeComic1
+```
+
+**Root Cause Analysis**:
+The `ExomizerStep` domain class was implemented (Step 4.1), but the corresponding `ExomizerTask` Gradle adapter was **never created**. When `FlowTasksGenerator` encounters an `ExomizerStep` during task creation, it doesn't have a specific handler for it, so it falls through to the `else` clause (line 137-140) which creates a generic `BaseFlowStepTask` instance. This generic task doesn't implement `executeStepLogic()`, so when it's executed, it throws `UnsupportedOperationException`.
+
+The pattern used by the project requires:
+1. A domain `Step` class (e.g., `ExomizerStep`) - ✓ Already created
+2. A `Task` adapter extending `BaseFlowStepTask` (e.g., `ExomizerTask`) - ✗ Missing
+3. A case handler in `FlowTasksGenerator.createStepTask()` - ✗ Missing
+
+**Affected Steps**: Phase 4, Step 4.1
+
+**Fix Strategy**: Implementation Adjustment
+
+**Fix Steps Added**:
+
+### Step 4.1 Fix - Create ExomizerTask Adapter (Added: 2025-11-15)
+- **Issue**: ExomizerStep is created but no corresponding Task adapter exists
+- **Root Cause**: ExomizerTask was not created to bridge domain layer with Gradle execution
+- **Fix**: Create `ExomizerTask.kt` following the pattern from `CharpadTask.kt`
+  - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/tasks/ExomizerTask.kt`
+  - Extend `BaseFlowStepTask`
+  - Implement `executeStepLogic()` method:
+    - Validate the step is an `ExomizerStep` instance
+    - Create `ExomizerAdapter` instance
+    - Inject it into the step via `setExomizerPort()`
+    - Create execution context with project info
+    - Call `step.execute(context)`
+  - Add `@get:OutputFiles` property `outputFiles: ConfigurableFileCollection` for Gradle tracking
+  - Pattern: Follow `CharpadTask` implementation exactly
+  - Testing: Verify task creates and executes without error
+- **Impact**: Allows ExomizerStep to be properly executed in flows
+
+### Step 4.1 Fix 2 - Update FlowTasksGenerator (Added: 2025-11-15)
+- **Issue**: FlowTasksGenerator doesn't recognize ExomizerStep, so falls back to base implementation
+- **Root Cause**: Missing `when` branch for `ExomizerStep` type
+- **Fix**: Update `FlowTasksGenerator.kt` in `createStepTask()` method:
+  - Add import: `import com.github.c64lib.rbt.flows.domain.steps.ExomizerStep`
+  - Add case handler after line 136 (before the `else`):
+    ```kotlin
+    is ExomizerStep -> {
+      taskContainer.create(taskName, ExomizerTask::class.java) { task ->
+        configureBaseTask(task, step, flow)
+        configureOutputFiles(task, step)
+      }
+    }
+    ```
+  - Update `configureOutputFiles()` method to handle `ExomizerTask` (add case after line 214):
+    ```kotlin
+    is ExomizerTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
+    ```
+  - Testing: Verify task creation recognizes ExomizerStep
+  - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
+
+**Next Actions**:
+1. Create `ExomizerTask.kt` following the CharpadTask pattern
+2. Update `FlowTasksGenerator.kt` to handle ExomizerStep in task creation
+3. Run the flow again to verify executeStepLogic() is now implemented
+
+---
+
+**Next Steps**: Run `/execute` to implement these fix steps.
