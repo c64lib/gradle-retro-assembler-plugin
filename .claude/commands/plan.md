@@ -1,140 +1,224 @@
-# Development Plan Generator
+# Plan Command
 
-You are a comprehensive development planner. Your goal is to create a detailed, actionable development plan for new features or fixes in the gradle-retro-assembler-plugin project.
+You are tasked with creating a comprehensive development plan for a new feature or issue. Follow this workflow exactly:
 
-## Workflow
+## Step 1: Gather Information
 
-### Step 1: Gather User Input
+First, collect the following information from the user:
 
-Ask the user the following questions using AskUserQuestion tool:
-- **Issue Number**: What is the issue number (e.g., "123")?
-- **Feature Short Name**: What is a short name for this feature/fix (e.g., "parallel-compilation")?
-- **Task Specification**: Provide a detailed description of what needs to be implemented or fixed.
+1. **Issue Number**: The GitHub issue number or ticket ID
+2. **Feature Short Name**: A brief, kebab-case name for the feature (e.g., "bitmap-step", "flow-optimization")
+3. **Task Specification**: Detailed description of what needs to be implemented
 
-Store these values for use in the planning process.
+Use the AskUserQuestion tool to gather this information if not already provided.
 
-### Step 2: Codebase Analysis
+## Step 2: Codebase Analysis
 
-Once you have the initial information, perform deep codebase analysis:
+Before creating the plan, you must:
 
-1. **Explore the codebase structure** using the Explore agent to understand:
-   - Relevant domain modules that will be affected
-   - Current architecture and patterns in those domains
-   - Existing code that relates to the feature being planned
-   - Test structure and patterns
+1. Review the project structure and architecture (use Task tool with subagent_type=Explore)
+2. Identify relevant existing code that relates to this feature
+3. Understand how similar features are implemented
+4. Review relevant documentation files
+5. Analyze dependencies and integration points
 
-2. **Read relevant files** to understand:
-   - Current implementation of related features
-   - Code patterns and conventions used
-   - Existing tests and how they're structured
-   - Configuration and build process
+## Step 3: Create the Plan
 
-3. **Review documentation** to understand:
-   - Existing CLAUDE.md guidelines
-   - Architecture decisions
-   - Technology stack constraints
+Create a markdown file at `.ai/{issue-number}-{feature-short-name}/feature-{issue-number}-{feature-short-name}-action-plan.md`
 
-### Step 3: Create Structured Plan
-
-Generate a comprehensive plan in markdown format with the following structure:
+The plan must follow this exact structure:
 
 ```markdown
-# Development Plan: [ISSUE_NUMBER] - [FEATURE_SHORT_NAME]
+# Feature: {Feature Name}
 
-## Feature Description
+**Issue**: #{issue-number}
+**Status**: Planning
+**Created**: {YYYY-MM-DD}
 
-[2-3 paragraphs explaining what will be built, why it's needed, and the intended outcome]
+## 1. Feature Description
 
-## Root Cause Analysis
+### Overview
+{Concise description of what needs to be implemented}
 
-[If fixing a bug, explain the root cause]
-[If adding a feature, explain the business/technical need]
+### Requirements
+- {Requirement 1}
+- {Requirement 2}
+- {etc.}
 
-## Relevant Code Parts
+### Success Criteria
+- {Criterion 1}
+- {Criterion 2}
+- {etc.}
 
-List the key files, classes, and functions that will be affected:
-- `path/to/file.kt`: Brief description of what will change
-- `path/to/another/file.kt`: Brief description
+## 2. Root Cause Analysis
 
-## Questions
+{If this is a bug fix or improvement, explain the root cause. If it's a new feature, explain why it's needed and what problem it solves.}
+
+### Current State
+{Description of how things work currently}
+
+### Desired State
+{Description of how things should work after implementation}
+
+### Gap Analysis
+{What needs to change to bridge the gap}
+
+## 3. Relevant Code Parts
+
+### Existing Components
+- **{Component/File Name}**: {Brief description and relevance}
+  - Location: `{path/to/file}`
+  - Purpose: {Why this is relevant}
+  - Integration Point: {How the new feature will interact with this}
+
+### Architecture Alignment
+{How this feature fits into the hexagonal architecture:}
+- **Domain**: {Which domain this belongs to}
+- **Use Cases**: {What use cases will be created/modified}
+- **Ports**: {What interfaces will be needed}
+- **Adapters**: {What adapters will be needed (in/out, gradle, etc.)}
+
+### Dependencies
+- {Dependency 1 and why it's needed}
+- {Dependency 2 and why it's needed}
+
+## 4. Questions and Clarifications
 
 ### Self-Reflection Questions
-1. Are there edge cases we should consider?
-2. What are potential performance implications?
-3. How does this affect existing functionality?
-4. Are there security considerations?
-5. What testing scenarios should be covered?
+{Questions you've answered through research:}
+- **Q**: {Question}
+  - **A**: {Answer based on codebase analysis}
 
-### Questions for Others
-1. [Ask stakeholders/team about unclear requirements]
-2. [Ask about architectural decisions if unsure]
-3. [Ask about testing expectations if unclear]
+### Unresolved Questions
+{Questions that need clarification from stakeholders:}
+- [ ] {Question 1}
+- [ ] {Question 2}
 
-## Execution Plan
+### Design Decisions
+{Key decisions that need to be made:}
+- **Decision**: {What needs to be decided}
+  - **Options**: {Option A, Option B, etc.}
+  - **Recommendation**: {Your recommendation and why}
 
-### Phase 1: [Phase Name]
-[Description of what this phase accomplishes]
+## 5. Implementation Plan
 
-1. **Step 1.1**: [Specific action]
-   - Deliverable: [What will be completed]
-   - Testing: [How to verify]
-   - Safe to merge: Yes/No
+### Phase 1: Foundation ({Deliverable: What can be merged})
+**Goal**: {What this phase achieves}
 
-2. **Step 1.2**: [Specific action]
-   - Deliverable: [What will be completed]
-   - Testing: [How to verify]
-   - Safe to merge: Yes/No
+1. **Step 1.1**: {Action item}
+   - Files: `{files to create/modify}`
+   - Description: {What to do}
+   - Testing: {How to verify}
 
-### Phase 2: [Phase Name]
-[Description of what this phase accomplishes]
+2. **Step 1.2**: {Action item}
+   - Files: `{files to create/modify}`
+   - Description: {What to do}
+   - Testing: {How to verify}
 
-1. **Step 2.1**: [Specific action]
-   - Deliverable: [What will be completed]
-   - Testing: [How to verify]
-   - Safe to merge: Yes/No
+**Phase 1 Deliverable**: {What can be safely merged and released after this phase}
 
-[Continue with additional phases as needed]
+### Phase 2: Core Implementation ({Deliverable: What can be merged})
+**Goal**: {What this phase achieves}
 
-## Notes
+1. **Step 2.1**: {Action item}
+   - Files: `{files to create/modify}`
+   - Description: {What to do}
+   - Testing: {How to verify}
 
-[Any additional considerations, dependencies, or context]
+2. **Step 2.2**: {Action item}
+   - Files: `{files to create/modify}`
+   - Description: {What to do}
+   - Testing: {How to verify}
+
+**Phase 2 Deliverable**: {What can be safely merged and released after this phase}
+
+### Phase 3: Integration and Polish ({Deliverable: What can be merged})
+**Goal**: {What this phase achieves}
+
+1. **Step 3.1**: {Action item}
+   - Files: `{files to create/modify}`
+   - Description: {What to do}
+   - Testing: {How to verify}
+
+2. **Step 3.2**: {Action item}
+   - Files: `{files to create/modify}`
+   - Description: {What to do}
+   - Testing: {How to verify}
+
+**Phase 3 Deliverable**: {What can be safely merged and released after this phase}
+
+## 6. Testing Strategy
+
+### Unit Tests
+- {What needs unit tests}
+- {Testing approach}
+
+### Integration Tests
+- {What needs integration tests}
+- {Testing approach}
+
+### Manual Testing
+- {Manual test scenarios}
+
+## 7. Risks and Mitigation
+
+| Risk | Impact | Probability | Mitigation |
+|------|--------|-------------|------------|
+| {Risk 1} | {High/Medium/Low} | {High/Medium/Low} | {How to mitigate} |
+| {Risk 2} | {High/Medium/Low} | {High/Medium/Low} | {How to mitigate} |
+
+## 8. Documentation Updates
+
+- [ ] Update README if needed
+- [ ] Update CLAUDE.md if adding new patterns
+- [ ] Add inline documentation
+- [ ] Update any relevant architectural docs
+
+## 9. Rollout Plan
+
+1. {How to release this safely}
+2. {What to monitor}
+3. {Rollback strategy if needed}
+
+---
+
+**Note**: This plan should be reviewed and approved before implementation begins.
 ```
 
-### Step 4: Interactive Refinement
+## Step 4: Interactive Refinement
 
-After generating the initial plan:
+After creating the initial plan:
 
 1. Present the plan to the user
-2. Ask if there are any missing or unclear aspects
-3. For each area identified as unclear:
-   - Ask clarifying questions using AskUserQuestion
-   - Update the plan based on responses
-4. Repeat until the plan is comprehensive and the user is satisfied
+2. Specifically highlight the "Unresolved Questions" section
+3. Specifically highlight the "Design Decisions" section
+4. Ask if they want to clarify any questions or make any design decisions now
+5. If yes, use AskUserQuestion tool to gather clarifications
+6. Update the plan with the new information
+7. Repeat until the user is satisfied
 
-### Step 5: Save the Plan
+## Step 5: Finalization
 
-Save the finalized plan to: `.ai/[ISSUE_NUMBER]-[FEATURE_SHORT_NAME].md`
+Once the plan is complete:
 
-The filename should use:
-- Issue number from step 1
-- Feature short name converted to kebab-case (lowercase with hyphens)
-- Example: `.ai/123-parallel-compilation.md`
-
-## Key Requirements
-
-✅ **Plan Structure**: Follow the normalized structure exactly as shown above
-✅ **Actionable Steps**: Each step should be specific and implementable
-✅ **Deliverables**: Each step should result in code that can be merged safely
-✅ **Codebase Context**: Plan should reference actual code patterns and files from the project
-✅ **Quality**: Plan should maintain software quality and stability standards
-✅ **Interactivity**: Refine the plan based on user feedback until complete
+1. Ensure the file is saved in the correct location
+2. Confirm with the user that the plan is ready
+3. Suggest next steps (e.g., "You can now start implementing Phase 1" or "Run /exec to begin execution")
 
 ## Important Notes
 
-- Always use the Explore agent for initial codebase scans (don't do manual searches)
-- Read actual files to understand patterns and conventions
-- Ask clarifying questions when requirements are unclear
-- Create incremental deliverables that can be safely merged
-- Reference actual code locations using `file_path:line_number` format when possible
-- Consider the hexagonal architecture pattern used in this project
-- Ensure new modules are added as `compileOnly` dependencies in infra/gradle if applicable
+- **Architecture Compliance**: Ensure the plan follows hexagonal architecture principles
+- **Incremental Delivery**: Each phase must produce a mergeable, releasable increment
+- **Safety First**: Never suggest changes that could break existing functionality without proper testing
+- **Use Case Pattern**: Remember that use cases are single-method classes with `apply` method
+- **Port Pattern**: Technology-specific code must be hidden behind ports
+- **Gradle Module**: If adding new modules, remind about updating `infra/gradle` dependencies
+- **Parallel Execution**: Always use Gradle Workers API for parallel tasks
+
+## Thoroughness
+
+- Use the Task tool with subagent_type=Explore to thoroughly understand the codebase
+- Look for similar features to understand patterns
+- Check existing tests to understand testing patterns
+- Review recent commits to understand coding conventions
+- Don't guess - if unsure, explore more or ask the user

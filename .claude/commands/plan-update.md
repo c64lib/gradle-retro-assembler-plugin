@@ -1,162 +1,261 @@
-# Action Plan Update Assistant
+# Plan Update Command
 
-You are an expert plan updater and refinement specialist. Your goal is to help software engineers update and improve existing action plans with new information, clarifications, and additional context.
+You are tasked with updating an existing development action plan. Follow this workflow exactly:
 
-## Workflow
+## Step 1: Locate the Action Plan
 
-### Step 1: Identify the Plan to Update
+First, identify which action plan needs to be updated:
 
-Ask the user to identify which action plan should be updated:
+1. **Check current branch name** for context (format: `{issue-number}-{feature-short-name}`)
+2. **Search for action plans** in `.ai/` directory
+3. **Ask user to specify** which plan to update if multiple plans exist or if unclear
 
-1. **Ask for the plan location** using AskUserQuestion:
-   - Provide options based on available plans in the `.ai` folder (scan for existing `.md` files)
-   - Allow user to specify a custom path if their plan is elsewhere
-   - Or use the current branch name as context hint
+Use the AskUserQuestion tool to confirm which plan file should be updated if there's any ambiguity.
 
-2. **Load and review the existing plan**:
-   - Read the identified plan file
-   - Understand its current structure (Feature Description, Root Cause Analysis, Questions, Execution Plan, etc.)
-   - Identify sections that may need updating
+Expected plan location pattern: `.ai/{issue-number}-{feature-short-name}/feature-{issue-number}-{feature-short-name}-action-plan.md`
 
-### Step 2: Determine Scope of Updates
+## Step 2: Read the Current Plan
 
-Ask the user what aspect of the plan needs updating using AskUserQuestion with these options:
+Read the entire action plan file to understand:
+- Current feature requirements and scope
+- Existing implementation steps
+- Open questions that need answers
+- Current design decisions
+- Implementation status
 
-- **Clarify Requirements**: Specification details are unclear or need refinement
-- **Answer Open Questions**: Address specific questions marked in the plan
-- **Add Acceptance Criteria**: Define or improve acceptance criteria for the plan
-- **Refine Execution Steps**: Update the implementation phases and steps
-- **Update Testing Strategy**: Enhance or modify testing approaches
-- **Add Technical Context**: Include additional code references or architectural insights
-- **Resolve Risks/Dependencies**: Address potential blockers or dependencies identified
-- **Multiple Updates**: Apply changes to several sections
+## Step 3: Determine Update Scope
 
-Store the user's selection for the update scope.
+Ask the user about the scope of updates using AskUserQuestion tool. Common update types include:
 
-### Step 3: Gather Update Information
+1. **Specification Changes**
+   - Modified requirements
+   - Changed success criteria
+   - Updated feature scope
+   - New constraints or considerations
 
-Based on the selected scope, ask targeted questions to gather the required information:
+2. **Answered Questions**
+   - Responses to unresolved questions
+   - Clarifications on design decisions
+   - Stakeholder feedback
 
-**For Requirement Clarification:**
-- What specific parts of the specification need clarification?
-- What are the updated or additional requirements?
-- Are there any changed assumptions?
+3. **Additional Acceptance Criteria**
+   - New success criteria
+   - Additional testing requirements
+   - Performance or quality metrics
 
-**For Answering Open Questions:**
-- Which specific questions from the plan are being answered?
-- What is the answer and reasoning?
-- Does this answer affect other parts of the plan?
+4. **Implementation Updates**
+   - Status changes (Planning → In Progress → Completed)
+   - Phase completion updates
+   - New risks or mitigation strategies
 
-**For Adding Acceptance Criteria:**
-- What are the acceptance criteria (list 3-5 specific, measurable criteria)?
-- How will these criteria be verified?
-- What are the edge cases to consider?
+5. **Architecture Refinements**
+   - Updated integration points
+   - Modified port/adapter design
+   - Changed dependencies
 
-**For Refining Execution Steps:**
-- Which phase/step needs refinement?
-- What changes are needed?
-- Are there new steps that should be added?
-- Are any steps no longer needed?
+6. **Other Updates**
+   - Documentation needs
+   - Testing strategy changes
+   - Rollout plan modifications
 
-**For Testing Strategy:**
-- What testing scenarios need to be added or modified?
-- Are there specific test files or patterns to follow?
-- What coverage is needed?
+**IMPORTANT**: If the user's input is incomplete or unclear, use AskUserQuestion tool to gather clarifications before proceeding.
 
-**For Technical Context:**
-- What specific code locations are relevant?
-- Are there architectural patterns or dependencies to consider?
-- What technology stack decisions affect this plan?
+## Step 4: Apply Updates Consistently
 
-**For Risk/Dependency Resolution:**
-- What are the identified blockers or dependencies?
-- How should they be addressed?
-- What prerequisites are needed?
+When updating the plan, ensure consistency across ALL relevant sections:
 
-Ask follow-up clarifying questions if any provided information is incomplete or unclear.
+### For Specification Changes:
+- Update **Section 1: Feature Description**
+  - Modify Overview, Requirements, or Success Criteria as needed
+- Update **Section 2: Root Cause Analysis**
+  - Adjust Desired State and Gap Analysis if scope changed
+- Update **Section 5: Implementation Plan**
+  - Revise phases and steps to reflect new requirements
+  - Update deliverables for each phase
+- Update **Section 6: Testing Strategy**
+  - Adjust test scenarios to match new requirements
+- Update **Section 7: Risks and Mitigation**
+  - Add new risks or update existing ones
+- Update **Section 8: Documentation Updates**
+  - Add new documentation needs if applicable
 
-### Step 4: Update the Plan Document
+### For Answered Questions:
+- Move answered questions from **"Unresolved Questions"** subsection to **"Self-Reflection Questions"** subsection
+- Format answered questions as:
+  ```markdown
+  - **Q**: {Question}
+    - **A**: {Answer provided by user}
+  ```
+- Mark questions as answered using checkbox: `- [x] {Question}` before moving
+- If the answer impacts other sections, propagate changes:
+  - Update implementation steps if the answer changes approach
+  - Update architecture alignment if ports/adapters are affected
+  - Update risks if new concerns emerge
+  - Update testing strategy if verification approach changes
 
-Systematically update the plan with the new information:
+### For Design Decisions:
+- Update the **"Design Decisions"** subsection with chosen option
+- Format as:
+  ```markdown
+  - **Decision**: {What was decided}
+    - **Options**: {Option A, Option B, etc.}
+    - **Chosen**: {Selected option}
+    - **Rationale**: {Why this was chosen}
+  ```
+- Propagate decision impacts to:
+  - Implementation Plan (update steps to reflect chosen approach)
+  - Relevant Code Parts (update if different components involved)
+  - Dependencies (add/remove based on decision)
+  - Testing Strategy (adjust based on approach)
 
-1. **Preserve Existing Content**: Keep all existing information that isn't being changed
-2. **Update Relevant Sections**: Modify the sections affected by the new information
-3. **Mark Answered Questions**: If open questions are answered:
-   - Change the question format to show it's **ANSWERED**
-   - Include the answer and reasoning below the question
-   - Keep the original question for reference
-4. **Add New Sections if Needed**: If the update introduces entirely new aspects (like Acceptance Criteria section), add them following the existing structure
-5. **Maintain Consistency**: Ensure all affected sections are updated cohesively
-   - If execution steps change, update relevant sections that reference those steps
-   - If requirements change, ensure the Feature Description, Root Cause Analysis, and execution steps all align
-   - Update Questions section if new questions arise or if previously open questions are now answered
+### For Additional Acceptance Criteria:
+- Add new criteria to **Section 1: Success Criteria**
+- Update **Section 6: Testing Strategy** to verify new criteria
+- Update relevant phase deliverables in **Section 5**
 
-### Step 5: Present Updated Plan
+### For Implementation Status:
+- Update the **Status** field at the top (Planning → In Progress → Completed)
+- Mark completed steps with checkboxes: `- [x]`
+- Add **"Last Updated"** field with current date
+- If phases are completed, add completion notes
 
-1. **Show the complete updated plan** to the user
-2. **Highlight the changes** made (what was added, modified, or removed)
-3. **Ask for approval** before saving
+### For Architecture Refinements:
+- Update **Section 3: Architecture Alignment**
+- Update **Section 3: Existing Components** if integration points changed
+- Update **Section 3: Dependencies** if new dependencies added
+- Ensure **Section 5: Implementation Plan** reflects architecture changes
 
-Format the presentation clearly:
+## Step 5: Preserve Plan Structure
+
+**CRITICAL**: Maintain the exact structure from the original plan command:
+- Keep all 9 main sections in order
+- Preserve markdown formatting
+- Keep section numbering consistent
+- Maintain table formats for risks
+- Preserve checkbox formats for action items
+
+## Step 6: Track Changes
+
+Add a **"Revision History"** section at the end of the document (before the final note) if it doesn't exist:
+
+```markdown
+## 10. Revision History
+
+| Date | Updated By | Changes |
+|------|------------|---------|
+| {YYYY-MM-DD} | {User/AI} | {Brief description of changes} |
 ```
-## Changes Made
 
-**Section: [Section Name]**
-- [Change 1]
-- [Change 2]
+Add a new row for each update with:
+- Current date
+- Who made the update (use "AI Agent" for updates made by Claude)
+- Brief summary of what changed
 
-**Section: [Another Section]**
-- [Change 3]
-```
+## Step 7: Interactive Review
 
-### Step 6: Save the Updated Plan
+After applying updates:
 
-Once the user approves:
+1. Present the updated plan to the user
+2. Highlight what was changed
+3. Specifically call out any cascading changes made to maintain consistency
+4. Ask if additional updates are needed
+5. If yes, use AskUserQuestion tool to gather more information
+6. Repeat until the user is satisfied
 
-1. Save the updated plan back to the original file location
-2. Confirm the save was successful
-3. Offer to create a git commit if working in a git repository
+## Step 8: Save and Confirm
 
-## Handling Special Cases
+Once updates are complete:
 
-### When Information is Incomplete
+1. Save the updated plan to the same file location
+2. Confirm with the user that updates are complete
+3. Summarize what was changed
+4. Suggest next steps if applicable (e.g., "Plan is ready for Phase 2 implementation")
 
-If the user's input is vague or incomplete:
-1. Ask specific follow-up questions
-2. Provide examples from the current plan for context
-3. Suggest reasonable defaults based on the project patterns
-4. Don't proceed with updates until you have sufficient clarity
+## Important Guidelines
 
-### When Updates Create Conflicts
+### Consistency Rules
+- **Cross-Reference Impact**: When updating one section, always check if other sections need updates
+- **Traceability**: Ensure requirements trace through to implementation steps and tests
+- **Completeness**: Don't leave orphaned questions or decisions without resolution paths
 
-If the new information conflicts with existing plan content:
+### Answer Documentation
+- **Format Precisely**: Use the exact format for answered questions
+- **Preserve Context**: Keep the original question text intact
+- **Clear Answers**: Ensure answers are complete and actionable
+- **Mark Completion**: Always mark answered questions with `[x]` before moving them
+
+### Clarification Protocol
+- **Ask When Unclear**: If update scope is ambiguous, ask for clarification
+- **Verify Impact**: If an update affects multiple sections, confirm the extent with the user
+- **Suggest Options**: If there are multiple ways to interpret an update, present options
+- **Confirm Understanding**: Repeat back your understanding before making large changes
+
+### Architecture Compliance
+- Ensure updates still follow hexagonal architecture principles
+- Verify use case pattern compliance (single-method classes with `apply`)
+- Check that ports properly isolate technology concerns
+- Remind about `infra/gradle` dependency updates if modules are added
+
+### Safety Checks
+- Don't remove important information unless explicitly requested
+- Preserve historical context (don't delete answered questions)
+- Maintain backward compatibility considerations in updates
+- Keep risk assessments current
+
+## Edge Cases
+
+### If Plan File Not Found
+1. List available plans in `.ai/` directory
+2. Check if user meant a different file
+3. Offer to create a new plan using the `/plan` command instead
+
+### If Update Conflicts with Existing Content
 1. Highlight the conflict to the user
-2. Ask which version should be used
-3. Explain the implications of each choice
-4. Update all affected sections to maintain consistency
+2. Present both versions (current vs. proposed)
+3. Ask for guidance on resolution
+4. Document the decision in Revision History
 
-### When Updates Affect Multiple Sections
+### If Questions Reference Non-Existent Sections
+1. Alert the user that the plan structure might be outdated
+2. Offer to restructure to match current template
+3. Get approval before major restructuring
 
-Track and update all interconnected sections:
-- If a step is removed from Phase 1, check if Phase 2+ steps depend on it
-- If requirements change, verify all steps still align with the new requirements
-- If a new step is added, ensure it's properly sequenced
+## Output Format
 
-## Key Requirements
+When presenting changes to the user, use this format:
 
-✅ **Plan Preservation**: Existing plan structure is respected and preserved
-✅ **Comprehensive Updates**: All affected sections are updated consistently
-✅ **Question Tracking**: Answered questions are clearly marked with their answers
-✅ **Clarity**: Changes are presented clearly before saving
-✅ **Interactive**: Ask clarifying questions when information is vague
-✅ **Reference**: Use actual code locations and project patterns when providing context
-✅ **Validation**: Ensure updated plan is logically consistent and complete
+```markdown
+## Changes Applied to Action Plan
 
-## Important Notes
+**Plan**: `.ai/{path-to-plan}`
+**Date**: {YYYY-MM-DD}
 
-- Always read the full existing plan before making changes
-- Ask clarifying questions if requirements are ambiguous
-- Maintain the plan's overall structure and format
-- Reference the project's CLAUDE.md guidelines to ensure consistency
-- Consider the hexagonal architecture pattern when evaluating technical updates
-- Keep a clear record of what changed and why
+### Summary
+{Brief overview of what was updated}
+
+### Detailed Changes
+
+#### Section 1: Feature Description
+- {Change 1}
+- {Change 2}
+
+#### Section 4: Questions and Clarifications
+- Moved question "{question}" from Unresolved to Self-Reflection
+- Added answer: {answer}
+
+#### Section 5: Implementation Plan
+- Updated Phase 2, Step 2.1 to reflect new approach
+- Added new step 3.3 for additional requirement
+
+{...etc for all changed sections...}
+
+### Cascading Updates
+{List any changes made to maintain consistency across sections}
+
+### Next Steps
+{Suggest what the user might want to do next}
+```
+
+---
+
+**Note**: This command updates existing plans only. To create a new plan, use the `/plan` command instead.
