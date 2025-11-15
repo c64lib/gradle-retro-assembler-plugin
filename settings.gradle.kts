@@ -23,6 +23,9 @@ include(":compilers:kickass:adapters:in:gradle")
 include(":compilers:kickass:adapters:out:gradle")
 include(":compilers:kickass:adapters:out:filedownload")
 
+include(":compilers:dasm")
+include(":compilers:dasm:adapters:out:gradle")
+
 include(":emulators:vice")
 include(":emulators:vice:adapters:out:gradle")
 

@@ -126,6 +126,25 @@ data class AssemblyConfig(
     val additionalInputs: List<String> = emptyList()
 )
 
+// Dasm Assembler Configuration
+data class DasmConfig(
+    val includePaths: List<String> = emptyList(),
+    val defines: Map<String, String> = emptyMap(),
+    val outputFormat: Int = 1,
+    val listFile: String? = null,
+    val symbolFile: String? = null,
+    val verboseness: Int? = null,
+    val errorFormat: Int? = null,
+    val strictSyntax: Boolean? = null,
+    val removeOnError: Boolean? = null,
+    val symbolTableSort: Int? = null,
+    val srcDirs: List<String> = listOf("."),
+    val includes: List<String> = listOf("**/*.asm"),
+    val excludes: List<String> = listOf(".ra/**/*.asm"),
+    val workDir: String = ".ra",
+    val additionalInputs: List<String> = emptyList()
+)
+
 // Image Configuration
 enum class ImageFormat {
   KOALA,

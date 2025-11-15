@@ -130,6 +130,22 @@ class FlowBuilder(private val name: String) {
     }
   }
 
+  /** Creates a type-safe dasm assembly processing step. */
+  fun dasmStep(stepName: String, configure: DasmStepBuilder.() -> Unit) {
+    val stepBuilder = DasmStepBuilder(stepName)
+    stepBuilder.configure()
+    val step = stepBuilder.build()
+    steps.add(step)
+
+    // Add artifacts for dependency tracking
+    step.inputs.forEach { input ->
+      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
+    }
+    step.outputs.forEach { output ->
+      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
+    }
+  }
+
   /** Creates a type-safe Image processing step. */
   fun imageStep(stepName: String, configure: ImageStepBuilder.() -> Unit) {
     val stepBuilder = ImageStepBuilder(stepName)

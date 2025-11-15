@@ -24,135 +24,77 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain.config
 
-import com.github.c64lib.rbt.shared.domain.OutputFormat
 import java.io.File
 
 /**
- * Domain abstraction for assembly compilation commands.
+ * Maps DasmConfig from the flows domain to DasmCommand.
  *
- * This interface abstracts away the specific compiler implementation details and provides a clean
- * domain boundary for assembly operations.
- */
-data class AssemblyCommand(
-    val libDirs: List<File>,
-    val defines: List<String>,
-    val values: Map<String, String>,
-    val source: File,
-    val outputFormat: OutputFormat,
-    val outputFile: File? = null,
-    val outputDirectory: File? = null
-)
-
-/**
- * Domain abstraction for dasm assembly compilation commands.
- *
- * This class defines the dasm-specific command format, abstracting away compiler implementation
- * details while providing a clean domain boundary for dasm operations.
- */
-data class DasmCommand(
-    val libDirs: List<File>,
-    val defines: Map<String, String>,
-    val source: File,
-    val outputFormat: Int = 1,
-    val outputFile: File? = null,
-    val listFile: File? = null,
-    val symbolFile: File? = null,
-    val verboseness: Int? = null,
-    val errorFormat: Int? = null,
-    val strictSyntax: Boolean? = null,
-    val removeOnError: Boolean? = null,
-    val symbolTableSort: Int? = null
-)
-
-/**
- * Maps AssemblyConfig from the flows domain to AssemblyCommand.
- *
- * This mapper handles the structural differences between the domain configuration and the assembly
+ * This mapper handles the structural differences between the domain configuration and the dasm
  * command format, while maintaining architectural boundaries.
  */
-class AssemblyConfigMapper {
+class DasmConfigMapper {
 
   /**
-   * Creates an AssemblyCommand from AssemblyConfig and execution context.
+   * Creates a DasmCommand from DasmConfig and execution context.
    *
-   * @param config The domain assembly configuration
+   * @param config The domain dasm configuration
    * @param sourceFile The specific source file to compile
    * @param projectRootDir The project root directory for resolving relative paths
    * @param outputPath Optional output path from step configuration (from DSL 'to' method)
-   * @return AssemblyCommand ready for execution
+   * @return DasmCommand ready for execution
    */
-  fun toAssemblyCommand(
-      config: AssemblyConfig,
+  fun toDasmCommand(
+      config: DasmConfig,
       sourceFile: File,
       projectRootDir: File,
       outputPath: String? = null
-  ): AssemblyCommand {
-    // Determine output file and validate consistency
-    val (outputFile, outputDirectory) =
-        resolveOutputParameters(config, sourceFile, outputPath, projectRootDir)
+  ): DasmCommand {
+    val outputFile = resolveOutputFile(sourceFile, outputPath, projectRootDir)
+    val listFile = config.listFile?.let { resolveFilePath(it, projectRootDir) }
+    val symbolFile = config.symbolFile?.let { resolveFilePath(it, projectRootDir) }
 
-    return AssemblyCommand(
+    return DasmCommand(
         libDirs = mapLibraryDirectories(config.includePaths, projectRootDir),
-        defines = extractDefineNames(config.defines),
-        values = extractDefineValues(config.defines),
+        defines = config.defines,
         source = sourceFile,
         outputFormat = config.outputFormat,
         outputFile = outputFile,
-        outputDirectory = outputDirectory)
+        listFile = listFile,
+        symbolFile = symbolFile,
+        verboseness = config.verboseness,
+        errorFormat = config.errorFormat,
+        strictSyntax = config.strictSyntax,
+        removeOnError = config.removeOnError,
+        symbolTableSort = config.symbolTableSort)
   }
 
   /**
-   * Resolves output file parameters based on step 18 requirements.
+   * Resolves the output file path based on step configuration.
    *
-   * @param config Assembly configuration with output format
    * @param sourceFile Source file being compiled
    * @param outputPath Optional output path from DSL 'to' method
    * @param projectRootDir Project root for resolving relative paths
-   * @return Pair of (outputFile, outputDirectory) for KickAssembler
+   * @return The resolved output file
    */
-  private fun resolveOutputParameters(
-      config: AssemblyConfig,
+  private fun resolveOutputFile(
       sourceFile: File,
       outputPath: String?,
       projectRootDir: File
-  ): Pair<File?, File?> {
-    val expectedExtension =
-        when (config.outputFormat) {
-          OutputFormat.PRG -> ".prg"
-          OutputFormat.BIN -> ".bin"
-        }
-
+  ): File? {
     return if (outputPath != null) {
-      // Case 1: Output path specified - validate and use it
-      val outputFile =
-          if (File(outputPath).isAbsolute) File(outputPath) else File(projectRootDir, outputPath)
-
-      // Validate output format consistency (requirement 1)
-      if (!outputFile.name.endsWith(expectedExtension)) {
-        throw IllegalArgumentException(
-            "Output format ${config.outputFormat} requires $expectedExtension extension, but output path is: $outputPath")
-      }
-
-      Pair(
-          outputFile,
-          outputFile.parentFile.absoluteFile) // Use -o flag for complete file specification
+      // Use explicit output path if provided
+      if (File(outputPath).isAbsolute) File(outputPath) else File(projectRootDir, outputPath)
     } else {
-      // Case 2: No output specified - derive from input (requirement 2)
-      val derivedOutputFile = deriveOutputFromInput(sourceFile, expectedExtension)
-      Pair(
-          derivedOutputFile,
-          derivedOutputFile.parentFile.absoluteFile) // Use -o flag for derived file
+      // Derive output from input file (same basename, no extension)
+      val baseName = sourceFile.nameWithoutExtension
+      File(sourceFile.parentFile, baseName)
     }
   }
 
-  /**
-   * Derives output file path from input file, preserving path and changing extension. Implements
-   * requirement 2: preserve full path and filename, change extension only.
-   */
-  private fun deriveOutputFromInput(sourceFile: File, expectedExtension: String): File {
-    val baseName = sourceFile.nameWithoutExtension
-    val parentDir = sourceFile.parentFile
-    return File(parentDir, "$baseName$expectedExtension")
+  /** Resolves a file path against the project root if it's relative. */
+  private fun resolveFilePath(path: String, projectRoot: File): File {
+    val file = File(path)
+    return if (file.isAbsolute) file else File(projectRoot, path)
   }
 
   /** Converts string include paths to File objects resolved against project root. */
@@ -169,45 +111,25 @@ class AssemblyConfigMapper {
   }
 
   /**
-   * Extracts define names (keys) from the defines map for preprocessor definitions. These become
-   * command-line defines like -define NAME
+   * Creates multiple DasmCommands for a list of source files. This is useful when a DasmStep
+   * processes multiple input files.
    */
-  private fun extractDefineNames(defines: Map<String, String>): List<String> {
-    return defines.keys.toList()
-  }
-
-  /**
-   * Extracts define values from the defines map for variable assignments. These become command-line
-   * values like -symbolfile VALUE
-   */
-  private fun extractDefineValues(defines: Map<String, String>): Map<String, String> {
-    // For now, we pass the same map as values
-    // In the future, we might want to separate pure defines (no value)
-    // from variable assignments (with values)
-    return defines.filterValues { it.isNotEmpty() }
-  }
-
-  /**
-   * Creates multiple AssemblyCommands for a list of source files. This is useful when an
-   * AssemblyStep processes multiple input files.
-   */
-  fun toAssemblyCommands(
-      config: AssemblyConfig,
+  fun toDasmCommands(
+      config: DasmConfig,
       sourceFiles: List<File>,
       projectRootDir: File
-  ): List<AssemblyCommand> {
-    return sourceFiles.map { sourceFile -> toAssemblyCommand(config, sourceFile, projectRootDir) }
+  ): List<DasmCommand> {
+    return sourceFiles.map { sourceFile -> toDasmCommand(config, sourceFile, projectRootDir) }
   }
 
   /**
-   * Discovers source files based on AssemblyConfig file patterns. This method replicates the file
-   * discovery logic from the existing Assemble task.
+   * Discovers source files based on DasmConfig file patterns.
    *
-   * @param config The assembly configuration containing srcDirs, includes, and excludes
+   * @param config The dasm configuration containing srcDirs, includes, and excludes
    * @param projectRootDir The project root directory for resolving relative paths
    * @return List of discovered source files ready for compilation
    */
-  fun discoverSourceFiles(config: AssemblyConfig, projectRootDir: File): List<File> {
+  fun discoverSourceFiles(config: DasmConfig, projectRootDir: File): List<File> {
     return config.srcDirs
         .map { srcDir ->
           val srcDirectory =
@@ -295,14 +217,13 @@ class AssemblyConfigMapper {
 
   /**
    * Discovers additional input files based on glob patterns. This method is used to track indirect
-   * dependencies like included/imported files. It searches within the configured source
-   * directories, similar to discoverSourceFiles.
+   * dependencies like included/imported files.
    *
-   * @param config The assembly configuration containing additionalInputs patterns and srcDirs
+   * @param config The dasm configuration containing additionalInputs patterns and srcDirs
    * @param projectRootDir The project root directory for resolving relative paths
    * @return List of discovered additional input files for dependency tracking
    */
-  fun discoverAdditionalInputFiles(config: AssemblyConfig, projectRootDir: File): List<File> {
+  fun discoverAdditionalInputFiles(config: DasmConfig, projectRootDir: File): List<File> {
     if (config.additionalInputs.isEmpty()) {
       return emptyList()
     }

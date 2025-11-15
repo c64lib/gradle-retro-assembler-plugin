@@ -9,6 +9,7 @@ dependencies {
   implementation(project(":shared:gradle"))
   implementation(project(":shared:domain"))
   implementation(project(":compilers:kickass"))
+  implementation(project(":compilers:dasm"))
   implementation(project(":flows:adapters:out:charpad"))
   implementation(project(":flows:adapters:out:spritepad"))
   implementation(project(":flows:adapters:out:goattracker"))
