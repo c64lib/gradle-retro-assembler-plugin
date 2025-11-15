@@ -58,7 +58,7 @@ The tool supports 5 modes: `level`, `mem`, `sfx`, `raw`, `desfx`. We're implemen
 ### Raw Mode Options
 Command: `exomizer raw [options] <infile>`
 
-Common useful options:
+Complete option set (all supported):
 - `-o <outfile>` - Output filename (default: "a.out")
 - `-b` - Crunch/decrunch backwards instead of forward
 - `-r` - Write outfile in reverse order
@@ -83,17 +83,17 @@ Key differences from raw:
 - `-l <address>` - Add load address to outfile (default: "auto", "none" to skip)
 - `-f` - Crunch forward (opposite of default backward)
 - Supports multiple input files with optional addresses: `infile1[,address1] infile2[,address2]`
-- All other options same as raw mode
+- **All raw mode options are also supported in memory mode**
 
-### Initial Implementation Scope
+### Complete Implementation Scope
 
-For Phase 1, we'll support:
-- **Raw mode**: All exomizer raw mode options including `-o` (output), `-b`, `-r`, `-c`, `-C`, `-e`, `-E`, `-m`, `-M`, `-p`, `-T`, `-P`, `-N`, `-q`, `-B`
-- **Memory mode**: All raw mode options plus memory-specific options: `-l` (load address, default "auto"), `-f` (forward compression)
-- **Single input file**: Initial implementation supports single-file compression; multi-file support deferred to Phase 2
-- **Validation**: Safe option combinations only; decompression (`-d` flag) deferred to future phases
+Both **Raw and Memory modes** now support **all available Exomizer options**:
+- **All core options**: `-o`, `-b`, `-r`, `-d`, `-c`, `-C`, `-e`, `-E`, `-m`, `-M`, `-p`, `-T`, `-P`, `-N`, `-q`, `-B`
+- **Memory-specific options**: `-l` (load address, default "auto"), `-f` (forward compression)
+- **Single input file**: Implementation supports single-file compression; multi-file support deferred to Phase 2
+- **Validation**: Safe option combinations only; edge cases handled by exomizer binary itself
 
-We can add support for decompression and multi-file input in future phases.
+This provides users with complete access to all Exomizer capabilities within the Gradle plugin, enabling advanced compression scenarios and customization.
 
 ## Questions
 
@@ -137,9 +137,9 @@ We can add support for decompression and multi-file input in future phases.
    - **Decision**: Use "auto" as the default; "none" also supported as alternative.
    - **Rationale**: Provides sensible default for most users; flexibility for power users who need explicit control.
 
-4. **ANSWERED: Advanced compression options**: Should `-e`, `-E`, `-m`, `-M`, `-p`, `-T`, `-P` be exposed?
-   - **Decision**: Defer to Phase 2.
-   - **Rationale**: Simplifies Phase 1 implementation and testing while keeping door open for future enhancements.
+4. **ANSWERED: Advanced compression options**: Should `-e`, `-E`, `-m`, `-M`, `-p`, `-T`, `-P`, `-N`, `-d` be exposed?
+   - **Decision**: Support all advanced options in both raw and memory modes.
+   - **Rationale**: Provides complete feature parity with exomizer command-line, enabling advanced users to leverage full compression capabilities. All options are optional with sensible defaults.
 
 5. **ANSWERED: Step naming in DSL**: What should the Gradle DSL method be named?
    - **Decision**: Use `exomizerStep()`.
@@ -198,19 +198,16 @@ Status: **COMPLETED** (2025-11-15)
 
 2. **Step 2.2: Create domain data structures** ✓
    - Create option data classes: `RawOptions`, `MemOptions`
-     - `RawOptions`: All exomizer raw mode options as optional properties (with sensible defaults):
-       - `backwards: Boolean = false`, `reverse: Boolean = false`, `compatibility: Boolean = false`, `speedOverRatio: Boolean = false`
-       - `encoding: String? = null`, `skipEncoding: Boolean = false`
-       - `maxOffset: Int = 65535`, `maxLength: Int = 65535`, `passes: Int = 100`
-       - `bitStreamTraits: Int? = null`, `bitStreamFormat: Int? = null`
-       - `controlAddresses: String? = null`
-       - `quiet: Boolean = false`, `brief: Boolean = false`
+     - `RawOptions`: **All** exomizer raw mode options as optional properties (with sensible defaults):
+       - Boolean flags: `backwards: Boolean = false`, `reverse: Boolean = false`, `decrunch: Boolean = false`, `compatibility: Boolean = false`, `speedOverRatio: Boolean = false`, `skipEncoding: Boolean = false`, `quiet: Boolean = false`, `brief: Boolean = false`
+       - String options: `encoding: String? = null`, `controlAddresses: String? = null`
+       - Integer options: `maxOffset: Int = 65535`, `maxLength: Int = 65535`, `passes: Int = 100`, `bitStreamTraits: Int? = null`, `bitStreamFormat: Int? = null`
      - `MemOptions`: All RawOptions plus memory-specific:
        - `loadAddress: String = "auto"`, `forward: Boolean = false`
    - Create command/parameter data classes: `CrunchRawCommand`, `CrunchMemCommand`
    - Fields: source: File, output: File, options: RawOptions/MemOptions
    - Use immutable Kotlin data classes
-   - Deliverable: Command data classes ready for use cases with full exomizer option support
+   - Deliverable: Command data classes ready for use cases with **complete** exomizer option support
    - Testing: Verify data classes compile and support equality/hashing
    - Safe to merge: Yes (data structures)
 
@@ -246,7 +243,7 @@ Status: **COMPLETED** (2025-11-15)
    - Create `CrunchRaw.kt` in `adapters/in/gradle/src/main/kotlin/.../adapters/in/gradle/`
    - Extend Gradle `DefaultTask`
    - File Properties: `@get:InputFile val input: RegularFileProperty`, `@get:OutputFile val output: RegularFileProperty`
-   - All RawOptions as Gradle properties: backwards, reverse, compatibility, speedOverRatio, encoding, skipEncoding, maxOffset, maxLength, passes, bitStreamTraits, bitStreamFormat, controlAddresses, quiet, brief
+   - **All RawOptions** as Gradle properties: backwards, reverse, decrunch, compatibility, speedOverRatio, encoding, skipEncoding, maxOffset, maxLength, passes, bitStreamTraits, bitStreamFormat, controlAddresses, quiet, brief
    - Inject `CrunchRawUseCase` via constructor (or property injection)
    - Implement `@TaskAction fun crunch()` that:
      - Gets input/output files and resolves to absolute paths
@@ -255,7 +252,7 @@ Status: **COMPLETED** (2025-11-15)
      - Creates CrunchRawCommand
      - Calls useCase.apply(command)
      - Catches and reports errors
-   - Deliverable: Functional Gradle task for raw compression with full option support
+   - Deliverable: Functional Gradle task for raw compression with **complete** option support
    - Testing: Functional test using Gradle test fixtures, verify task executes with various option combinations
    - Safe to merge: Yes (task implementation)
 
@@ -264,30 +261,30 @@ Status: **COMPLETED** (2025-11-15)
    - Extend Gradle `DefaultTask`
    - File Properties: `@get:InputFile val input: RegularFileProperty`, `@get:OutputFile val output: RegularFileProperty`
    - Memory-specific options: `loadAddress: String = "auto"`, `forward: Boolean = false`
-   - All RawOptions as Gradle properties (same as CrunchRaw)
+   - **All RawOptions** as Gradle properties (same as CrunchRaw) - backwards, reverse, decrunch, compatibility, speedOverRatio, encoding, skipEncoding, maxOffset, maxLength, passes, bitStreamTraits, bitStreamFormat, controlAddresses, quiet, brief
    - Inject `CrunchMemUseCase` via constructor
    - Implement `@TaskAction fun crunch()` that:
      - Gets input/output files and resolves to absolute paths
-     - Creates MemOptions from all option properties
+     - Creates MemOptions from all option properties (all raw options + memory-specific)
      - Validates safe option combinations and loadAddress format
      - Creates CrunchMemCommand
      - Calls useCase.apply(command)
      - Catches and reports errors
-   - Deliverable: Functional Gradle task for memory compression with full option support
+   - Deliverable: Functional Gradle task for memory compression with **complete** option support
    - Testing: Functional test with various memory options, load address values, and option combinations
    - Safe to merge: Yes (task implementation)
 
 3. **Step 3.3: Implement ExecuteExomizerPort adapter** ✓
    - Create `GradleExomizerAdapter.kt` in `adapters/in/gradle/` (keep adapters simple)
    - Implement `ExecuteExomizerPort` interface with executeRaw() and executeMem() methods
-   - Build exomizer command-line arguments from options:
-     - Raw: `["exomizer", "raw", "-o", output.path, ...optionFlags..., input.path]`
-     - Mem: `["exomizer", "mem", "-o", output.path, "-l", loadAddress, ...optionFlags..., input.path]`
+   - Build exomizer command-line arguments from options (**all supported options**):
+     - Raw: `["exomizer", "raw", -o output.path, ...optionFlags for: backwards, reverse, decrunch, compatibility, speedOverRatio, encoding, skipEncoding, maxOffset, maxLength, passes, bitStreamTraits, bitStreamFormat, controlAddresses, quiet, brief..., input.path]`
+     - Mem: `["exomizer", "mem", -o output.path, -l loadAddress, ...optionFlags (all raw options + forward)..., input.path]`
    - Use ProcessBuilder to execute exomizer binary (direct execution, not Workers API for now)
    - Capture stdout/stderr and throw meaningful exceptions on non-zero exit codes
    - Map exit code to exception: exit 1 = execution error, exit 2 = configuration error
-   - Deliverable: Working port implementation that executes exomizer binary
-   - Testing: Integration test that executes actual exomizer binary with test files
+   - Deliverable: Working port implementation that executes exomizer binary with **complete option support**
+   - Testing: Integration test that executes actual exomizer binary with test files and multiple option combinations
    - Safe to merge: Yes (port implementation)
 
 ### Phase 4: Create Flows Integration - Step and DSL Support ✓
@@ -580,10 +577,42 @@ The pattern used by the project requires:
 
 ---
 
-## 11. Revision History
+## 11. Specification Update: Complete Option Support (2025-11-15)
+
+**Status**: APPROVED - Implementation needs to be updated
+
+**Changes Made**:
+1. Updated Exomizer Command Structure and Options section to reflect **complete option support**
+2. Both raw and memory modes now support **all available Exomizer options**
+3. Previously deferred options are now in scope:
+   - `-d` (decrunch instead of crunch)
+   - `-e` (encoding)
+   - `-E` (skip encoding)
+   - `-m` (max offset)
+   - `-M` (max length)
+   - `-p` (passes/optimization)
+   - `-T` (bit stream traits)
+   - `-P` (bit stream format)
+   - `-N` (control addresses)
+
+**Impact on Implementation**:
+- Domain data structures: RawOptions and MemOptions now include all options with their proper types and defaults
+- Gradle tasks: CrunchRaw and CrunchMem tasks expose all configuration properties
+- Port adapter: GradleExomizerAdapter must build command lines with all supported flags
+- Flows step: ExomizerStep configuration may need to expand to support these additional options
+
+**Action Required**:
+- Code implementation must be updated to support all options in both raw and memory modes
+- Tests should verify option combinations and command-line generation
+- Documentation should reflect complete feature set
+
+---
+
+## 12. Revision History
 
 | Date | Updated By | Changes |
 |------|------------|---------|
+| 2025-11-15 | AI Agent | **SPECIFICATION UPDATE**: Updated plan to support **all Exomizer options** in both raw and memory modes. Previously deferred advanced options (-e, -E, -m, -M, -p, -T, -P, -N, -d) are now included in scope. Both raw and memory modes support complete feature set. Implementation needs to be updated to match new specification. |
 | 2025-11-15 | AI Agent | Phase 5 COMPLETED: Added comprehensive unit tests for use cases, integration tests for Gradle tasks, flows integration tests for ExomizerStep and ExomizerStepBuilder, and created user documentation. Full build passes with 247 tasks. All phases (1-5) now marked as COMPLETED. |
 | 2025-11-15 | AI Agent | Marked Phases 1-4 as COMPLETED with ✓ checkmarks. Phase 1-4 implementation verified with successful build and tests. Documented critical fix for missing ExomizerTask adapter that was implemented during execution. Phase 5 marked as PENDING and ready for implementation. |
 
