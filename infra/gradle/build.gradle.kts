@@ -88,6 +88,9 @@ dependencies {
     compileOnly(project(":compilers:kickass:adapters:out:gradle"))
     compileOnly(project(":compilers:kickass:adapters:out:filedownload"))
 
+    compileOnly(project(":compilers:dasm"))
+    compileOnly(project(":compilers:dasm:adapters:out:gradle"))
+
     compileOnly(project(":flows:"))
     compileOnly(project(":flows:adapters:in:gradle"))
     compileOnly(project(":flows:adapters:out:gradle"))

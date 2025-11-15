@@ -26,6 +26,8 @@ package com.github.c64lib.gradle
 
 import com.github.c64lib.gradle.tasks.Build
 import com.github.c64lib.gradle.tasks.Preprocess
+import com.github.c64lib.rbt.compilers.dasm.adapters.out.gradle.DasmAssembleAdapter
+import com.github.c64lib.rbt.compilers.dasm.usecase.DasmAssembleUseCase
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.Assemble
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.AssembleSpec
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.Clean
@@ -198,8 +200,13 @@ class RetroAssemblerPlugin : Plugin<Project> {
       // Create KickAssembleUseCase for flow tasks that contain AssembleSteps
       val kickAssembleUseCase = KickAssembleUseCase(KickAssembleAdapter(project, settings))
 
+      // Create DasmAssembleUseCase for flow tasks that contain DasmSteps
+      val dasmAssembleUseCase = DasmAssembleUseCase(DasmAssembleAdapter(project))
+
       // Register generated flow tasks leveraging Gradle parallelization with dependency injection
-      FlowTasksGenerator(project, flowsExtension.getFlows(), kickAssembleUseCase).registerTasks()
+      FlowTasksGenerator(
+              project, flowsExtension.getFlows(), kickAssembleUseCase, dasmAssembleUseCase)
+          .registerTasks()
 
       if (project.defaultTasks.isEmpty()) {
         project.defaultTasks.add(TASK_BUILD)

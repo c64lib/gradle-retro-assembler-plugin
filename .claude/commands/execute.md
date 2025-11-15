@@ -4,7 +4,7 @@ You are an AI Agent tasked with implementing an action plan for this software pr
 
 ## Context
 
-This project uses action plans stored in the `.ai` folder to guide feature implementation and changes. Action plans are created with the `/plan` command and can be updated with `/plan-update`.
+This project uses action plans stored in the `.ai` folder to guide feature implementation and changes.
 
 Current branch: {{git_branch}}
 

@@ -24,6 +24,7 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
+import com.github.c64lib.rbt.compilers.dasm.usecase.DasmAssembleUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.*
 import com.github.c64lib.rbt.flows.domain.Flow
@@ -38,7 +39,8 @@ import org.gradle.api.file.FileCollection
 class FlowTasksGenerator(
     private val project: Project,
     private val flows: Collection<Flow>,
-    private val kickAssembleUseCase: KickAssembleUseCase? = null
+    private val kickAssembleUseCase: KickAssembleUseCase? = null,
+    private val dasmAssembleUseCase: DasmAssembleUseCase? = null
 ) {
   private val tasksByFlowName = mutableMapOf<String, Task>()
   private val stepTasks = mutableListOf<Task>()
@@ -128,6 +130,12 @@ class FlowTasksGenerator(
             configureOutputFiles(task, step)
           }
         }
+        is DasmStep -> {
+          taskContainer.create(taskName, DasmAssembleTask::class.java) { task ->
+            configureBaseTask(task, step, flow)
+            configureOutputFiles(task, step)
+          }
+        }
         is ImageStep -> {
           taskContainer.create(taskName, ImageTask::class.java) { task ->
             configureBaseTask(task, step, flow)
@@ -161,6 +169,18 @@ class FlowTasksGenerator(
       } else {
         throw IllegalStateException(
             "KickAssembleUseCase not provided to FlowTasksGenerator but required for AssembleStep '${step.name}'")
+      }
+    }
+
+    if (task is DasmAssembleTask && step is DasmStep) {
+      if (dasmAssembleUseCase != null) {
+        task.dasmAssembleUseCase = dasmAssembleUseCase
+
+        // Register additional input files during configuration phase
+        registerAdditionalInputFiles(task, step)
+      } else {
+        throw IllegalStateException(
+            "DasmAssembleUseCase not provided to FlowTasksGenerator but required for DasmStep '${step.name}'")
       }
     }
 
@@ -209,12 +229,23 @@ class FlowTasksGenerator(
     }
   }
 
+  private fun registerAdditionalInputFiles(task: DasmAssembleTask, step: DasmStep) {
+    val dasmConfigMapper = com.github.c64lib.rbt.flows.domain.config.DasmConfigMapper()
+    val additionalFiles =
+        dasmConfigMapper.discoverAdditionalInputFiles(step.config, project.projectDir)
+
+    if (additionalFiles.isNotEmpty()) {
+      task.additionalInputFiles.from(additionalFiles)
+    }
+  }
+
   private fun configureOutputFiles(task: Any, step: FlowStep) {
     // Configure output files for tasks that have the outputFiles property
     when (task) {
       is CharpadTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
       is SpritepadTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
       is AssembleTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
+      is DasmAssembleTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
       is GoattrackerTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
       is ImageTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
       is CommandTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
