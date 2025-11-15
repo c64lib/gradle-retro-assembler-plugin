@@ -32,6 +32,7 @@ package com.github.c64lib.rbt.crunchers.exomizer.domain
 data class RawOptions(
     val backwards: Boolean = false,
     val reverse: Boolean = false,
+    val decrunch: Boolean = false,
     val compatibility: Boolean = false,
     val speedOverRatio: Boolean = false,
     val encoding: String? = null,
@@ -61,6 +62,8 @@ data class MemOptions(
     get() = rawOptions.backwards
   val reverse: Boolean
     get() = rawOptions.reverse
+  val decrunch: Boolean
+    get() = rawOptions.decrunch
   val compatibility: Boolean
     get() = rawOptions.compatibility
   val speedOverRatio: Boolean

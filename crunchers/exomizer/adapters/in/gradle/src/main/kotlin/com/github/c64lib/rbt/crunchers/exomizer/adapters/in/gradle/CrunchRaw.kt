@@ -54,6 +54,8 @@ abstract class CrunchRaw @Inject constructor(private val port: ExecuteExomizerPo
 
   @get:Input @get:Optional abstract val reverse: Property<Boolean>
 
+  @get:Input @get:Optional abstract val decrunch: Property<Boolean>
+
   @get:Input @get:Optional abstract val compatibility: Property<Boolean>
 
   @get:Input @get:Optional abstract val speedOverRatio: Property<Boolean>
@@ -86,6 +88,7 @@ abstract class CrunchRaw @Inject constructor(private val port: ExecuteExomizerPo
         RawOptions(
             backwards = backwards.getOrElse(false),
             reverse = reverse.getOrElse(false),
+            decrunch = decrunch.getOrElse(false),
             compatibility = compatibility.getOrElse(false),
             speedOverRatio = speedOverRatio.getOrElse(false),
             encoding = encoding.orNull,

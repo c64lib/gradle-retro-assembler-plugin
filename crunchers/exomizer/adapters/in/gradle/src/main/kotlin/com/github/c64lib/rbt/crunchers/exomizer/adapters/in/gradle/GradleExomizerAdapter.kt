@@ -52,6 +52,7 @@ class GradleExomizerAdapter : ExecuteExomizerPort {
 
     if (options.backwards) args.add("-b")
     if (options.reverse) args.add("-r")
+    if (options.decrunch) args.add("-d")
     if (options.compatibility) args.add("-c")
     if (options.speedOverRatio) args.add("-C")
 
@@ -104,6 +105,7 @@ class GradleExomizerAdapter : ExecuteExomizerPort {
 
     if (options.backwards) args.add("-b")
     if (options.reverse) args.add("-r")
+    if (options.decrunch) args.add("-d")
     if (options.compatibility) args.add("-c")
     if (options.speedOverRatio) args.add("-C")
 
