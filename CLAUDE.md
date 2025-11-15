@@ -191,6 +191,38 @@ data class CharpadStep(
 }
 ```
 
+### DSL Builder Patterns - CommandStepBuilder
+
+The `CommandStepBuilder` provides convenient DSL shortcuts `useFrom()` and `useTo()` for referencing input/output paths in command parameters:
+
+```kotlin
+// Define paths once in from()/to(), then reference them in parameters
+commandStep("exomize-game", "exomizer") {
+    from("build/game-linked.bin")
+    to("build/game-linked.z.bin")
+    param("raw")
+    flag("-T4")
+    option("-o", useTo())        // Resolves to "build/game-linked.z.bin"
+    param(useFrom())             // Resolves to "build/game-linked.bin"
+}
+
+// With multiple inputs/outputs, use index parameter (default 0)
+commandStep("process", "tool") {
+    from("file1.txt", "file2.txt")
+    to("out1.txt", "out2.txt")
+    option("-i1", useFrom(0))    // Uses "file1.txt"
+    option("-i2", useFrom(1))    // Uses "file2.txt"
+    option("-o1", useTo(0))      // Uses "out1.txt"
+    option("-o2", useTo(1))      // Uses "out2.txt"
+}
+```
+
+**Benefits:**
+- Single source of truth for paths (DRY principle)
+- Clear intent with readable method names
+- Prevents copy-paste errors
+- Works seamlessly in `param()`, `option()`, and `withOption()` methods
+
 ## Technology Stack
 
 - **Language**: Kotlin
