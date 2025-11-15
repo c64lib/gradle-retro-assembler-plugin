@@ -384,6 +384,17 @@ This phase ensures comprehensive test coverage and user-facing documentation.
 
 - **Future extensions**: Phase 5 can be extended to support additional Exomizer options, compression profiles, or integration with other crunchers (if similar tools are added later).
 
+## Gradle Class Generation Issue - RESOLVED
+
+**Issue**: `BaseFlowStepTask` had an abstract method `executeStepLogic()` but Gradle cannot generate decorated classes for abstract types, causing `ClassGenerationException`.
+
+**Solution**: Changed `BaseFlowStepTask` from `abstract class` to `open class` and made `executeStepLogic()` a non-abstract `protected open fun` with a default implementation that throws `UnsupportedOperationException`. Subclasses override this method to provide their specific implementation.
+
+**File Modified**: `flows/adapters/in/gradle/src/main/kotlin/.../tasks/BaseFlowStepTask.kt`
+- Changed class declaration from `abstract class` to `open class`
+- Changed method from `protected abstract fun executeStepLogic()` to `protected open fun executeStepLogic()` with default throwing implementation
+- All existing subclasses (CharpadTask, SpritepadTask, AssembleTask, etc.) continue to work unchanged as they override the method
+
 ---
 
 **Next Steps**: Once you confirm this plan is acceptable, we can proceed with Phase 1 (module setup) and continue through all phases to full completion.
