@@ -47,4 +47,7 @@ include(":processors:image:adapters:in:gradle")
 include(":processors:image:adapters:out:png")
 include(":processors:image:adapters:out:file")
 
+include(":crunchers:exomizer")
+include(":crunchers:exomizer:adapters:in:gradle")
+
 include(":doc")

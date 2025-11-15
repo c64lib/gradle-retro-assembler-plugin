@@ -15,4 +15,6 @@ dependencies {
   implementation(project(":processors:goattracker"))
   implementation(project(":processors:goattracker:adapters:in:gradle"))
   implementation(project(":processors:goattracker:adapters:out:gradle"))
+  implementation(project(":crunchers:exomizer"))
+  implementation(project(":crunchers:exomizer:adapters:in:gradle"))
 }

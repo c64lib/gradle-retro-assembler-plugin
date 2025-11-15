@@ -120,6 +120,9 @@ dependencies {
     compileOnly(project(":processors:image:adapters:in:gradle"))
     compileOnly(project(":processors:image:adapters:out:png"))
     compileOnly(project(":processors:image:adapters:out:file"))
+
+    compileOnly(project(":crunchers:exomizer"))
+    compileOnly(project(":crunchers:exomizer:adapters:in:gradle"))
 }
 
 publishing { repositories { maven { url = uri("../../../consuming/maven-repo") } } }
