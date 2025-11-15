@@ -158,6 +158,98 @@ class CommandStepBuilder(private val name: String, private val command: String) 
   /** Gets current outputs (immutable view). */
   fun getCurrentOutputs(): List<String> = outputs.toList()
 
+  /**
+   * Returns the input path at the specified index (default: 0 for first input).
+   * Useful for referencing input paths defined via [from] in parameter values.
+   *
+   * @param index Zero-based index into the inputs list. Defaults to 0 (first input).
+   * @return The input path at the specified index.
+   * @throws IllegalStateException if no inputs have been defined via [from].
+   * @throws IndexOutOfBoundsException if the index exceeds the number of inputs.
+   *
+   * Example:
+   * ```kotlin
+   * commandStep("process", "tool") {
+   *     from("input.txt")
+   *     to("output.txt")
+   *     param(useFrom())              // Uses "input.txt"
+   *     option("-i", useFrom(0))      // Same as useFrom()
+   * }
+   * ```
+   *
+   * With multiple inputs:
+   * ```kotlin
+   * commandStep("process", "tool") {
+   *     from("file1.txt", "file2.txt", "file3.txt")
+   *     to("output.txt")
+   *     param(useFrom(0))             // Uses "file1.txt"
+   *     param(useFrom(1))             // Uses "file2.txt"
+   *     param(useFrom(2))             // Uses "file3.txt"
+   * }
+   * ```
+   */
+  fun useFrom(index: Int = 0): String {
+    if (inputs.isEmpty()) {
+      throw IllegalStateException(
+        "Cannot use useFrom() - no input paths have been defined. " +
+        "Call from() first to define input paths."
+      )
+    }
+    if (index < 0 || index >= inputs.size) {
+      throw IndexOutOfBoundsException(
+        "Cannot access input at index $index - only ${inputs.size} input(s) defined. " +
+        "Valid indices: 0..${inputs.size - 1}"
+      )
+    }
+    return inputs[index]
+  }
+
+  /**
+   * Returns the output path at the specified index (default: 0 for first output).
+   * Useful for referencing output paths defined via [to] in parameter values.
+   *
+   * @param index Zero-based index into the outputs list. Defaults to 0 (first output).
+   * @return The output path at the specified index.
+   * @throws IllegalStateException if no outputs have been defined via [to].
+   * @throws IndexOutOfBoundsException if the index exceeds the number of outputs.
+   *
+   * Example:
+   * ```kotlin
+   * commandStep("compress", "exomizer") {
+   *     from("input.bin")
+   *     to("output.z.bin")
+   *     param(useFrom())              // Uses "input.bin"
+   *     option("-o", useTo())         // Uses "output.z.bin"
+   * }
+   * ```
+   *
+   * With multiple outputs:
+   * ```kotlin
+   * commandStep("process", "tool") {
+   *     from("input.txt")
+   *     to("out1.txt", "out2.txt", "out3.txt")
+   *     option("-o1", useTo(0))       // Uses "out1.txt"
+   *     option("-o2", useTo(1))       // Uses "out2.txt"
+   *     option("-o3", useTo(2))       // Uses "out3.txt"
+   * }
+   * ```
+   */
+  fun useTo(index: Int = 0): String {
+    if (outputs.isEmpty()) {
+      throw IllegalStateException(
+        "Cannot use useTo() - no output paths have been defined. " +
+        "Call to() first to define output paths."
+      )
+    }
+    if (index < 0 || index >= outputs.size) {
+      throw IndexOutOfBoundsException(
+        "Cannot access output at index $index - only ${outputs.size} output(s) defined. " +
+        "Valid indices: 0..${outputs.size - 1}"
+      )
+    }
+    return outputs[index]
+  }
+
   internal fun build(): CommandStep {
     return CommandStep(name, command, inputs.toList(), outputs.toList(), parameters.toList())
   }
