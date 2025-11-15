@@ -134,6 +134,12 @@ class FlowTasksGenerator(
             configureOutputFiles(task, step)
           }
         }
+        is ExomizerStep -> {
+          taskContainer.create(taskName, ExomizerTask::class.java) { task ->
+            configureBaseTask(task, step, flow)
+            configureOutputFiles(task, step)
+          }
+        }
         else ->
             taskContainer.create(taskName, BaseFlowStepTask::class.java) { task ->
               configureBaseTask(task, step, flow)
@@ -212,6 +218,7 @@ class FlowTasksGenerator(
       is GoattrackerTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
       is ImageTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
       is CommandTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
+      is ExomizerTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
     }
   }
 

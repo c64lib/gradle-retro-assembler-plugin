@@ -16,6 +16,7 @@ include(":flows:adapters:out:charpad")
 include(":flows:adapters:out:spritepad")
 include(":flows:adapters:out:image")
 include(":flows:adapters:out:goattracker")
+include(":flows:adapters:out:exomizer")
 
 include(":compilers:kickass")
 include(":compilers:kickass:adapters:in:gradle")
