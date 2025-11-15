@@ -29,46 +29,46 @@ import kotlin.io.path.absolutePathString
 
 /**
  * Builder for constructing dasm command-line arguments. Follows fluent builder pattern for easy
- * parameter composition.
+ * parameter composition. Source file must be added first as dasm expects: dasm sourcefile [options]
  */
-internal class DasmCommandLineBuilder {
+internal class DasmCommandLineBuilder(source: Path) {
 
-  private val args: MutableList<String> = mutableListOf()
+  private val args: MutableList<String> = mutableListOf(source.absolutePathString())
 
   fun libDirs(libDirs: List<Path>): DasmCommandLineBuilder {
-    args.addAll(libDirs.flatMap { libDir -> listOf("-I", libDir.absolutePathString()) })
+    args.addAll(libDirs.map { libDir -> "-I${libDir.absolutePathString()}" })
     return this
   }
 
   fun defines(defines: Map<String, String>): DasmCommandLineBuilder {
-    defines.forEach { (key, value) -> args.addAll(listOf("-D", "$key=$value")) }
+    defines.forEach { (key, value) -> args.add("-D$key=$value") }
     return this
   }
 
   fun outputFormat(format: Int): DasmCommandLineBuilder {
     if (format in 1..3) {
-      args.addAll(listOf("-f$format"))
+      args.add("-f$format")
     }
     return this
   }
 
   fun outputFile(outputFile: Path?): DasmCommandLineBuilder {
     if (outputFile != null) {
-      args.addAll(listOf("-o", outputFile.absolutePathString()))
+      args.add("-o${outputFile.absolutePathString()}")
     }
     return this
   }
 
   fun listFile(listFile: Path?): DasmCommandLineBuilder {
     if (listFile != null) {
-      args.addAll(listOf("-l", listFile.absolutePathString()))
+      args.add("-l${listFile.absolutePathString()}")
     }
     return this
   }
 
   fun symbolFile(symbolFile: Path?): DasmCommandLineBuilder {
     if (symbolFile != null) {
-      args.addAll(listOf("-s", symbolFile.absolutePathString()))
+      args.add("-s${symbolFile.absolutePathString()}")
     }
     return this
   }
@@ -105,11 +105,6 @@ internal class DasmCommandLineBuilder {
     if (sort != null && sort in 0..1) {
       args.add("-T$sort")
     }
-    return this
-  }
-
-  fun source(source: Path): DasmCommandLineBuilder {
-    args.add(source.absolutePathString())
     return this
   }
 

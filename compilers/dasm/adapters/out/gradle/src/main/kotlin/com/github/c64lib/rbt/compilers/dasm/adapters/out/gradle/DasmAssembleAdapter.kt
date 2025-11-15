@@ -48,7 +48,7 @@ class DasmAssembleAdapter(private val project: Project) : DasmAssemblePort {
       symbolTableSort: Int?
   ) {
     val args =
-        DasmCommandLineBuilder()
+        DasmCommandLineBuilder(source.toPath())
             .libDirs(libDirs.map { it.toPath() })
             .defines(defines)
             .outputFormat(outputFormat)
@@ -60,7 +60,6 @@ class DasmAssembleAdapter(private val project: Project) : DasmAssemblePort {
             .strictSyntax(strictSyntax)
             .removeOnError(removeOnError)
             .symbolTableSort(symbolTableSort)
-            .source(source.toPath())
             .build()
 
     project.exec {
