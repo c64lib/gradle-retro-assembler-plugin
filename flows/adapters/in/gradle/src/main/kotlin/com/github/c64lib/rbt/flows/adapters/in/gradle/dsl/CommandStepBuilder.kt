@@ -159,8 +159,8 @@ class CommandStepBuilder(private val name: String, private val command: String) 
   fun getCurrentOutputs(): List<String> = outputs.toList()
 
   /**
-   * Returns the input path at the specified index (default: 0 for first input).
-   * Useful for referencing input paths defined via [from] in parameter values.
+   * Returns the input path at the specified index (default: 0 for first input). Useful for
+   * referencing input paths defined via [from] in parameter values.
    *
    * @param index Zero-based index into the inputs list. Defaults to 0 (first input).
    * @return The input path at the specified index.
@@ -191,22 +191,20 @@ class CommandStepBuilder(private val name: String, private val command: String) 
   fun useFrom(index: Int = 0): String {
     if (inputs.isEmpty()) {
       throw IllegalStateException(
-        "Cannot use useFrom() - no input paths have been defined. " +
-        "Call from() first to define input paths."
-      )
+          "Cannot use useFrom() - no input paths have been defined. " +
+              "Call from() first to define input paths.")
     }
     if (index < 0 || index >= inputs.size) {
       throw IndexOutOfBoundsException(
-        "Cannot access input at index $index - only ${inputs.size} input(s) defined. " +
-        "Valid indices: 0..${inputs.size - 1}"
-      )
+          "Cannot access input at index $index - only ${inputs.size} input(s) defined. " +
+              "Valid indices: 0..${inputs.size - 1}")
     }
     return inputs[index]
   }
 
   /**
-   * Returns the output path at the specified index (default: 0 for first output).
-   * Useful for referencing output paths defined via [to] in parameter values.
+   * Returns the output path at the specified index (default: 0 for first output). Useful for
+   * referencing output paths defined via [to] in parameter values.
    *
    * @param index Zero-based index into the outputs list. Defaults to 0 (first output).
    * @return The output path at the specified index.
@@ -237,15 +235,13 @@ class CommandStepBuilder(private val name: String, private val command: String) 
   fun useTo(index: Int = 0): String {
     if (outputs.isEmpty()) {
       throw IllegalStateException(
-        "Cannot use useTo() - no output paths have been defined. " +
-        "Call to() first to define output paths."
-      )
+          "Cannot use useTo() - no output paths have been defined. " +
+              "Call to() first to define output paths.")
     }
     if (index < 0 || index >= outputs.size) {
       throw IndexOutOfBoundsException(
-        "Cannot access output at index $index - only ${outputs.size} output(s) defined. " +
-        "Valid indices: 0..${outputs.size - 1}"
-      )
+          "Cannot access output at index $index - only ${outputs.size} output(s) defined. " +
+              "Valid indices: 0..${outputs.size - 1}")
     }
     return outputs[index]
   }

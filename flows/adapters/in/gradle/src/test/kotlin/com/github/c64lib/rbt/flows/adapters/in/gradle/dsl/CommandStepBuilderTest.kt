@@ -101,9 +101,7 @@ class CommandStepBuilderTest :
             val builder = CommandStepBuilder("test", "tool")
             builder.to("output.txt")
 
-            val exception = shouldThrow<IllegalStateException> {
-              builder.useFrom()
-            }
+            val exception = shouldThrow<IllegalStateException> { builder.useFrom() }
 
             exception.message shouldContainString "no input paths have been defined"
             exception.message shouldContainString "Call from() first"
@@ -115,9 +113,7 @@ class CommandStepBuilderTest :
             val builder = CommandStepBuilder("test", "tool")
             builder.from("input.txt")
 
-            val exception = shouldThrow<IllegalStateException> {
-              builder.useTo()
-            }
+            val exception = shouldThrow<IllegalStateException> { builder.useTo() }
 
             exception.message shouldContainString "no output paths have been defined"
             exception.message shouldContainString "Call to() first"
@@ -130,9 +126,7 @@ class CommandStepBuilderTest :
             builder.from("input.txt")
             builder.to("output.txt")
 
-            val exception = shouldThrow<IndexOutOfBoundsException> {
-              builder.useFrom(5)
-            }
+            val exception = shouldThrow<IndexOutOfBoundsException> { builder.useFrom(5) }
 
             exception.message shouldContainString "Cannot access input at index 5"
             exception.message shouldContainString "only 1 input"
@@ -146,9 +140,7 @@ class CommandStepBuilderTest :
             builder.from("input.txt")
             builder.to("output.txt")
 
-            val exception = shouldThrow<IndexOutOfBoundsException> {
-              builder.useTo(3)
-            }
+            val exception = shouldThrow<IndexOutOfBoundsException> { builder.useTo(3) }
 
             exception.message shouldContainString "Cannot access output at index 3"
             exception.message shouldContainString "only 1 output"
@@ -162,9 +154,7 @@ class CommandStepBuilderTest :
             builder.from("input.txt")
             builder.to("output.txt")
 
-            val exception = shouldThrow<IndexOutOfBoundsException> {
-              builder.useFrom(-1)
-            }
+            val exception = shouldThrow<IndexOutOfBoundsException> { builder.useFrom(-1) }
 
             exception.message shouldContainString "Cannot access input at index -1"
           }
@@ -176,9 +166,7 @@ class CommandStepBuilderTest :
             builder.from("input.txt")
             builder.to("output.txt")
 
-            val exception = shouldThrow<IndexOutOfBoundsException> {
-              builder.useTo(-1)
-            }
+            val exception = shouldThrow<IndexOutOfBoundsException> { builder.useTo(-1) }
 
             exception.message shouldContainString "Cannot access output at index -1"
           }
@@ -302,8 +290,7 @@ class CommandStepBuilderTest :
 
             val step = builder.build()
 
-            step.parameters shouldBe
-                listOf("-i1", "file1.txt", "-i2", "file2.txt")
+            step.parameters shouldBe listOf("-i1", "file1.txt", "-i2", "file2.txt")
           }
         }
 
@@ -317,8 +304,7 @@ class CommandStepBuilderTest :
 
             val step = builder.build()
 
-            step.parameters shouldBe
-                listOf("-o1", "out1.txt", "-o2", "out2.txt")
+            step.parameters shouldBe listOf("-o1", "out1.txt", "-o2", "out2.txt")
           }
         }
 
@@ -377,9 +363,7 @@ class CommandStepBuilderTest :
             builder.from("a.txt", "b.txt", "c.txt")
             builder.to("output.txt")
 
-            val exception = shouldThrow<IndexOutOfBoundsException> {
-              builder.useFrom(10)
-            }
+            val exception = shouldThrow<IndexOutOfBoundsException> { builder.useFrom(10) }
 
             exception.message shouldContainString "only 3 input"
             exception.message shouldContainString "Valid indices: 0..2"
