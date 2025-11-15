@@ -145,19 +145,17 @@ commandStep("exomize-game-linked", "exomizer") {
 **Q**: Where should `useFrom()` and `useTo()` be called - before or after `from()`/`to()`?
 - **A**: They should be called AFTER `from()`/`to()` have been defined, since they access the mutable lists. Calling them before will return empty paths. This is standard Kotlin builder pattern behavior. Consider adding validation/documentation.
 
-**Q**: What if `from()` or `to()` haven't been called yet?
-- **A**: `useFrom()` will return empty string if inputs list is empty, `useTo()` will return empty string if outputs list is empty. This is consistent with Kotlin's `List.first()` behavior with default values. We should document this.
-
 **Q**: Should these work with all parameter methods (`param()`, `option()`, `withOption()`)?
 - **A**: Yes, based on exploration, all these methods accept String parameters. The shortcuts are just Strings, so they work everywhere naturally.
 
 **Q**: Are there other builder methods in the codebase that use similar patterns?
 - **A**: Examined all other step builders (CharpadStepBuilder, SpritepadStepBuilder, etc.). None have similar shortcut features. This is new functionality specific to CommandStep (which makes sense - only CommandStep has from/to + parameters combination).
 
-### Unresolved Questions
+**Q**: Should there be an overload for `useFrom(index)` and `useTo(index)` to support non-first paths?
+- **A**: Yes, add index support. This will allow users to reference specific input/output paths when they have multiple. The overloads should be optional with default index = 0 for the first path, maintaining backward compatibility.
 
-- [ ] Should there be an overload for `useFrom(index)` and `useTo(index)` to support non-first paths? (Recommendation: No, keep it simple for now - can add in future if needed)
-- [ ] Should the shortcuts throw an exception if used before `from()`/`to()` are called, or silently return empty string? (Recommendation: Silently return empty string - consistent with list behavior, less invasive)
+**Q**: Should the shortcuts throw an exception if used before `from()`/`to()` are called, or silently return empty string?
+- **A**: Throw exception. Fail-fast approach will catch usage errors early and prevent hard-to-debug issues with empty paths being silently used in commands. This is clearer and more helpful to developers.
 
 ### Design Decisions
 
@@ -166,33 +164,46 @@ commandStep("exomize-game-linked", "exomizer") {
   - A) Return empty string if not set (silent fallback)
   - B) Throw exception if not set (fail-fast)
   - C) Return Optional<String> (explicit null safety)
-- **Recommendation**: Option A (silent fallback). Rationale: Consistent with existing Kotlin List behavior, matches DSL builder patterns, users control execution and will notice if path is empty in command output.
+- **Chosen**: Option B (fail-fast with exception)
+- **Rationale**: Fail-fast approach catches usage errors early and prevents hard-to-debug issues with empty paths being silently used in commands. This is clearer and more helpful to developers than silent fallback. Throws `IllegalStateException` with clear message if path not set.
 
-**Decision 2**: Method Naming
+**Decision 2**: Index Support for Multiple Paths
+- **Options**:
+  - A) Only return first path (simple API)
+  - B) Add optional index parameter `useFrom(index: Int)` (flexible API)
+  - C) Add separate methods for common indices (verbose)
+- **Chosen**: Option B (add index parameter with default)
+- **Rationale**: Provides flexibility for users with multiple inputs/outputs while maintaining backward compatibility via default parameter `index = 0`. Method signatures: `useFrom(index: Int = 0): String` and `useTo(index: Int = 0): String`. Throws `IndexOutOfBoundsException` if index exceeds available paths.
+
+**Decision 3**: Method Naming
 - **Options**:
   - A) `useFrom()` / `useTo()` (current proposal)
   - B) `inputPath()` / `outputPath()`
   - C) `getInputPath()` / `getOutputPath()`
   - D) `fromPath()` / `toPath()`
-- **Recommendation**: Option A (`useFrom()`/`useTo()`). Rationale: Mirrors the `from()`/`to()` method names, reads naturally ("use the from path", "use the to path"), consistent with DSL style.
+- **Chosen**: Option A (`useFrom()`/`useTo()`)
+- **Rationale**: Mirrors the `from()`/`to()` method names, reads naturally ("use the from path", "use the to path"), consistent with DSL style.
 
-**Decision 3**: Scope and Applicability
+**Decision 4**: Scope and Applicability
 - **Options**:
   - A) Only add to CommandStep/CommandStepBuilder (this issue)
   - B) Add same shortcuts to all processor steps (Charpad, Spritepad, etc.)
-- **Recommendation**: Option A (CommandStepBuilder only). Rationale: Only CommandStep combines from/to with parameters. Other processors don't have parameters in same way. Can extend in future if needed.
+- **Chosen**: Option A (CommandStepBuilder only)
+- **Rationale**: Only CommandStep combines from/to with parameters. Other processors don't have parameters in same way. Can extend in future if needed.
 
 ## 5. Implementation Plan
 
 ### Phase 1: Add DSL Shortcuts to CommandStepBuilder
-**Goal**: Implement `useFrom()` and `useTo()` methods in CommandStepBuilder
+**Goal**: Implement `useFrom(index)` and `useTo(index)` methods in CommandStepBuilder with optional index parameter
 
-1. **Step 1.1**: Add `useFrom()` and `useTo()` methods to CommandStepBuilder
+1. **Step 1.1**: Add `useFrom()` and `useTo()` methods to CommandStepBuilder with index support
    - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/dsl/CommandStepBuilder.kt`
    - Description:
-     - Add `fun useFrom(): String` that returns `inputs.firstOrNull() ?: ""`
-     - Add `fun useTo(): String` that returns `outputs.firstOrNull() ?: ""`
-     - Add KDoc with usage examples
+     - Add `fun useFrom(index: Int = 0): String` that returns `inputs[index]`
+     - Add `fun useTo(index: Int = 0): String` that returns `outputs[index]`
+     - Throw `IllegalStateException` with clear message if inputs/outputs list is empty
+     - Throw `IndexOutOfBoundsException` if index exceeds list bounds
+     - Add KDoc with usage examples showing both single and multi-path scenarios
    - Testing: Unit tests in Phase 2
 
 2. **Step 1.2**: Verify CommandStepBuilder compiles and existing tests pass
@@ -211,14 +222,19 @@ commandStep("exomize-game-linked", "exomizer") {
 1. **Step 2.1**: Create unit tests for `useFrom()` and `useTo()` functionality
    - Files: `flows/src/test/kotlin/com/github/c64lib/rbt/flows/domain/steps/CommandStepTest.kt` or similar test file
    - Description:
-     - Test `useFrom()` returns first input when called after `from()`
-     - Test `useTo()` returns first output when called after `to()`
-     - Test `useFrom()` returns empty string when not set
-     - Test `useTo()` returns empty string when not set
+     - Test `useFrom()` with default index returns first input
+     - Test `useTo()` with default index returns first output
+     - Test `useFrom(0)` and `useTo(0)` are equivalent to `useFrom()` and `useTo()`
+     - Test `useFrom(index)` with various valid indices on multiple inputs
+     - Test `useTo(index)` with various valid indices on multiple outputs
+     - Test `useFrom()` throws `IllegalStateException` when no inputs set
+     - Test `useTo()` throws `IllegalStateException` when no outputs set
+     - Test `useFrom(index)` throws `IndexOutOfBoundsException` for out-of-bounds index
+     - Test `useTo(index)` throws `IndexOutOfBoundsException` for out-of-bounds index
      - Test shortcuts work in `param()` method
      - Test shortcuts work in `option()` method
-     - Test shortcuts work with single input/output
-     - Test shortcuts work with multiple inputs/outputs (returns first)
+     - Test shortcuts with single input/output
+     - Test shortcuts with multiple inputs/outputs using different indices
    - Testing: `./gradlew :flows:test --tests "*CommandStep*"` to verify new tests pass
 
 2. **Step 2.2**: Verify all tests pass including integration tests
@@ -267,22 +283,31 @@ commandStep("exomize-game-linked", "exomizer") {
 1. **Basic Functionality**
    - `useFrom()` with single input returns first input path
    - `useTo()` with single output returns first output path
-   - `useFrom()` with multiple inputs returns first input
-   - `useTo()` with multiple outputs returns first output
+   - `useFrom(0)` and `useFrom()` return the same value
+   - `useTo(0)` and `useTo()` return the same value
+   - `useFrom(index)` with multiple inputs returns correct input at index
+   - `useTo(index)` with multiple outputs returns correct output at index
 
-2. **Edge Cases**
-   - `useFrom()` called before any `from()` returns empty string
-   - `useTo()` called before any `to()` returns empty string
+2. **Exception Handling**
+   - `useFrom()` throws `IllegalStateException` when inputs list is empty
+   - `useTo()` throws `IllegalStateException` when outputs list is empty
+   - `useFrom(5)` throws `IndexOutOfBoundsException` when index exceeds available inputs
+   - `useTo(3)` throws `IndexOutOfBoundsException` when index exceeds available outputs
+   - Exception messages clearly indicate the problem (missing paths or bad index)
+
+3. **Multiple Calls and Consistency**
    - Multiple calls to `useFrom()` return same value
    - Multiple calls to `useTo()` return same value
+   - Values consistent after additional `from()`/`to()` calls
 
-3. **Integration with Parameters**
+4. **Integration with Parameters**
    - `param(useFrom())` adds shortcut result to parameters
    - `param(useTo())` adds shortcut result to parameters
    - `option("-o", useTo())` creates correct option with resolved path
    - `withOption("-i", useFrom())` works correctly
+   - Works with index parameter: `option("-i", useFrom(1))` uses second input
 
-4. **DSL Fluency**
+5. **DSL Fluency**
    - Shortcuts return String and can be chained naturally
    - Works in any parameter context
 
@@ -323,18 +348,28 @@ Verify it generates same command as manual path specification.
 | Risk | Impact | Probability | Mitigation |
 |------|--------|-------------|------------|
 | Breaking changes to existing DSL | High | Low | New methods don't change existing API, only add new functionality |
-| Empty path silently used in command | Medium | Medium | Add clear KDoc warning. Users will notice in command output. Consider assertion in future if becomes problem |
+| Exceptions during DSL build | Low | Low | Fail-fast approach prevents silent errors. Clear exception messages guide developers. Exceptions thrown at build-time, not runtime. |
 | API confusion - `useFrom()` vs `from()` | Low | Low | Clear KDoc and examples. Method names are distinct and purpose is clear |
-| Not handling multiple inputs/outputs | Low | Medium | Document limitation clearly. Can extend in future with overloads if needed. |
-| Shortcuts called before paths set | Low | Low | Returns empty string (safe fallback). Documented behavior. |
-| Test coverage gaps | Medium | Low | Comprehensive test strategy covers all scenarios |
+| Index parameter misuse | Low | Low | Comprehensive test coverage. `IndexOutOfBoundsException` provides clear feedback. Document index behavior in KDoc with examples. |
+| Shortcuts called before paths set | Low | Very Low | `IllegalStateException` catches this immediately with clear message. No silent failures. |
+| Multiple input/output complexity | Low | Low | Index parameter provides needed flexibility. Default parameter maintains simplicity for single path case. |
+| Test coverage gaps | Medium | Low | Comprehensive test strategy covers all scenarios including exceptions and edge cases |
 
 ## 8. Documentation Updates
 
-- [ ] Add KDoc to `useFrom()` method in CommandStepBuilder with usage example
-- [ ] Add KDoc to `useTo()` method in CommandStepBuilder with usage example
-- [ ] Document edge case behavior (empty string when not set)
-- [ ] Optionally update CLAUDE.md with example in "Flows Subdomain Patterns" section
+- [ ] Add KDoc to `useFrom(index: Int = 0)` method in CommandStepBuilder
+  - Document parameter: index (zero-based index into inputs list)
+  - Document return: String containing the input path at specified index
+  - Document exceptions: `IllegalStateException` if inputs list is empty, `IndexOutOfBoundsException` if index invalid
+  - Include usage example with single input and multiple inputs
+- [ ] Add KDoc to `useTo(index: Int = 0)` method in CommandStepBuilder
+  - Document parameter: index (zero-based index into outputs list)
+  - Document return: String containing the output path at specified index
+  - Document exceptions: `IllegalStateException` if outputs list is empty, `IndexOutOfBoundsException` if index invalid
+  - Include usage example with single output and multiple outputs
+- [ ] Document exception behavior and when to expect `IllegalStateException` and `IndexOutOfBoundsException`
+- [ ] Document usage pattern: shortcuts must be called AFTER `from()`/`to()` are defined
+- [ ] Optionally update CLAUDE.md with example in "Flows Subdomain Patterns" section showing index usage
 - [ ] Optionally update README with example (if CommandStep examples exist there)
 
 ## 9. Rollout Plan
@@ -363,6 +398,12 @@ Verify it generates same command as manual path specification.
    - If problems arise, consider adding validation/exceptions
    - Gather user feedback for potential extensions (multiple inputs/outputs, etc.)
 
+## 10. Revision History
+
+| Date | Updated By | Changes |
+|------|------------|---------|
+| 2025-11-15 | AI Agent | Answered unresolved questions: Added index support to useFrom/useTo methods with default parameter; Changed empty path handling to throw exceptions (fail-fast). Updated Design Decisions section with Decision 2 for index support. Updated Implementation Plan Phase 1 to include index parameter and exception handling. Updated Phase 2 testing to cover index parameter, IllegalStateException, and IndexOutOfBoundsException scenarios. Updated Testing Strategy section with exception handling tests. Updated Risks and Mitigation table to reflect exception-based approach. Updated Documentation Updates section with detailed KDoc requirements for index parameter and exception documentation. |
+
 ---
 
-**Note**: This plan is ready for implementation. All phases are independent and can be merged separately, starting with Phase 1.
+**Note**: This plan is ready for implementation. All phases are independent and can be merged separately, starting with Phase 1. The feature now supports index-based access to multiple inputs/outputs with fail-fast exception handling.
