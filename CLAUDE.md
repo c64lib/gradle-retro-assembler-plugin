@@ -223,6 +223,41 @@ commandStep("process", "tool") {
 - Prevents copy-paste errors
 - Works seamlessly in `param()`, `option()`, and `withOption()` methods
 
+### Task Execution Order
+
+The flows subdomain integrates seamlessly with the build pipeline through automatic task dependencies:
+
+**Task Execution Chain:**
+```
+build → asm → flows → (all flow tasks in dependency order)
+         ↓
+         (all other dependencies: resolveDevDeps, downloadDeps, preprocess)
+```
+
+**Key Points:**
+- The `flows` aggregation task is automatically created by `FlowTasksGenerator` in `flows/adapters/in/gradle/FlowTasksGenerator.kt`
+- The `flows` task depends on all top-level flow tasks (e.g., `flowPreprocessing`, `flowCompilation`)
+- The `asm` task depends on the `flows` task, ensuring all flow-based preprocessing runs before assembly compilation
+- Users can run `./gradlew flows` to execute all flows independently, or `./gradlew asm` to run flows automatically before assembly
+- The dependency chain maintains correct execution order even with complex flow dependencies (flow-level `dependsOn` relationships)
+
+**Example Build Execution:**
+```bash
+# Run assembly task - automatically runs flows first
+./gradlew asm
+
+# Run all flows independently
+./gradlew flows
+
+# Clean build - automatically runs flows before assembly
+./gradlew clean build
+```
+
+**Flow Task Naming Convention:**
+- Flow-level aggregation tasks are named `flow{FlowNameCapitalized}` (e.g., `flowPreprocessing`, `flowCompilation`)
+- Top-level aggregation task is named `flows` (constant: `TASK_FLOWS` in `Tasks.kt`)
+- Step-level tasks are named `flow{FlowName}Step{StepName}` (e.g., `flowPreprocessingStepCharpadStep`)
+
 ## Technology Stack
 
 - **Language**: Kotlin

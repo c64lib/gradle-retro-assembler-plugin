@@ -48,3 +48,5 @@ const val TASK_GOATTRACKER = "goattracker"
 const val TASK_IMAGE = "image"
 
 const val TASK_PREPROCESS = "preprocess"
+
+const val TASK_FLOWS = "flows"

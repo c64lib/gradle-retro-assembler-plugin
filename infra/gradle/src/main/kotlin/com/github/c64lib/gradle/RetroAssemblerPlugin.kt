@@ -77,6 +77,7 @@ import com.github.c64lib.rbt.shared.gradle.TASK_BUILD
 import com.github.c64lib.rbt.shared.gradle.TASK_CHARPAD
 import com.github.c64lib.rbt.shared.gradle.TASK_CLEAN
 import com.github.c64lib.rbt.shared.gradle.TASK_DEPENDENCIES
+import com.github.c64lib.rbt.shared.gradle.TASK_FLOWS
 import com.github.c64lib.rbt.shared.gradle.TASK_GOATTRACKER
 import com.github.c64lib.rbt.shared.gradle.TASK_IMAGE
 import com.github.c64lib.rbt.shared.gradle.TASK_PREPROCESS
@@ -207,6 +208,12 @@ class RetroAssemblerPlugin : Plugin<Project> {
       FlowTasksGenerator(
               project, flowsExtension.getFlows(), kickAssembleUseCase, dasmAssembleUseCase)
           .registerTasks()
+
+      // Make the asm task depend on flows task to ensure flows run before assembly
+      val flowsTask = project.tasks.findByName(TASK_FLOWS)
+      if (flowsTask != null) {
+        assemble.dependsOn(flowsTask)
+      }
 
       if (project.defaultTasks.isEmpty()) {
         project.defaultTasks.add(TASK_BUILD)
