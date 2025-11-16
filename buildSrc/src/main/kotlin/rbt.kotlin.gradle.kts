@@ -1,6 +1,7 @@
 plugins {
   id("org.jetbrains.kotlin.jvm")
   id("com.diffplug.spotless")
+  id("jacoco")
 }
 
 java {
@@ -22,6 +23,10 @@ spotless {
   }
 }
 
+jacoco {
+  toolVersion = "0.8.11"
+}
+
 repositories {
   mavenCentral()
   jcenter {
@@ -39,4 +44,18 @@ dependencies {
   testImplementation("io.mockk:mockk:1.13.2")
 }
 
-tasks.withType<Test> { useJUnitPlatform() }
+tasks.withType<Test> {
+  useJUnitPlatform()
+  finalizedBy("jacocoTestReport")
+}
+
+if (tasks.findByName("jacocoTestReport") == null) {
+  tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn(tasks.test)
+    reports {
+      xml.required.set(true)
+      html.required.set(true)
+      csv.required.set(false)
+    }
+  }
+}
