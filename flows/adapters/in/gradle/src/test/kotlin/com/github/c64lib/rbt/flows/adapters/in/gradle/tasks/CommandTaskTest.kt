@@ -24,25 +24,16 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks
 
-import com.github.c64lib.rbt.flows.adapters.`in`.gradle.command.GradleCommandPortAdapter
 import com.github.c64lib.rbt.flows.domain.steps.CommandStep
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.mockk.Runs
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.verify
 import java.io.File
-import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFile
-import org.gradle.api.logging.Logger
-import org.gradle.api.provider.Property
 import org.gradle.testfixtures.ProjectBuilder
 
 /**
@@ -67,14 +58,11 @@ class CommandTaskTest :
         val task = project.tasks.register("testCommand", CommandTask::class.java).get()
 
         `when`("configuring basic task properties") {
-          then("should have task group set to 'flows'") {
-            task.group shouldBe "flows"
-          }
+          then("should have task group set to 'flows'") { task.group shouldBe "flows" }
         }
 
         `when`("configuring task description") {
-          then(
-              "should have description about command execution with incremental build support") {
+          then("should have description about command execution with incremental build support") {
             task.description shouldContain "Executes arbitrary command-line tools"
           }
         }
@@ -259,15 +247,16 @@ class CommandTaskTest :
 
         `when`("executing step logic with port adapter") {
           then("should inject adapter into the CommandStep") {
-            val step = mockk<CommandStep>(relaxed = true) {
-              every { name } returns "test-command"
-              every { command } returns "echo"
-              every { parameters } returns listOf("test")
-              every { inputs } returns emptyList()
-              every { outputs } returns emptyList()
-              every { setCommandPort(any()) } just Runs
-              every { execute(any()) } just Runs
-            }
+            val step =
+                mockk<CommandStep>(relaxed = true) {
+                  every { name } returns "test-command"
+                  every { command } returns "echo"
+                  every { parameters } returns listOf("test")
+                  every { inputs } returns emptyList()
+                  every { outputs } returns emptyList()
+                  every { setCommandPort(any()) } just Runs
+                  every { execute(any()) } just Runs
+                }
 
             // Verify that setCommandPort is called with the port adapter
             // This happens before step.execute() is called
@@ -282,12 +271,13 @@ class CommandTaskTest :
 
         `when`("step validation fails") {
           then("should throw IllegalStateException with validation errors") {
-            val invalidStep = mockk<CommandStep> {
-              every { name } returns "invalid"
-              every { command } returns "  "
-              every { inputs } returns listOf("input.txt")
-              every { outputs } returns listOf("output.txt")
-            }
+            val invalidStep =
+                mockk<CommandStep> {
+                  every { name } returns "invalid"
+                  every { command } returns "  "
+                  every { inputs } returns listOf("input.txt")
+                  every { outputs } returns listOf("output.txt")
+                }
 
             // When executeStepLogic is called with invalid step configuration
             // it should throw IllegalStateException with joined validation errors
@@ -297,13 +287,14 @@ class CommandTaskTest :
 
         `when`("step is not CommandStep type") {
           then("should throw IllegalStateException") {
-            val wrongType = mockk<CommandStep> {
-              every { name } returns "wrong-type"
-              every { command } returns "echo"
-              every { parameters } returns emptyList()
-              every { inputs } returns emptyList()
-              every { outputs } returns emptyList()
-            }
+            val wrongType =
+                mockk<CommandStep> {
+                  every { name } returns "wrong-type"
+                  every { command } returns "echo"
+                  every { parameters } returns emptyList()
+                  every { inputs } returns emptyList()
+                  every { outputs } returns emptyList()
+                }
 
             // When executeStepLogic receives wrong step type
             // it should throw IllegalStateException
@@ -313,15 +304,16 @@ class CommandTaskTest :
 
         `when`("step execution throws exception") {
           then("should propagate the exception with error logging") {
-            val failingStep = mockk<CommandStep> {
-              every { name } returns "failing-step"
-              every { command } returns "nonexistent-command"
-              every { parameters } returns emptyList()
-              every { inputs } returns emptyList()
-              every { outputs } returns emptyList()
-              every { setCommandPort(any()) } just Runs
-              every { execute(any()) } throws RuntimeException("Command failed")
-            }
+            val failingStep =
+                mockk<CommandStep> {
+                  every { name } returns "failing-step"
+                  every { command } returns "nonexistent-command"
+                  every { parameters } returns emptyList()
+                  every { inputs } returns emptyList()
+                  every { outputs } returns emptyList()
+                  every { setCommandPort(any()) } just Runs
+                  every { execute(any()) } throws RuntimeException("Command failed")
+                }
 
             // When step execution throws an exception
             // it should be propagated after logging

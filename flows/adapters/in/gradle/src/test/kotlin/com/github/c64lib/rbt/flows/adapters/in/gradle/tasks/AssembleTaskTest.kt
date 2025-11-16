@@ -58,9 +58,7 @@ class AssembleTaskTest :
         val task = project.tasks.register("testAssemble", AssembleTask::class.java).get()
 
         `when`("configuring basic task properties") {
-          then("should have task group set to 'flows'") {
-            task.group shouldBe "flows"
-          }
+          then("should have task group set to 'flows'") { task.group shouldBe "flows" }
         }
 
         `when`("configuring task description") {
@@ -177,15 +175,16 @@ class AssembleTaskTest :
           then("should create KickAssemblerPortAdapter with use case") {
             task.kickAssembleUseCase = mockUseCase
 
-            val step = mockk<AssembleStep>(relaxed = true) {
-              every { name } returns "test-asm"
-              every { config } returns mockk()
-              every { inputs } returns listOf("main.asm")
-              every { outputs } returns listOf("main.prg")
-              every { validate() } returns emptyList()
-              every { setAssemblyPort(any()) } just Runs
-              every { execute(any()) } just Runs
-            }
+            val step =
+                mockk<AssembleStep>(relaxed = true) {
+                  every { name } returns "test-asm"
+                  every { config } returns mockk()
+                  every { inputs } returns listOf("main.asm")
+                  every { outputs } returns listOf("main.prg")
+                  every { validate() } returns emptyList()
+                  every { setAssemblyPort(any()) } just Runs
+                  every { execute(any()) } just Runs
+                }
 
             // Verify port adapter is created and injected
             // The adapter wraps the use case for step execution
@@ -247,12 +246,13 @@ class AssembleTaskTest :
           then("should throw IllegalStateException with errors") {
             task.kickAssembleUseCase = mockUseCase
 
-            val invalidStep = mockk<AssembleStep> {
-              every { name } returns "invalid"
-              every { inputs } returns listOf("invalid.asm")
-              every { outputs } returns listOf("invalid.prg")
-              every { validate() } returns listOf("Assembly error")
-            }
+            val invalidStep =
+                mockk<AssembleStep> {
+                  every { name } returns "invalid"
+                  every { inputs } returns listOf("invalid.asm")
+                  every { outputs } returns listOf("invalid.prg")
+                  every { validate() } returns listOf("Assembly error")
+                }
 
             // When executeStepLogic is called with invalid step
             // should throw with joined validation errors
@@ -264,11 +264,12 @@ class AssembleTaskTest :
           then("should throw IllegalStateException") {
             task.kickAssembleUseCase = mockUseCase
 
-            val wrongType = mockk<AssembleStep> {
-              every { name } returns "wrong"
-              every { inputs } returns listOf("input.asm")
-              every { outputs } returns listOf("output.prg")
-            }
+            val wrongType =
+                mockk<AssembleStep> {
+                  every { name } returns "wrong"
+                  every { inputs } returns listOf("input.asm")
+                  every { outputs } returns listOf("output.prg")
+                }
 
             // When executeStepLogic receives wrong type
             // should throw IllegalStateException immediately
@@ -280,12 +281,13 @@ class AssembleTaskTest :
           then("should propagate error with logging") {
             task.kickAssembleUseCase = mockUseCase
 
-            val failingStep = mockk<AssembleStep>(relaxed = true) {
-              every { name } returns "failing"
-              every { validate() } returns emptyList()
-              every { setAssemblyPort(any()) } just Runs
-              every { execute(any()) } throws RuntimeException("Compilation failed")
-            }
+            val failingStep =
+                mockk<AssembleStep>(relaxed = true) {
+                  every { name } returns "failing"
+                  every { validate() } returns emptyList()
+                  every { setAssemblyPort(any()) } just Runs
+                  every { execute(any()) } throws RuntimeException("Compilation failed")
+                }
 
             // When step.execute throws exception
             // should be propagated after error logging

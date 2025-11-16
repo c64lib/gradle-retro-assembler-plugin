@@ -69,9 +69,7 @@ class ProcessorTasksTest :
         val task = project.tasks.register("testCharpad", CharpadTask::class.java).get()
 
         `when`("configuring basic task properties") {
-          then("should have task group set to 'flows'") {
-            task.group shouldBe "flows"
-          }
+          then("should have task group set to 'flows'") { task.group shouldBe "flows" }
         }
 
         `when`("configuring task description") {
@@ -115,15 +113,16 @@ class ProcessorTasksTest :
 
         `when`("executing CharPad processing step") {
           then("should create CharpadAdapter and inject into step") {
-            val step = mockk<CharpadStep>(relaxed = true) {
-              every { name } returns "ctm-process"
-              every { config } returns mockk()
-              every { inputs } returns listOf("data.ctm")
-              every { outputs } returns listOf("data.chr", "data.map")
-              every { validate() } returns emptyList()
-              every { setCharpadPort(any()) } just Runs
-              every { execute(any()) } just Runs
-            }
+            val step =
+                mockk<CharpadStep>(relaxed = true) {
+                  every { name } returns "ctm-process"
+                  every { config } returns mockk()
+                  every { inputs } returns listOf("data.ctm")
+                  every { outputs } returns listOf("data.chr", "data.map")
+                  every { validate() } returns emptyList()
+                  every { setCharpadPort(any()) } just Runs
+                  every { execute(any()) } just Runs
+                }
 
             // Verify CharpadAdapter is created and injected
             // CharpadAdapter is instantiated from lazy adapter creation
@@ -148,12 +147,13 @@ class ProcessorTasksTest :
 
         `when`("CharPad processing fails") {
           then("should log error and propagate exception") {
-            val failingStep = mockk<CharpadStep>(relaxed = true) {
-              every { name } returns "failing"
-              every { validate() } returns emptyList()
-              every { setCharpadPort(any()) } just Runs
-              every { execute(any()) } throws RuntimeException("Processing failed")
-            }
+            val failingStep =
+                mockk<CharpadStep>(relaxed = true) {
+                  every { name } returns "failing"
+                  every { validate() } returns emptyList()
+                  every { setCharpadPort(any()) } just Runs
+                  every { execute(any()) } throws RuntimeException("Processing failed")
+                }
 
             // Error should be logged: "Charpad processing failed for step '{name}': {message}"
             true shouldBe true
@@ -168,9 +168,7 @@ class ProcessorTasksTest :
         val task = project.tasks.register("testSpritepad", SpritepadTask::class.java).get()
 
         `when`("configuring basic task properties") {
-          then("should have task group set to 'flows'") {
-            task.group shouldBe "flows"
-          }
+          then("should have task group set to 'flows'") { task.group shouldBe "flows" }
         }
 
         `when`("configuring task description") {
@@ -214,15 +212,16 @@ class ProcessorTasksTest :
 
         `when`("executing SpritePad processing step") {
           then("should create SpritepadAdapter and inject into step") {
-            val step = mockk<SpritepadStep>(relaxed = true) {
-              every { name } returns "spd-process"
-              every { config } returns mockk()
-              every { inputs } returns listOf("sprites.spd")
-              every { outputs } returns listOf("sprites.dat")
-              every { validate() } returns emptyList()
-              every { setSpritepadPort(any()) } just Runs
-              every { execute(any()) } just Runs
-            }
+            val step =
+                mockk<SpritepadStep>(relaxed = true) {
+                  every { name } returns "spd-process"
+                  every { config } returns mockk()
+                  every { inputs } returns listOf("sprites.spd")
+                  every { outputs } returns listOf("sprites.dat")
+                  every { validate() } returns emptyList()
+                  every { setSpritepadPort(any()) } just Runs
+                  every { execute(any()) } just Runs
+                }
 
             // SpritepadAdapter is created and injected
             true shouldBe true
@@ -237,9 +236,7 @@ class ProcessorTasksTest :
         val task = project.tasks.register("testGoattracker", GoattrackerTask::class.java).get()
 
         `when`("configuring basic task properties") {
-          then("should have task group set to 'flows'") {
-            task.group shouldBe "flows"
-          }
+          then("should have task group set to 'flows'") { task.group shouldBe "flows" }
         }
 
         `when`("configuring task description") {
@@ -283,15 +280,16 @@ class ProcessorTasksTest :
 
         `when`("executing GoatTracker processing step") {
           then("should create GoattrackerAdapter with ExecuteGt2RelocAdapter") {
-            val step = mockk<GoattrackerStep>(relaxed = true) {
-              every { name } returns "sng-process"
-              every { config } returns mockk()
-              every { inputs } returns listOf("music.sng")
-              every { outputs } returns listOf("music.mus")
-              every { validate() } returns emptyList()
-              every { setGoattrackerPort(any()) } just Runs
-              every { execute(any()) } just Runs
-            }
+            val step =
+                mockk<GoattrackerStep>(relaxed = true) {
+                  every { name } returns "sng-process"
+                  every { config } returns mockk()
+                  every { inputs } returns listOf("music.sng")
+                  every { outputs } returns listOf("music.mus")
+                  every { validate() } returns emptyList()
+                  every { setGoattrackerPort(any()) } just Runs
+                  every { execute(any()) } just Runs
+                }
 
             // GoattrackerAdapter is created with ExecuteGt2RelocAdapter(project)
             // This allows the task to execute gt2reloc tool for music conversion
@@ -307,14 +305,13 @@ class ProcessorTasksTest :
         val task = project.tasks.register("testImage", ImageTask::class.java).get()
 
         `when`("configuring basic task properties") {
-          then("should have task group set to 'flows'") {
-            task.group shouldBe "flows"
-          }
+          then("should have task group set to 'flows'") { task.group shouldBe "flows" }
         }
 
         `when`("configuring task description") {
           then("should describe image file processing") {
-            task.description shouldContain "Processes image files to generate C64-compatible formats"
+            task.description shouldContain
+                "Processes image files to generate C64-compatible formats"
           }
         }
 
@@ -353,15 +350,16 @@ class ProcessorTasksTest :
 
         `when`("executing image processing step") {
           then("should dynamically load ImageAdapter via reflection") {
-            val step = mockk<ImageStep>(relaxed = true) {
-              every { name } returns "img-process"
-              every { config } returns mockk()
-              every { inputs } returns listOf("image.png")
-              every { outputs } returns listOf("image.scr")
-              every { validate() } returns emptyList()
-              every { setImagePort(any()) } just Runs
-              every { execute(any()) } just Runs
-            }
+            val step =
+                mockk<ImageStep>(relaxed = true) {
+                  every { name } returns "img-process"
+                  every { config } returns mockk()
+                  every { inputs } returns listOf("image.png")
+                  every { outputs } returns listOf("image.scr")
+                  every { validate() } returns emptyList()
+                  every { setImagePort(any()) } just Runs
+                  every { execute(any()) } just Runs
+                }
 
             // ImageAdapter is loaded via Class.forName to avoid circular dependencies
             // between flows/adapters/in/gradle and flows/adapters/out/image
@@ -377,9 +375,7 @@ class ProcessorTasksTest :
         val task = project.tasks.register("testExomizer", ExomizerTask::class.java).get()
 
         `when`("configuring basic task properties") {
-          then("should have task group set to 'flows'") {
-            task.group shouldBe "flows"
-          }
+          then("should have task group set to 'flows'") { task.group shouldBe "flows" }
         }
 
         `when`("configuring task description") {
@@ -423,15 +419,16 @@ class ProcessorTasksTest :
 
         `when`("executing exomizer compression step") {
           then("should create ExomizerAdapter and inject into step") {
-            val step = mockk<ExomizerStep>(relaxed = true) {
-              every { name } returns "exo-compress"
-              every { getConfiguration() } returns mockk()
-              every { inputs } returns listOf("data.bin")
-              every { outputs } returns listOf("data.z.bin")
-              every { validate() } returns emptyList()
-              every { setExomizerPort(any()) } just Runs
-              every { execute(any()) } just Runs
-            }
+            val step =
+                mockk<ExomizerStep>(relaxed = true) {
+                  every { name } returns "exo-compress"
+                  every { getConfiguration() } returns mockk()
+                  every { inputs } returns listOf("data.bin")
+                  every { outputs } returns listOf("data.z.bin")
+                  every { validate() } returns emptyList()
+                  every { setExomizerPort(any()) } just Runs
+                  every { execute(any()) } just Runs
+                }
 
             // ExomizerAdapter is created and injected
             true shouldBe true

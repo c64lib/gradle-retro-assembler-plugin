@@ -59,9 +59,7 @@ class DasmAssembleTaskTest :
         val task = project.tasks.register("testDasm", DasmAssembleTask::class.java).get()
 
         `when`("configuring basic task properties") {
-          then("should have task group set to 'flows'") {
-            task.group shouldBe "flows"
-          }
+          then("should have task group set to 'flows'") { task.group shouldBe "flows" }
         }
 
         `when`("configuring task description") {
@@ -154,15 +152,16 @@ class DasmAssembleTaskTest :
           then("should create DasmPortAdapter with use case and command adapter") {
             task.dasmAssembleUseCase = mockUseCase
 
-            val step = mockk<DasmStep>(relaxed = true) {
-              every { name } returns "test-dasm"
-              every { config } returns mockk()
-              every { inputs } returns listOf("main.asm")
-              every { outputs } returns listOf("main.o")
-              every { validate() } returns emptyList()
-              every { setDasmPort(any()) } just Runs
-              every { execute(any()) } just Runs
-            }
+            val step =
+                mockk<DasmStep>(relaxed = true) {
+                  every { name } returns "test-dasm"
+                  every { config } returns mockk()
+                  every { inputs } returns listOf("main.asm")
+                  every { outputs } returns listOf("main.o")
+                  every { validate() } returns emptyList()
+                  every { setDasmPort(any()) } just Runs
+                  every { execute(any()) } just Runs
+                }
 
             // Verify DasmPortAdapter is created with both use case and command adapter
             // DasmPortAdapter(dasmAssembleUseCase, DasmCommandAdapter())
@@ -246,12 +245,13 @@ class DasmAssembleTaskTest :
           then("should throw IllegalStateException with errors") {
             task.dasmAssembleUseCase = mockUseCase
 
-            val invalidStep = mockk<DasmStep> {
-              every { name } returns "invalid"
-              every { inputs } returns listOf("invalid.asm")
-              every { outputs } returns listOf("invalid.o")
-              every { validate() } returns listOf("Dasm error")
-            }
+            val invalidStep =
+                mockk<DasmStep> {
+                  every { name } returns "invalid"
+                  every { inputs } returns listOf("invalid.asm")
+                  every { outputs } returns listOf("invalid.o")
+                  every { validate() } returns listOf("Dasm error")
+                }
 
             // When executeStepLogic is called with invalid step
             // should throw with joined validation errors
@@ -263,11 +263,12 @@ class DasmAssembleTaskTest :
           then("should throw IllegalStateException") {
             task.dasmAssembleUseCase = mockUseCase
 
-            val wrongType = mockk<DasmStep> {
-              every { name } returns "wrong"
-              every { inputs } returns listOf("input.asm")
-              every { outputs } returns listOf("output.o")
-            }
+            val wrongType =
+                mockk<DasmStep> {
+                  every { name } returns "wrong"
+                  every { inputs } returns listOf("input.asm")
+                  every { outputs } returns listOf("output.o")
+                }
 
             // When executeStepLogic receives wrong type
             // should throw IllegalStateException
@@ -279,12 +280,13 @@ class DasmAssembleTaskTest :
           then("should propagate error with logging") {
             task.dasmAssembleUseCase = mockUseCase
 
-            val failingStep = mockk<DasmStep>(relaxed = true) {
-              every { name } returns "failing"
-              every { validate() } returns emptyList()
-              every { setDasmPort(any()) } just Runs
-              every { execute(any()) } throws RuntimeException("Compilation failed")
-            }
+            val failingStep =
+                mockk<DasmStep>(relaxed = true) {
+                  every { name } returns "failing"
+                  every { validate() } returns emptyList()
+                  every { setDasmPort(any()) } just Runs
+                  every { execute(any()) } throws RuntimeException("Compilation failed")
+                }
 
             // When step.execute throws exception
             // should be propagated after error logging
