@@ -1,8 +1,9 @@
 # Feature: Quality Metrics Integration
 
 **Issue**: #137
-**Status**: Planning
+**Status**: Ready for Implementation (all decisions finalized)
 **Created**: 2025-11-16
+**Last Updated**: 2025-11-16
 
 ## 1. Feature Description
 
@@ -155,46 +156,55 @@ Based on codebase analysis:
 
 ### Unresolved Questions
 
-These require clarification from you:
+None - all questions have been answered.
 
-- [ ] **Coverage Threshold**: What minimum code coverage percentage is acceptable? (e.g., 70%, 80%)
-- [ ] **Detekt Strictness**: Should Detekt violations fail the build immediately, or just be warnings initially?
-- [ ] **External Services**: Do you want to integrate with Codecov, SonarCloud, or keep metrics internal to CircleCI?
-- [ ] **Coverage Targets**: Should all modules have the same coverage threshold, or can infrastructure modules have lower thresholds?
-- [ ] **PR Integration**: Should coverage reports be automatically posted to GitHub PRs for visibility?
-- [ ] **Historical Tracking**: Do you want to track metrics over time in a dashboard (requires external service)?
+### Answered Questions
+
+- [x] **Coverage Threshold**: What minimum code coverage percentage is acceptable?
+  - **A**: 70% minimum for overall coverage, with differentiated thresholds by module type (see Coverage Targets below)
+
+- [x] **Detekt Strictness**: Should Detekt violations fail the build immediately, or just be warnings initially?
+  - **A**: Warnings only (recommended approach). Run in warning mode in Phase 1, gradually increase strictness over time in Phase 3.
+
+- [x] **External Services**: Do you want to integrate with Codecov, SonarCloud, or keep metrics internal to CircleCI?
+  - **A**: Keep metrics internal to CircleCI only for Phase 1. No external service integration at this time.
+
+- [x] **Coverage Targets**: Should all modules have the same coverage threshold, or can infrastructure modules have lower thresholds?
+  - **A**: Different by module type. Domain modules should aim for 70%+, infrastructure/test utility modules can have 50%+.
+
+- [x] **PR Integration**: Should coverage reports be automatically posted to GitHub PRs for visibility?
+  - **A**: No PR integration. Users will view coverage metrics through CircleCI artifacts only.
+
+- [x] **Historical Tracking**: Do you want to track metrics over time in a dashboard (requires external service)?
+  - **A**: Not required at this time. CircleCI artifacts provide sufficient tracking for Phase 1-2.
 
 ### Design Decisions
 
-These are key technical choices that need to be made:
+**All design decisions have been finalized based on user answers:**
 
 - **Decision**: How to report coverage across 53 modules?
-  - **Options**:
-    - A) Aggregate all modules into single report (Kover aggregation)
-    - B) Publish per-module reports (more detailed but complex)
-    - C) Focus only on core domain modules, exclude infra
-  - **Recommendation**: Option A (aggregated report) - simpler to implement and understand, standard approach for multi-module projects
+  - **Chosen**: Option A (Aggregate all modules into single report via Kover aggregation)
+  - **Rationale**: Simpler to implement and understand, standard approach for multi-module projects. Domain and infrastructure modules will be combined with different threshold enforcement.
 
 - **Decision**: Which tool for code coverage (JaCoCo vs Kover)?
-  - **Options**:
-    - A) Kover alone (Kotlin-specific, cleaner for Kotlin projects)
-    - B) JaCoCo alone (industry standard, CircleCI has built-in support)
-    - C) Both (maximum compatibility but redundant)
-  - **Recommendation**: Both tools in phases - implement JaCoCo Phase 1 for CircleCI compatibility, add Kover Phase 2 for Kotlin-specific insights
+  - **Chosen**: Both tools in phases - Phase 1: JaCoCo for CircleCI compatibility, Phase 2: Add Kover for Kotlin-specific insights
+  - **Rationale**: JaCoCo is industry standard with built-in CircleCI support. Kover adds Kotlin-specific value without conflicts.
 
 - **Decision**: Code analysis tool and enforcement level?
-  - **Options**:
-    - A) Detekt only (focused on Kotlin)
-    - B) Detekt + SonarQube (comprehensive but heavier)
-    - C) Spotless + Detekt (lightweight, already using Spotless)
-  - **Recommendation**: Detekt only, in warning mode initially - aligns with project scope and avoids additional infrastructure
+  - **Chosen**: Detekt only, in warning mode (as per user answer: "Warnings only")
+  - **Rationale**: Aligns with project scope, avoids additional infrastructure. Phase 1 runs in warning mode, Phase 3 can gradually increase strictness.
 
 - **Decision**: CircleCI integration approach?
-  - **Options**:
-    - A) Store reports as artifacts only (manual viewing)
-    - B) Integrate with Codecov.io (automatic PR comments, trend tracking)
-    - C) Both (maximum visibility)
-  - **Recommendation**: Option A for Phase 1 (quick win), Option B optional Phase 3 (external integration)
+  - **Chosen**: Option A - Store reports as artifacts only (CircleCI only, no external services per user answer)
+  - **Rationale**: Provides immediate value with minimal complexity. User chose no Codecov/external service integration at this time.
+
+- **Decision**: Coverage threshold enforcement?
+  - **Chosen**: Different thresholds by module type (per user answer)
+  - **Rationale**: Domain modules 70%+, infrastructure/test utilities 50%+. Balances quality with practical implementation needs.
+
+- **Decision**: PR integration for coverage metrics?
+  - **Chosen**: No PR integration (per user answer)
+  - **Rationale**: Users will view metrics in CircleCI artifacts. Keeps implementation simple and doesn't require external services.
 
 ## 5. Implementation Plan
 
@@ -339,23 +349,15 @@ These are key technical choices that need to be made:
   - Intentionally reduce test coverage, verify failure
   - Add tests to increase coverage above threshold, verify success
 
-#### Step 3.2: Optional - Codecov Integration (Phase 3 Optional Task)
+#### Step 3.2: (Optional for Future) - External Service Integration
 
-- **Files**:
-  - `.circleci/config.yml` - Add codecov orb step (if desired)
-  - README/documentation - Document Codecov setup
-
-- **Description**:
-  - Add Codecov orb to CircleCI for automatic PR comments
-  - Upload coverage reports to Codecov.io service
-  - Generate PR badges and coverage change reports
-  - Set up branch protection rules if desired
-  - Document setup for contributors
-
-- **Testing**:
-  - Push branch to GitHub, verify Codecov comments appear on PR
-  - Verify coverage diff shows increase/decrease
-  - Verify main branch shows coverage badge
+- **Status**: Deferred - User chose not to integrate with external services (Codecov, SonarCloud) at this time
+- **Notes**: This step can be added in a future phase if external service integration becomes desired
+- **Future Considerations**:
+  - Could add Codecov orb to CircleCI for automatic PR comments
+  - Could upload coverage reports to Codecov.io or SonarCloud for trend tracking
+  - Would require additional documentation for contributors
+  - Not needed for Phase 1-2 implementation (CircleCI artifacts sufficient)
 
 #### Step 3.3: Documentation & Guidelines
 
@@ -464,11 +466,12 @@ These are key technical choices that need to be made:
    - Verify Kover reports are generated correctly
    - CircleCI shows all reports as artifacts
 
-4. **Phase 3 Release** (Coverage enforcement + Optional Codecov):
+4. **Phase 3 Release** (Coverage enforcement + Documentation):
    - Merge to `develop` first
-   - Enable coverage thresholds (may block some builds initially)
+   - Enable coverage thresholds (70% for domain modules, 50% for infrastructure)
    - Address coverage gaps before merging to `master`
-   - Optional: Enable Codecov for PR visibility
+   - Document guidelines for contributors
+   - No external service integration (kept internal to CircleCI as per user preference)
 
 ### Monitoring & Rollback
 
@@ -487,15 +490,40 @@ These are key technical choices that need to be made:
 
 ## Next Steps
 
-1. **Review & Feedback**: Please review this plan and provide answers to "Unresolved Questions" and "Design Decisions" sections above
-2. **Clarify Requirements**: Let me know your preferences on:
-   - Coverage threshold percentage
-   - Detekt strictness (fail build or warning)
-   - External service integration (Codecov, SonarQube, etc.)
-   - PR integration approach
-3. **Ready to Implement**: Once you've clarified questions, I can proceed with Phase 1 implementation
+**Plan is now complete and ready for implementation!** All questions have been answered and all design decisions finalized.
 
-**Status**: Awaiting user feedback on design decisions and clarifications
+### Recommended Approach:
+1. **Phase 1 Implementation**: Begin with JaCoCo + Detekt setup (Steps 1.1-1.3)
+   - Estimated effort: 2-3 hours
+   - Minimal risk (warnings-only mode)
+   - Provides immediate value (baseline metrics)
+
+2. **Phase 2 Implementation**: Add Kover integration and CircleCI artifacts
+   - Estimated effort: 2-3 hours
+   - Low risk (additive, no enforcement yet)
+   - Adds Kotlin-specific insights
+
+3. **Phase 3 Implementation**: Enable coverage enforcement and documentation
+   - Estimated effort: 1-2 hours
+   - Moderate risk (may block builds if coverage is low)
+   - Adds quality gates and documentation
+
+### Key Decisions Made:
+✅ **Coverage Threshold**: 70% overall (domain modules), 50% (infrastructure modules)
+✅ **Detekt Mode**: Warnings only (Phase 1), gradual strictness increase (Phase 3)
+✅ **Integration**: CircleCI artifacts only (no Codecov/external services)
+✅ **PR Reporting**: No automatic PR integration
+✅ **Tool Choice**: JaCoCo Phase 1 + Kover Phase 2
+
+**Status**: Ready for Phase 1 implementation
+
+---
+
+## 10. Revision History
+
+| Date | Updated By | Changes |
+|------|------------|---------|
+| 2025-11-16 | Claude (plan-update) | Answered all 6 unresolved questions. Finalized all design decisions. Clarified: 70% coverage threshold (with 50% for infra modules), Detekt warnings-only mode, CircleCI-only integration (no Codecov), no PR integration, module-specific thresholds. Updated Phase 3 and Rollout Plan to reflect user preferences. |
 
 ---
 
