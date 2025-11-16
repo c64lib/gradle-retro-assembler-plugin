@@ -258,6 +258,43 @@ class ExomizerStepTest :
             mockPort.lastRawCrunchInput shouldBe inputFile
             mockPort.lastRawCrunchOutput shouldBe outputFile
           }
+
+          then("should pass all raw options to port") {
+            val step =
+                ExomizerStep(
+                    name = "crunch_raw",
+                    inputs = listOf("input.bin"),
+                    outputs = listOf("output.bin"),
+                    mode = "raw",
+                    backwards = true,
+                    maxOffset = 32768,
+                    passes = 50,
+                    quiet = true)
+
+            val mockPort = MockExomizerPort()
+            step.setExomizerPort(mockPort)
+
+            val context = mapOf<String, Any>("projectRootDir" to tempDir)
+            step.execute(context)
+
+            mockPort.lastRawOptions shouldBe
+                mapOf(
+                    "backwards" to true,
+                    "reverse" to false,
+                    "decrunch" to false,
+                    "compatibility" to false,
+                    "speedOverRatio" to false,
+                    "encoding" to null,
+                    "skipEncoding" to false,
+                    "maxOffset" to 32768,
+                    "maxLength" to 65535,
+                    "passes" to 50,
+                    "bitStreamTraits" to null,
+                    "bitStreamFormat" to null,
+                    "controlAddresses" to null,
+                    "quiet" to true,
+                    "brief" to false)
+          }
         }
 
         `when`("executing mem mode step") {
@@ -282,10 +319,40 @@ class ExomizerStepTest :
             mockPort.lastLoadAddress shouldBe "0x0800"
             mockPort.lastForward shouldBe true
           }
+
+          then("should pass all memory options including raw options to port") {
+            val step =
+                ExomizerStep(
+                    name = "crunch_mem",
+                    inputs = listOf("input.bin"),
+                    outputs = listOf("output.bin"),
+                    mode = "mem",
+                    backwards = true,
+                    maxLength = 32768,
+                    passes = 75,
+                    quiet = true,
+                    loadAddress = "$2000",
+                    forward = true)
+
+            val mockPort = MockExomizerPort()
+            step.setExomizerPort(mockPort)
+
+            val context = mapOf<String, Any>("projectRootDir" to tempDir)
+            step.execute(context)
+
+            mockPort.lastMemCrunchInput shouldBe inputFile
+            mockPort.lastMemCrunchOutput shouldBe outputFile
+            mockPort.lastMemOptions?.get("backwards") shouldBe true
+            mockPort.lastMemOptions?.get("maxLength") shouldBe 32768
+            mockPort.lastMemOptions?.get("passes") shouldBe 75
+            mockPort.lastMemOptions?.get("quiet") shouldBe true
+            mockPort.lastMemOptions?.get("loadAddress") shouldBe "$2000"
+            mockPort.lastMemOptions?.get("forward") shouldBe true
+          }
         }
 
         `when`("getting configuration") {
-          then("raw mode should show mode and N/A for mem options") {
+          then("raw mode should show mode and all options") {
             val step =
                 ExomizerStep(
                     name = "test",
@@ -295,11 +362,13 @@ class ExomizerStepTest :
 
             val config = step.getConfiguration()
             config["mode"] shouldBe "raw"
-            config["loadAddress"] shouldBe "N/A"
-            config["forward"] shouldBe "N/A"
+            config.containsKey("backwards") shouldBe true
+            config.containsKey("reverse") shouldBe true
+            config.containsKey("passes") shouldBe true
+            config.containsKey("loadAddress") shouldBe false // Not in raw mode
           }
 
-          then("mem mode should show all options") {
+          then("mem mode should show all options including memory-specific") {
             val step =
                 ExomizerStep(
                     name = "test",
@@ -313,6 +382,8 @@ class ExomizerStepTest :
             config["mode"] shouldBe "mem"
             config["loadAddress"] shouldBe "0x0800"
             config["forward"] shouldBe true
+            config.containsKey("backwards") shouldBe true
+            config.containsKey("passes") shouldBe true
           }
         }
 
@@ -322,21 +393,25 @@ class ExomizerStepTest :
   private class MockExomizerPort : ExomizerPort {
     var lastRawCrunchInput: File? = null
     var lastRawCrunchOutput: File? = null
+    var lastRawOptions: Map<String, Any?>? = null
     var lastMemCrunchInput: File? = null
     var lastMemCrunchOutput: File? = null
+    var lastMemOptions: Map<String, Any?>? = null
     var lastLoadAddress: String? = null
     var lastForward: Boolean? = null
 
-    override fun crunchRaw(source: File, output: File) {
+    override fun crunchRaw(source: File, output: File, options: Map<String, Any?>) {
       lastRawCrunchInput = source
       lastRawCrunchOutput = output
+      lastRawOptions = options
     }
 
-    override fun crunchMem(source: File, output: File, loadAddress: String, forward: Boolean) {
+    override fun crunchMem(source: File, output: File, options: Map<String, Any?>) {
       lastMemCrunchInput = source
       lastMemCrunchOutput = output
-      lastLoadAddress = loadAddress
-      lastForward = forward
+      lastMemOptions = options
+      lastLoadAddress = options["loadAddress"] as? String
+      lastForward = options["forward"] as? Boolean
     }
   }
 }

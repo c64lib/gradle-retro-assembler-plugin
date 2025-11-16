@@ -31,18 +31,35 @@ import com.github.c64lib.rbt.flows.domain.port.ExomizerPort
 import java.io.File
 
 /**
- * Exomizer compression step.
+ * Exomizer compression step with full option support.
  *
- * Supports raw and memory compression modes. Validates input file existence and output path
- * writability. Requires ExomizerPort injection via Gradle task.
+ * Supports raw and memory compression modes with all 15+ available options. Validates input file
+ * existence and output path writability. Requires ExomizerPort injection via Gradle task.
  */
 data class ExomizerStep(
     override val name: String,
     override val inputs: List<String> = emptyList(),
     override val outputs: List<String> = emptyList(),
     val mode: String = "raw", // "raw" or "mem"
-    val loadAddress: String = "auto", // for mem mode
-    val forward: Boolean = false, // for mem mode
+    // Raw mode options (all modes)
+    val backwards: Boolean = false,
+    val reverse: Boolean = false,
+    val decrunch: Boolean = false,
+    val compatibility: Boolean = false,
+    val speedOverRatio: Boolean = false,
+    val encoding: String? = null,
+    val skipEncoding: Boolean = false,
+    val maxOffset: Int = 65535,
+    val maxLength: Int = 65535,
+    val passes: Int = 100,
+    val bitStreamTraits: Int? = null,
+    val bitStreamFormat: Int? = null,
+    val controlAddresses: String? = null,
+    val quiet: Boolean = false,
+    val brief: Boolean = false,
+    // Memory mode specific options
+    val loadAddress: String = "auto",
+    val forward: Boolean = false,
     private var exomizerPort: ExomizerPort? = null
 ) : FlowStep(name, "exomizer", inputs, outputs) {
 
@@ -83,8 +100,8 @@ data class ExomizerStep(
 
     try {
       when (mode.lowercase()) {
-        "raw" -> port.crunchRaw(inputFile, outputFile)
-        "mem" -> port.crunchMem(inputFile, outputFile, loadAddress, forward)
+        "raw" -> port.crunchRaw(inputFile, outputFile, buildRawOptions())
+        "mem" -> port.crunchMem(inputFile, outputFile, buildMemOptions())
         else -> throw StepValidationException("Unknown Exomizer mode: $mode", name)
       }
     } catch (e: StepExecutionException) {
@@ -96,6 +113,46 @@ data class ExomizerStep(
     }
 
     println("  Generated output: ${outputs[0]}")
+  }
+
+  private fun buildRawOptions(): Map<String, Any?> {
+    return mapOf(
+        "backwards" to backwards,
+        "reverse" to reverse,
+        "decrunch" to decrunch,
+        "compatibility" to compatibility,
+        "speedOverRatio" to speedOverRatio,
+        "encoding" to encoding,
+        "skipEncoding" to skipEncoding,
+        "maxOffset" to maxOffset,
+        "maxLength" to maxLength,
+        "passes" to passes,
+        "bitStreamTraits" to bitStreamTraits,
+        "bitStreamFormat" to bitStreamFormat,
+        "controlAddresses" to controlAddresses,
+        "quiet" to quiet,
+        "brief" to brief)
+  }
+
+  private fun buildMemOptions(): Map<String, Any?> {
+    return mapOf(
+        "backwards" to backwards,
+        "reverse" to reverse,
+        "decrunch" to decrunch,
+        "compatibility" to compatibility,
+        "speedOverRatio" to speedOverRatio,
+        "encoding" to encoding,
+        "skipEncoding" to skipEncoding,
+        "maxOffset" to maxOffset,
+        "maxLength" to maxLength,
+        "passes" to passes,
+        "bitStreamTraits" to bitStreamTraits,
+        "bitStreamFormat" to bitStreamFormat,
+        "controlAddresses" to controlAddresses,
+        "quiet" to quiet,
+        "brief" to brief,
+        "loadAddress" to loadAddress,
+        "forward" to forward)
   }
 
   override fun validate(): List<String> {
@@ -133,9 +190,30 @@ data class ExomizerStep(
   }
 
   override fun getConfiguration(): Map<String, Any> {
-    return mapOf(
-        "mode" to mode,
-        "loadAddress" to (if (mode == "mem") loadAddress else "N/A"),
-        "forward" to (if (mode == "mem") forward else "N/A"))
+    val config =
+        mutableMapOf<String, Any>(
+            "mode" to mode,
+            "backwards" to backwards,
+            "reverse" to reverse,
+            "decrunch" to decrunch,
+            "compatibility" to compatibility,
+            "speedOverRatio" to speedOverRatio,
+            "encoding" to (encoding ?: "null"),
+            "skipEncoding" to skipEncoding,
+            "maxOffset" to maxOffset,
+            "maxLength" to maxLength,
+            "passes" to passes,
+            "bitStreamTraits" to (bitStreamTraits?.toString() ?: "null"),
+            "bitStreamFormat" to (bitStreamFormat?.toString() ?: "null"),
+            "controlAddresses" to (controlAddresses ?: "null"),
+            "quiet" to quiet,
+            "brief" to brief)
+
+    if (mode == "mem") {
+      config["loadAddress"] = loadAddress
+      config["forward"] = forward
+    }
+
+    return config
   }
 }

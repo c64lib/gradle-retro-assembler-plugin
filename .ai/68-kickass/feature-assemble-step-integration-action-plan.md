@@ -402,6 +402,45 @@ The current AssembleTask watches all `from` source files (direct inputs) but mis
 assembleStep("compile") {
     from("src/main.asm")
     to("build/main.prg")
-    
+
     // Track include files for incremental builds
-    includeFiles("**/*.inc", "lib
+    includeFiles("**/*.inc", "lib/**/*.h")
+}
+```
+
+### 🔧 Phase 7: Bug Fixes *(Current)*
+20. ✅ **Fix output file path truncation bug** - Resolve issue where output file paths with directory structure (e.g., "build/kickass/out.bin") were truncated to just the filename (2025-11-16)
+
+**Issue Description:**
+When using `to("build/kickass/out.bin")`, the output file was compiled to `./out.bin` instead of `build/kickass/out.bin`. The leading directory path was being truncated.
+
+**Root Cause Analysis:**
+The `outputFile()` method in `CommandLineBuilder.kt` was using `outputFile.name` (which returns only the filename) instead of `outputFile.absolutePathString()` (which returns the full path).
+
+**Technical Details:**
+- **File**: `compilers/kickass/adapters/out/gradle/src/main/kotlin/com/github/c64lib/rbt/compilers/kickass/adapters/out/gradle/CommandLineBuilder.kt`
+- **Problematic Code** (line 76):
+  ```kotlin
+  args.addAll(listOf("-o", outputFile.name))  // ❌ Only returns filename
+  ```
+- **Fix Applied**:
+  ```kotlin
+  args.addAll(listOf("-o", outputFile.absolutePathString()))  // ✅ Returns full path
+  ```
+
+**Why This Happened:**
+The `outputFile()` method was designed to be used with a separate `-odir` (output directory) argument, where just the filename would be provided to `-o` and the directory to `-odir`. However, when `KickAssemblerCommandAdapter` calls both `outputFile()` and `outputDirectory()`, having just the filename in `-o` with the directory in `-odir` causes KickAssembler to only use the `-odir` value, ignoring the full path intent.
+
+**Solution Applied:**
+Changed `outputFile.name` to `outputFile.absolutePathString()` to provide the full absolute path to the `-o` argument. This ensures that when `-o` specifies a complete path, KickAssembler correctly places the output file at the intended location.
+
+**Verification:**
+- ✅ Build successful: `BUILD SUCCESSFUL in 1m 11s (188 actionable tasks: 84 executed, 104 up-to-date)`
+- ✅ All tests pass with no compilation errors
+- ✅ No existing functionality broken
+
+**Files Modified:**
+- `CommandLineBuilder.kt` - Line 76: Changed `outputFile.name` to `outputFile.absolutePathString()`
+
+**Expected Outcome:**
+Output files with directory paths like `to("build/kickass/out.bin")` will now be correctly compiled to the specified location instead of being truncated to the project root.

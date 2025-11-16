@@ -73,7 +73,7 @@ internal class CommandLineBuilder(private val settings: KickAssemblerSettings) {
 
   fun outputFile(outputFile: Path?): CommandLineBuilder {
     if (outputFile != null) {
-      args.addAll(listOf("-o", outputFile.name))
+      args.addAll(listOf("-o", outputFile.absolutePathString()))
     }
     return this
   }
