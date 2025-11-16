@@ -42,6 +42,7 @@ dependencies {
   testImplementation("io.kotest:kotest-runner-junit5:4.5.0")
   testImplementation("org.mockito:mockito-core:3.11.2")
   testImplementation("io.mockk:mockk:1.13.2")
+  testImplementation(gradleTestKit())
 }
 
 tasks.withType<Test> {
