@@ -295,9 +295,10 @@ class FlowTasksGenerator(
    * single entry point to execute all flows in correct dependency order.
    */
   private fun createFlowsAggregationTask(taskContainer: org.gradle.api.tasks.TaskContainer) {
-    val flowTaskNames = tasksByFlowName.keys.map { flowName ->
-      "flow${flowName.replaceFirstChar { it.uppercaseChar() }}"
-    }
+    val flowTaskNames =
+        tasksByFlowName.keys.map { flowName ->
+          "flow${flowName.replaceFirstChar { it.uppercaseChar() }}"
+        }
 
     taskContainer.create(TASK_FLOWS) { task ->
       task.group = "flows"
