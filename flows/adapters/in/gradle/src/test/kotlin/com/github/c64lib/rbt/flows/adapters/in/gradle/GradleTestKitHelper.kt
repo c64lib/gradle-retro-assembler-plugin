@@ -22,7 +22,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.shared.testutils
+package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
 import java.io.File
 import org.gradle.testkit.runner.BuildResult
@@ -35,27 +35,21 @@ import org.gradle.testkit.runner.GradleRunner
  */
 class GradleTestKitHelper(private val projectDir: File) {
 
-  /**
-   * Create a minimal build.gradle.kts in the test project with the given content.
-   */
+  /** Create a minimal build.gradle.kts in the test project with the given content. */
   fun createBuildGradle(content: String) {
     projectDir.mkdirs()
     val buildFile = File(projectDir, "build.gradle.kts")
     buildFile.writeText(content)
   }
 
-  /**
-   * Create a settings.gradle.kts in the test project with the given content.
-   */
+  /** Create a settings.gradle.kts in the test project with the given content. */
   fun createSettingsGradle(content: String) {
     projectDir.mkdirs()
     val settingsFile = File(projectDir, "settings.gradle.kts")
     settingsFile.writeText(content)
   }
 
-  /**
-   * Create a file in the test project with the given relative path and content.
-   */
+  /** Create a file in the test project with the given relative path and content. */
   fun createFile(relativePath: String, content: String) {
     projectDir.mkdirs()
     val file = File(projectDir, relativePath)
@@ -63,9 +57,7 @@ class GradleTestKitHelper(private val projectDir: File) {
     file.writeText(content)
   }
 
-  /**
-   * Execute a Gradle task and return the result.
-   */
+  /** Execute a Gradle task and return the result. */
   fun runTask(vararg taskNames: String): BuildResult {
     val args = taskNames.toMutableList()
     return GradleRunner.create()
@@ -75,9 +67,7 @@ class GradleTestKitHelper(private val projectDir: File) {
         .build()
   }
 
-  /**
-   * Execute a Gradle task with custom configuration.
-   */
+  /** Execute a Gradle task with custom configuration. */
   fun runTask(
       taskNames: List<String>,
       configure: GradleRunner.() -> GradleRunner = { this }
@@ -90,9 +80,7 @@ class GradleTestKitHelper(private val projectDir: File) {
         .build()
   }
 
-  /**
-   * Execute a Gradle task and expect it to fail.
-   */
+  /** Execute a Gradle task and expect it to fail. */
   fun runTaskExpectingFailure(vararg taskNames: String): BuildResult {
     val args = taskNames.toMutableList()
     return GradleRunner.create()
@@ -102,33 +90,23 @@ class GradleTestKitHelper(private val projectDir: File) {
         .buildAndFail()
   }
 
-  /**
-   * Get the output directory for test artifacts.
-   */
+  /** Get the output directory for test artifacts. */
   fun getBuildDir(): File = File(projectDir, "build")
 
-  /**
-   * Get a file relative to the project directory.
-   */
+  /** Get a file relative to the project directory. */
   fun getFile(relativePath: String): File = File(projectDir, relativePath)
 
-  /**
-   * Check if a file exists in the test project.
-   */
+  /** Check if a file exists in the test project. */
   fun fileExists(relativePath: String): Boolean = File(projectDir, relativePath).exists()
 
   companion object {
-    /**
-     * Create a new test helper with a temporary project directory.
-     */
+    /** Create a new test helper with a temporary project directory. */
     fun createWithTempDir(): GradleTestKitHelper {
       val tempDir = createTempDir()
       return GradleTestKitHelper(tempDir)
     }
 
-    /**
-     * Create a new test helper with a specific project directory.
-     */
+    /** Create a new test helper with a specific project directory. */
     fun create(projectDir: File): GradleTestKitHelper {
       return GradleTestKitHelper(projectDir)
     }
