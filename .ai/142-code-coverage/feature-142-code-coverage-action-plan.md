@@ -156,10 +156,17 @@ Current coverage by module tier:
 - **Q**: Should we keep inline mock objects or introduce a Mock builder pattern?
   - **A**: Keep inline objects per existing codebase conventions (see CharpadStepTest patterns)
 
+- **Q**: Should test coverage for shared/gradle extensions require full Gradle project setup or mocked?
+  - **A**: Use full Gradle project setup with TestKit for functional testing of DSL extensions
+
+- **Q**: Do we need to add Gradle TestKit as a testImplementation dependency?
+  - **A**: Yes, add gradle-test-kit to enable functional testing of Gradle tasks
+
+- **Q**: Should configuration mappers (Dasm, Goattracker) be tested separately or as step integration tests?
+  - **A**: Test mappers separately with unit tests, using mocked dependencies for isolation
+
 ### Unresolved Questions
-- [ ] Should test coverage for shared/gradle extensions require full Gradle project setup or mocked?
-- [ ] Do we need to add Gradle TestKit as a testImplementation dependency?
-- [ ] Should configuration mappers (Dasm, Goattracker) be tested separately or as step integration tests?
+(None - all questions resolved)
 
 ### Design Decisions
 - **Decision**: Test Framework Choice
@@ -184,9 +191,9 @@ Current coverage by module tier:
 **Goal**: Establish test infrastructure for Gradle task testing and create tests for core FlowTasksGenerator
 
 1. **Step 1.1**: Add Gradle TestKit dependency and create test utilities for task testing
-   - Files: `shared/testutils/build.gradle.kts`, `shared/testutils/src/test/kotlin/.../GradleProjectMock.kt`
-   - Description: Add `gradle-test-kit` as testImplementation dependency in buildSrc/build.gradle.kts. Create GradleProjectMock helper class extending Gradle Project behavior for testing
-   - Testing: Verify mock can create tasks and set properties
+   - Files: `shared/testutils/build.gradle.kts`, `shared/testutils/src/test/kotlin/.../GradleTestKitHelper.kt`
+   - Description: Add `gradle-test-kit` as testImplementation dependency in buildSrc/build.gradle.kts. Create GradleTestKitHelper class for functional testing of Gradle tasks and extensions
+   - Testing: Verify TestKit can execute tasks and validate Gradle project setup
 
 2. **Step 1.2**: Create comprehensive tests for FlowTasksGenerator
    - Files: `flows/adapters/in/gradle/src/test/kotlin/.../FlowTasksGeneratorTest.kt`
@@ -203,20 +210,20 @@ Current coverage by module tier:
 ### Phase 2: Core Implementation - Gradle Extensions and Domain Configuration (Deliverable: Testable DSL API)
 **Goal**: Test Gradle plugin DSL surface and configuration domain layer
 
-1. **Step 2.1**: Create tests for Gradle DSL extension classes in shared/gradle
+1. **Step 2.1**: Create tests for Gradle DSL extension classes in shared/gradle using full Gradle TestKit setup
    - Files: `shared/gradle/src/test/kotlin/.../RetroAssemblerPluginExtensionTest.kt`, `*ExtensionTest.kt` for other extensions
-   - Description: Test property binding, DSL evaluation, configuration defaults, nested extension configuration
-   - Testing: 50+ test cases covering: property setting, type validation, nested DSL blocks, configuration merging
+   - Description: Test property binding, DSL evaluation, configuration defaults, nested extension configuration using Gradle TestKit for functional testing with actual Gradle project infrastructure
+   - Testing: 50+ test cases covering: property setting, type validation, nested DSL blocks, configuration merging, full end-to-end DSL evaluation
 
 2. **Step 2.2**: Create tests for all DSL step builders in flows/adapters/in/gradle/dsl/
    - Files: `flows/adapters/in/gradle/src/test/kotlin/.../dsl/*BuilderTest.kt`
    - Description: Test path resolution (useFrom/useTo), parameter building, port injection, configuration validation
    - Testing: 30+ test cases for path resolution, parameter building, validation rules per builder
 
-3. **Step 2.3**: Create tests for configuration mapping classes (DasmConfigMapper, etc.)
+3. **Step 2.3**: Create unit tests for configuration mapping classes (DasmConfigMapper, etc.) with isolated mocks
    - Files: `flows/domain/src/test/kotlin/.../config/*MapperTest.kt`
-   - Description: Test configuration transformation, inheritance, defaults, validation
-   - Testing: 25+ test cases covering all configuration paths and combinations
+   - Description: Unit test configuration transformation in isolation, covering inheritance, defaults, and validation. Use mocked dependencies to keep tests focused and fast. Do NOT test as integration with flow steps (those are tested separately in Phase 1 step execution tests)
+   - Testing: 25+ test cases covering all configuration paths, combinations, and error conditions
 
 **Phase 2 Deliverable**: All extension classes and configuration mappers have >50% line coverage, DSL API is fully tested
 
@@ -305,10 +312,16 @@ Current coverage by module tier:
    - Track coverage metrics over time in CI/CD pipeline
    - Alert on coverage regression (>5% drop)
 
+## 10. Revision History
+
+| Date | Updated By | Changes |
+|------|------------|---------|
+| 2025-11-16 | AI Agent | Answered all 3 unresolved questions; Updated Phase 1 Step 1.1 to use GradleTestKitHelper; Updated Phase 2 Step 2.1 to clarify full Gradle TestKit setup for extension testing; Updated Phase 2 Step 2.3 to clarify separate unit testing of configuration mappers with mocked dependencies |
+
 ---
 
 **Next Steps**:
-1. Review this plan for approval
-2. Clarify any unresolved questions above
-3. Run `/exec` to begin Phase 1 implementation
-4. Create branches following pattern `feature/142-coverage-phase-1`, `feature/142-coverage-phase-2`, etc.
+1. Review updated plan for approval
+2. Begin Phase 1 implementation
+3. Create branch following pattern `feature/142-coverage-phase-1`
+4. Run `./gradlew test jacocoReport` to establish coverage baseline
