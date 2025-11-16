@@ -31,6 +31,7 @@ import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowStep
 import com.github.c64lib.rbt.flows.domain.steps.*
 import com.github.c64lib.rbt.flows.domain.steps.CommandStep
+import com.github.c64lib.rbt.shared.gradle.TASK_FLOWS
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
@@ -90,6 +91,9 @@ class FlowTasksGenerator(
 
     // Set up automatic file-based dependencies between step tasks
     setupFileDependencies()
+
+    // Create the top-level flows aggregation task
+    createFlowsAggregationTask(taskContainer)
   }
 
   private fun createStepTask(
@@ -283,6 +287,23 @@ class FlowTasksGenerator(
           }
         }
       }
+    }
+  }
+
+  /**
+   * Creates a top-level aggregation task that depends on all flow-level tasks. This task provides a
+   * single entry point to execute all flows in correct dependency order.
+   */
+  private fun createFlowsAggregationTask(taskContainer: org.gradle.api.tasks.TaskContainer) {
+    val flowTaskNames =
+        tasksByFlowName.keys.map { flowName ->
+          "flow${flowName.replaceFirstChar { it.uppercaseChar() }}"
+        }
+
+    taskContainer.create(TASK_FLOWS) { task ->
+      task.group = "flows"
+      task.description = "Executes all defined flows in correct dependency order"
+      flowTaskNames.forEach { flowTaskName -> task.dependsOn(flowTaskName) }
     }
   }
 }
