@@ -279,6 +279,103 @@ Status: **COMPLETED** (2025-11-16)
 
 ## Execution Log
 
+### 2025-11-16 - Flow DSL Input/Output Not Wired to Gradle Task Inputs
+
+**Error Category**: Runtime Error - FIXING NOW ✓
+
+**Error Details**:
+```
+Failed to execute exomizer step: exomizeIntro
+java.lang.IllegalStateException: Exomizer step validation failed: Step 'exomizeIntro' requires input files but none were configured
+        at com.github.c64lib.rbt.flows.adapters.in.gradle.tasks.ExomizerTask.executeStepLogic(ExomizerTask.kt:45)
+```
+
+**DSL Declaration That Failed**:
+```kotlin
+exomizerStep("exomizeIntro") {
+    from("build/intro-linked.bin")
+    to("build/intro-linked.z.bin")
+    raw {
+        maxLength = 256
+        bitStreamTraits = 4
+        bitStreamFormat = -32
+        compatibility = true
+    }
+}
+```
+
+**Root Cause Analysis**:
+
+The `ExomizerStepBuilder.from()` and `to()` methods populate the `ExomizerStep.inputs` and `ExomizerStep.outputs` lists correctly. However, the Gradle task infrastructure (`BaseFlowStepTask`) has a separate input/output tracking mechanism:
+
+1. **ExomizerStepBuilder** creates an `ExomizerStep` with:
+   - `inputs: List<String>` = ["build/intro-linked.bin"]
+   - `outputs: List<String>` = ["build/intro-linked.z.bin"]
+
+2. **BaseFlowStepTask** has Gradle annotations:
+   - `@InputFiles abstract val inputFiles: ConfigurableFileCollection` (for incremental builds)
+   - `@OutputDirectory abstract val outputDirectory: DirectoryProperty` (for incremental builds)
+
+3. **Validation Logic** in `BaseFlowStepTask.validateStep()` (line 87-88):
+   ```kotlin
+   if (step.inputs.isNotEmpty() && inputFiles.isEmpty && !inputDirectory.isPresent) {
+     errors.add("Step '${step.name}' requires input files but none were configured")
+   }
+   ```
+
+4. **The Problem**: The validation checks if Gradle's `inputFiles` property has been populated, but `FlowTasksGenerator` creates the Gradle task WITHOUT wiring the step's inputs/outputs to the Gradle task's input/output properties.
+
+**Affected Code**:
+
+1. `flows/adapters/in/gradle/src/main/kotlin/.../FlowTasksGenerator.kt` - Task creation doesn't wire inputs/outputs
+2. `flows/adapters/in/gradle/src/main/kotlin/.../tasks/BaseFlowStepTask.kt` - Validates Gradle task inputs, not step inputs
+3. `flows/adapters/in/gradle/src/main/kotlin/.../tasks/ExomizerTask.kt` - Inherits broken validation
+
+**Fix Strategy**: Implementation Adjustment - The Gradle task creation needs to wire the step's inputs/outputs to the Gradle task's input/output collections.
+
+**Detailed Fix Steps**:
+
+**Step 1: Update FlowTasksGenerator to Wire Step Inputs/Outputs** (High Priority)
+- File: `flows/adapters/in/gradle/src/main/kotlin/.../FlowTasksGenerator.kt`
+- Task: When creating a Gradle task for a flow step, resolve step inputs to actual files and add them to the task's `inputFiles` property
+- Approach: In the task configuration block, after creating the task instance:
+  1. Get the step's `inputs` list (file paths as strings)
+  2. Resolve each input path using project file resolution
+  3. Add resolved files to task's `inputFiles` collection using `.from()`
+- Example pattern (from existing flow tasks):
+  ```kotlin
+  task.inputFiles.from(project.files(step.inputs.map { project.file(it) }))
+  ```
+- Testing: Verify that after task creation, the `inputFiles` property contains the resolved input files
+
+**Step 2: Verify BaseFlowStepTask Validation Logic** (Medium Priority)
+- File: `flows/adapters/in/gradle/src/main/kotlin/.../tasks/BaseFlowStepTask.kt`
+- Review: Ensure the validation in `validateStep()` (lines 87-88) correctly validates populated inputFiles
+- Current logic should work once Step 1 wires the inputs
+- No code changes expected here - validation is correct, just needed proper wiring
+
+**Step 3: Test the Fix** (Critical)
+- Run the build with the exomizer flow step:
+  ```bash
+  ./gradlew flows
+  ```
+- Expected: The step should execute without the validation error
+- Verify the exomizeIntro step output file is created at "build/intro-linked.z.bin"
+
+**Verification Checklist**:
+- [ ] FlowTasksGenerator properly resolves and wires step inputs to Gradle task
+- [ ] Step validation passes when task is executed
+- [ ] Input files are correctly recognized for incremental build tracking
+- [ ] Output files are correctly marked for incremental build tracking
+- [ ] Both `from()` and `to()` DSL methods work correctly in all step types (not just Exomizer)
+
+**Root Cause Summary**:
+The architecture uses TWO separate input/output systems:
+1. **Flow DSL level** (ExomizerStep.inputs/outputs) - Stores path strings
+2. **Gradle task level** (BaseFlowStepTask.inputFiles/outputDirectory) - Used for incremental builds
+
+These were not being connected during task creation, causing validation to fail even though paths were correctly specified in the DSL.
+
 ### 2025-11-15 - Missing ExomizerTask Adapter
 
 **Error Category**: Runtime Error - RESOLVED ✓
@@ -359,3 +456,4 @@ Complete implementation across all layers:
 | 2025-11-15 | AI Agent | Initial plan creation and Phase 1-4 implementation with ExomizerTask adapter fix |
 | 2025-11-16 | AI Agent | Added comprehensive specification refinement for full option exposure across all layers; updated Phase 4 and 5 status; marked specific steps requiring updates with priorities and effort estimates; documented root cause and solution approach for option exposure gap |
 | 2025-11-16 | AI Agent | **COMPLETED**: Fully implemented Phase 4 and 5 with all exomizer options (15+) exposed through entire stack - domain, adapters, DSL, tests, and documentation. All layers now support complete option configuration. Full build successful. All tests pass. |
+| 2025-11-16 | AI Agent | **Error Analysis**: Identified flow DSL inputs/outputs not wired to Gradle task inputs. Root cause: FlowTasksGenerator doesn't populate Gradle task's `inputFiles` property with resolved step inputs. Created detailed fix steps for implementation adjustment. |
