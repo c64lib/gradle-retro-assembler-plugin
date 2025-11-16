@@ -5,8 +5,11 @@ This command prepares release documentation for a new version of the Gradle Retr
 ## Instructions
 
 1. Ask the user for the release version using semantic versioning (e.g., 1.7.7, 1.8.0, 2.0.0)
-2. Find the last version tag to determine the commit range
-3. Extract commits from `develop` branch since the last tag using `git log <last-tag>..develop`
+2. Ask the user for the commit hash that denotes the last release (exclusive)
+   - Note: Version tags are not placed on `master` branch and are not directly visible on `develop` branch
+   - The user should provide the commit hash (e.g., `3644230`) using `git log` to find it
+   - This commit hash marks the exclusive boundary: commits AFTER this hash will be included
+3. Extract commits from `develop` branch since the provided commit using `git log <commit-hash>..develop`
 4. Generate a draft release document at `.ai/release-<version>.md` with:
    - Structured markdown template
    - Pre-populated commit history organized by category
@@ -17,7 +20,7 @@ This command prepares release documentation for a new version of the Gradle Retr
 
 ## Commit Processing
 
-- Extract all commits between last version tag and develop branch
+- Extract all commits between the provided commit hash (exclusive) and develop branch (inclusive)
 - Parse commit messages to identify:
   - Component/domain affected (from commit message prefix or content)
   - Issue/PR references (e.g., #122, #121)
@@ -34,7 +37,7 @@ The release document will use the following markdown structure:
 ## Git Commit Summary
 [Count of commits and brief summary of activity range]
 
-Range: `<last-tag>..develop`
+Range: `<last-commit-hash>..develop`
 
 ## Commits by Category
 
