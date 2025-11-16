@@ -109,7 +109,7 @@ Create a top-level `flows` Gradle task that automatically executes all defined f
 
 ## 4. Questions and Clarifications
 
-### Self-Reflection Questions (Answered through Research)
+### Self-Reflection Questions (Answered through Research and User Input)
 
 - **Q**: How are flow-level aggregation tasks currently created?
   - **A**: The `FlowTasksGenerator.registerTasks()` method creates individual flow tasks (e.g., `flowPreprocessing`, `flowCompilation`) at lines 71-80. Each flow task depends on its last step task.
@@ -126,10 +126,14 @@ Create a top-level `flows` Gradle task that automatically executes all defined f
 - **Q**: Will this break existing builds?
   - **A**: No, because we're only adding a new dependency relationship. Existing users will see flows run automatically, which is the desired behavior.
 
-### Unresolved Questions
-- [ ] Should the `flows` task be created even if no flows are defined? (Recommendation: Yes, for consistency - it will just be an empty task)
-- [ ] Should we add progress logging when the `flows` task runs? (Recommendation: Use Gradle's default task execution output)
-- [ ] Are there any existing CI/CD pipelines that might be affected? (Recommendation: Check recent commits)
+- **Q**: Should the `flows` task be created even if no flows are defined?
+  - **A**: Yes, always create it for consistency - it will just be an empty task with no dependencies. This ensures the `asm` task can safely depend on it regardless of flow configuration.
+
+- **Q**: Should we add progress logging when the `flows` task runs?
+  - **A**: No, use Gradle's default task execution output. This keeps the implementation simple and consistent with Gradle conventions.
+
+- **Q**: Are there any existing CI/CD pipelines that might be affected?
+  - **A**: No concerns identified. The change only adds automatic flow execution before assembly, which improves the build pipeline without breaking compatibility.
 
 ### Design Decisions
 
@@ -327,6 +331,12 @@ Create a top-level `flows` Gradle task that automatically executes all defined f
 5. **Documentation**: Update CLAUDE.md with new behavior
 6. **Release**: Publish as patch/minor version update
 7. **Monitoring**: Check GitHub issues for any unexpected behavior reports
+
+## 10. Revision History
+
+| Date | Updated By | Changes |
+|------|------------|---------|
+| 2025-11-16 | AI Agent | Answered all 3 unresolved questions: (1) confirmed `flows` task should always be created for consistency, (2) confirmed to use Gradle's default output instead of custom logging, (3) confirmed no CI/CD concerns identified |
 
 ---
 
