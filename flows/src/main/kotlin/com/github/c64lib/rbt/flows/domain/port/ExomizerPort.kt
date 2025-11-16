@@ -30,24 +30,25 @@ import java.io.File
  * Port for Exomizer compression operations within the flows domain.
  *
  * Abstracts the crunchers domain implementation, allowing flows to orchestrate compression steps
- * without knowledge of underlying compression mechanics.
+ * with full option support without knowledge of underlying compression mechanics.
  */
 interface ExomizerPort {
   /**
-   * Execute raw mode compression.
+   * Execute raw mode compression with all available options.
    *
    * @param source Input file to compress
    * @param output Output file path
+   * @param options Map of raw compression options (backwards, reverse, decrunch, etc.)
    */
-  fun crunchRaw(source: File, output: File)
+  fun crunchRaw(source: File, output: File, options: Map<String, Any?>)
 
   /**
-   * Execute memory mode compression.
+   * Execute memory mode compression with all available options.
    *
    * @param source Input file to compress
    * @param output Output file path
-   * @param loadAddress Load address (default "auto", can be "none" or a hex/decimal value)
-   * @param forward Whether to compress forward (default false)
+   * @param options Map of memory compression options (includes all raw options plus loadAddress and
+   * forward)
    */
-  fun crunchMem(source: File, output: File, loadAddress: String = "auto", forward: Boolean = false)
+  fun crunchMem(source: File, output: File, options: Map<String, Any?>)
 }

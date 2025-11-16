@@ -44,6 +44,30 @@ class ExomizerStepBuilderTest :
             step.outputs shouldBe listOf("output.bin")
             step.mode shouldBe "raw"
           }
+
+          then("should configure all raw mode options") {
+            val builder = ExomizerStepBuilder("crunch_raw")
+            builder.from("input.bin")
+            builder.to("output.bin")
+            builder.raw {
+              backwards = true
+              reverse = false
+              maxOffset = 32768
+              maxLength = 16384
+              passes = 50
+              quiet = true
+            }
+
+            val step = builder.build()
+
+            step.mode shouldBe "raw"
+            step.backwards shouldBe true
+            step.reverse shouldBe false
+            step.maxOffset shouldBe 32768
+            step.maxLength shouldBe 16384
+            step.passes shouldBe 50
+            step.quiet shouldBe true
+          }
         }
 
         `when`("building mem mode step") {
@@ -63,7 +87,7 @@ class ExomizerStepBuilderTest :
             step.forward shouldBe false
           }
 
-          then("should accept custom configuration") {
+          then("should accept custom memory-specific configuration") {
             val builder = ExomizerStepBuilder("crunch_mem")
             builder.from("input.bin")
             builder.to("output.bin")
@@ -76,6 +100,30 @@ class ExomizerStepBuilderTest :
 
             step.mode shouldBe "mem"
             step.loadAddress shouldBe "0x0800"
+            step.forward shouldBe true
+          }
+
+          then("should configure all options including raw and memory-specific") {
+            val builder = ExomizerStepBuilder("crunch_mem")
+            builder.from("input.bin")
+            builder.to("output.bin")
+            builder.mem {
+              backwards = true
+              passes = 75
+              maxOffset = 16384
+              quiet = true
+              loadAddress = "$2000"
+              forward = true
+            }
+
+            val step = builder.build()
+
+            step.mode shouldBe "mem"
+            step.backwards shouldBe true
+            step.passes shouldBe 75
+            step.maxOffset shouldBe 16384
+            step.quiet shouldBe true
+            step.loadAddress shouldBe "$2000"
             step.forward shouldBe true
           }
         }

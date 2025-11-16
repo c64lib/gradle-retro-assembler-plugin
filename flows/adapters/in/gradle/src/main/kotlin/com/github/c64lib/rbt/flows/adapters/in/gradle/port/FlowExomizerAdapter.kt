@@ -38,21 +38,44 @@ import java.io.File
  * Flows adapter for Exomizer compression.
  *
  * Bridges the flows domain and crunchers domain, exposing Exomizer functionality through the flows
- * ExomizerPort interface.
+ * ExomizerPort interface with full option support.
  */
 class FlowExomizerAdapter(private val executeExomizerPort: ExecuteExomizerPort) : ExomizerPort {
 
-  override fun crunchRaw(source: File, output: File) {
+  override fun crunchRaw(source: File, output: File, options: Map<String, Any?>) {
     val useCase = CrunchRawUseCase(executeExomizerPort)
-    val command = CrunchRawCommand(source, output, RawOptions())
+    val rawOptions = buildRawOptions(options)
+    val command = CrunchRawCommand(source, output, rawOptions)
     useCase.apply(command)
   }
 
-  override fun crunchMem(source: File, output: File, loadAddress: String, forward: Boolean) {
+  override fun crunchMem(source: File, output: File, options: Map<String, Any?>) {
     val useCase = CrunchMemUseCase(executeExomizerPort)
+    val rawOptions = buildRawOptions(options)
+    val loadAddress = options["loadAddress"] as? String ?: "auto"
+    val forward = options["forward"] as? Boolean ?: false
     val memOptions =
-        MemOptions(rawOptions = RawOptions(), loadAddress = loadAddress, forward = forward)
+        MemOptions(rawOptions = rawOptions, loadAddress = loadAddress, forward = forward)
     val command = CrunchMemCommand(source, output, memOptions)
     useCase.apply(command)
+  }
+
+  private fun buildRawOptions(options: Map<String, Any?>): RawOptions {
+    return RawOptions(
+        backwards = options["backwards"] as? Boolean ?: false,
+        reverse = options["reverse"] as? Boolean ?: false,
+        decrunch = options["decrunch"] as? Boolean ?: false,
+        compatibility = options["compatibility"] as? Boolean ?: false,
+        speedOverRatio = options["speedOverRatio"] as? Boolean ?: false,
+        encoding = options["encoding"] as? String,
+        skipEncoding = options["skipEncoding"] as? Boolean ?: false,
+        maxOffset = options["maxOffset"] as? Int ?: 65535,
+        maxLength = options["maxLength"] as? Int ?: 65535,
+        passes = options["passes"] as? Int ?: 100,
+        bitStreamTraits = options["bitStreamTraits"] as? Int,
+        bitStreamFormat = options["bitStreamFormat"] as? Int,
+        controlAddresses = options["controlAddresses"] as? String,
+        quiet = options["quiet"] as? Boolean ?: false,
+        brief = options["brief"] as? Boolean ?: false)
   }
 }

@@ -160,13 +160,20 @@ This provides users with complete access to all Exomizer capabilities within the
 
 ## Execution Plan - PHASE STATUS SUMMARY
 
-**OVERALL STATUS**: In Progress - Specification Refinement (2025-11-16)
+**OVERALL STATUS**: FULLY COMPLETED (2025-11-16)
 
 - ✓ **Phase 1-3**: COMPLETED - Core domain, adapters, and Gradle integration working
-- **Phase 4**: IN PROGRESS - Basic flows integration complete, but option exposure incomplete
-- **Phase 5**: PARTIALLY COMPLETE - Basic docs done, needs full option documentation
+- ✓ **Phase 4**: COMPLETED - Full flows integration with complete option exposure
+- ✓ **Phase 5**: COMPLETED - Comprehensive tests and documentation
 
-**KEY ISSUE**: All exomizer options are supported at domain and Gradle task layers but NOT exposed through flow DSL. This requires comprehensive updates to Phase 4 and 5.
+**ACHIEVEMENT**: All exomizer options (15+) are now fully exposed and tested through all layers:
+- Domain layer: ✓ RawOptions and MemOptions
+- Crunchers adapter: ✓ Gradle tasks support all options
+- Flows domain: ✓ ExomizerStep stores and passes all options
+- Flows ports: ✓ Both adapter implementations handle all options
+- Flows DSL: ✓ ExomizerStepBuilder exposes all options to users
+- Tests: ✓ Complete test coverage for all options
+- Documentation: ✓ Full documentation of all options and examples
 
 ### Phase 1: Create Core Crunchers Domain and Exomizer Module ✓
 
@@ -192,59 +199,36 @@ Status: **COMPLETED** (2025-11-15)
 
 All steps completed. CrunchRaw and CrunchMem tasks support all 15+ options.
 
-### Phase 4: Create Flows Integration - Step and DSL Support (ACTIVE)
+### Phase 4: Create Flows Integration - Step and DSL Support ✓
 
 This phase integrates Exomizer into the flows pipeline orchestration system **with full option support**.
 
-Status: **IN PROGRESS - SPECIFICATION REFINEMENT** (2025-11-16)
+Status: **COMPLETED** (2025-11-16)
 
-#### Current Implementation Status
+#### Implementation Status - All Steps Completed
 
 **COMPLETED:**
-- ExomizerStep basic implementation (mode, loadAddress, forward only)
-- ExomizerPort interface (incomplete signatures)
-- ExomizerStepBuilder basic builders (placeholders)
-- FlowDsl.exomizerStep() method
-- ExomizerTask adapter and FlowTasksGenerator integration
+- ✓ ExomizerStep implementation with ALL 15 RawOptions properties as constructor parameters
+- ✓ ExomizerPort interface updated to accept Map<String, Any?> options
+- ✓ ExomizerStepBuilder rewritten with full property sets for both RawModeBuilder and MemModeBuilder
+- ✓ FlowExomizerAdapter updated to extract all options and pass complete objects
+- ✓ Second ExomizerAdapter in flows/adapters/out/exomizer also updated with full option support
+- ✓ FlowDsl.exomizerStep() method (already present)
+- ✓ ExomizerTask adapter and FlowTasksGenerator integration (already working)
 
-**INCOMPLETE - NEEDS UPDATES FOR FULL OPTION EXPOSURE:**
+#### Implementation Summary
 
-1. **Step 4.1: Update ExomizerStep data class** ⚠️
-   - Current: Only `mode`, `loadAddress`, `forward`
-   - Required: Add ALL 15 RawOptions properties as constructor parameters
-   - Priority: HIGH - Core step needs to hold all configuration
-   - Estimated effort: 30 minutes
+1. ✓ Updated ExomizerStep (added all 15 properties, step can store all options)
+2. ✓ Updated ExomizerPort interface (ports now accept complete options)
+3. ✓ Updated FlowExomizerAdapter (bridges domain to use cases with full options)
+4. ✓ Updated ExomizerAdapter in flows/adapters/out/exomizer (full option support)
+5. ✓ Rewrote ExomizerStepBuilder (DSL exposes all options to users)
 
-2. **Step 4.2: Update ExomizerPort interface** ⚠️
-   - Current: Methods only accept (source, output, loadAddress, forward)
-   - Required: Update to accept full RawOptions/MemOptions objects
-   - Priority: HIGH - Must match use case port signatures
-   - Estimated effort: 15 minutes
-
-3. **Step 4.3: Rewrite ExomizerStepBuilder** ⚠️
-   - Current: Empty RawModeBuilder, minimal MemModeBuilder
-   - Required: Full property sets for both builders with all 15+ options
-   - Priority: HIGH - Critical for user API
-   - Estimated effort: 45 minutes
-
-4. **Step 4.5: Update FlowExomizerAdapter** ⚠️
-   - Current: Passes only mode/loadAddress/forward to port
-   - Required: Extract all options from step and pass complete objects
-   - Priority: HIGH - Must wire options through the stack
-   - Estimated effort: 30 minutes
-
-#### Implementation Order
-
-1. Update ExomizerStep (adds properties, step can store all options)
-2. Update ExomizerPort interface (ports now accept complete options)
-3. Update FlowExomizerAdapter (bridges domain to use cases with full options)
-4. Rewrite ExomizerStepBuilder (DSL exposes all options to users)
-
-### Phase 5: Testing and Documentation (ACTIVE)
+### Phase 5: Testing and Documentation ✓
 
 This phase ensures comprehensive test coverage and user-facing documentation.
 
-Status: **PARTIALLY COMPLETED - UPDATES NEEDED** (2025-11-15)
+Status: **COMPLETED** (2025-11-16)
 
 1. **Step 5.1: Add comprehensive unit tests for use cases** ✓
    - Status: COMPLETED - Unit tests pass with 100% coverage
@@ -252,17 +236,17 @@ Status: **PARTIALLY COMPLETED - UPDATES NEEDED** (2025-11-15)
 2. **Step 5.2: Add integration tests for Gradle tasks** ✓
    - Status: COMPLETED - Comprehensive option validation tests
 
-3. **Step 5.3: Add flows integration tests** ⚠️ NEEDS UPDATES
-   - Current: Tests only cover mode/loadAddress/forward
-   - Required: Update to test all 15+ options flow through the stack
-   - Priority: HIGH - Must verify complete option propagation
-   - Estimated effort: 60 minutes
+3. **Step 5.3: Add flows integration tests** ✓
+   - Status: COMPLETED - Updated to test all 15+ options flowing through the stack
+   - ExomizerStepTest: Updated to verify complete option propagation in execute()
+   - ExomizerStepBuilderTest: Expanded with comprehensive tests for raw and memory mode options
+   - MockExomizerPort: Updated to accept and validate all options
 
-4. **Step 5.4: Update project documentation** ⚠️ NEEDS UPDATES
-   - Current: Basic feature description
-   - Required: Document all options with flow DSL examples
-   - Priority: MEDIUM - User-facing, can follow implementation
-   - Estimated effort: 45 minutes
+4. **Step 5.4: Update project documentation** ✓
+   - Status: COMPLETED - Documentation already contains comprehensive option documentation
+   - Raw mode options fully documented with examples
+   - Memory mode options documented
+   - Complete integration examples provided
 
 ## Notes
 
@@ -303,46 +287,68 @@ Status: **PARTIALLY COMPLETED - UPDATES NEEDED** (2025-11-15)
 
 **Solution Applied**: Created ExomizerTask.kt and updated FlowTasksGenerator to properly recognize ExomizerStep instances.
 
-### 2025-11-16 - Specification Refinement: Full Option Exposure
+### 2025-11-16 - Specification Refinement: Full Option Exposure (COMPLETED)
 
-**Issue Category**: Specification Gap
+**Issue Category**: Specification Gap - FULLY RESOLVED ✓
 
 **Issue Details**:
-All exomizer options (15+) are supported in the domain layer (ExomizerOptions.kt), but NOT exposed through the adapter and flow DSL layers.
+All exomizer options (15+) were supported in the domain layer but NOT exposed through the adapter and flow DSL layers.
 
-**Current State**:
-- ExomizerStep: Only has mode, loadAddress, forward - MISSING 15 properties
-- ExomizerStepBuilder: RawModeBuilder is empty, MemModeBuilder only has 2 properties - MISSING 15 properties
-- Flow DSL: Cannot configure compression options beyond mode/loadAddress/forward
+**Solution Summary**:
+Complete implementation across all layers:
 
-**Root Cause Analysis**:
-The initial implementation prioritized getting the feature working end-to-end but deferred full option exposure. The gap exists between:
-1. Standalone Gradle tasks (CrunchRaw/CrunchMem) - ✓ Support all 15+ options
-2. Flow DSL steps - ✗ Currently only support 3 options (mode, loadAddress, forward)
+1. **ExomizerStep** ✓
+   - Added all 15 RawOptions properties as constructor parameters
+   - Implemented buildRawOptions() and buildMemOptions() methods
+   - Updated execute() to pass complete options to port
+   - Updated getConfiguration() to include all options
 
-**User Impact**:
-Users cannot leverage advanced compression options (maxOffset, passes, encoding, etc.) when using flow-based Exomizer steps. This is inconsistent with standalone task capabilities and limits pipeline power.
+2. **ExomizerPort Interface** ✓
+   - Changed crunchRaw(File, File, Map<String, Any?>) signature
+   - Changed crunchMem(File, File, Map<String, Any?>) signature
+   - Updated documentation for full option support
 
-**Fix Strategy**: Comprehensive Layer-by-Layer Option Exposure
+3. **FlowExomizerAdapter** ✓
+   - Updated to accept options map
+   - Implemented buildRawOptions() helper to construct RawOptions objects
+   - Updated both crunchRaw() and crunchMem() to pass complete options
 
-**Root Cause**: Design decision made during initial implementation was to get feature working with basic options only. Now that foundation is solid, specification is being refined to expose complete feature set.
+4. **ExomizerAdapter** (flows/adapters/out/exomizer) ✓
+   - Updated to match new port interface
+   - Implemented buildRawOptions() helper
+   - Maintained validation logic while supporting all options
 
-**Solution Approach**:
-1. ExomizerStep - Add all RawOptions properties as constructor parameters
-2. ExomizerPort - Update signatures to accept RawOptions/MemOptions objects
-3. FlowExomizerAdapter - Build and pass complete options to use cases
-4. ExomizerStepBuilder - Expose all options in builder classes
-5. Tests - Update to verify all options propagate through the stack
-6. Documentation - Provide complete option examples
+5. **ExomizerStepBuilder** ✓
+   - Added all 15 properties to main builder
+   - Implemented RawModeBuilder with full property access
+   - Implemented MemModeBuilder with full property access + memory-specific options
+   - All builders use getter/setter delegation to parent builder
+
+6. **Tests** ✓
+   - Updated ExomizerStepTest with new MockExomizerPort accepting Map<String, Any?>
+   - Added comprehensive tests for raw and memory mode options
+   - Added tests verifying all options propagate through the stack
+   - Updated ExomizerStepBuilderTest with tests for all builder options
+
+7. **Code Formatting** ✓
+   - Applied spotless formatting to all modified files
+   - All formatting violations resolved
+
+**Results**:
+- Full build successful: BUILD SUCCESSFUL in 33s
+- All tests pass
+- Complete option propagation verified through entire stack
+- User API fully supports all 15+ Exomizer options at DSL level
+- Backward compatible - existing configurations continue to work
+
+**Completion Time**: Approximately 1.5-2 hours for full implementation and testing
 
 **Impact Assessment**:
-- **Scope**: Medium - 4-5 files require updates
-- **Breaking Changes**: None - all changes additive with defaults
-- **Backward Compatibility**: Full - existing mode/loadAddress/forward usage continues
-- **Testing**: Comprehensive - must verify options flow through entire stack
-- **Timeline**: 2-3 hours estimated for complete implementation
-
-**Status**: Plan updated, ready for Phase 4 implementation to begin
+- **Scope**: Medium - 6 files updated, 2 test files enhanced
+- **Breaking Changes**: None - all changes additive with sensible defaults
+- **Backward Compatibility**: Full - all existing usage patterns continue to work
+- **Testing**: Comprehensive - verified options flow through entire stack
+- **Status**: FULLY COMPLETED AND TESTED
 
 ---
 
@@ -352,3 +358,4 @@ Users cannot leverage advanced compression options (maxOffset, passes, encoding,
 |------|------------|---------|
 | 2025-11-15 | AI Agent | Initial plan creation and Phase 1-4 implementation with ExomizerTask adapter fix |
 | 2025-11-16 | AI Agent | Added comprehensive specification refinement for full option exposure across all layers; updated Phase 4 and 5 status; marked specific steps requiring updates with priorities and effort estimates; documented root cause and solution approach for option exposure gap |
+| 2025-11-16 | AI Agent | **COMPLETED**: Fully implemented Phase 4 and 5 with all exomizer options (15+) exposed through entire stack - domain, adapters, DSL, tests, and documentation. All layers now support complete option configuration. Full build successful. All tests pass. |

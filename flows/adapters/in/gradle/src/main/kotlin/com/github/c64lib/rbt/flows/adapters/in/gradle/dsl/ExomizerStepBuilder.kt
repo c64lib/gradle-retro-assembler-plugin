@@ -27,14 +27,31 @@ package com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl
 import com.github.c64lib.rbt.flows.domain.steps.ExomizerStep
 
 /**
- * Type-safe DSL builder for Exomizer compression steps.
+ * Type-safe DSL builder for Exomizer compression steps with full option support.
  *
- * Supports both raw and memory compression modes with flexible configuration.
+ * Supports both raw and memory compression modes with all 15+ available Exomizer options.
  */
 class ExomizerStepBuilder(private val name: String) {
   private val inputs = mutableListOf<String>()
   private val outputs = mutableListOf<String>()
   private var mode: String = "raw"
+  // Raw mode options
+  private var backwards: Boolean = false
+  private var reverse: Boolean = false
+  private var decrunch: Boolean = false
+  private var compatibility: Boolean = false
+  private var speedOverRatio: Boolean = false
+  private var encoding: String? = null
+  private var skipEncoding: Boolean = false
+  private var maxOffset: Int = 65535
+  private var maxLength: Int = 65535
+  private var passes: Int = 100
+  private var bitStreamTraits: Int? = null
+  private var bitStreamFormat: Int? = null
+  private var controlAddresses: String? = null
+  private var quiet: Boolean = false
+  private var brief: Boolean = false
+  // Memory mode specific options
   private var loadAddress: String = "auto"
   private var forward: Boolean = false
 
@@ -59,14 +76,14 @@ class ExomizerStepBuilder(private val name: String) {
   }
 
   /**
-   * Configure raw mode compression.
+   * Configure raw mode compression with optional block for raw-specific options.
    *
-   * Block parameter is provided for potential future raw-specific options.
+   * @param block Configuration block for raw mode options
    */
   fun raw(block: (RawModeBuilder.() -> Unit)? = null) {
     mode = "raw"
     if (block != null) {
-      val builder = RawModeBuilder()
+      val builder = RawModeBuilder(this)
       builder.block()
     }
   }
@@ -78,10 +95,8 @@ class ExomizerStepBuilder(private val name: String) {
    */
   fun mem(block: MemModeBuilder.() -> Unit) {
     mode = "mem"
-    val builder = MemModeBuilder()
+    val builder = MemModeBuilder(this)
     builder.block()
-    loadAddress = builder.loadAddress
-    forward = builder.forward
   }
 
   /**
@@ -95,18 +110,222 @@ class ExomizerStepBuilder(private val name: String) {
         inputs = inputs.toList(),
         outputs = outputs.toList(),
         mode = mode,
+        backwards = backwards,
+        reverse = reverse,
+        decrunch = decrunch,
+        compatibility = compatibility,
+        speedOverRatio = speedOverRatio,
+        encoding = encoding,
+        skipEncoding = skipEncoding,
+        maxOffset = maxOffset,
+        maxLength = maxLength,
+        passes = passes,
+        bitStreamTraits = bitStreamTraits,
+        bitStreamFormat = bitStreamFormat,
+        controlAddresses = controlAddresses,
+        quiet = quiet,
+        brief = brief,
         loadAddress = loadAddress,
         forward = forward)
   }
 
-  /** Builder for raw mode configuration. */
-  class RawModeBuilder {
-    // Placeholder for future raw mode options
+  /** Builder for raw mode configuration with all options. */
+  class RawModeBuilder(private val parent: ExomizerStepBuilder) {
+    var backwards: Boolean
+      get() = parent.backwards
+      set(value) {
+        parent.backwards = value
+      }
+
+    var reverse: Boolean
+      get() = parent.reverse
+      set(value) {
+        parent.reverse = value
+      }
+
+    var decrunch: Boolean
+      get() = parent.decrunch
+      set(value) {
+        parent.decrunch = value
+      }
+
+    var compatibility: Boolean
+      get() = parent.compatibility
+      set(value) {
+        parent.compatibility = value
+      }
+
+    var speedOverRatio: Boolean
+      get() = parent.speedOverRatio
+      set(value) {
+        parent.speedOverRatio = value
+      }
+
+    var encoding: String?
+      get() = parent.encoding
+      set(value) {
+        parent.encoding = value
+      }
+
+    var skipEncoding: Boolean
+      get() = parent.skipEncoding
+      set(value) {
+        parent.skipEncoding = value
+      }
+
+    var maxOffset: Int
+      get() = parent.maxOffset
+      set(value) {
+        parent.maxOffset = value
+      }
+
+    var maxLength: Int
+      get() = parent.maxLength
+      set(value) {
+        parent.maxLength = value
+      }
+
+    var passes: Int
+      get() = parent.passes
+      set(value) {
+        parent.passes = value
+      }
+
+    var bitStreamTraits: Int?
+      get() = parent.bitStreamTraits
+      set(value) {
+        parent.bitStreamTraits = value
+      }
+
+    var bitStreamFormat: Int?
+      get() = parent.bitStreamFormat
+      set(value) {
+        parent.bitStreamFormat = value
+      }
+
+    var controlAddresses: String?
+      get() = parent.controlAddresses
+      set(value) {
+        parent.controlAddresses = value
+      }
+
+    var quiet: Boolean
+      get() = parent.quiet
+      set(value) {
+        parent.quiet = value
+      }
+
+    var brief: Boolean
+      get() = parent.brief
+      set(value) {
+        parent.brief = value
+      }
   }
 
-  /** Builder for memory mode configuration. */
-  class MemModeBuilder {
-    var loadAddress: String = "auto"
-    var forward: Boolean = false
+  /** Builder for memory mode configuration with all options plus memory-specific settings. */
+  class MemModeBuilder(private val parent: ExomizerStepBuilder) {
+    // All raw mode options accessible in mem mode
+    var backwards: Boolean
+      get() = parent.backwards
+      set(value) {
+        parent.backwards = value
+      }
+
+    var reverse: Boolean
+      get() = parent.reverse
+      set(value) {
+        parent.reverse = value
+      }
+
+    var decrunch: Boolean
+      get() = parent.decrunch
+      set(value) {
+        parent.decrunch = value
+      }
+
+    var compatibility: Boolean
+      get() = parent.compatibility
+      set(value) {
+        parent.compatibility = value
+      }
+
+    var speedOverRatio: Boolean
+      get() = parent.speedOverRatio
+      set(value) {
+        parent.speedOverRatio = value
+      }
+
+    var encoding: String?
+      get() = parent.encoding
+      set(value) {
+        parent.encoding = value
+      }
+
+    var skipEncoding: Boolean
+      get() = parent.skipEncoding
+      set(value) {
+        parent.skipEncoding = value
+      }
+
+    var maxOffset: Int
+      get() = parent.maxOffset
+      set(value) {
+        parent.maxOffset = value
+      }
+
+    var maxLength: Int
+      get() = parent.maxLength
+      set(value) {
+        parent.maxLength = value
+      }
+
+    var passes: Int
+      get() = parent.passes
+      set(value) {
+        parent.passes = value
+      }
+
+    var bitStreamTraits: Int?
+      get() = parent.bitStreamTraits
+      set(value) {
+        parent.bitStreamTraits = value
+      }
+
+    var bitStreamFormat: Int?
+      get() = parent.bitStreamFormat
+      set(value) {
+        parent.bitStreamFormat = value
+      }
+
+    var controlAddresses: String?
+      get() = parent.controlAddresses
+      set(value) {
+        parent.controlAddresses = value
+      }
+
+    var quiet: Boolean
+      get() = parent.quiet
+      set(value) {
+        parent.quiet = value
+      }
+
+    var brief: Boolean
+      get() = parent.brief
+      set(value) {
+        parent.brief = value
+      }
+
+    // Memory-specific options
+    var loadAddress: String
+      get() = parent.loadAddress
+      set(value) {
+        parent.loadAddress = value
+      }
+
+    var forward: Boolean
+      get() = parent.forward
+      set(value) {
+        parent.forward = value
+      }
   }
 }
