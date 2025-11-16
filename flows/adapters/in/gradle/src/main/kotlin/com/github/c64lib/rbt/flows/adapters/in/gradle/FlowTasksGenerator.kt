@@ -190,12 +190,13 @@ class FlowTasksGenerator(
 
     // Configure input files
     if (step.inputs.isNotEmpty()) {
-      val inputFiles = step.inputs.map { project.file(it) }.filter { it.exists() }
+      // Resolve input files without filtering by existence - files may be created during build
+      val inputFiles = step.inputs.map { project.file(it) }
       if (inputFiles.isNotEmpty()) {
         task.inputFiles.from(inputFiles)
       }
 
-      // If there are input directories, configure them
+      // If there are input directories, configure them (directories that exist at config time)
       val inputDirs = step.inputs.map { project.file(it) }.filter { it.isDirectory }
       if (inputDirs.isNotEmpty()) {
         task.inputDirectory.set(inputDirs.first()) // Use first directory
