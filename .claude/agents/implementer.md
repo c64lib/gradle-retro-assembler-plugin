@@ -1,6 +1,6 @@
 ---
 name: implementer
-description: Use this agent to implement a development action plan created by the planner agent. The agent reads the plan from .ai/, determines scope with the user, then executes steps autonomously or interactively — writing code, running tests, updating the plan file with progress markers, and reporting blockers. Trigger examples: "implement the plan", "execute the plan for issue 42", "run phase 1 of the plan", "implement step 2.3".
+description: 'Use this agent to implement a development action plan created by the planner agent. The agent reads the plan from .ai/, determines scope with the user, then executes steps autonomously or interactively — writing code, running tests, updating the plan file with progress markers, and reporting blockers. Trigger examples: "implement the plan", "execute the plan for issue 42", "run phase 1 of the plan", "implement step 2.3".'
 tools: Glob, Grep, Read, Write, Edit, Bash, BashOutput, KillShell, TodoWrite
 model: sonnet
 color: green
