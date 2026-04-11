@@ -8,6 +8,22 @@ Gradle Retro Assembler Plugin is a Gradle plugin that adds capability for buildi
 
 Published at: https://plugins.gradle.org/plugin/com.github.c64lib.retro-assembler
 
+## Claude Code Asset Governance
+
+Before creating, modifying, or deleting any of the following assets, you MUST invoke
+the `meta-log` skill procedure FIRST (before any file write):
+
+- `CLAUDE.md` (this file)
+- Any file inside `.claude/agents/`
+- Any file inside `.claude/skills/`
+- Any file inside `.claude/commands/`
+- `.claude/settings.json` or `.claude/settings.local.json`
+
+This rule applies whether the change is user-requested or AI-initiated.
+Do NOT apply this rule to `.claude/templates/` or any other unlisted path.
+
+The `meta-log` skill is at `.claude/skills/meta-log/SKILL.md`.
+
 ## Build Commands
 
 ### Build and Test
