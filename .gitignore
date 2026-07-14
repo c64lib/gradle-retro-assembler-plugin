@@ -1,5 +1,8 @@
 .gradle
 **/build/
+# The '**/build/' rule above is for Gradle output; keep the Claude 'build' skill tracked
+!.claude/skills/build/
+!.claude/skills/build/**
 /out/
 /doc/out
 

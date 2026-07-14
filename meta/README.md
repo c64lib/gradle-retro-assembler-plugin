@@ -10,3 +10,4 @@ Each entry is a separate Markdown file named `MET-nnnn_<slug>.md`, based on the 
 |----|------|-----|---------|
 | [MET-0001](MET-0001_port-claude-skills.md) | 2026-07-14 | Maciej Małecki | Port claude-meta-changelog, git-utils, and gh-utils skills plus a changelog entry template |
 | [MET-0002](MET-0002_add-build-skill.md) | 2026-07-14 | Maciej Małecki | Add a build skill wrapping the Gradle build, routing tasks through a Haiku subagent |
+| [MET-0003](MET-0003_untrap-build-skill-gitignore.md) | 2026-07-14 | Maciej Małecki | Keep .claude/skills/build/ tracked despite the **/build/ gitignore rule |
