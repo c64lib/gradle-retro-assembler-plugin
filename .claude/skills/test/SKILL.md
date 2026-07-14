@@ -1,6 +1,7 @@
 ---
 description: Run all unit tests across all submodules, analyze results with detailed failure diagnostics, and generate coverage reports
 user-invocable: true
+allowed-tools: Agent Skill Bash Read Grep Glob
 ---
 
 # Run Unit Tests
@@ -13,37 +14,58 @@ Current branch: {{git_branch}}
 
 This project is a multi-module Gradle plugin with 58+ submodules. Tests use JUnit 5, KoTest, Mockito, and MockK. Each module generates individual test results and JaCoCo coverage reports.
 
+## Division of labour: Gradle execution vs. analysis
+
+This skill has two distinct kinds of work, and they run in different places:
+
+- **Running Gradle** (the slow, mechanical part) is delegated — never run `./gradlew` directly from the main agent.
+- **Analysing results** (parsing reports, reading test/production sources, diagnosing failures, writing the report) stays on the main agent, because it needs this conversation's context and judgement.
+
+### Delegating the Gradle run
+
+Route every `./gradlew` invocation through the **`build`** skill, which owns the convention of spawning a **Haiku** subagent to run the command off the main agent and relay the raw result. Invoke it with the exact task list this skill needs:
+
+```
+Skill(skill: "build", args: "test collectTestResults jacocoReport")
+```
+
+The `build` skill will spawn the Haiku subagent, run `./gradlew test collectTestResults jacocoReport --console=plain`, and report the outcome (BUILD SUCCESSFUL/FAILED, failing tasks, error lines, report paths) back to you.
+
+Running the three tasks in one invocation is deliberate — a single Gradle run wires up the dependencies (`collectTestResults` and `jacocoReport` both depend on test execution data) and avoids spawning multiple subagents.
+
+**Fallback:** if the `build` skill is unavailable for any reason, spawn the Haiku subagent yourself, exactly as the `build` skill documents:
+
+```
+Agent(
+  subagent_type: "general-purpose",
+  model: "haiku",
+  run_in_background: false,
+  description: "Run gradle tests",
+  prompt: "From the repo root run: ./gradlew test collectTestResults jacocoReport --console=plain
+           (Bash tool, timeout 600000 ms). Report the final outcome line, any failing tasks with
+           their error lines verbatim including file:line, and confirm the report paths exist."
+)
+```
+
+Do **not** run `./gradlew` inline on the main agent.
+
 ## Your Task
 
 Follow these steps systematically:
 
-### Step 1: Run All Tests
+### Step 1: Run tests, collect results, generate coverage (delegated)
 
-Execute the full test suite:
+Delegate a single Gradle run to the `build` skill as described above:
 
-```bash
-./gradlew test
+```
+Skill(skill: "build", args: "test collectTestResults jacocoReport")
 ```
 
-Wait for the command to complete. Capture the full output including any failures.
+Wait for it to return. Capture the reported outcome, including any failing tasks and error lines.
 
-### Step 2: Collect Test Results
+### Step 2: Analyze Results (on the main agent)
 
-Aggregate test results for analysis:
-
-```bash
-./gradlew collectTestResults
-```
-
-### Step 3: Generate Coverage Report
-
-Generate the aggregated JaCoCo coverage report from the test run:
-
-```bash
-./gradlew jacocoReport
-```
-
-### Step 4: Analyze Results
+Once the delegated run returns, do the analysis yourself using Read/Grep/Glob on the collected reports and sources.
 
 #### If All Tests Pass:
 
@@ -69,9 +91,9 @@ Present a success report:
 
 Perform detailed failure analysis:
 
-1. **Identify failing tests**: Parse the Gradle output to find all failing test classes and methods.
+1. **Identify failing tests**: Use the failing-task output the delegated run reported, plus the collected result XMLs under `build/test-results/gradle/`, to find all failing test classes and methods.
 
-2. **Read test failure details**: For each failing test, use the Gradle output to extract:
+2. **Read test failure details**: For each failing test, extract:
    - Test class and method name
    - Module where the test lives
    - Exception type and message
@@ -124,22 +146,22 @@ Present a detailed failure report:
 1. {prioritized list of fixes}
 ```
 
-### Step 5: Module-Specific Re-run (Optional)
+### Step 3: Module-Specific Re-run (Optional)
 
-If failures are isolated to specific modules, offer to re-run just those modules for faster iteration:
+If failures are isolated to specific modules, offer to re-run just those modules for faster iteration. Route the re-run through the `build` skill as well:
 
 ```
-To re-run failed module tests:
-./gradlew :{module}:test
+Skill(skill: "build", args: ":{module}:test --tests \"TestClassName\"")
 ```
 
 ## Important Guidelines
 
+- **Never run `./gradlew` directly on the main agent** — delegate it through the `build` skill (Haiku subagent). Reserve the main agent for analysis.
 - Always run the full test suite first before investigating failures
 - When reading failing tests, focus on understanding intent, not just syntax
 - Check git diff on the current branch to correlate failures with recent changes
 - For each failure, always provide a concrete suggested fix with file path and description
 - Do not attempt to fix tests automatically unless the user asks
 - If a test appears flaky (passes on re-run), note this explicitly
-- Report coverage only if jacocoReport succeeds (it depends on test execution data)
-- Use `./gradlew :module:test --tests "TestClassName"` syntax when suggesting targeted re-runs
+- Report coverage only if `jacocoReport` succeeded (it depends on test execution data)
+- Use the `:module:test --tests "TestClassName"` form (via the `build` skill) when suggesting targeted re-runs
