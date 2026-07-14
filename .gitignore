@@ -18,3 +18,6 @@ gradle-app.setting
 # IDE files
 /.idea
 *.iml
+
+# Claude Code local (per-developer) settings
+.claude/settings.local.json
