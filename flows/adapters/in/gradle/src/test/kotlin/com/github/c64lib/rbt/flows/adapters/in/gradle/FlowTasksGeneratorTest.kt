@@ -70,8 +70,7 @@ class FlowTasksGeneratorTest :
         `when`("registering tasks") {
           then("the build fails at configuration time with a clear message") {
             val project = newProject()
-            val exception =
-                shouldThrow<GradleException> { registerTasksInto(project, flows) }
+            val exception = shouldThrow<GradleException> { registerTasksInto(project, flows) }
             exception.message.shouldNotBeNull() shouldContain "Circular dependency"
           }
         }
@@ -106,6 +105,172 @@ class FlowTasksGeneratorTest :
               (project.tasks.findByName("flowTitle") != null) shouldBe true
               (project.tasks.findByName("flows") != null) shouldBe true
             }
+          }
+        }
+      }
+
+      fun dependenciesOf(project: org.gradle.api.Project, taskName: String): Set<String> {
+        val task = project.tasks.getByName(taskName)
+        return task.taskDependencies.getDependencies(task).map { it.name }.toSet()
+      }
+
+      given("a flow with two independent steps (no shared files)") {
+        val flows =
+            FlowDslBuilder()
+                .flow("assets") {
+                  commandStep("charpad", "charpad") {
+                    from("src/a.ctm")
+                    to("build/a.bin")
+                  }
+                  commandStep("spritepad", "spritepad") {
+                    from("src/b.spd")
+                    to("build/b.bin")
+                  }
+                }
+                .build()
+
+        `when`("registering tasks") {
+          val project = registerTasks(flows)
+
+          then("no dependency exists between the two step tasks") {
+            dependenciesOf(project, "flowAssetsStepCharpad") shouldBe emptySet()
+            dependenciesOf(project, "flowAssetsStepSpritepad") shouldBe emptySet()
+          }
+
+          then("the flow aggregation task depends on both step tasks") {
+            dependenciesOf(project, "flowAssets") shouldBe
+                setOf("flowAssetsStepCharpad", "flowAssetsStepSpritepad")
+          }
+        }
+      }
+
+      given("a flow whose second step consumes the first step's output, plus an independent step") {
+        val flows =
+            FlowDslBuilder()
+                .flow("pipeline") {
+                  commandStep("produce", "tool") {
+                    from("src/a.txt")
+                    to("build/a.bin")
+                  }
+                  commandStep("consume", "tool") {
+                    from("build/a.bin")
+                    to("build/a.z.bin")
+                  }
+                  commandStep("independent", "tool") {
+                    from("src/c.txt")
+                    to("build/c.bin")
+                  }
+                }
+                .build()
+
+        `when`("registering tasks") {
+          val project = registerTasks(flows)
+
+          then("the consuming step task depends on the producing step task") {
+            dependenciesOf(project, "flowPipelineStepConsume") shouldBe
+                setOf("flowPipelineStepProduce")
+          }
+
+          then("the independent step task has no dependencies") {
+            dependenciesOf(project, "flowPipelineStepIndependent") shouldBe emptySet()
+          }
+
+          then("the flow aggregation task depends on all three step tasks") {
+            dependenciesOf(project, "flowPipeline") shouldBe
+                setOf(
+                    "flowPipelineStepProduce",
+                    "flowPipelineStepConsume",
+                    "flowPipelineStepIndependent")
+          }
+        }
+      }
+
+      given("two flows linked only by artifact consumption (no explicit dependsOn)") {
+        val flows =
+            FlowDslBuilder()
+                .flow("assets") {
+                  commandStep("font", "charpad") {
+                    from("src/font.ctm")
+                    to("build/font.bin")
+                  }
+                }
+                .flow("compilation") {
+                  commandStep("compile", "kickass") {
+                    from("src/main.asm", "build/font.bin")
+                    to("build/main.prg")
+                  }
+                }
+                .build()
+
+        `when`("registering tasks") {
+          val project = registerTasks(flows)
+
+          then("the consuming flow's aggregation task depends on the producing flow's task") {
+            dependenciesOf(project, "flowCompilation") shouldBe
+                setOf("flowCompilationStepCompile", "flowAssets")
+          }
+
+          then("the consuming step task depends on the producing step task across flows") {
+            dependenciesOf(project, "flowCompilationStepCompile") shouldBe
+                setOf("flowAssetsStepFont")
+          }
+        }
+      }
+
+      given("two flows with an explicit dependsOn and no shared files") {
+        val flows =
+            FlowDslBuilder()
+                .flow("first") {
+                  commandStep("stepA", "tool") {
+                    from("src/a.txt")
+                    to("build/a.bin")
+                  }
+                }
+                .flow("second") {
+                  dependsOn("first")
+                  commandStep("stepB", "tool") {
+                    from("src/b.txt")
+                    to("build/b.bin")
+                  }
+                }
+                .build()
+
+        `when`("registering tasks") {
+          val project = registerTasks(flows)
+
+          then("the dependent flow's aggregation task depends on the dependency flow's task") {
+            dependenciesOf(project, "flowSecond") shouldBe setOf("flowSecondStepStepB", "flowFirst")
+          }
+        }
+      }
+
+      given("two fully independent flows") {
+        val flows =
+            FlowDslBuilder()
+                .flow("left") {
+                  commandStep("stepL", "tool") {
+                    from("src/l.txt")
+                    to("build/l.bin")
+                  }
+                }
+                .flow("right") {
+                  commandStep("stepR", "tool") {
+                    from("src/r.txt")
+                    to("build/r.bin")
+                  }
+                }
+                .build()
+
+        `when`("registering tasks") {
+          val project = registerTasks(flows)
+
+          then("no dependency exists between the two flow aggregation tasks") {
+            dependenciesOf(project, "flowLeft") shouldBe setOf("flowLeftStepStepL")
+            dependenciesOf(project, "flowRight") shouldBe setOf("flowRightStepStepR")
+          }
+
+          then("the top-level flows task depends on both flow tasks") {
+            dependenciesOf(project, "flows") shouldBe setOf("flowLeft", "flowRight")
           }
         }
       }
