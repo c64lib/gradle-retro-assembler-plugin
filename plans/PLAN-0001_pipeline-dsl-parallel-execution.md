@@ -203,11 +203,13 @@ None — all questions answered (see Self-Reflection Questions above).
    - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowExecutionTask.kt` (delete)
    - Description: This file is dead code — it is never instantiated by `FlowTasksGenerator` and contains a `TODO`. Removing it reduces confusion.
    - Testing: Build compiles without errors; no test references this class
+   - [x] **Completed 2026-07-15** — File deleted; only historical plan documents referenced it. `:infra:gradle:compileKotlin` and all flows-adapter tests pass.
 
 2. **Step 1.2**: Add flow graph validation in `FlowTasksGenerator.registerTasks()`
    - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
    - Description: At the start of `registerTasks()`, call `FlowService.validateFlows(flows)` (the adapter cannot use `FlowDependencyGraph` directly — it is `internal` to the `flows` module). Log warnings for warning-severity issues. Throw a `GradleException` for error-severity issues. **Precondition: Phase 0 is complete** — enabling fail-on-error before the artifact-identity fix would break existing consumer builds with false `MissingArtifactProducer` errors (red-team finding).
    - Testing: Verify that a circular dependency between two flows causes a build failure with a clear error message, and that tony-shaped flows (source-file inputs) validate cleanly
+   - [x] **Completed 2026-07-15** — `registerTasks()` now calls `validateFlowGraph()` first: warnings are logged via `project.logger.warn`, error-severity issues throw `GradleException` listing every error; `FlowValidationException` from graph construction (cross-flow duplicate producers) is wrapped in `GradleException` too. Covered by new `FlowTasksGeneratorTest` (ProjectBuilder-based): circular `dependsOn` fails at configuration time with "Circular dependency" in the message, tony-shaped flows register cleanly. Note: `flows/adapters/in/gradle/build.gradle.kts` gained `--add-opens java.base/java.lang=ALL-UNNAMED` for the test JVM — Gradle's `ProjectBuilder` requires it on JDK 16+.
 
 **Phase 1 Deliverable**: Cleaner codebase with validation feedback during configuration; existing behaviour preserved
 
@@ -318,6 +320,7 @@ None — all questions answered (see Self-Reflection Questions above).
 | 2026-07-15 | Maciej Małecki / AI Agent | All four unresolved questions answered interactively: (1) artifact identity → path-based matching in FlowDependencyGraph; (2) validation false positives → mark DSL inputs isSourceFile when unproduced; (3) validation failures → fail the build (GradleException) after Phase 0; (4) FlowExecutionTask → remove in this PR. Unresolved Questions now empty — plan eligible for acceptance. |
 | 2026-07-15 | Maciej Małecki / AI Agent | Status `draft` → `accepted` (acceptance gate satisfied); plan copied onto GitHub issue #135 per user decision. |
 | 2026-07-15 | AI Agent | Phase 0 executed: Steps 0.1/0.2 spikes confirmed both red-team findings (recorded inline); Step 0.3 implemented path-based artifact matching in `FlowDependencyGraph` and source-file marking in `FlowDslBuilder.build()`; new regression tests added; all 216 flows/adapter tests green. Status `accepted` → `in progress`. |
+| 2026-07-15 | AI Agent | Phase 1 executed: Step 1.1 removed dead `FlowExecutionTask.kt`; Step 1.2 added configuration-time `validateFlowGraph()` to `FlowTasksGenerator` (warnings logged, errors fail the build via `GradleException`), with new ProjectBuilder-based `FlowTasksGeneratorTest`; test JVM `--add-opens` added for ProjectBuilder on modern JDKs. All 79 adapter tests green. |
 
 ---
 
