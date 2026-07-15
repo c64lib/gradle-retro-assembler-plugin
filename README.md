@@ -18,6 +18,10 @@ A complete User's Manual is available at the following address:
 
 https://c64lib.github.io/gradle-retro-assembler-plugin/
 
+## Architecture documentation
+
+Technical architecture documentation (arc42, Markdown + Mermaid) for contributors and AI agents is in [`doc/arc42/`](doc/arc42/README.md). It covers the domain model, bounded contexts, use cases, ports & adapters, runtime scenarios, and cross-cutting concepts.
+
 ## Change log
 
 A change log together with the list of available versions can be seen at:

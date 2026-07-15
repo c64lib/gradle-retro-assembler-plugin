@@ -35,6 +35,8 @@ Published at: https://plugins.gradle.org/plugin/com.github.c64lib.retro-assemble
 
 This project uses **Hexagonal Architecture** (Ports and Adapters pattern).
 
+> **Architecture reference**: The complete arc42 technical documentation (Markdown + Mermaid) is in [`doc/arc42/`](doc/arc42/README.md). When you change the architecture (new domain, new port, changed wiring or task-dependency rules), update the affected building-block page in `doc/arc42/05_building_block_view.md` and the relevant concept in `doc/arc42/08_crosscutting_concepts.md` so the docs stay authoritative.
+
 ### Domain Structure
 
 The project is organized by business domains at the top level:
