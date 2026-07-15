@@ -5,7 +5,7 @@
 **Issue**: #154
 **Started**: 2026-07-15
 **Last Updated**: 2026-07-15
-**State**: in progress (Phase 1 complete; Phases 2-3 pending)
+**State**: in progress (Phases 1-2 complete; Phase 3 pending)
 
 ## 1. Execution Sessions
 
@@ -22,11 +22,23 @@
 | 1.3 | completed | Mermaid `flowchart` diagrams (business + technical context) added; all relative links verified to resolve (`doc/index.adoc`, `doc/kb/`, `doc/concept/` all exist) | Full glossary (§12) deferred to Phase 3 per plan; §3 references it as forward pointer |
 | 1.4 | completed | Claims cross-checked against `RetroAssemblerPlugin.kt` (manual DI in `afterEvaluate`), `FlowDependencyGraph.kt` and `FlowTasksGenerator.kt` (both confirmed to exist at stated paths) | — |
 
+### Session 2 — 2026-07-15
+
+- **Scope**: Phase 2 (Steps 2.1–2.3)
+- **Mode**: per-phase
+- **Outcome**: completed
+
+| Step | Result | Verification | Notes |
+|------|--------|--------------|-------|
+| 2.1 | completed | §5 L1 written; all 42 `include(` modules in `settings.gradle.kts` mapped to 9 contexts + `doc`, no orphans; Mermaid L1 diagram + module-mapping table; `crunchers` explicitly flagged as kb gap | — |
+| 2.2 | completed | 9 hexagon pages under `building-blocks/`; port tables (port → adapter → path) spot-checked — `RetroAssemblerPlugin.kt`, `CharpadAdapter.kt`, `KickAssemblerPortAdapter.kt`, `GradleExomizerAdapter.kt`, `ReadPngImageAdapter.kt` all confirmed to exist; all relative links (incl. `../../../CLAUDE.md`, `../../settings.gradle.kts`) resolve | — |
+| 2.3 | completed | §6 with 5 `sequenceDiagram`s (wiring, build lifecycle, flow+port delegation, 64spec via VICE, dependency resolution); every participant traces to a class named in §5 | — |
+
 ## 2. Deviations from Plan
 
 | # | Step | Deviation | Reason | Impact |
 |---|------|-----------|--------|--------|
-| — | — | None | Plan followed as written | — |
+| 1 | 2.2 | Plan §11 preview named only `StepValidationException`/`StepExecutionException` for flows; docs also reference `FlowValidationException` (in `FlowDependencyGraph.kt`) | All three exception classes verified to exist in code | None — richer than plan; §11 debt list in Phase 3 will note all three |
 
 ## 3. Follow-ups
 

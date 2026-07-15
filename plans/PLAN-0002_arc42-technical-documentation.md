@@ -4,7 +4,7 @@
 **Issue**: #154
 **Status**: in progress
 **Created**: 2026-07-15
-**Last Updated**: 2026-07-15
+**Last Updated**: 2026-07-15 (Phase 2 complete)
 
 ## 1. Feature Description
 
@@ -160,18 +160,18 @@ A single, complete, maintainable arc42 document set in Markdown with Mermaid dia
 ### Phase 2: Core Architecture (arc42 §5–§6 — domains, use cases, adapters)
 **Goal**: Document the building blocks (bounded contexts, hexagon internals, adapters, ports) and the runtime scenarios.
 
-1. **Step 2.1**: §5 Level 1 — system decomposed into bounded contexts
+1. **Step 2.1**: §5 Level 1 — system decomposed into bounded contexts — `- [x]` completed 2026-07-15
    - Files: `doc/arc42/05_building_block_view.md`
    - Description: Mermaid top-level diagram of all domains (compilers, dependencies, emulators, testing, processors, crunchers, flows, shared, infra) with their relationships (flows → processors/crunchers/compilers via ports; all → shared; infra → all as `compileOnly` wiring). Table mapping each bounded context to its Gradle modules from `settings.gradle.kts`
-   - Testing: Every module in `settings.gradle.kts` is mapped; no orphans
-2. **Step 2.2**: §5 Level 2 — per-domain hexagon pages
+   - Testing: Every module in `settings.gradle.kts` is mapped; no orphans — verified: all 42 `include(` modules mapped to 9 contexts + `doc`, no orphans
+2. **Step 2.2**: §5 Level 2 — per-domain hexagon pages — `- [x]` completed 2026-07-15
    - Files: `doc/arc42/05_building_block_view.md` + `doc/arc42/building-blocks/{compilers,dependencies,emulators,testing,processors,crunchers,flows,shared,infra}.md`
    - Description: One page per bounded context: purpose, use-case inventory (class, one-line responsibility, payload/result), port table (port → implementing adapter(s) with paths), inbound/outbound adapter details (Gradle tasks, DSL extensions, step builders; file/PNG/process adapters), and a Mermaid hexagon diagram (in-adapter → use case → port → out-adapter). `shared` page documents the shared-kernel packages; `infra` page documents plugin wiring and the `compileOnly` rule
-   - Testing: Inventories match the code (spot-check paths); diagrams render
-3. **Step 2.3**: §6 Runtime View — key scenarios as sequence diagrams
+   - Testing: Inventories match the code (spot-check paths); diagrams render — verified: all 9 pages created; port→adapter paths spot-checked against real files; all relative links resolve
+3. **Step 2.3**: §6 Runtime View — key scenarios as sequence diagrams — `- [x]` completed 2026-07-15
    - Files: `doc/arc42/06_runtime_view.md`
    - Description: Mermaid `sequenceDiagram`s for: (a) plugin application & wiring (`apply` → extensions → `afterEvaluate` task creation), (b) full build lifecycle (`build` → `asm` → flows/preprocess/deps), (c) a flow execution with port delegation (e.g. charpad step → `CharpadPort` → `CharpadAdapter` → processor domain), (d) 64spec test run via VICE, (e) dependency resolution/download
-   - Testing: Scenario steps traceable to actual classes named in §5
+   - Testing: Scenario steps traceable to actual classes named in §5 — verified: all 5 sequence diagrams written; every participant traces to a §5 class
 
 **Phase 2 Deliverable**: Complete §5 + §6 — the core of the requested documentation (domains, bounded contexts, use cases, adapters) mergeable as a unit.
 
@@ -247,6 +247,7 @@ A single, complete, maintainable arc42 document set in Markdown with Mermaid dia
 | 2026-07-15 | AI Agent | Refinement round 2: confirmed all 5 §6 runtime scenarios; rollout changed to single PR at the end; status transitioned draft → accepted (acceptance gate passed — no unresolved questions) |
 | 2026-07-15 | AI Agent | Noted that the latest official arc42 template can be fetched from https://arc42.org/; Step 1.1 now instructs fetching it to confirm §1–§12 structure before generating the skeleton |
 | 2026-07-15 | AI Agent | Phase 1 (Steps 1.1–1.4) executed and verified via EXEC-0002 Session 1; status transitioned accepted → in progress |
+| 2026-07-15 | AI Agent | Phase 2 (Steps 2.1–2.3) executed and verified via EXEC-0002 Session 2: §5 building-block view (L1 + 9 hexagon pages) and §6 runtime view (5 sequence diagrams); status remains in progress (Phase 3 pending) |
 
 ---
 
