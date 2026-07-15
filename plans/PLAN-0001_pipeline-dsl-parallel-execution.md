@@ -2,11 +2,11 @@
 
 **Plan ID**: PLAN-0001
 **Issue**: #135
-**Status**: draft
+**Status**: accepted
 **Created**: 2026-03-29
 **Last Updated**: 2026-07-15
 
-> Migrated from `.ai/135-pipeline-dsl-parallel-execution/feature-135-pipeline-dsl-parallel-execution-action-plan.md` into the `plans/` system. Status is `draft`: four Unresolved Questions remain (see Section 4), which must be answered before the plan can be `accepted`.
+> Migrated from `.ai/135-pipeline-dsl-parallel-execution/feature-135-pipeline-dsl-parallel-execution-action-plan.md` into the `plans/` system. All open questions have been answered (see Section 4) — the plan is eligible for `accepted`.
 
 ## 1. Feature Description
 
@@ -140,14 +140,23 @@ When Gradle runs with `--parallel`, independent tasks will execute concurrently 
 - **Q**: Is `FlowExecutionTask` used anywhere?
   - **A**: No. `FlowTasksGenerator.registerTasks()` never registers a `FlowExecutionTask`. It has a `TODO` comment and a `println`. It is dead code left over from an earlier iteration.
 
+- **Q**: How should artifact identity be fixed so implicit dependencies actually fire for DSL-built flows?
+  - **A**: Path-based matching (user decision, 2026-07-15). Key `artifactProducers`/`artifactConsumers` by `path` in `FlowDependencyGraph` instead of full `FlowArtifact` equality. Smallest, most robust change — contained in the domain, no DSL changes, and works for hand-built flows too. Implemented in Step 0.3.
+
+- **Q**: How should false `MissingArtifactProducer` errors be avoided for genuine source inputs?
+  - **A**: Mark DSL-created inputs `isSourceFile = true` when no step in any flow produces that path (user decision, 2026-07-15). Source assets stop erroring while real wiring mistakes (a consumed intermediate nothing produces) are still caught as ERRORs. Determined at DSL `build()` time or in the graph; implemented in Step 0.3.
+
+- **Q**: Should flow validation failures at configuration time throw a `GradleException` (fail the build) or just log a warning?
+  - **A**: Fail the build (user decision, 2026-07-15). With the Phase 0 fixes eliminating false positives, remaining error-severity issues are genuine (circular dependencies, consumed intermediates nothing produces) and would break the build anyway — failing early at configuration time with a clear message beats a confusing mid-build failure. Warning-severity issues are logged only. Precondition unchanged: fail-on-error ships only after Phase 0.
+
+- **Q**: Should `FlowExecutionTask.kt` be removed in this PR or tracked as a separate cleanup issue?
+  - **A**: Remove in this PR (user decision, 2026-07-15). Zero user-facing impact, trivial diff, and it reduces confusion in the exact file area this feature touches. Already specified as Step 1.1.
+
 - **Q**: Should `FlowTasksGenerator` use `FlowService` as its facade or call `FlowDependencyGraph` directly?
   - **A**: Settled by module visibility (red-team finding): `FlowDependencyGraph` is an `internal class` in the `flows` Gradle module (`FlowDependencyGraph.kt:28`), and `FlowTasksGenerator` lives in a different Gradle module (`flows:adapters:in:gradle`). Kotlin `internal` does not cross Gradle module boundaries, so the adapter cannot reference `FlowDependencyGraph` at all. The only viable path is the public `FlowService` (`FlowService.kt:28`), which needs a new public method exposing per-flow dependencies (e.g. `getDependenciesOf(flows, flowName): Set<String>`).
 
 ### Unresolved Questions
-- [ ] How should artifact identity be fixed so implicit dependencies actually fire for DSL-built flows? Options: (a) key producer/consumer matching by `path` instead of full `FlowArtifact` equality in `FlowDependencyGraph`, (b) make the DSL generate matching artifact names for identical paths, (c) drop flow-level implicit dependencies entirely and rely on the existing step-level exact-path matching in `setupFileDependencies()`. (Red-team finding: with data-class equality and DSL auto-names `{step}_input_{n}`/`{step}_output_{n}`, no implicit dependency can ever match today.)
-- [ ] How should false `MissingArtifactProducer` errors be avoided for genuine source inputs? Options: mark DSL-created inputs `isSourceFile = true`, downgrade the issue severity, match producers by path, or roll validation out as warning-only first. (Red-team finding: as written, fail-on-error validation would break every existing consumer build, including tony.)
-- [ ] Should flow validation failures at configuration time throw a `GradleException` (fail the build) or just log a warning? Currently `FlowDependencyGraph.getParallelExecutionOrder()` throws `FlowValidationException` on errors — this behaviour can be preserved or wrapped. (Sharpened by the false-positive finding above: fail-on-error is only safe after Phase 0 fixes artifact identity.)
-- [ ] Should `FlowExecutionTask.kt` be removed in this PR or tracked as a separate cleanup issue?
+None — all questions answered (see Self-Reflection Questions above).
 
 ### Design Decisions
 - **Decision**: How to wire flow-level task dependencies when the dependency is implicit (via artifacts) rather than explicit (via `dependsOn`)
@@ -303,6 +312,8 @@ When Gradle runs with `--parallel`, independent tasks will execute concurrently 
 |------|------------|---------|
 | 2026-07-15 | AI Agent | Migrated from `.ai/135-…` into `plans/PLAN-0001`; header updated to canonical format (Plan ID, `draft` status). Content unchanged. |
 | 2026-07-15 | AI Agent | Incorporated adversarial red-team findings (/challenge): added Phase 0 (artifact-identity fix + feasibility spikes) — `FlowArtifact` equality never matches for DSL-built flows and validation false-errors on source inputs; answered the FlowService-vs-graph question (settled by `internal` module visibility); revised Steps 1.2/2.2/3.2 to route through a new public `FlowService` API and gate fail-on-error validation on Phase 0; added Step 3.4 e2e gate against tony; updated Gap Analysis, Architecture Alignment, and Risks accordingly. Two new unresolved questions added; status remains `draft`. |
+| 2026-07-15 | Maciej Małecki / AI Agent | All four unresolved questions answered interactively: (1) artifact identity → path-based matching in FlowDependencyGraph; (2) validation false positives → mark DSL inputs isSourceFile when unproduced; (3) validation failures → fail the build (GradleException) after Phase 0; (4) FlowExecutionTask → remove in this PR. Unresolved Questions now empty — plan eligible for acceptance. |
+| 2026-07-15 | Maciej Małecki / AI Agent | Status `draft` → `accepted` (acceptance gate satisfied); plan copied onto GitHub issue #135 per user decision. |
 
 ---
 
