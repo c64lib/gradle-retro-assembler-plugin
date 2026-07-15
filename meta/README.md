@@ -12,3 +12,4 @@ Each entry is a separate Markdown file named `MET-nnnn_<slug>.md`, based on the 
 | [MET-0002](MET-0002_add-build-skill.md) | 2026-07-14 | Maciej Małecki | Add a build skill wrapping the Gradle build, routing tasks through a Haiku subagent |
 | [MET-0003](MET-0003_untrap-build-skill-gitignore.md) | 2026-07-14 | Maciej Małecki | Keep .claude/skills/build/ tracked despite the **/build/ gitignore rule |
 | [MET-0004](MET-0004_test-skill-reuse-build.md) | 2026-07-14 | Maciej Małecki | Modify the test skill to delegate Gradle execution to the build skill (Haiku subagent), keeping analysis on the main agent |
+| [MET-0005](MET-0005_add-e2e-test-skill.md) | 2026-07-15 | Maciej Małecki | Add an e2e-test skill wrapping end-to-end plugin testing against the tony harness project (hardcoded paths) |
