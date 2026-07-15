@@ -2,7 +2,7 @@
 
 **Plan ID**: PLAN-0002
 **Issue**: #154
-**Status**: accepted
+**Status**: in progress
 **Created**: 2026-07-15
 **Last Updated**: 2026-07-15
 
@@ -138,22 +138,22 @@ A single, complete, maintainable arc42 document set in Markdown with Mermaid dia
 ### Phase 1: Skeleton and Foundation (arc42 §1–§4)
 **Goal**: Establish the document structure and the context-setting sections.
 
-1. **Step 1.1**: Create arc42 skeleton and index
+1. **Step 1.1**: Create arc42 skeleton and index — `- [x]` completed 2026-07-15
    - Files: `doc/arc42/README.md`, `doc/arc42/01_introduction_and_goals.md` … `doc/arc42/12_glossary.md` (stubs with section headers)
    - Description: Multi-file arc42 layout; `README.md` is the table of contents with links to all 12 sections and a "how to edit diagrams" note (Mermaid in fenced blocks). Fetch the current official template/section structure from https://arc42.org/ to confirm §1–§12 titles and guidance before generating the stubs, so the skeleton matches the latest arc42 version rather than a remembered one
-   - Testing: All links resolve; files render on GitHub; section titles match the fetched arc42.org template
-2. **Step 1.2**: Write §1 Introduction & Goals and §2 Constraints
+   - Testing: All links resolve; files render on GitHub; section titles match the fetched arc42.org template — verified: fetched arc42.org, section titles matched exactly
+2. **Step 1.2**: Write §1 Introduction & Goals and §2 Constraints — `- [x]` completed 2026-07-15
    - Files: `doc/arc42/01_introduction_and_goals.md`, `doc/arc42/02_architecture_constraints.md`
    - Description: Requirements overview (build ASM projects for MOS 65xx / C64), quality goals (extensibility for new dialects/processors, incremental builds, testability), stakeholders (retro devs, contributors, AI agents). Constraints: Gradle plugin model, Kotlin, JDK 11 target, hexagonal architecture as a mandated convention, plugin portal publishing
-   - Testing: Content consistent with `README.md` and `doc/index.adoc`
-3. **Step 1.3**: Write §3 Context & Scope with Mermaid context diagram
+   - Testing: Content consistent with `README.md` and `doc/index.adoc` — verified against `gradle.properties`, `buildSrc/src/main/kotlin/rbt.kotlin.gradle.kts`, `infra/gradle/build.gradle.kts`
+3. **Step 1.3**: Write §3 Context & Scope with Mermaid context diagram — `- [x]` completed 2026-07-15
    - Files: `doc/arc42/03_context_and_scope.md`
    - Description: Business context (user's Gradle build ↔ plugin ↔ external tools: Kick Assembler jar download, DASM, VICE, Exomizer, gt2reloc; GitHub as dependency source) and technical context, as Mermaid `flowchart` diagrams
-   - Testing: Diagram renders; every external system appears in the glossary
-4. **Step 1.4**: Write §4 Solution Strategy
+   - Testing: Diagram renders; every external system appears in the glossary — diagrams added; all relative links verified to resolve; full glossary content deferred to Phase 3 (Step 3.4) per plan phasing
+4. **Step 1.4**: Write §4 Solution Strategy — `- [x]` completed 2026-07-15
    - Files: `doc/arc42/04_solution_strategy.md`
    - Description: Key strategies — hexagonal architecture per domain, Gradle isolated as adapter concern, use-case-per-operation with single `apply`, manual DI in plugin entry point, flows as orchestrator context delegating via ports, Workers API for parallelism
-   - Testing: Cross-check statements against `RetroAssemblerPlugin.kt` and `CLAUDE.md`
+   - Testing: Cross-check statements against `RetroAssemblerPlugin.kt` and `CLAUDE.md` — verified `FlowDependencyGraph.kt` and `FlowTasksGenerator.kt` exist at stated paths
 
 **Phase 1 Deliverable**: Mergeable skeleton with complete §1–§4; remaining sections present as stubs marked "in progress".
 
@@ -246,6 +246,7 @@ A single, complete, maintainable arc42 document set in Markdown with Mermaid dia
 | 2026-07-15 | AI Agent | All 4 unresolved questions answered by user (location: doc/arc42/, GitHub rendering only, port tables + representative adapters, §11 debt with follow-up issue suggestions); design decisions finalized |
 | 2026-07-15 | AI Agent | Refinement round 2: confirmed all 5 §6 runtime scenarios; rollout changed to single PR at the end; status transitioned draft → accepted (acceptance gate passed — no unresolved questions) |
 | 2026-07-15 | AI Agent | Noted that the latest official arc42 template can be fetched from https://arc42.org/; Step 1.1 now instructs fetching it to confirm §1–§12 structure before generating the skeleton |
+| 2026-07-15 | AI Agent | Phase 1 (Steps 1.1–1.4) executed and verified via EXEC-0002 Session 1; status transitioned accepted → in progress |
 
 ---
 
