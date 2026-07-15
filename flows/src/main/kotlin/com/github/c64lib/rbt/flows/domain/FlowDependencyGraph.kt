@@ -24,12 +24,18 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.domain
 
-/** Manages the dependency graph of flows and provides validation and analysis capabilities */
+/**
+ * Manages the dependency graph of flows and provides validation and analysis capabilities.
+ *
+ * Producers and consumers are matched by artifact path, not full artifact equality — the DSL
+ * auto-generates artifact names, so only paths reliably identify the same file on both sides.
+ */
 internal class FlowDependencyGraph {
   private val flows = mutableMapOf<String, Flow>()
   private val dependencyEdges = mutableMapOf<String, MutableSet<String>>()
-  private val artifactProducers = mutableMapOf<FlowArtifact, String>()
-  private val artifactConsumers = mutableMapOf<FlowArtifact, MutableSet<String>>()
+  private val artifactProducers = mutableMapOf<String, String>()
+  private val artifactConsumers = mutableMapOf<String, MutableSet<String>>()
+  private val consumedArtifactsByPath = mutableMapOf<String, MutableList<FlowArtifact>>()
 
   /** Adds a flow to the dependency graph */
   fun addFlow(flow: Flow): FlowDependencyGraph {
@@ -38,17 +44,20 @@ internal class FlowDependencyGraph {
     // Build explicit dependency edges
     dependencyEdges.getOrPut(flow.name) { mutableSetOf() }.addAll(flow.dependsOn)
 
-    // Track artifact producers and consumers
+    // Track artifact producers and consumers by path; multiple steps of the same flow may
+    // legitimately write the same file, so only cross-flow duplicates are rejected
     flow.produces.forEach { artifact ->
-      if (artifactProducers.containsKey(artifact)) {
+      val existingProducer = artifactProducers[artifact.path]
+      if (existingProducer != null && existingProducer != flow.name) {
         throw FlowValidationException(
-            "Artifact '${artifact.name}' is produced by multiple flows: '${artifactProducers[artifact]}' and '${flow.name}'")
+            "Artifact path '${artifact.path}' is produced by multiple flows: '$existingProducer' and '${flow.name}'")
       }
-      artifactProducers[artifact] = flow.name
+      artifactProducers[artifact.path] = flow.name
     }
 
     flow.consumes.forEach { artifact ->
-      artifactConsumers.getOrPut(artifact) { mutableSetOf() }.add(flow.name)
+      artifactConsumers.getOrPut(artifact.path) { mutableSetOf() }.add(flow.name)
+      consumedArtifactsByPath.getOrPut(artifact.path) { mutableListOf() }.add(artifact)
     }
 
     return this
@@ -120,7 +129,7 @@ internal class FlowDependencyGraph {
 
     // Add implicit dependencies through consumed artifacts
     flow.consumes.forEach { artifact ->
-      artifactProducers[artifact]?.let { producerFlow ->
+      artifactProducers[artifact.path]?.let { producerFlow ->
         if (producerFlow != flowName) {
           allDeps.add(producerFlow)
         }
@@ -178,10 +187,11 @@ internal class FlowDependencyGraph {
   private fun detectMissingArtifactProducers(): List<FlowValidationIssue> {
     val issues = mutableListOf<FlowValidationIssue>()
 
-    artifactConsumers.forEach { (artifact, consumers) ->
+    artifactConsumers.forEach { (path, consumers) ->
       // Skip validation for source files - they don't need producers
-      if (artifact !in artifactProducers && !artifact.isSourceFile) {
-        issues.add(FlowValidationIssue.MissingArtifactProducer(artifact, consumers.toList()))
+      val artifacts = consumedArtifactsByPath[path].orEmpty()
+      if (path !in artifactProducers && artifacts.none { it.isSourceFile }) {
+        issues.add(FlowValidationIssue.MissingArtifactProducer(artifacts.first(), consumers.toList()))
       }
     }
 
@@ -193,7 +203,7 @@ internal class FlowDependencyGraph {
 
     flows.values.forEach { flow ->
       val hasConsumers =
-          flow.produces.any { artifact -> artifactConsumers[artifact]?.isNotEmpty() == true }
+          flow.produces.any { artifact -> artifactConsumers[artifact.path]?.isNotEmpty() == true }
       val hasExplicitDependents =
           flows.values.any { otherFlow -> otherFlow.dependsOn.contains(flow.name) }
 

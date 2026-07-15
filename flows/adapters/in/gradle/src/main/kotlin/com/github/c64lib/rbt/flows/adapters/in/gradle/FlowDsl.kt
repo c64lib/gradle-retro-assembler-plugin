@@ -45,7 +45,22 @@ open class FlowDslBuilder {
     return this
   }
 
-  internal fun build(): List<Flow> = flows.toList()
+  /**
+   * Returns all defined flows, with consumed artifacts that no flow produces marked as source
+   * files — such inputs come from the project sources and must not be reported as missing
+   * artifact producers during validation.
+   */
+  internal fun build(): List<Flow> {
+    val producedPaths = flows.flatMap { flow -> flow.produces.map { it.path } }.toSet()
+    return flows.map { flow ->
+      flow.copy(
+          consumes =
+              flow.consumes.map { artifact ->
+                if (artifact.isSourceFile || artifact.path in producedPaths) artifact
+                else artifact.copy(isSourceFile = true)
+              })
+    }
+  }
 }
 
 /** Builder for individual Flow definitions. */
