@@ -1,0 +1,264 @@
+# Feature: Pipeline DSL - Enable Parallel Execution
+
+**Issue**: #135
+**Status**: Planning
+**Created**: 2026-03-29
+
+## 1. Feature Description
+
+### Overview
+Enable the Pipeline DSL flows to execute independent steps and flows in parallel by wiring the existing `FlowDependencyGraph` domain logic into the Gradle task dependency graph in `FlowTasksGenerator`. Currently the domain layer already computes which flows and steps can run in parallel, but the Gradle adapter ignores this information and wires all steps sequentially.
+
+### Requirements
+- Independent flows (no dependency relationship between them) must be able to execute in parallel when Gradle `--parallel` is enabled
+- Independent steps within a flow must be able to execute in parallel when they have no input/output relationship
+- Flow-level task dependencies must be derived from `FlowDependencyGraph` rather than only from explicit `dependsOn` declarations
+- Step-level task dependencies within a flow must be derived from file input/output relationships, not from positional ordering
+- The feature must use Gradle's native task scheduling mechanism — no custom threading
+- No DSL changes visible to plugin users (parallel execution is automatic and transparent)
+- Parallel execution is opt-in via Gradle's standard `--parallel` flag or `org.gradle.parallel=true` in `gradle.properties`
+
+### Success Criteria
+- Two independent flows both execute in the same Gradle parallel execution wave
+- Two independent steps within a single flow (i.e. no shared inputs/outputs) execute in parallel when `--parallel` is enabled
+- A step that produces a file consumed by another step still executes before that consumer step
+- A flow that depends on another flow (via `dependsOn` or artifact consumption) still executes after the dependency flow completes
+- All existing tests continue to pass
+- New unit tests cover the updated `FlowTasksGenerator` dependency wiring logic
+
+## 2. Root Cause Analysis
+
+### Current State
+`FlowTasksGenerator.registerTasks()` currently wires step-level task dependencies using a simple index-based sequential chain:
+
+```kotlin
+// In FlowTasksGenerator.registerTasks()
+flow.steps.forEachIndexed { index, step ->
+    // ...
+    if (index > 0) {
+        stepTask.dependsOn(flowStepTasks[index - 1])  // Always sequential
+    }
+}
+```
+
+This means every step in a flow waits for the previous step to finish, even if the two steps are completely independent (different input and output files).
+
+Flow-level dependencies use explicit `dependsOn` names only:
+```kotlin
+flow.dependsOn.forEach { depName ->
+    tasksByFlowName[depName]?.let { depTask -> flowTask.dependsOn(depTask) }
+}
+```
+
+There is a separate `setupFileDependencies()` method that creates cross-step dependencies based on file relationships, but it only links steps where an output of one step is an input of another. This is good, but it still cannot break the sequential within-flow chain established by the index loop.
+
+The domain layer has rich parallel execution analysis:
+- `FlowDependencyGraph.getParallelExecutionOrder()` — topological sort into parallel waves
+- `FlowDependencyGraph.getParallelCandidates()` — which flows can run alongside a given flow
+- `FlowService` — facade over the graph, never used by `FlowTasksGenerator`
+- `FlowExecutionTask` — a legacy placeholder with a `TODO` that is no longer used by `FlowTasksGenerator`
+
+### Desired State
+`FlowTasksGenerator` should:
+1. Remove the index-based sequential step chaining within each flow
+2. Build step-level task dependencies solely from file input/output relationships (already partially done in `setupFileDependencies()`, needs to cover within-flow steps too)
+3. Build flow-level task dependencies from `FlowDependencyGraph`'s full dependency analysis (explicit `dependsOn` + implicit artifact-based dependencies) — the domain already tracks both
+
+When Gradle runs with `--parallel`, independent tasks will execute concurrently without any additional changes to the plugin.
+
+### Gap Analysis
+| Gap | Location | What to Change |
+|-----|----------|----------------|
+| Sequential within-flow step chaining | `FlowTasksGenerator.registerTasks()` lines 66-68 | Remove the `index > 0` sequential `dependsOn` block |
+| Flow-level dependencies incomplete | `FlowTasksGenerator.registerTasks()` lines 85-90 | Use `FlowDependencyGraph` to compute all flow-level dependencies (artifact-based implicit deps are currently missing) |
+| `setupFileDependencies()` only runs after all tasks created | `FlowTasksGenerator.setupFileDependencies()` | Ensure this method correctly handles within-flow dependencies after the sequential chain is removed |
+| `FlowExecutionTask` is dead code | `FlowExecutionTask.kt` | Evaluate for removal or repurposing (it has a `TODO` and is not registered anywhere) |
+
+## 3. Relevant Code Parts
+
+### Existing Components
+
+- **FlowTasksGenerator**: Main adapter that creates Gradle tasks from flow definitions and wires dependencies
+  - Location: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
+  - Purpose: Creates one Gradle task per `FlowStep`, one aggregation task per `Flow`, one top-level `flows` aggregation task
+  - Integration Point: Must be updated to remove sequential step chaining and use the dependency graph for flow-level deps
+
+- **FlowDependencyGraph**: Domain class that builds a DAG of flows and computes topological ordering
+  - Location: `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/FlowDependencyGraph.kt`
+  - Purpose: Validates the flow graph and computes which flows can run in parallel
+  - Integration Point: `FlowTasksGenerator` should call `FlowDependencyGraph.addFlow()` and use the resulting dependency information
+
+- **FlowService**: Domain facade over `FlowDependencyGraph`
+  - Location: `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/FlowService.kt`
+  - Purpose: `validateFlows()`, `getExecutionPlan()`, `findParallelCandidates()` — all currently unused by `FlowTasksGenerator`
+  - Integration Point: `FlowTasksGenerator` can call `FlowService.validateFlows()` at configuration time to catch dependency errors early, and use it to compute the flow dependency structure
+
+- **BaseFlowStepTask**: Base Gradle task class for all flow step tasks
+  - Location: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/tasks/BaseFlowStepTask.kt`
+  - Purpose: Holds `inputFiles`, `outputDirectory`, and `flowStep` properties with Gradle `@Input`/`@Output` annotations
+  - Integration Point: No changes needed; Gradle's incremental build uses these annotations to determine up-to-date status
+
+- **FlowExecutionTask**: Legacy placeholder task (dead code)
+  - Location: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowExecutionTask.kt`
+  - Purpose: Was the original task concept before dedicated per-step tasks were introduced; contains a `TODO` and `println` statement
+  - Integration Point: Should be removed as part of cleanup
+
+- **FlowDependencyGraphTest**: Comprehensive test suite for the dependency graph
+  - Location: `flows/src/test/kotlin/com/github/c64lib/rbt/flows/domain/FlowDependencyGraphTest.kt`
+  - Purpose: Already proves the domain logic correctly identifies parallel candidates — confirms Phase 1 of domain work is complete
+  - Integration Point: Tests for `FlowTasksGenerator` should verify the same scenarios at the Gradle task level
+
+### Architecture Alignment
+- **Domain**: `flows` — all domain classes remain unchanged; the dependency graph logic is correct and complete
+- **Use Cases**: No new use cases. `FlowService` exists but is not needed for the adapter change (the adapter can interact with `FlowDependencyGraph` directly, or use `FlowService` as a facade)
+- **Ports**: No new ports needed — this is a pure adapter-layer change
+- **Adapters**: `FlowTasksGenerator` in `flows/adapters/in/gradle` is the only file requiring substantive change
+
+### Dependencies
+- No new module dependencies required
+- The `flows` module (domain) is already a dependency of `flows:adapters:in:gradle`
+- Gradle's `--parallel` feature is a Gradle runtime concern; no API additions needed
+
+## 4. Questions and Clarifications
+
+### Self-Reflection Questions
+- **Q**: Does Gradle need `--parallel` to be explicitly set for the new dependency wiring to take effect?
+  - **A**: Yes. Gradle only runs tasks in parallel when `--parallel` flag is passed or `org.gradle.parallel=true` is set in `gradle.properties`. The correct dependency wiring is a prerequisite for parallel execution to be correct; without `--parallel`, tasks run sequentially regardless of their dependency graph.
+
+- **Q**: Is the `setupFileDependencies()` method sufficient to replace the index-based sequential step chain?
+  - **A**: For cross-flow step dependencies it works. For within-flow steps, if two steps within the same flow have no file relationship, they currently have no task dependency connecting them (other than the index chain). After removing the index chain, they will be free to run in parallel, which is the desired behaviour.
+
+- **Q**: Does `FlowDependencyGraph` already handle artifact-based implicit dependencies between flows?
+  - **A**: Yes. `getAllDependencies()` in `FlowDependencyGraph` combines both explicit `dependsOn` and artifact-based implicit dependencies. The current `FlowTasksGenerator` only uses explicit `dependsOn`, missing the implicit artifact-based relationships.
+
+- **Q**: Is `FlowExecutionTask` used anywhere?
+  - **A**: No. `FlowTasksGenerator.registerTasks()` never registers a `FlowExecutionTask`. It has a `TODO` comment and a `println`. It is dead code left over from an earlier iteration.
+
+### Unresolved Questions
+- [ ] Should `FlowTasksGenerator` use `FlowService` as its facade or call `FlowDependencyGraph` directly? Using `FlowService` is cleaner architecturally but adds an indirect call. Using `FlowDependencyGraph` directly avoids introducing a dependency on a service that may gain more responsibilities in future.
+- [ ] Should flow validation failures at configuration time throw a `GradleException` (fail the build) or just log a warning? Currently `FlowDependencyGraph.getParallelExecutionOrder()` throws `FlowValidationException` on errors — this behaviour can be preserved or wrapped.
+- [ ] Should `FlowExecutionTask.kt` be removed in this PR or tracked as a separate cleanup issue?
+
+### Design Decisions
+- **Decision**: How to wire flow-level task dependencies when the dependency is implicit (via artifacts) rather than explicit (via `dependsOn`)
+  - **Options**:
+    - Option A: Build a `FlowDependencyGraph`, call `getParallelExecutionOrder()`, and use the resulting level information to set up `mustRunAfter` constraints between flow aggregation tasks at the same level
+    - Option B: Build a `FlowDependencyGraph`, retrieve `getAllDependencies()` per flow, and call `flowTask.dependsOn(depTask)` for each dependency (explicit or implicit)
+  - **Recommendation**: Option B. It is more straightforward — `dependsOn` correctly models the execution constraint for both explicit and artifact-based flow dependencies. Option A using `mustRunAfter` is weaker (it only orders, not requires, prior execution) and does not ensure the dependency is actually executed before the consumer.
+
+- **Decision**: Whether to remove the index-based sequential step chain
+  - **Options**:
+    - Option A: Remove it entirely — rely solely on file-based dependencies for within-flow step ordering
+    - Option B: Keep it as a fallback for steps that declare no inputs/outputs
+  - **Recommendation**: Option A. Steps that have no declared inputs or outputs have no file-level dependencies and are genuinely independent — they can safely run in parallel. If they do have a dependency, it must be expressed via `inputs`/`outputs`. This is consistent with how Gradle works in general.
+
+## 5. Implementation Plan
+
+### Phase 1: Cleanup and Preparation (dead code removal + validation hook)
+**Goal**: Remove legacy dead code and add early configuration-time validation to catch flow graph errors before tasks execute.
+
+1. **Step 1.1**: Remove `FlowExecutionTask.kt`
+   - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowExecutionTask.kt` (delete)
+   - Description: This file is dead code — it is never instantiated by `FlowTasksGenerator` and contains a `TODO`. Removing it reduces confusion.
+   - Testing: Build compiles without errors; no test references this class
+
+2. **Step 1.2**: Add flow graph validation in `FlowTasksGenerator.registerTasks()`
+   - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
+   - Description: At the start of `registerTasks()`, build a `FlowDependencyGraph` from all flows and call `validate()`. Log warnings for warning-severity issues. Throw a `GradleException` wrapping `FlowValidationException` for error-severity issues. Store the built graph for use in the dependency-wiring step (Step 2.2).
+   - Testing: Verify that a circular dependency between two flows causes a build failure with a clear error message
+
+**Phase 1 Deliverable**: Cleaner codebase with validation feedback during configuration; existing behaviour preserved
+
+### Phase 2: Core Change — Parallel Task Dependency Wiring (adapter refactor)
+**Goal**: Replace the index-based sequential step chain with file-based dependency wiring, and replace the explicit-only flow dependency wiring with graph-computed dependency wiring.
+
+1. **Step 2.1**: Remove sequential step chaining within flows
+   - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
+   - Description: Remove the `if (index > 0) { stepTask.dependsOn(flowStepTasks[index - 1]) }` block inside `registerTasks()`. Retain the collection of `flowStepTasks` for the flow aggregation task. The flow aggregation task should depend on **all** step tasks in the flow (not just the last one) to ensure all steps have completed before the flow-level task is considered done.
+   - Testing: Build a flow with two independent steps; verify both Gradle tasks appear in the task dependency graph without an ordering constraint between them
+
+2. **Step 2.2**: Wire flow-level task dependencies using the dependency graph
+   - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
+   - Description: Replace the current explicit-only flow dependency wiring loop with graph-computed dependencies. Use the `FlowDependencyGraph` built in Step 1.2. For each flow, retrieve all dependencies (both explicit and artifact-based) by inspecting the graph, then call `flowTask.dependsOn(depTask)` for each dependency flow's aggregation task. The `FlowDependencyGraph.getAllDependencies()` method is currently `private` — it will need to be made `internal` or the dependency retrieval logic inlined.
+   - Testing: Build two flows where one consumes an artifact produced by the other (without explicit `dependsOn`); verify the consuming flow's task depends on the producing flow's task
+
+3. **Step 2.3**: Update flow aggregation task to depend on all step tasks
+   - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
+   - Description: Change the flow aggregation task creation to `t.dependsOn(flowStepTasks)` (all steps) rather than `t.dependsOn(flowStepTasks.last())` (only the last step). This is required after removing the sequential chain — previously the last task transitively depended on all prior tasks; without the chain, the aggregation task must explicitly depend on every step task.
+   - Testing: A flow with three steps (A→B→C via files, plus D independent) should have its aggregation task depend on all four step tasks
+
+**Phase 2 Deliverable**: Flows that are independent now execute in parallel when `--parallel` is set; flows with artifact or `dependsOn` dependencies still execute in the correct order
+
+### Phase 3: Testing, Verification, and Documentation
+**Goal**: Confirm the parallel execution wiring is correct with tests, and document the behaviour for users.
+
+1. **Step 3.1**: Add unit tests for `FlowTasksGenerator` dependency wiring
+   - Files: `flows/adapters/in/gradle/src/test/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGeneratorTest.kt` (new)
+   - Description: Write tests verifying:
+     - Two independent flows have no task dependency between their aggregation tasks
+     - Two flows with explicit `dependsOn` have the correct task dependency
+     - Two flows with artifact-based dependencies have the correct task dependency
+     - A flow with two independent steps has no sequential task dependency between the step tasks
+     - A flow with two steps where step B's input is step A's output has `stepB.dependsOn(stepA)`
+     - The flow aggregation task depends on all step tasks in the flow
+   - Testing: `./gradlew :flows:adapters:in:gradle:test`
+
+2. **Step 3.2**: Expose `FlowDependencyGraph.getAllDependencies()` as needed
+   - Files: `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/FlowDependencyGraph.kt`
+   - Description: Change the `getAllDependencies()` method visibility from `private` to `internal` to allow `FlowTasksGenerator` (same module boundary within the `flows` bounded context) to retrieve dependency information without breaking encapsulation. Alternatively, add a public `getDependenciesOf(flowName: String): Set<String>` method to `FlowDependencyGraph` that delegates to the private implementation.
+   - Testing: Verify the domain tests still pass; no behaviour change
+
+3. **Step 3.3**: Update CLAUDE.md or user documentation
+   - Files: `CLAUDE.md` (Parallel Execution section)
+   - Description: Add a note that within the `flows` section: "Parallel execution of independent flows and steps is automatic when Gradle's `--parallel` flag is enabled. Task dependencies are derived from file input/output relationships and flow `dependsOn` declarations."
+   - Testing: Documentation review only
+
+**Phase 3 Deliverable**: Fully tested parallel execution capability, ready for merge
+
+## 6. Testing Strategy
+
+### Unit Tests
+- `FlowTasksGeneratorTest`: Test the task dependency wiring logic in isolation using a mock Gradle `Project`. Verify that:
+  - Independent step tasks within the same flow are not wired sequentially
+  - Cross-step file-based dependencies are established correctly
+  - Flow aggregation tasks depend on all their step tasks
+  - Flow-level dependencies from both explicit `dependsOn` and artifact consumption are wired as Gradle task dependencies
+  - `FlowValidationException` errors are surfaced as `GradleException` at configuration time
+
+### Integration Tests
+- Extend `CharpadIntegrationTest` or create a new integration scenario with two flows (e.g., preprocessing and compilation) where the preprocessing flow produces files consumed by compilation. Verify the task graph has the correct dependency.
+- Consider a scenario with two fully independent preprocessing flows to verify they appear in the same execution wave.
+
+### Manual Testing
+- Build a project with flows DSL using `./gradlew flows --parallel --dry-run` and inspect the output to confirm independent flows show no ordering constraint
+- Build a project with dependent flows and verify the dependent flow's tasks appear after the dependency's tasks in `--dry-run` output
+- Run a real build with `--parallel` and verify both independent flows execute concurrently (check build scan or timing output)
+
+## 7. Risks and Mitigation
+
+| Risk | Impact | Probability | Mitigation |
+|------|--------|-------------|------------|
+| Removing sequential step chain breaks builds where steps had hidden ordering assumptions not expressed via input/output declarations | High | Low | Document that step ordering within a flow is determined solely by input/output relationships; provide clear error messages when outputs are missing |
+| Flow aggregation task now depends on all steps instead of last step, changing task graph shape | Low | Low | This is correct behaviour; existing builds unaffected unless they have non-file ordering assumptions |
+| `FlowDependencyGraph.getAllDependencies()` visibility change breaks encapsulation | Low | Low | Use `internal` visibility (same module) rather than `public`; or add a named accessor method |
+| Artifact-based implicit flow dependencies create unexpected `dependsOn` constraints | Medium | Low | Add integration test to verify the expected constraints; confirm with test that the `FlowDependencyGraph` logic is invoked correctly |
+| Existing `FlowDependencyGraphTest` tests expectations change | Low | Low | Domain code is not changed; all existing graph tests remain valid |
+
+## 8. Documentation Updates
+
+- [ ] Update `CLAUDE.md` to note that parallel execution within flows is automatic via Gradle's `--parallel` flag
+- [ ] Add inline Kdoc to `FlowTasksGenerator` explaining the dependency wiring strategy
+- [ ] Remove any documentation references to `FlowExecutionTask` if found
+
+## 9. Rollout Plan
+
+1. Remove `FlowExecutionTask` (no user-facing impact — it was never used)
+2. Apply `FlowTasksGenerator` changes on the existing `feature/135-pipeline-dsl-parallel-execution` branch
+3. Run `./gradlew build` to verify no compilation errors and all existing tests pass
+4. Test manually with a sample project using `--parallel` and `--dry-run`
+5. Merge to master as part of milestone 1.8.0
+6. Rollback strategy: The change is purely in `FlowTasksGenerator` (adapter layer); reverting the two method changes (`registerTasks` index chain removal and flow dependency loop replacement) restores prior sequential behaviour without any domain changes
+
+---
+
+**Note**: This plan should be reviewed and approved before implementation begins.
