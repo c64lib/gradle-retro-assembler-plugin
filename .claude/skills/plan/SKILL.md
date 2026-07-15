@@ -1,67 +1,63 @@
 ---
-description: Create, update, and list structured development action plans in plans/. Syncs plan content to linked GitHub issues.
+description: Create, update, and list structured development action plans in plans/. Runs the full interactive planning workflow (codebase analysis, clarifying questions, refinement) and handles all plan file I/O, index maintenance, and GitHub issue sync. Invoke for "/plan", "create a plan", "update the plan", "list plans".
 user-invocable: true
 ---
 
-# Plan Skill: Mechanical Plan File I/O
+# Plan Skill
 
-This skill handles all mechanical file operations for development action plans: creating new plans from the template, updating existing plans, and maintaining the `plans/README.md` index. The planner agent delegates all file I/O here.
+This skill owns the complete development-action-plan lifecycle for this project: the **interactive planning workflow** (analysis, clarifying questions, refinement) and the **mechanical file I/O** (create/update/list, index maintenance, GitHub issue sync). It is the single entry point — invoke it directly as `/plan`, `/plan update`, or `/plan list`.
 
 ## Trigger
 
-This skill is invoked by the planner agent whenever it needs to:
-- **Create** a new plan file
-- **Update** an existing plan file (add/remove steps, mark progress, apply answered questions)
+Invoke when the user wants to:
+- **Create** a new development action plan for a feature or fix
+- **Update** an existing plan (change scope, answer open questions, record decisions, mark progress)
 - **List** all plans via the index
 
-Users can also invoke this skill directly (e.g., `/plan list`, `/plan create`).
+Dispatch by intent: a new feature/fix → CREATE; a reference to an existing plan → UPDATE; "list/show plans" → LIST. Ask only if genuinely ambiguous.
 
 ---
 
-## Operations
+## OPERATION: CREATE
 
-### OPERATION: CREATE
+Produce a comprehensive, refined plan and persist it.
 
-Create a new plan from the canonical template.
+### Step 1 — Gather the essentials
 
-#### Step 1 — Determine the Next Plan ID
+Collect (use `AskUserQuestion` for anything not already supplied):
+
+1. **Issue number** — the GitHub issue this addresses (or `N/A` if unlinked)
+2. **Feature short name** — a kebab-case slug (e.g. `pipeline-dsl-parallel-execution`)
+3. **Task specification** — what needs to be built or fixed
+
+### Step 2 — Analyse the codebase
+
+Do the research before writing the plan — do not guess:
+
+1. Use the **Explore** agent to map the affected domain modules, current architecture/patterns, related existing code, and test structure.
+2. Read the actual relevant files to understand conventions and integration points.
+3. Review `CLAUDE.md` for architectural guidelines (hexagonal architecture, use-case/port patterns, `infra/gradle` `compileOnly` rule, Gradle Workers API for parallelism).
+4. Reference real code locations as `file_path:line_number`.
+
+### Step 3 — Determine the next plan ID
 
 Run:
 ```bash
 ls plans/ 2>/dev/null | grep -E '^PLAN-[0-9]+_' | sort | tail -1
 ```
+Extract the numeric part, increment, zero-pad to 4 digits. If none exist, start at `PLAN-0001`.
 
-- Extract the numeric part (e.g., `PLAN-0001` → `0001`)
-- Increment by 1 and zero-pad to 4 digits
-- If no plans exist, start at `PLAN-0001`
+### Step 4 — Write the plan from the template
 
-#### Step 2 — Derive the Filename
-
-Filename format:
+Read `.claude/templates/plan.template.md`, fill in the header placeholders (`{nnnn}`, `{issue-number}`, `{Feature Name}`, `{YYYY-MM-DD}`), and complete the body sections from the Step 2 analysis. Write to:
 ```
 plans/PLAN-{nnnn}_{feature-short-name}.md
 ```
+The template is the canonical structure — follow it exactly (Feature Description, Root Cause Analysis, Relevant Code Parts, Questions/Decisions, phased Implementation Plan with mergeable deliverables, Testing Strategy, Risks, Documentation, Rollout).
 
-Where `{feature-short-name}` is a kebab-case slug provided by the planner agent (e.g., `pipeline-dsl-parallel-execution`).
+### Step 5 — Update the index
 
-#### Step 3 — Read the Template
-
-Read `.claude/templates/plan.template.md` and fill in:
-- `{nnnn}` → zero-padded plan ID
-- `{issue-number}` → GitHub issue number (or `N/A` if not linked)
-- `{Feature Name}` → human-readable feature name
-- `{YYYY-MM-DD}` → today's date
-
-Leave all other `{placeholder}` fields as-is for the planner agent to fill in.
-
-#### Step 4 — Write the Plan File
-
-Write the filled template to `plans/PLAN-{nnnn}_{feature-short-name}.md`.
-
-#### Step 5 — Update the Index
-
-Read `plans/README.md`. If it does not exist, create it:
-
+Read `plans/README.md`. If missing, create it:
 ```markdown
 # Plans Index
 
@@ -71,107 +67,107 @@ Plans are permanent artifacts — do not delete, only mark as `completed` or `ca
 | ID | Date | Status | Title | Issue |
 |----|------|--------|-------|-------|
 ```
-
-Append a new row:
+Append:
 ```
 | [PLAN-{nnnn}](PLAN-{nnnn}_{slug}.md) | {YYYY-MM-DD} | Planning | {Feature Name} | #{issue-number} |
 ```
+Use `—` in the Issue column when unlinked.
 
-If not linked to an issue, use `—` for the Issue column.
-
-#### Step 6 — Sync to GitHub Issue (if linked)
-
-If the plan is linked to a GitHub issue:
+### Step 6 — Sync to the GitHub issue (if linked)
 
 1. Read the current issue body via `mcp__github__issue_read` (owner: `c64lib`, repo: `gradle-retro-assembler-plugin`).
-2. Incorporate the original issue description into the plan's **Section 1 (Feature Description / Overview)** — prepend it before any AI-generated content in that section, preserving the user's original wording.
-3. Replace the issue body with the full plan content using `mcp__github__issue_write`.
+2. Preserve the user's original issue description by prepending it into the plan's **Section 1** before any generated content.
+3. Replace the issue body with the full plan via `mcp__github__issue_write`.
 
-Report to the caller: "Plan PLAN-{nnnn} written to `plans/PLAN-{nnnn}_{slug}.md`, index updated, and issue #{issue-number} body replaced with plan content."
+### Step 7 — Interactive refinement
+
+Present the plan, then explicitly surface the **Unresolved Questions** and **Design Decisions**. Ask (via `AskUserQuestion`) whether to resolve any now. For each answer, apply it via the UPDATE operation's rules (below) so questions move to answered, decisions record a chosen option + rationale, and any cascading sections stay consistent. Repeat until the user is satisfied. Then confirm and suggest next steps (e.g. "start Phase 1" or "run `/execute`").
+
+Report: "Plan PLAN-{nnnn} written to `plans/PLAN-{nnnn}_{slug}.md`, index updated" (and, if linked, "issue #{issue-number} body replaced with plan content").
 
 ---
 
-### OPERATION: UPDATE
+## OPERATION: UPDATE
 
-Update an existing plan file.
+Update an existing plan, keeping every affected section consistent.
 
-#### Step 1 — Locate the Plan
+### Step 1 — Locate the plan
 
-The caller (planner agent) provides the plan file path. If ambiguous, list `plans/` and ask.
+Identify the target plan. Use the current branch name (`feature/{issue}-{slug}`) as a hint, or list `plans/` and ask via `AskUserQuestion` if ambiguous. If the plan genuinely doesn't exist, offer to CREATE one instead.
 
-#### Step 2 — Read the Full Plan
+### Step 2 — Read the full plan
 
-Read the entire plan file before making any changes.
+Read the entire file before changing anything.
 
-#### Step 3 — Apply the Updates
+### Step 3 — Determine the update scope
 
-Apply the changes provided by the planner agent. Common update types:
+Ask (via `AskUserQuestion`) what is changing if not already clear. Common scopes: specification/requirement changes, answered open questions, added acceptance criteria, refined execution steps, testing-strategy changes, architecture refinements, status/progress. If the input is vague, ask targeted follow-ups before proceeding.
+
+### Step 4 — Apply the updates consistently
+
+Apply the change **and propagate its impact** across all relevant sections — an answer that changes approach must update the implementation steps, architecture alignment, risks, and testing as needed.
 
 **Answered questions:**
 - Move from `### Unresolved Questions` to `### Self-Reflection Questions`
-- Format: `- **Q**: {question}\n  - **A**: {answer}`
+- Format: `- **Q**: {question}` / `  - **A**: {answer}`
 
 **Design decisions:**
-- Add under the decision entry:
-  ```
-  - **Chosen**: {option}
-  - **Rationale**: {why}
-  ```
+```
+- **Chosen**: {option}
+- **Rationale**: {why}
+```
 
-**Status updates:**
-- Update the `**Status**` field at the top
-- Mark completed steps with `- [x]`
-- Add `**Last Updated**: {YYYY-MM-DD}` after Status
+**Status/progress:**
+- Update the `**Status**` field; mark completed steps `- [x]`; add `**Last Updated**: {YYYY-MM-DD}`.
 
-**Revision history:**
-- Add or update Section 10 at the end (before the final note):
-  ```markdown
-  ## 10. Revision History
+Preserve historical context — don't delete answered questions or superseded content unless explicitly asked. Maintain the template's exact section structure and numbering.
 
-  | Date | Updated By | Changes |
-  |------|------------|---------|
-  | {YYYY-MM-DD} | AI Agent | {Brief description of changes} |
-  ```
+### Step 5 — Revision history
 
-#### Step 4 — Update the Index
+Add/append Section 10 (before the final note):
+```markdown
+## 10. Revision History
 
-If the plan status changed, update the `Status` column in `plans/README.md` for this plan's row.
+| Date | Updated By | Changes |
+|------|------------|---------|
+| {YYYY-MM-DD} | AI Agent | {Brief description of changes} |
+```
 
-#### Step 5 — Sync to GitHub Issue (if linked)
+### Step 6 — Update the index
 
-If the plan has a linked issue (check `**Issue**:` field at the top):
-- Replace the issue body with the updated plan content using `mcp__github__issue_write`.
+If status changed, update the `Status` column for this plan's row in `plans/README.md`.
 
-Report to the caller: "Plan `{path}` updated, index updated, and issue #{issue-number} body synced."
+### Step 7 — Sync to the GitHub issue (if linked)
+
+If the plan has an `**Issue**:` link, replace the issue body with the updated plan via `mcp__github__issue_write`.
+
+### Step 8 — Present changes
+
+Show what changed (by section) and any cascading updates, confirm with the user, and suggest next steps.
+
+Report: "Plan `{path}` updated, index updated" (and, if linked, "issue #{issue-number} body synced").
 
 ---
 
-### OPERATION: LIST
+## OPERATION: LIST
 
-List all plans from the index.
-
-#### Step 1 — Read the Index
-
-Read `plans/README.md`. If it does not exist, report: "No plans found. The `plans/` directory is empty."
-
-#### Step 2 — Present the Table
-
-Return the full index table to the caller.
+1. Read `plans/README.md`. If missing, report: "No plans found. The `plans/` directory is empty."
+2. Return the full index table.
 
 ---
 
 ## Backporting Support
 
-If the user indicates this is a historical plan (e.g., "log what we planned two weeks ago"), the caller may supply a custom date. Use that date instead of today's date for the `**Created**` field and the index row. All other steps are identical.
+If the user is logging a historical plan, accept a custom date and use it for the `**Created**` field and the index row instead of today's date. All other steps are identical.
 
 ---
 
 ## Storage Rules
 
-- Plans live in `plans/` with sequential `PLAN-nnnn` IDs — never in `.ai/`
-- Plans are **permanent artifacts** — never delete a plan file; only update its status to `completed` or `cancelled`
-- Existing `.ai/` plans are **not migrated** — leave them in place
-- `plans/README.md` is the authoritative index — always update it on create and status-change updates
+- Plans live in `plans/` with sequential `PLAN-nnnn` IDs — never in `.ai/`.
+- Plans are **permanent artifacts** — never delete a plan file; only set status to `completed` or `cancelled`.
+- Existing `.ai/` plans are **not migrated** — leave them in place.
+- `plans/README.md` is the authoritative index — always update it on create and status-change updates.
 
 ---
 
@@ -179,6 +175,6 @@ If the user indicates this is a historical plan (e.g., "log what we planned two 
 
 | Operation | Input | Output |
 |-----------|-------|--------|
-| CREATE | issue number, feature slug, feature name | `plans/PLAN-nnnn_slug.md` created, index updated, issue synced |
-| UPDATE | plan path, change set | plan file updated, index updated (if status changed), issue synced |
+| CREATE | issue number, feature slug, spec | analysed + refined `plans/PLAN-nnnn_slug.md`, index updated, issue synced |
+| UPDATE | plan path, change set | plan file updated (consistently), index updated (if status changed), issue synced |
 | LIST | — | index table from `plans/README.md` |

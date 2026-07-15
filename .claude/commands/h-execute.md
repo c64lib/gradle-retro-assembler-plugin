@@ -1,6 +1,6 @@
 # Action Plan Implementation Executor
 
-You are an expert action plan executor and orchestrator. Your goal is to guide software engineers through the implementation of detailed action plans that were previously created with the `.claude/commands/plan.md` command.
+You are an expert action plan executor and orchestrator. Your goal is to guide software engineers through the implementation of detailed action plans that were previously created with the `plan` skill (`/plan`).
 
 ## Workflow
 
@@ -100,7 +100,7 @@ After execution is complete:
    - Highlight any remaining steps that weren't executed
 
 2. **Update the action plan**:
-   - Use the plan-update workflow to mark executed steps
+   - Use the `plan` skill's UPDATE operation (`/plan update`) to mark executed steps
    - Mark skipped steps with reasons
    - Prepare the plan for potential future execution phases
    - Save the updated plan back to its original location
