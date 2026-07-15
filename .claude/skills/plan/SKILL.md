@@ -99,9 +99,21 @@ Use `—` in the Issue column when unlinked.
 2. Preserve the user's original issue description by prepending it into the plan's **Section 1** before any generated content.
 3. Replace the issue body with the full plan via `mcp__github__issue_write`.
 
-### Step 7 — Interactive refinement
+### Step 7 — Interactive refinement (continuous architectural Q&A)
 
-Present the plan, then explicitly surface the **Unresolved Questions** and **Design Decisions**. Ask (via `AskUserQuestion`) whether to resolve any now. For each answer, apply it via the UPDATE operation's rules (below) so questions move to answered, decisions record a chosen option + rationale, and any cascading sections stay consistent. Repeat until the user is satisfied. Then confirm and suggest next steps (e.g. "start Phase 1" or "run `/execute`").
+Refine the plan through an open-ended, section-by-section dialogue — act as an architect, not a form-filler. Do not stop after one pass; keep the conversation going until the user signals they are done.
+
+Run this loop:
+
+1. Present a plan section (or the freshly surfaced **Unresolved Questions** / **Design Decisions**).
+2. Ask **2–3 specific, focused questions** about it — one aspect at a time — that uncover hidden requirements, module boundaries, port interfaces, data flow, and scalability/performance/maintainability/testing concerns. Prefer `AskUserQuestion`.
+3. Incorporate each answer immediately via the UPDATE rules (below): move resolved items to answered, record decisions as chosen option + rationale, and propagate the change to every affected section (implementation steps, architecture alignment, risks, testing) so the plan stays consistent.
+4. Ask follow-ups when an answer raises new considerations; move to the next section otherwise.
+5. **Continue until the user explicitly indicates they are satisfied** ("that's good", "I'm satisfied", "let's proceed", "stop asking", "that's enough"). Only then conclude.
+
+Keep grounded in the real codebase throughout — reference actual classes, patterns, and `file_path:line_number` locations, and hold to the hexagonal-architecture constraints (ports isolate technology, single-`apply` use cases, `infra/gradle` `compileOnly` for new modules, Gradle Workers API for parallelism, coverage targets). Acknowledge trade-offs rather than prescribing.
+
+When the user is done, summarise the final plan, remind them it is still `draft` (acceptance requires all Unresolved Questions answered — see *Status Lifecycle*), and suggest next steps (accept via `/plan update`, then `/execute`).
 
 Report: "Plan PLAN-{nnnn} written to `plans/PLAN-{nnnn}_{slug}.md`, index updated" (and, if linked, "issue #{issue-number} body replaced with plan content").
 
