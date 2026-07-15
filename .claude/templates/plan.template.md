@@ -2,7 +2,7 @@
 
 **Plan ID**: PLAN-{nnnn}
 **Issue**: #{issue-number}
-**Status**: Planning
+**Status**: draft
 **Created**: {YYYY-MM-DD}
 
 ## 1. Feature Description
