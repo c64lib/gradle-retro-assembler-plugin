@@ -91,6 +91,8 @@ Gradle itself is treated as a technology concern and must be isolated in adapter
 
 For parallel task execution, **always use Gradle's Workers API** (not custom threading).
 
+In the `flows` subdomain, parallel execution of independent flows and steps is automatic when Gradle's `--parallel` flag (or `org.gradle.parallel=true`) is enabled. Task dependencies are derived from file input/output relationships and flow `dependsOn` declarations — steps and flows without such relationships run concurrently.
+
 ### Adding New Modules
 
 When adding a new module to the project, **you must also add it as `compileOnly` dependency in the `infra/gradle` module**. Failure to do this will result in `ClassNotFoundError` at runtime. The `infra/gradle` module is the entry point for the Gradle plugin and needs to have all domain modules available during compilation to properly integrate them.
