@@ -4,6 +4,9 @@ plugins {
 
 group = "com.github.c64lib.retro-assembler.flows.in"
 
+// Gradle's ProjectBuilder needs reflective access to java.lang on JDK 16+
+tasks.withType<Test> { jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED") }
+
 dependencies {
   implementation(project(":flows"))
   implementation(project(":shared:gradle"))

@@ -28,10 +28,14 @@ import com.github.c64lib.rbt.compilers.dasm.usecase.DasmAssembleUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.*
 import com.github.c64lib.rbt.flows.domain.Flow
+import com.github.c64lib.rbt.flows.domain.FlowService
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import com.github.c64lib.rbt.flows.domain.FlowValidationException
+import com.github.c64lib.rbt.flows.domain.IssueSeverity
 import com.github.c64lib.rbt.flows.domain.steps.*
 import com.github.c64lib.rbt.flows.domain.steps.CommandStep
 import com.github.c64lib.rbt.shared.gradle.TASK_FLOWS
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
@@ -48,6 +52,8 @@ class FlowTasksGenerator(
 
   /** Registers Gradle tasks for all flows and configures dependencies. */
   fun registerTasks() {
+    validateFlowGraph()
+
     val taskContainer = project.tasks
 
     // Create dedicated tasks for each step in each flow
@@ -94,6 +100,30 @@ class FlowTasksGenerator(
 
     // Create the top-level flows aggregation task
     createFlowsAggregationTask(taskContainer)
+  }
+
+  /**
+   * Validates the flow graph at configuration time: warning-severity issues are logged,
+   * error-severity issues (circular dependencies, consumed intermediates nothing produces) fail the
+   * build early with a clear message.
+   */
+  private fun validateFlowGraph() {
+    val result =
+        try {
+          FlowService().validateFlows(flows)
+        } catch (e: FlowValidationException) {
+          throw GradleException("Flow validation failed: ${e.message}", e)
+        }
+
+    result.issues
+        .filter { it.severity == IssueSeverity.WARNING }
+        .forEach { issue -> project.logger.warn("Flow validation warning: ${issue.message}") }
+
+    val errors = result.issues.filter { it.severity == IssueSeverity.ERROR }
+    if (errors.isNotEmpty()) {
+      throw GradleException(
+          "Flow validation failed:\n${errors.joinToString("\n") { "- ${it.message}" }}")
+    }
   }
 
   private fun createStepTask(
