@@ -114,7 +114,8 @@ class DslShapedArtifactMatchingTest :
         val flow =
             Flow(
                 name = "intro",
-                consumes = listOf(inputArtifact("loading", 0, "src/loading.ctm", sourceFile = true)),
+                consumes =
+                    listOf(inputArtifact("loading", 0, "src/loading.ctm", sourceFile = true)),
                 produces =
                     listOf(
                         outputArtifact("loading", 0, "build/loading.charset.bin"),

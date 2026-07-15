@@ -40,7 +40,15 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 
-/** Outbound adapter for Gradle that generates dedicated tasks for each flow step. */
+/**
+ * Inbound adapter for Gradle that generates dedicated tasks for each flow step.
+ *
+ * Dependency wiring strategy: step tasks are ordered solely by file input/output relationships (a
+ * step consuming a file another step produces depends on that producer); flow aggregation tasks
+ * depend on all their step tasks; flow-level dependencies combine explicit `dependsOn` declarations
+ * with implicit artifact-based dependencies computed by [FlowService]. Independent tasks therefore
+ * run in parallel under Gradle's `--parallel` mode.
+ */
 class FlowTasksGenerator(
     private val project: Project,
     private val flows: Collection<Flow>,
@@ -49,6 +57,7 @@ class FlowTasksGenerator(
 ) {
   private val tasksByFlowName = mutableMapOf<String, Task>()
   private val stepTasks = mutableListOf<Task>()
+  private val flowService = FlowService()
 
   /** Registers Gradle tasks for all flows and configures dependencies. */
   fun registerTasks() {
@@ -60,37 +69,37 @@ class FlowTasksGenerator(
     flows.forEach { flow ->
       val flowStepTasks = mutableListOf<Task>()
 
-      flow.steps.forEachIndexed { index, step ->
+      // Step ordering within a flow is derived solely from file input/output
+      // relationships (see setupFileDependencies), so independent steps can run in
+      // parallel when Gradle's --parallel is enabled
+      flow.steps.forEach { step ->
         val stepTaskName =
             "flow${flow.name.replaceFirstChar { it.uppercaseChar() }}Step${step.name.replaceFirstChar { it.uppercaseChar() }}"
 
         val stepTask = createStepTask(taskContainer, stepTaskName, step, flow)
         stepTasks.add(stepTask)
         flowStepTasks.add(stepTask)
-
-        // Set up step-level dependencies within the flow
-        if (index > 0) {
-          stepTask.dependsOn(flowStepTasks[index - 1])
-        }
       }
 
-      // Create a flow-level aggregation task
+      // Create a flow-level aggregation task depending on every step task — without the
+      // sequential chain, the last step no longer transitively covers the others
       val flowTaskName = "flow${flow.name.replaceFirstChar { it.uppercaseChar() }}"
       val flowTask =
           taskContainer.create(flowTaskName) { t ->
             t.group = "flows"
             t.description = "Executes all steps in flow '${flow.name}'"
             if (flowStepTasks.isNotEmpty()) {
-              t.dependsOn(flowStepTasks.last()) // Depend on the last step
+              t.dependsOn(flowStepTasks)
             }
           }
       tasksByFlowName[flow.name] = flowTask
     }
 
-    // Set up flow-level dependencies
+    // Set up flow-level dependencies: both explicit dependsOn and implicit
+    // artifact-based dependencies computed by the domain dependency graph
     flows.forEach { flow ->
       val flowTask = tasksByFlowName[flow.name] ?: return@forEach
-      flow.dependsOn.forEach { depName ->
+      flowService.getDependenciesOf(flows, flow.name).forEach { depName ->
         tasksByFlowName[depName]?.let { depTask -> flowTask.dependsOn(depTask) }
       }
     }
@@ -110,7 +119,7 @@ class FlowTasksGenerator(
   private fun validateFlowGraph() {
     val result =
         try {
-          FlowService().validateFlows(flows)
+          flowService.validateFlows(flows)
         } catch (e: FlowValidationException) {
           throw GradleException("Flow validation failed: ${e.message}", e)
         }

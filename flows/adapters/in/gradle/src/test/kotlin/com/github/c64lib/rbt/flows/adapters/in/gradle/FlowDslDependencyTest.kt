@@ -32,8 +32,8 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 
 /**
- * Verifies that flows built through the actual Gradle DSL produce correct implicit dependencies
- * and validate cleanly, matching real-world builds (tony-shaped pipelines).
+ * Verifies that flows built through the actual Gradle DSL produce correct implicit dependencies and
+ * validate cleanly, matching real-world builds (tony-shaped pipelines).
  */
 class FlowDslDependencyTest :
     BehaviorSpec({

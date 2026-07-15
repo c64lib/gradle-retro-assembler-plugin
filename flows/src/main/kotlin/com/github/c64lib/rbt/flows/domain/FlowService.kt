@@ -40,4 +40,11 @@ class FlowService {
   /** Returns flow names that can run in parallel with the specified flow. */
   fun findParallelCandidates(flows: Collection<Flow>, flowName: String): Set<String> =
       FlowDependencyGraph().apply { flows.forEach(this::addFlow) }.getParallelCandidates(flowName)
+
+  /**
+   * Returns the names of all flows the given flow depends on, both explicitly (via `dependsOn`) and
+   * implicitly (via consumed artifacts another flow produces).
+   */
+  fun getDependenciesOf(flows: Collection<Flow>, flowName: String): Set<String> =
+      FlowDependencyGraph().apply { flows.forEach(this::addFlow) }.getAllDependencies(flowName)
 }

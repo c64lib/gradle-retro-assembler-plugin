@@ -99,7 +99,6 @@ internal class FlowDependencyGraph {
 
       // Find flows that have all their dependencies satisfied
       for (flowName in allFlowNames - processed) {
-        val flow = flows[flowName]!!
         val allDependenciesMet = getAllDependencies(flowName).all { it in processed }
 
         if (allDependenciesMet) {
@@ -120,7 +119,7 @@ internal class FlowDependencyGraph {
   }
 
   /** Gets all dependencies for a flow (both explicit and implicit through artifacts) */
-  private fun getAllDependencies(flowName: String): Set<String> {
+  internal fun getAllDependencies(flowName: String): Set<String> {
     val flow = flows[flowName] ?: return emptySet()
     val allDeps = mutableSetOf<String>()
 
@@ -191,7 +190,8 @@ internal class FlowDependencyGraph {
       // Skip validation for source files - they don't need producers
       val artifacts = consumedArtifactsByPath[path].orEmpty()
       if (path !in artifactProducers && artifacts.none { it.isSourceFile }) {
-        issues.add(FlowValidationIssue.MissingArtifactProducer(artifacts.first(), consumers.toList()))
+        issues.add(
+            FlowValidationIssue.MissingArtifactProducer(artifacts.first(), consumers.toList()))
       }
     }
 
@@ -217,7 +217,7 @@ internal class FlowDependencyGraph {
 
   /** Gets flows that can potentially run in parallel with the given flow */
   fun getParallelCandidates(flowName: String): Set<String> {
-    val flow = flows[flowName] ?: return emptySet()
+    if (flowName !in flows) return emptySet()
     val flowDependencies = getAllTransitiveDependencies(flowName)
     val flowDependents = getAllTransitiveDependents(flowName)
 
