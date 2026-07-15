@@ -37,7 +37,11 @@ This skill targets `plans/` only. It does not read or execute legacy `.ai/` plan
 3. Confirm the target with the user via `AskUserQuestion` if there is any ambiguity; accept an explicit path otherwise.
 4. Read the full plan file before doing anything else.
 
-### Step 2 — Summarise and parse
+### Step 2 — Summarise, parse, and check plan status
+
+Read the plan's `**Status**` header. Execution is only appropriate for an **`accepted`** or already **`in progress`** plan:
+- `draft` — not yet approved. Do not execute; tell the user the plan must be accepted first (via `/plan update` → `accepted`, which requires all open questions answered), and stop.
+- `implemented` or `rejected` — terminal/historical. Do not execute; if the user wants further work, they should create a new plan.
 
 Parse Section 5 into phases and steps. Present a summary:
 - Each phase name and its steps (`N.M`), with each step's deliverable and testing note.
@@ -87,7 +91,7 @@ After the run (completed or stopped), write results back by invoking the **`plan
 Skill(skill: "plan", args: "update")
 ```
 
-Provide it the plan path and the change set so it updates the plan consistently: mark completed steps `- [x]`, annotate skipped/blocked steps with reasons, refresh the `**Status**` field and `**Last Updated**`, add a Revision-History row, update the `plans/README.md` index if status changed, and sync the linked GitHub issue. Do **not** hand-edit the plan file or the index directly — that is the `plan` skill's job, so plan I/O stays in one place.
+Provide it the plan path and the change set so it updates the plan consistently: mark completed steps `- [x]`, annotate skipped/blocked steps with reasons, add a Revision-History row, update the `plans/README.md` index if status changed, and sync the linked GitHub issue. Include the correct **plan-level Status transition** (canonical values from the `plan` skill's Status Lifecycle): set `in progress` when execution begins on an `accepted` plan, and `implemented` once every step in the plan is complete. Leave it `in progress` if steps remain. Do **not** hand-edit the plan file or the index directly — that is the `plan` skill's job, so plan I/O stays in one place.
 
 ### Step 8 — Summarise and offer follow-ups
 

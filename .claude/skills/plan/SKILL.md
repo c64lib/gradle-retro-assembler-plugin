@@ -18,6 +18,26 @@ Dispatch by intent: a new feature/fix → CREATE; a reference to an existing pla
 
 ---
 
+## Status Lifecycle
+
+Every plan carries a `**Status**` field whose value is one of exactly these five, and the `plans/README.md` index `Status` column mirrors it verbatim:
+
+| Status | Meaning | Kind |
+|--------|---------|------|
+| `draft` | Newly created; still being written/refined. May have unresolved questions. | active |
+| `accepted` | Reviewed and approved; ready to implement. **All open questions must be answered to reach this state.** | active |
+| `in progress` | Implementation underway (steps being executed). | active |
+| `implemented` | Work is done and merged. | terminal / historical |
+| `rejected` | Abandoned; will not be implemented. | terminal / historical |
+
+Normal flow: `draft → accepted → in progress → implemented`. A plan may go to `rejected` from any active state.
+
+**Terminal states are historical.** Once a plan is `implemented` or `rejected` it is a historical record: it is not kept in sync with the codebase and **is allowed to go stale**. Do not "freshen" or re-verify terminal plans, and do not re-open one — create a new plan instead. Terminal plans are never deleted (see Storage Rules); they stay in `plans/` and the index as history.
+
+**Acceptance gate (`→ accepted`).** A plan may only transition to `accepted` when its `### Unresolved Questions` list is empty (every question answered and moved to `### Self-Reflection Questions`). If any remain, do not set `accepted` — resolve them first (via the UPDATE rules), then retry. On acceptance, also ask the user whether the plan should be copied onto the linked GitHub issue's description (see UPDATE Step 4).
+
+---
+
 ## OPERATION: CREATE
 
 Produce a comprehensive, refined plan and persist it.
@@ -62,14 +82,14 @@ Read `plans/README.md`. If missing, create it:
 # Plans Index
 
 Structured development action plans for this project.
-Plans are permanent artifacts — do not delete, only mark as `completed` or `cancelled`.
+Plans are permanent artifacts — do not delete. Terminal plans (`implemented`, `rejected`) are kept as history.
 
 | ID | Date | Status | Title | Issue |
 |----|------|--------|-------|-------|
 ```
-Append:
+Append (new plans always start as `draft`):
 ```
-| [PLAN-{nnnn}](PLAN-{nnnn}_{slug}.md) | {YYYY-MM-DD} | Planning | {Feature Name} | #{issue-number} |
+| [PLAN-{nnnn}](PLAN-{nnnn}_{slug}.md) | {YYYY-MM-DD} | draft | {Feature Name} | #{issue-number} |
 ```
 Use `—` in the Issue column when unlinked.
 
@@ -117,8 +137,11 @@ Apply the change **and propagate its impact** across all relevant sections — a
 - **Rationale**: {why}
 ```
 
-**Status/progress:**
-- Update the `**Status**` field; mark completed steps `- [x]`; add `**Last Updated**: {YYYY-MM-DD}`.
+**Status transitions:**
+- Set the `**Status**` field to one of the five canonical values (see *Status Lifecycle*); add `**Last Updated**: {YYYY-MM-DD}`.
+- **`→ accepted`:** first confirm `### Unresolved Questions` is empty. If any remain, refuse the transition and resolve them (answer + move to Self-Reflection) before setting `accepted`. On success, ask the user (via `AskUserQuestion`) **"Copy this accepted plan onto issue #{issue-number}'s description?"** — if yes and the plan is linked, replace the issue body with the full plan content in Step 7; if no, leave the issue untouched. (For unlinked plans, skip the prompt.)
+- **`→ in progress`:** mark steps `- [x]` as they complete.
+- **`→ implemented` / `→ rejected`:** these are terminal. Record the outcome, then treat the plan as historical — no further syncing or freshening. Do not transition out of a terminal state; create a new plan instead.
 
 Preserve historical context — don't delete answered questions or superseded content unless explicitly asked. Maintain the template's exact section structure and numbering.
 
@@ -139,7 +162,10 @@ If status changed, update the `Status` column for this plan's row in `plans/READ
 
 ### Step 7 — Sync to the GitHub issue (if linked)
 
-If the plan has an `**Issue**:` link, replace the issue body with the updated plan via `mcp__github__issue_write`.
+Replace the linked issue body with the updated plan via `mcp__github__issue_write` **only when the update warrants it**:
+- On an **acceptance** transition, honour the Step 4 prompt: copy onto the issue only if the user said yes.
+- For other content updates to a non-terminal plan, sync as before.
+- For **terminal** plans (`implemented`, `rejected`), do not push further updates to the issue — they are historical.
 
 ### Step 8 — Present changes
 
@@ -165,7 +191,8 @@ If the user is logging a historical plan, accept a custom date and use it for th
 ## Storage Rules
 
 - Plans live in `plans/` with sequential `PLAN-nnnn` IDs — never in `.ai/`.
-- Plans are **permanent artifacts** — never delete a plan file; only set status to `completed` or `cancelled`.
+- Plans are **permanent artifacts** — never delete a plan file. A plan reaches end-of-life by moving to a terminal status (`implemented` or `rejected`), not by deletion.
+- **Terminal plans are historical and may go stale** — do not keep them in sync with the codebase or re-verify them; do not re-open one (create a new plan instead).
 - Existing `.ai/` plans are **not migrated** — leave them in place.
 - `plans/README.md` is the authoritative index — always update it on create and status-change updates.
 
