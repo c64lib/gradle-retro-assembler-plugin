@@ -220,16 +220,19 @@ None — all questions answered (see Self-Reflection Questions above).
    - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
    - Description: Remove the `if (index > 0) { stepTask.dependsOn(flowStepTasks[index - 1]) }` block inside `registerTasks()`. Retain the collection of `flowStepTasks` for the flow aggregation task. The flow aggregation task should depend on **all** step tasks in the flow (not just the last one) to ensure all steps have completed before the flow-level task is considered done.
    - Testing: Build a flow with two independent steps; verify both Gradle tasks appear in the task dependency graph without an ordering constraint between them
+   - [x] **Completed 2026-07-15** — Index-based sequential chaining removed from `registerTasks()`; step ordering now comes exclusively from `setupFileDependencies()`. Verified by `FlowTasksGeneratorTest`: two independent steps have empty task dependency sets; a step consuming another step's output depends on it.
 
 2. **Step 2.2**: Wire flow-level task dependencies using the dependency graph
    - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
    - Description: Replace the current explicit-only flow dependency wiring loop with graph-computed dependencies retrieved through the new public `FlowService` API from Step 3.2 (the adapter cannot touch `FlowDependencyGraph` — `internal` to the `flows` module). For each flow, retrieve all dependencies (explicit and artifact-based, working after Phase 0), then call `flowTask.dependsOn(depTask)` for each dependency flow's aggregation task.
    - Testing: Build two DSL-built flows where one consumes a file the other produces (without explicit `dependsOn`); verify the consuming flow's task depends on the producing flow's task
+   - [x] **Completed 2026-07-15** — Flow-level wiring now calls `FlowService.getDependenciesOf(flows, flowName)` (Step 3.2 API), covering explicit `dependsOn` and artifact-based implicit dependencies. Verified by `FlowTasksGeneratorTest`: artifact-only linkage wires `flowCompilation` → `flowAssets`; explicit `dependsOn` wires `flowSecond` → `flowFirst`; independent flows have no cross-dependency.
 
 3. **Step 2.3**: Update flow aggregation task to depend on all step tasks
    - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
    - Description: Change the flow aggregation task creation to `t.dependsOn(flowStepTasks)` (all steps) rather than `t.dependsOn(flowStepTasks.last())` (only the last step). This is required after removing the sequential chain — previously the last task transitively depended on all prior tasks; without the chain, the aggregation task must explicitly depend on every step task.
    - Testing: A flow with three steps (A→B→C via files, plus D independent) should have its aggregation task depend on all four step tasks
+   - [x] **Completed 2026-07-15** — Flow aggregation task now does `dependsOn(flowStepTasks)` (all steps). Verified by `FlowTasksGeneratorTest`: aggregation task of a produce→consume+independent flow depends on all three step tasks. `FlowTasksGenerator` class KDoc documents the wiring strategy (Section 8 item).
 
 **Phase 2 Deliverable**: Flows that are independent now execute in parallel when `--parallel` is set; flows with artifact or `dependsOn` dependencies still execute in the correct order
 
@@ -252,6 +255,7 @@ None — all questions answered (see Self-Reflection Questions above).
    - Description: Add a public `FlowService.getDependenciesOf(flows: Collection<Flow>, flowName: String): Set<String>` (or equivalent) that delegates to `FlowDependencyGraph.getAllDependencies()`. The originally planned `private → internal` visibility change does not work: Kotlin `internal` does not cross Gradle module boundaries, and `FlowDependencyGraph` is itself an `internal` class invisible to `flows:adapters:in:gradle` (red-team finding). The public service API is the only viable access path and keeps the graph encapsulated.
    - Testing: New `FlowService` unit test for the accessor; domain tests still pass; no behaviour change
    - Note: This step is a prerequisite of Step 2.2 and should be implemented before or together with it (kept in Phase 3 numbering for continuity)
+   - [x] **Completed 2026-07-15 (together with Step 2.2)** — `FlowService.getDependenciesOf(flows, flowName): Set<String>` added, delegating to `FlowDependencyGraph.getAllDependencies()` (visibility `private` → `internal` within the `flows` module). Exercised indirectly by `FlowTasksGeneratorTest` (explicit + implicit dependency wiring); dedicated `FlowService` unit test still to be added in Step 3.1's test pass if desired.
 
 3. **Step 3.3**: Update CLAUDE.md or user documentation
    - Files: `CLAUDE.md` (Parallel Execution section)
@@ -321,6 +325,7 @@ None — all questions answered (see Self-Reflection Questions above).
 | 2026-07-15 | Maciej Małecki / AI Agent | Status `draft` → `accepted` (acceptance gate satisfied); plan copied onto GitHub issue #135 per user decision. |
 | 2026-07-15 | AI Agent | Phase 0 executed: Steps 0.1/0.2 spikes confirmed both red-team findings (recorded inline); Step 0.3 implemented path-based artifact matching in `FlowDependencyGraph` and source-file marking in `FlowDslBuilder.build()`; new regression tests added; all 216 flows/adapter tests green. Status `accepted` → `in progress`. |
 | 2026-07-15 | AI Agent | Phase 1 executed: Step 1.1 removed dead `FlowExecutionTask.kt`; Step 1.2 added configuration-time `validateFlowGraph()` to `FlowTasksGenerator` (warnings logged, errors fail the build via `GradleException`), with new ProjectBuilder-based `FlowTasksGeneratorTest`; test JVM `--add-opens` added for ProjectBuilder on modern JDKs. All 79 adapter tests green. |
+| 2026-07-15 | AI Agent | Phase 2 executed (with Step 3.2 as prerequisite): removed index-based sequential step chaining; flow aggregation tasks depend on all step tasks; flow-level dependencies wired from `FlowService.getDependenciesOf()` (explicit + artifact-based); `FlowTasksGenerator` KDoc documents the wiring strategy; wiring covered by 10 new `FlowTasksGeneratorTest` assertions. All 226 tests and Spotless checks green. |
 
 ---
 
