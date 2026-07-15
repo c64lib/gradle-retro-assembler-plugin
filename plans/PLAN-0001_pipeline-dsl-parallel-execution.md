@@ -2,7 +2,7 @@
 
 **Plan ID**: PLAN-0001
 **Issue**: #135
-**Status**: accepted
+**Status**: in progress
 **Created**: 2026-03-29
 **Last Updated**: 2026-07-15
 
@@ -180,16 +180,19 @@ None — all questions answered (see Self-Reflection Questions above).
    - Files: none (throwaway test or scratch verification)
    - Description: Construct two DSL-built flows where flow B consumes a file that flow A produces (no explicit `dependsOn`), call `FlowService.getExecutionPlan()`, and observe the levels. Expected per the red-team finding: A and B land in the same level (no implicit dependency detected) because `FlowArtifact` data-class equality includes the auto-generated `name` (`FlowDsl.kt:173-178`).
    - Testing: The spike's observation is the deliverable; record the result in this plan
+   - [x] **Completed 2026-07-15** — Confirmed. Pre-fix, DSL-shaped producer/consumer artifacts (same path, auto-generated names `{step}_output_{n}` vs `{step}_input_{n}`) produced no implicit dependency; validation instead reported false `MissingArtifactProducer` errors, including for a flow's own within-flow intermediates. Encoded as permanent regression tests in `flows/src/test/kotlin/com/github/c64lib/rbt/flows/domain/DslShapedArtifactMatchingTest.kt` (3 of its assertions failed pre-fix).
 
 2. **Step 0.2**: Spike — measure validation false positives against tony's flows
    - Files: none (throwaway)
    - Description: Run `FlowService.validateFlows()` over flows equivalent to tony's six flows and count `MissingArtifactProducer` errors on genuine source inputs. Expected: many false ERRORs, confirming fail-on-error validation is unsafe before the identity fix.
    - Testing: The spike's observation is the deliverable; record the result in this plan
+   - [x] **Completed 2026-07-15** — Confirmed. Tony-shaped flows (six independent pipelines, source `.ctm`/`.asm`/`.sng` inputs, within-flow intermediates, and intro's duplicate output path from the `loading`/`loadingPicture` steps) built through the real `FlowDslBuilder` failed validation with error-severity issues pre-fix. Encoded as permanent regression tests in `flows/adapters/in/gradle/src/test/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowDslDependencyTest.kt` (both validation assertions failed pre-fix).
 
 3. **Step 0.3**: Fix artifact identity in the domain
    - Files: `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/FlowDependencyGraph.kt`, possibly `flows/adapters/in/gradle/src/main/kotlin/.../FlowDsl.kt`
    - Description: Implement the resolution chosen for the artifact-identity open question (leading option: key `artifactProducers`/`artifactConsumers` by `path` rather than full `FlowArtifact` equality, and mark DSL-created inputs as `isSourceFile = true` so unproduced source assets stop erroring). Re-run the Step 0.1/0.2 spikes to confirm implicit deps now fire and false ERRORs are gone.
    - Testing: New/updated `FlowDependencyGraphTest` cases using DSL-shaped artifacts (auto-generated names, path overlap); both spikes green
+   - [x] **Completed 2026-07-15** — `FlowDependencyGraph` now keys `artifactProducers`/`artifactConsumers` by `path` (`FlowDependencyGraph.kt`); same-flow duplicate output paths are allowed (tony's intro case) while cross-flow duplicates still throw `FlowValidationException`; `MissingArtifactProducer` is skipped when any consumer artifact for the path is a source file. `FlowDslBuilder.build()` (`FlowDsl.kt`) now marks consumed artifacts whose path no flow produces as `isSourceFile = true`. All 216 tests in `:flows` and `:flows:adapters:in:gradle` pass, including the new DSL-shaped regression tests.
 
 **Phase 0 Deliverable**: `FlowDependencyGraph` computes correct implicit dependencies for flows as the DSL actually builds them; validation produces no false errors on tony-shaped flows
 
@@ -314,6 +317,7 @@ None — all questions answered (see Self-Reflection Questions above).
 | 2026-07-15 | AI Agent | Incorporated adversarial red-team findings (/challenge): added Phase 0 (artifact-identity fix + feasibility spikes) — `FlowArtifact` equality never matches for DSL-built flows and validation false-errors on source inputs; answered the FlowService-vs-graph question (settled by `internal` module visibility); revised Steps 1.2/2.2/3.2 to route through a new public `FlowService` API and gate fail-on-error validation on Phase 0; added Step 3.4 e2e gate against tony; updated Gap Analysis, Architecture Alignment, and Risks accordingly. Two new unresolved questions added; status remains `draft`. |
 | 2026-07-15 | Maciej Małecki / AI Agent | All four unresolved questions answered interactively: (1) artifact identity → path-based matching in FlowDependencyGraph; (2) validation false positives → mark DSL inputs isSourceFile when unproduced; (3) validation failures → fail the build (GradleException) after Phase 0; (4) FlowExecutionTask → remove in this PR. Unresolved Questions now empty — plan eligible for acceptance. |
 | 2026-07-15 | Maciej Małecki / AI Agent | Status `draft` → `accepted` (acceptance gate satisfied); plan copied onto GitHub issue #135 per user decision. |
+| 2026-07-15 | AI Agent | Phase 0 executed: Steps 0.1/0.2 spikes confirmed both red-team findings (recorded inline); Step 0.3 implemented path-based artifact matching in `FlowDependencyGraph` and source-file marking in `FlowDslBuilder.build()`; new regression tests added; all 216 flows/adapter tests green. Status `accepted` → `in progress`. |
 
 ---
 
