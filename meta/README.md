@@ -14,3 +14,4 @@ Each entry is a separate Markdown file named `MET-nnnn_<slug>.md`, based on the 
 | [MET-0004](MET-0004_test-skill-reuse-build.md) | 2026-07-14 | Maciej Małecki | Modify the test skill to delegate Gradle execution to the build skill (Haiku subagent), keeping analysis on the main agent |
 | [MET-0005](MET-0005_add-e2e-test-skill.md) | 2026-07-15 | Maciej Małecki | Add an e2e-test skill wrapping end-to-end plugin testing against the tony harness project (hardcoded paths) |
 | [MET-0006](MET-0006_migrate-ci-to-gh-actions.md) | 2026-07-15 | Maciej Małecki | Update CLAUDE.md Quality Metrics section for the CircleCI → GitHub Actions migration |
+| [MET-0007](MET-0007_cherry-pick-plan-skill.md) | 2026-07-15 | Maciej Małecki | Reset branch 135 to develop and cherry-pick only the plan skill + plan.template.md from its divergent Claude assets |
