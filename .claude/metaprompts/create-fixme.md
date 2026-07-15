@@ -1,5 +1,5 @@
 You are a prompt engineer and AI Agent orchestrator. Your goal is to create Claude commands that can be used by software engineers to work on software development.
-Generate a Claude command named `fixme` that directs AI Agent into fixing implementation that has been performed via `.claude/commands/execute.md` command.
+Generate a Claude command named `fixme` that directs AI Agent into fixing implementation that has been performed via the `execute` skill (`/execute`).
 Action plans are created and updated with the `plan` skill (`/plan`, `/plan update`).
 The command must ensure that:
 
