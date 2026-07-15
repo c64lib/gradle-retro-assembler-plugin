@@ -22,3 +22,4 @@ Each entry is a separate Markdown file named `MET-nnnn_<slug>.md`, based on the 
 | [MET-0012](MET-0012_ai-plans-historical.md) | 2026-07-15 | Maciej Małecki | Add CLAUDE.md Development Plans section (plans/ authoritative, .ai/ historical/stale); migrate only issue #135 plan into plans/PLAN-0001 |
 | [MET-0013](MET-0013_add-challenge-skill.md) | 2026-07-15 | Maciej Małecki | Add user-invocable challenge skill (adversarial stress-test of plans/executions/docs/changes), adapted from the research repo's adversary-challenge skill |
 | [MET-0014](MET-0014_extend-execute-exec-log.md) | 2026-07-15 | Maciej Małecki | Extend execute skill with per-plan execution log (EXEC-nnnn file + template + Exec index column) and an explicit post-execution issue-description sync offer |
+| [MET-0015](MET-0015_claude-md-arc42-pointer.md) | 2026-07-15 | Maciej Małecki | Add an Architecture reference pointer in CLAUDE.md to the arc42 docs with a maintenance instruction (PLAN-0002 Step 3.5) |

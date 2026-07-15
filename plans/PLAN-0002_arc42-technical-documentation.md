@@ -2,9 +2,9 @@
 
 **Plan ID**: PLAN-0002
 **Issue**: #154
-**Status**: in progress
+**Status**: implemented
 **Created**: 2026-07-15
-**Last Updated**: 2026-07-15 (Phase 2 complete)
+**Last Updated**: 2026-07-15 (all phases complete)
 
 ## 1. Feature Description
 
@@ -178,26 +178,26 @@ A single, complete, maintainable arc42 document set in Markdown with Mermaid dia
 ### Phase 3: Cross-cutting, Quality, Debt, Glossary (arc42 §7–§12)
 **Goal**: Complete the remaining arc42 sections and integrate the doc set into the repo.
 
-1. **Step 3.1**: §7 Deployment View
+1. **Step 3.1**: §7 Deployment View — `- [x]` completed 2026-07-15
    - Files: `doc/arc42/07_deployment_view.md`
    - Description: Plugin distribution (Gradle Plugin Portal via `publish.yml` on semver tags), CI pipelines (build.yml, documentation.yml), runtime placement (user machine: Gradle daemon, downloaded KickAssembler jar, native tools VICE/DASM/Exomizer/gt2reloc), Mermaid deployment diagram
-   - Testing: Consistent with `.github/workflows/*`
-2. **Step 3.2**: §8 Cross-cutting Concepts
+   - Testing: Consistent with `.github/workflows/*` — verified: all 3 workflow files cross-checked (build triggers/tasks, publish semver-tag + publishPlugins, documentation master→gh-pages/asciidoctor); two Mermaid diagrams (CI + runtime)
+2. **Step 3.2**: §8 Cross-cutting Concepts — `- [x]` completed 2026-07-15
    - Files: `doc/arc42/08_crosscutting_concepts.md`
    - Description: Hexagonal rules (ports isolate technology; use-case naming/`apply` contract), manual DI in `afterEvaluate`, shared kernel usage, error handling (`IllegalConfigurationException`/`IllegalInputException`/`OutOfDataException` + flows' `StepValidationException`/`StepExecutionException` name-prefixing convention), parallel execution (Workers API; flows auto-parallelism from file input/output relationships under `--parallel`), incremental builds, streaming processor abstraction (`shared:processor`), DSL builder patterns (`useFrom()`/`useTo()`), task naming conventions (`Tasks.kt`)
-   - Testing: Each concept cites at least one real class/path
-3. **Step 3.3**: §9 Architecture Decisions
+   - Testing: Each concept cites at least one real class/path — verified: 9 concepts, every cited path confirmed (shared exceptions, flows exceptions in `Flow.kt`/`FlowDependencyGraph.kt`, `FlowTasksGenerator.kt`, `Tasks.kt`, `shared/processor`, `fllter`)
+3. **Step 3.3**: §9 Architecture Decisions — `- [x]` completed 2026-07-15
    - Files: `doc/arc42/09_architecture_decisions.md`
    - Description: Lightweight decision log reconstructed from `CLAUDE.md`, kb docs, and legacy `.ai/` plans: hexagonal adoption, Gradle-as-adapter, no DI framework, Workers API over threads, flows file-based task dependency derivation, Markdown+Mermaid for this doc set (self-referential first entry)
-   - Testing: Each decision lists context/decision/consequences
-4. **Step 3.4**: §10 Quality Requirements, §11 Risks & Technical Debt, §12 Glossary
+   - Testing: Each decision lists context/decision/consequences — verified: AD-1…AD-8, each with Context/Decision/Consequences; AD-8 self-references PLAN-0002
+4. **Step 3.4**: §10 Quality Requirements, §11 Risks & Technical Debt, §12 Glossary — `- [x]` completed 2026-07-15
    - Files: `doc/arc42/10_quality_requirements.md`, `doc/arc42/11_risks_and_technical_debt.md`, `doc/arc42/12_glossary.md`
    - Description: §10: quality tree (extensibility, correctness/coverage ≥70%, build performance) + scenarios; §11: honest debt register — `crunchers` missing from kb docs, spritepad package `com.c64lib` inconsistency, `fllter` typo package, flows ports under `domain/port` vs `usecase/port`, single large `afterEvaluate` wiring block, stale concept paper; §12: glossary (KickAssembler, DASM, VICE, 64spec, CTM/SPD/SNG/SID formats, PRG, cruncher, flow/step, port/adapter, bounded context)
-   - Testing: §11 items verified against code before recording
-5. **Step 3.5**: Integration and cross-linking
+   - Testing: §11 items verified against code before recording — verified: D1–D6 all confirmed against code (spritepad `com.c64lib` package, `fllter` package, flows `domain/port`, ~223-line `afterEvaluate`); §10 quality tree + 9 scenarios; §12 glossary complete
+5. **Step 3.5**: Integration and cross-linking — `- [x]` completed 2026-07-15
    - Files: `doc/arc42/README.md`, root `README.md`, `CLAUDE.md` (pointer only), `doc/kb/architecture.md` (pointer only)
    - Description: Link the arc42 set from the root README and add a one-line pointer in CLAUDE.md and kb docs so agents and contributors find it; do not rewrite kb content
-   - Testing: Links resolve from all entry points
+   - Testing: Links resolve from all entry points — verified: root README + kb/architecture.md + CLAUDE.md pointers added, arc42 README status updated; all relative links in new files and pointer targets confirmed to resolve
 
 **Phase 3 Deliverable**: Complete arc42 §1–§12 set, cross-linked from repo entry points; documentation feature done.
 
@@ -226,10 +226,10 @@ A single, complete, maintainable arc42 document set in Markdown with Mermaid dia
 
 ## 8. Documentation Updates
 
-- [ ] Root `README.md`: link to `doc/arc42/README.md`
-- [ ] `CLAUDE.md`: one-line pointer to the arc42 docs (maintenance instruction for agents)
-- [ ] `doc/kb/architecture.md` / `doc/kb/domain.md`: pointer to arc42 set (no rewrite)
-- [ ] This plan is itself the tracking document; no further architectural docs needed
+- [x] Root `README.md`: link to `doc/arc42/README.md`
+- [x] `CLAUDE.md`: one-line pointer to the arc42 docs (maintenance instruction for agents)
+- [x] `doc/kb/architecture.md`: pointer to arc42 set (no rewrite); `doc/kb/domain.md`'s `crunchers` gap captured as debt item D1 in §11 instead
+- [x] This plan is itself the tracking document; no further architectural docs needed
 
 ## 9. Rollout Plan
 
@@ -248,6 +248,7 @@ A single, complete, maintainable arc42 document set in Markdown with Mermaid dia
 | 2026-07-15 | AI Agent | Noted that the latest official arc42 template can be fetched from https://arc42.org/; Step 1.1 now instructs fetching it to confirm §1–§12 structure before generating the skeleton |
 | 2026-07-15 | AI Agent | Phase 1 (Steps 1.1–1.4) executed and verified via EXEC-0002 Session 1; status transitioned accepted → in progress |
 | 2026-07-15 | AI Agent | Phase 2 (Steps 2.1–2.3) executed and verified via EXEC-0002 Session 2: §5 building-block view (L1 + 9 hexagon pages) and §6 runtime view (5 sequence diagrams); status remains in progress (Phase 3 pending) |
+| 2026-07-15 | AI Agent | Phase 3 (Steps 3.1–3.5) executed and verified via EXEC-0002 Session 3: §7 deployment, §8 crosscutting concepts, §9 architecture decisions (AD-1…AD-8), §10 quality (tree + 9 scenarios), §11 debt register (D1–D6 verified), §12 glossary, and cross-linking (README/CLAUDE.md/kb pointers). All §1–§12 complete; status transitioned in progress → implemented |
 
 ---
 

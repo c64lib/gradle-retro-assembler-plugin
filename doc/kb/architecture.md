@@ -1,4 +1,7 @@
 # General architecture
+
+> For the complete, diagrammed architecture reference (arc42), see [`doc/arc42/`](../arc42/README.md). These kb notes are a concise agent-facing summary.
+
 The project uses hexagonal architecture.
 
 Top level split is based on domain analysis. The following domains are identified: compilers, dependencies, emulators, processors, testing, flows, and shared.

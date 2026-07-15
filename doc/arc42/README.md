@@ -27,4 +27,4 @@ All diagrams are authored as [Mermaid](https://mermaid.js.org/) fenced code bloc
 
 ## Status
 
-This documentation set is being built incrementally per [PLAN-0002](../../plans/PLAN-0002_arc42-technical-documentation.md). Sections not yet written are marked "in progress" below their heading.
+All twelve arc42 sections are complete (built per [PLAN-0002](../../plans/PLAN-0002_arc42-technical-documentation.md)). Keep the building-block view (§5) and crosscutting concepts (§8) current when the architecture changes; record newly discovered inconsistencies in [§11](11_risks_and_technical_debt.md).
