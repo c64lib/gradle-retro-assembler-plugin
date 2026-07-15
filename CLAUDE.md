@@ -113,6 +113,12 @@ When adding a new module to the project, **you must also add it as `compileOnly`
 
 - Do not suggest including implementation details in API comments
 
+## Development Plans
+
+Structured development action plans live in **`plans/`** (`plans/PLAN-nnnn_{slug}.md`, indexed by `plans/README.md`) and are managed exclusively through the `plan` and `execute` skills. Each plan carries a canonical `**Status**`: `draft` → `accepted` → `in progress` → `implemented`, or `rejected`. This is the authoritative, current plan system — always create, read, and update plans here via `/plan`.
+
+The older **`.ai/`** directory holds legacy plans from before the `plans/` system. **Treat every `.ai/` plan as a historical record that is potentially stale:** it is not kept in sync with the codebase, may describe superseded designs or file locations, and must not be relied upon as current truth. Do not update `.ai/` plans and do not migrate them wholesale. If you need to work from a legacy plan, verify its claims against the actual code first, and recreate it in `plans/` via `/plan` if it should become a living plan. (Only PLAN-0001, issue #135, has been migrated so far.)
+
 ## Flows Subdomain Patterns
 
 The flows subdomain is an orchestrator domain that coordinates multiple processor and compiler subdomains into processing pipelines with dependency tracking and incremental build support.
