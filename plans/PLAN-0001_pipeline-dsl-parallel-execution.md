@@ -6,7 +6,7 @@
 **Created**: 2026-03-29
 **Last Updated**: 2026-07-15
 
-> Migrated from `.ai/135-pipeline-dsl-parallel-execution/feature-135-pipeline-dsl-parallel-execution-action-plan.md` into the `plans/` system. Status is `draft`: three Unresolved Questions remain (see Section 4), which must be answered before the plan can be `accepted`.
+> Migrated from `.ai/135-pipeline-dsl-parallel-execution/feature-135-pipeline-dsl-parallel-execution-action-plan.md` into the `plans/` system. Status is `draft`: four Unresolved Questions remain (see Section 4), which must be answered before the plan can be `accepted`.
 
 ## 1. Feature Description
 
@@ -77,6 +77,8 @@ When Gradle runs with `--parallel`, independent tasks will execute concurrently 
 | Flow-level dependencies incomplete | `FlowTasksGenerator.registerTasks()` lines 85-90 | Use `FlowDependencyGraph` to compute all flow-level dependencies (artifact-based implicit deps are currently missing) |
 | `setupFileDependencies()` only runs after all tasks created | `FlowTasksGenerator.setupFileDependencies()` | Ensure this method correctly handles within-flow dependencies after the sequential chain is removed |
 | `FlowExecutionTask` is dead code | `FlowExecutionTask.kt` | Evaluate for removal or repurposing (it has a `TODO` and is not registered anywhere) |
+| **Artifact identity is broken for DSL-built flows** (red-team finding) | `Flow.kt:174-179`, `FlowDsl.kt:173-178` | `FlowArtifact` is a data class whose equality includes the auto-generated `name` (`{step}_input_{n}` / `{step}_output_{n}`), so a producer's and consumer's artifact for the same path are never equal — `getAllDependencies()` finds zero implicit deps for DSL-built flows. Artifact matching must become path-based (or DSL naming must align) before flow-level implicit dependencies can work |
+| **Validation produces false ERRORs for DSL-built flows** (red-team finding) | `FlowDependencyGraph.kt:178-189`, `FlowDsl.kt:174` | DSL inputs default `isSourceFile = false` and never match a producer, so `detectMissingArtifactProducers` flags every consumed source asset as an ERROR — fail-on-error validation would break existing consumer builds (incl. tony) until this is fixed |
 
 ## 3. Relevant Code Parts
 
@@ -113,10 +115,10 @@ When Gradle runs with `--parallel`, independent tasks will execute concurrently 
   - Integration Point: Tests for `FlowTasksGenerator` should verify the same scenarios at the Gradle task level
 
 ### Architecture Alignment
-- **Domain**: `flows` — all domain classes remain unchanged; the dependency graph logic is correct and complete
-- **Use Cases**: No new use cases. `FlowService` exists but is not needed for the adapter change (the adapter can interact with `FlowDependencyGraph` directly, or use `FlowService` as a facade)
-- **Ports**: No new ports needed — this is a pure adapter-layer change
-- **Adapters**: `FlowTasksGenerator` in `flows/adapters/in/gradle` is the only file requiring substantive change
+- **Domain**: `flows` — the graph algorithms are sound, but artifact matching semantics must change (Phase 0): producer/consumer matching keyed by path, DSL inputs marked as source files
+- **Use Cases**: No new use cases. `FlowService` gains a public per-flow dependency accessor (Step 3.2) — it is the adapter's only access path, since `FlowDependencyGraph` is `internal` to the `flows` module and invisible to `flows:adapters:in:gradle`
+- **Ports**: No new ports needed
+- **Adapters**: `FlowTasksGenerator` in `flows/adapters/in/gradle` carries the wiring change; it consumes the domain exclusively through `FlowService`
 
 ### Dependencies
 - No new module dependencies required
@@ -138,9 +140,13 @@ When Gradle runs with `--parallel`, independent tasks will execute concurrently 
 - **Q**: Is `FlowExecutionTask` used anywhere?
   - **A**: No. `FlowTasksGenerator.registerTasks()` never registers a `FlowExecutionTask`. It has a `TODO` comment and a `println`. It is dead code left over from an earlier iteration.
 
+- **Q**: Should `FlowTasksGenerator` use `FlowService` as its facade or call `FlowDependencyGraph` directly?
+  - **A**: Settled by module visibility (red-team finding): `FlowDependencyGraph` is an `internal class` in the `flows` Gradle module (`FlowDependencyGraph.kt:28`), and `FlowTasksGenerator` lives in a different Gradle module (`flows:adapters:in:gradle`). Kotlin `internal` does not cross Gradle module boundaries, so the adapter cannot reference `FlowDependencyGraph` at all. The only viable path is the public `FlowService` (`FlowService.kt:28`), which needs a new public method exposing per-flow dependencies (e.g. `getDependenciesOf(flows, flowName): Set<String>`).
+
 ### Unresolved Questions
-- [ ] Should `FlowTasksGenerator` use `FlowService` as its facade or call `FlowDependencyGraph` directly? Using `FlowService` is cleaner architecturally but adds an indirect call. Using `FlowDependencyGraph` directly avoids introducing a dependency on a service that may gain more responsibilities in future.
-- [ ] Should flow validation failures at configuration time throw a `GradleException` (fail the build) or just log a warning? Currently `FlowDependencyGraph.getParallelExecutionOrder()` throws `FlowValidationException` on errors — this behaviour can be preserved or wrapped.
+- [ ] How should artifact identity be fixed so implicit dependencies actually fire for DSL-built flows? Options: (a) key producer/consumer matching by `path` instead of full `FlowArtifact` equality in `FlowDependencyGraph`, (b) make the DSL generate matching artifact names for identical paths, (c) drop flow-level implicit dependencies entirely and rely on the existing step-level exact-path matching in `setupFileDependencies()`. (Red-team finding: with data-class equality and DSL auto-names `{step}_input_{n}`/`{step}_output_{n}`, no implicit dependency can ever match today.)
+- [ ] How should false `MissingArtifactProducer` errors be avoided for genuine source inputs? Options: mark DSL-created inputs `isSourceFile = true`, downgrade the issue severity, match producers by path, or roll validation out as warning-only first. (Red-team finding: as written, fail-on-error validation would break every existing consumer build, including tony.)
+- [ ] Should flow validation failures at configuration time throw a `GradleException` (fail the build) or just log a warning? Currently `FlowDependencyGraph.getParallelExecutionOrder()` throws `FlowValidationException` on errors — this behaviour can be preserved or wrapped. (Sharpened by the false-positive finding above: fail-on-error is only safe after Phase 0 fixes artifact identity.)
 - [ ] Should `FlowExecutionTask.kt` be removed in this PR or tracked as a separate cleanup issue?
 
 ### Design Decisions
@@ -158,6 +164,26 @@ When Gradle runs with `--parallel`, independent tasks will execute concurrently 
 
 ## 5. Implementation Plan
 
+### Phase 0: Artifact Identity & Feasibility (make implicit dependencies real)
+**Goal**: Prove the two red-team findings with cheap spikes, then fix artifact identity so the domain graph actually computes implicit dependencies for DSL-built flows. Every later phase depends on this.
+
+1. **Step 0.1**: Spike — verify implicit dependencies are broken for DSL-built flows
+   - Files: none (throwaway test or scratch verification)
+   - Description: Construct two DSL-built flows where flow B consumes a file that flow A produces (no explicit `dependsOn`), call `FlowService.getExecutionPlan()`, and observe the levels. Expected per the red-team finding: A and B land in the same level (no implicit dependency detected) because `FlowArtifact` data-class equality includes the auto-generated `name` (`FlowDsl.kt:173-178`).
+   - Testing: The spike's observation is the deliverable; record the result in this plan
+
+2. **Step 0.2**: Spike — measure validation false positives against tony's flows
+   - Files: none (throwaway)
+   - Description: Run `FlowService.validateFlows()` over flows equivalent to tony's six flows and count `MissingArtifactProducer` errors on genuine source inputs. Expected: many false ERRORs, confirming fail-on-error validation is unsafe before the identity fix.
+   - Testing: The spike's observation is the deliverable; record the result in this plan
+
+3. **Step 0.3**: Fix artifact identity in the domain
+   - Files: `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/FlowDependencyGraph.kt`, possibly `flows/adapters/in/gradle/src/main/kotlin/.../FlowDsl.kt`
+   - Description: Implement the resolution chosen for the artifact-identity open question (leading option: key `artifactProducers`/`artifactConsumers` by `path` rather than full `FlowArtifact` equality, and mark DSL-created inputs as `isSourceFile = true` so unproduced source assets stop erroring). Re-run the Step 0.1/0.2 spikes to confirm implicit deps now fire and false ERRORs are gone.
+   - Testing: New/updated `FlowDependencyGraphTest` cases using DSL-shaped artifacts (auto-generated names, path overlap); both spikes green
+
+**Phase 0 Deliverable**: `FlowDependencyGraph` computes correct implicit dependencies for flows as the DSL actually builds them; validation produces no false errors on tony-shaped flows
+
 ### Phase 1: Cleanup and Preparation (dead code removal + validation hook)
 **Goal**: Remove legacy dead code and add early configuration-time validation to catch flow graph errors before tasks execute.
 
@@ -168,8 +194,8 @@ When Gradle runs with `--parallel`, independent tasks will execute concurrently 
 
 2. **Step 1.2**: Add flow graph validation in `FlowTasksGenerator.registerTasks()`
    - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
-   - Description: At the start of `registerTasks()`, build a `FlowDependencyGraph` from all flows and call `validate()`. Log warnings for warning-severity issues. Throw a `GradleException` wrapping `FlowValidationException` for error-severity issues. Store the built graph for use in the dependency-wiring step (Step 2.2).
-   - Testing: Verify that a circular dependency between two flows causes a build failure with a clear error message
+   - Description: At the start of `registerTasks()`, call `FlowService.validateFlows(flows)` (the adapter cannot use `FlowDependencyGraph` directly — it is `internal` to the `flows` module). Log warnings for warning-severity issues. Throw a `GradleException` for error-severity issues. **Precondition: Phase 0 is complete** — enabling fail-on-error before the artifact-identity fix would break existing consumer builds with false `MissingArtifactProducer` errors (red-team finding).
+   - Testing: Verify that a circular dependency between two flows causes a build failure with a clear error message, and that tony-shaped flows (source-file inputs) validate cleanly
 
 **Phase 1 Deliverable**: Cleaner codebase with validation feedback during configuration; existing behaviour preserved
 
@@ -183,8 +209,8 @@ When Gradle runs with `--parallel`, independent tasks will execute concurrently 
 
 2. **Step 2.2**: Wire flow-level task dependencies using the dependency graph
    - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
-   - Description: Replace the current explicit-only flow dependency wiring loop with graph-computed dependencies. Use the `FlowDependencyGraph` built in Step 1.2. For each flow, retrieve all dependencies (both explicit and artifact-based) by inspecting the graph, then call `flowTask.dependsOn(depTask)` for each dependency flow's aggregation task. The `FlowDependencyGraph.getAllDependencies()` method is currently `private` — it will need to be made `internal` or the dependency retrieval logic inlined.
-   - Testing: Build two flows where one consumes an artifact produced by the other (without explicit `dependsOn`); verify the consuming flow's task depends on the producing flow's task
+   - Description: Replace the current explicit-only flow dependency wiring loop with graph-computed dependencies retrieved through the new public `FlowService` API from Step 3.2 (the adapter cannot touch `FlowDependencyGraph` — `internal` to the `flows` module). For each flow, retrieve all dependencies (explicit and artifact-based, working after Phase 0), then call `flowTask.dependsOn(depTask)` for each dependency flow's aggregation task.
+   - Testing: Build two DSL-built flows where one consumes a file the other produces (without explicit `dependsOn`); verify the consuming flow's task depends on the producing flow's task
 
 3. **Step 2.3**: Update flow aggregation task to depend on all step tasks
    - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowTasksGenerator.kt`
@@ -207,17 +233,23 @@ When Gradle runs with `--parallel`, independent tasks will execute concurrently 
      - The flow aggregation task depends on all step tasks in the flow
    - Testing: `./gradlew :flows:adapters:in:gradle:test`
 
-2. **Step 3.2**: Expose `FlowDependencyGraph.getAllDependencies()` as needed
-   - Files: `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/FlowDependencyGraph.kt`
-   - Description: Change the `getAllDependencies()` method visibility from `private` to `internal` to allow `FlowTasksGenerator` (same module boundary within the `flows` bounded context) to retrieve dependency information without breaking encapsulation. Alternatively, add a public `getDependenciesOf(flowName: String): Set<String>` method to `FlowDependencyGraph` that delegates to the private implementation.
-   - Testing: Verify the domain tests still pass; no behaviour change
+2. **Step 3.2**: Expose per-flow dependencies through the public `FlowService`
+   - Files: `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/FlowService.kt` (and `FlowDependencyGraph.kt` internally)
+   - Description: Add a public `FlowService.getDependenciesOf(flows: Collection<Flow>, flowName: String): Set<String>` (or equivalent) that delegates to `FlowDependencyGraph.getAllDependencies()`. The originally planned `private → internal` visibility change does not work: Kotlin `internal` does not cross Gradle module boundaries, and `FlowDependencyGraph` is itself an `internal` class invisible to `flows:adapters:in:gradle` (red-team finding). The public service API is the only viable access path and keeps the graph encapsulated.
+   - Testing: New `FlowService` unit test for the accessor; domain tests still pass; no behaviour change
+   - Note: This step is a prerequisite of Step 2.2 and should be implemented before or together with it (kept in Phase 3 numbering for continuity)
 
 3. **Step 3.3**: Update CLAUDE.md or user documentation
    - Files: `CLAUDE.md` (Parallel Execution section)
    - Description: Add a note that within the `flows` section: "Parallel execution of independent flows and steps is automatic when Gradle's `--parallel` flag is enabled. Task dependencies are derived from file input/output relationships and flow `dependsOn` declarations."
    - Testing: Documentation review only
 
-**Phase 3 Deliverable**: Fully tested parallel execution capability, ready for merge
+4. **Step 3.4**: End-to-end gate against the tony harness
+   - Files: none (verification step)
+   - Description: Run the e2e-test skill against tony — first a plain `flows` run (configuration-time regression check: validation must not fail tony's six flows), then a `clean flows --parallel` run — and verify all expected artifacts are produced. Unit tests cannot catch configuration-time breakage of real consumer builds (red-team finding), so this gate is mandatory before merge.
+   - Testing: e2e-test report PASSED on both runs, artifacts verified
+
+**Phase 3 Deliverable**: Fully tested parallel execution capability, verified end-to-end against a real consumer project, ready for merge
 
 ## 6. Testing Strategy
 
@@ -246,7 +278,9 @@ When Gradle runs with `--parallel`, independent tasks will execute concurrently 
 | Flow aggregation task now depends on all steps instead of last step, changing task graph shape | Low | Low | This is correct behaviour; existing builds unaffected unless they have non-file ordering assumptions |
 | `FlowDependencyGraph.getAllDependencies()` visibility change breaks encapsulation | Low | Low | Use `internal` visibility (same module) rather than `public`; or add a named accessor method |
 | Artifact-based implicit flow dependencies create unexpected `dependsOn` constraints | Medium | Low | Add integration test to verify the expected constraints; confirm with test that the `FlowDependencyGraph` logic is invoked correctly |
-| Existing `FlowDependencyGraphTest` tests expectations change | Low | Low | Domain code is not changed; all existing graph tests remain valid |
+| **Implicit dependencies silently wire nothing** — artifact equality never matches for DSL-built flows, making Step 2.2 a no-op that looks implemented | High | High (without Phase 0) | Phase 0 spikes prove/fix the mechanism before any adapter wiring; unit tests use DSL-shaped artifacts, not hand-built ones |
+| **Fail-on-error validation breaks existing consumer builds** via false `MissingArtifactProducer` errors on source inputs | High | High (without Phase 0) | Phase 0 fixes identity + marks DSL inputs as source files; Step 3.4 e2e gate runs tony before merge |
+| Existing `FlowDependencyGraphTest` tests expectations change | Low | Medium | Phase 0 changes domain matching semantics — existing graph tests must be reviewed and extended with DSL-shaped artifact cases |
 
 ## 8. Documentation Updates
 
@@ -268,6 +302,7 @@ When Gradle runs with `--parallel`, independent tasks will execute concurrently 
 | Date | Updated By | Changes |
 |------|------------|---------|
 | 2026-07-15 | AI Agent | Migrated from `.ai/135-…` into `plans/PLAN-0001`; header updated to canonical format (Plan ID, `draft` status). Content unchanged. |
+| 2026-07-15 | AI Agent | Incorporated adversarial red-team findings (/challenge): added Phase 0 (artifact-identity fix + feasibility spikes) — `FlowArtifact` equality never matches for DSL-built flows and validation false-errors on source inputs; answered the FlowService-vs-graph question (settled by `internal` module visibility); revised Steps 1.2/2.2/3.2 to route through a new public `FlowService` API and gate fail-on-error validation on Phase 0; added Step 3.4 e2e gate against tony; updated Gap Analysis, Architecture Alignment, and Risks accordingly. Two new unresolved questions added; status remains `draft`. |
 
 ---
 
