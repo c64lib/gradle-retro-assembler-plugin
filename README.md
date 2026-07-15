@@ -1,8 +1,8 @@
 # Gradle Retro Assembler Plugin
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
-[![CircleCI](https://circleci.com/gh/c64lib/gradle-retro-assembler-plugin/tree/master.svg?style=shield)](https://circleci.com/gh/c64lib/gradle-retro-assembler-plugin/tree/master)
-[![CircleCI](https://circleci.com/gh/c64lib/gradle-retro-assembler-plugin/tree/develop.svg?style=shield)](https://circleci.com/gh/c64lib/gradle-retro-assembler-plugin/tree/develop)
+[![Build (master)](https://github.com/c64lib/gradle-retro-assembler-plugin/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/c64lib/gradle-retro-assembler-plugin/actions/workflows/build.yml)
+[![Build (develop)](https://github.com/c64lib/gradle-retro-assembler-plugin/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/c64lib/gradle-retro-assembler-plugin/actions/workflows/build.yml)
 
 This is a plugin for [Gradle build tool](https://gradle.org/) that adds capability of building Assembly projects for MOS 65xx family of microprocessors.
 
