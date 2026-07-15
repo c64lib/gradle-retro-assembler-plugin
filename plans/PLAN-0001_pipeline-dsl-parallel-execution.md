@@ -2,7 +2,7 @@
 
 **Plan ID**: PLAN-0001
 **Issue**: #135
-**Status**: in progress
+**Status**: implemented
 **Created**: 2026-03-29
 **Last Updated**: 2026-07-15
 
@@ -249,6 +249,7 @@ None — all questions answered (see Self-Reflection Questions above).
      - A flow with two steps where step B's input is step A's output has `stepB.dependsOn(stepA)`
      - The flow aggregation task depends on all step tasks in the flow
    - Testing: `./gradlew :flows:adapters:in:gradle:test`
+   - [x] **Completed 2026-07-15** — `FlowTasksGeneratorTest` covers all six scenarios (independent flows, explicit `dependsOn`, artifact-based flow deps, independent steps unordered, file-based step deps, aggregation task depends on all steps), plus the two validation scenarios from Step 1.2; `FlowDslDependencyTest` covers DSL-built and tony-shaped flows; `FlowServiceTest` covers the `getDependenciesOf` accessor directly. All green.
 
 2. **Step 3.2**: Expose per-flow dependencies through the public `FlowService`
    - Files: `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/FlowService.kt` (and `FlowDependencyGraph.kt` internally)
@@ -261,11 +262,13 @@ None — all questions answered (see Self-Reflection Questions above).
    - Files: `CLAUDE.md` (Parallel Execution section)
    - Description: Add a note that within the `flows` section: "Parallel execution of independent flows and steps is automatic when Gradle's `--parallel` flag is enabled. Task dependencies are derived from file input/output relationships and flow `dependsOn` declarations."
    - Testing: Documentation review only
+   - [x] **Completed 2026-07-15** — CLAUDE.md "Parallel Execution" section now documents automatic parallel execution of independent flows/steps under `--parallel` and the file-relationship-based dependency derivation.
 
 4. **Step 3.4**: End-to-end gate against the tony harness
    - Files: none (verification step)
    - Description: Run the e2e-test skill against tony — first a plain `flows` run (configuration-time regression check: validation must not fail tony's six flows), then a `clean flows --parallel` run — and verify all expected artifacts are produced. Unit tests cannot catch configuration-time breakage of real consumer builds (red-team finding), so this gate is mandatory before merge.
    - Testing: e2e-test report PASSED on both runs, artifacts verified
+   - [x] **Completed 2026-07-15** — PASSED. Plugin 1.8.1-SNAPSHOT published to mavenLocal; tony (`flows-experiments`, clean tree): (1) plain `flows` run BUILD SUCCESSFUL with no validation errors or warnings; (2) full parallel rebuild (`flows --parallel` after removing generated outputs) BUILD SUCCESSFUL in 12s, 67 tasks executed with visible parallel interleaving; all 8 representative artifacts regenerated fresh and non-empty, no zero-byte files. Two harness observations (not plugin regressions): tony's `clean` does not delete the literal `build/` output dirs the flows write to, and `flowIntroStepLoadingPicture` is reported UP-TO-DATE because its output duplicates `flowIntroStepLoading`'s.
 
 **Phase 3 Deliverable**: Fully tested parallel execution capability, verified end-to-end against a real consumer project, ready for merge
 
@@ -302,9 +305,9 @@ None — all questions answered (see Self-Reflection Questions above).
 
 ## 8. Documentation Updates
 
-- [ ] Update `CLAUDE.md` to note that parallel execution within flows is automatic via Gradle's `--parallel` flag
-- [ ] Add inline Kdoc to `FlowTasksGenerator` explaining the dependency wiring strategy
-- [ ] Remove any documentation references to `FlowExecutionTask` if found
+- [x] Update `CLAUDE.md` to note that parallel execution within flows is automatic via Gradle's `--parallel` flag
+- [x] Add inline Kdoc to `FlowTasksGenerator` explaining the dependency wiring strategy
+- [x] Remove any documentation references to `FlowExecutionTask` if found (only historical plan documents reference it; left as history)
 
 ## 9. Rollout Plan
 
@@ -326,6 +329,7 @@ None — all questions answered (see Self-Reflection Questions above).
 | 2026-07-15 | AI Agent | Phase 0 executed: Steps 0.1/0.2 spikes confirmed both red-team findings (recorded inline); Step 0.3 implemented path-based artifact matching in `FlowDependencyGraph` and source-file marking in `FlowDslBuilder.build()`; new regression tests added; all 216 flows/adapter tests green. Status `accepted` → `in progress`. |
 | 2026-07-15 | AI Agent | Phase 1 executed: Step 1.1 removed dead `FlowExecutionTask.kt`; Step 1.2 added configuration-time `validateFlowGraph()` to `FlowTasksGenerator` (warnings logged, errors fail the build via `GradleException`), with new ProjectBuilder-based `FlowTasksGeneratorTest`; test JVM `--add-opens` added for ProjectBuilder on modern JDKs. All 79 adapter tests green. |
 | 2026-07-15 | AI Agent | Phase 2 executed (with Step 3.2 as prerequisite): removed index-based sequential step chaining; flow aggregation tasks depend on all step tasks; flow-level dependencies wired from `FlowService.getDependenciesOf()` (explicit + artifact-based); `FlowTasksGenerator` KDoc documents the wiring strategy; wiring covered by 10 new `FlowTasksGeneratorTest` assertions. All 226 tests and Spotless checks green. |
+| 2026-07-15 | AI Agent | Phase 3 executed: `FlowServiceTest` added for the accessor; CLAUDE.md Parallel Execution note added; Step 3.4 e2e gate against tony PASSED (plain `flows` clean of validation errors; full `flows --parallel` rebuild successful with parallel interleaving, all artifacts verified). All plan steps complete — status `in progress` → `implemented`. |
 
 ---
 
