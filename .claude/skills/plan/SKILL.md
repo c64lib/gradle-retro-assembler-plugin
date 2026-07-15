@@ -84,14 +84,14 @@ Read `plans/README.md`. If missing, create it:
 Structured development action plans for this project.
 Plans are permanent artifacts — do not delete. Terminal plans (`implemented`, `rejected`) are kept as history.
 
-| ID | Date | Status | Title | Issue |
-|----|------|--------|-------|-------|
+| ID | Date | Status | Title | Issue | Exec |
+|----|------|--------|-------|-------|------|
 ```
 Append (new plans always start as `draft`):
 ```
-| [PLAN-{nnnn}](PLAN-{nnnn}_{slug}.md) | {YYYY-MM-DD} | draft | {Feature Name} | #{issue-number} |
+| [PLAN-{nnnn}](PLAN-{nnnn}_{slug}.md) | {YYYY-MM-DD} | draft | {Feature Name} | #{issue-number} | — |
 ```
-Use `—` in the Issue column when unlinked.
+Use `—` in the Issue column when unlinked. The `Exec` column stays `—` until the `execute` skill creates the plan's execution log (`plans/EXEC-{nnnn}_{slug}.md`); that skill owns the exec log and fills this cell with its link — this skill never writes exec logs, it only preserves the column.
 
 ### Step 6 — Sync to the GitHub issue (if linked)
 
