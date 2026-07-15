@@ -83,6 +83,7 @@ A single, complete, maintainable arc42 document set in Markdown with Mermaid dia
 ### Dependencies
 - GitHub-native Mermaid rendering (no build-time dependency)
 - Exploration inventory of modules/use cases/ports/adapters (already gathered, embedded above)
+- The latest official arc42 template can be fetched from https://arc42.org/ — use it to confirm current section numbering/titles (§1–§12) and section-level guidance before writing Phase 1's skeleton, rather than relying purely on memory of the template
 
 ## 4. Questions and Clarifications
 
@@ -139,8 +140,8 @@ A single, complete, maintainable arc42 document set in Markdown with Mermaid dia
 
 1. **Step 1.1**: Create arc42 skeleton and index
    - Files: `doc/arc42/README.md`, `doc/arc42/01_introduction_and_goals.md` … `doc/arc42/12_glossary.md` (stubs with section headers)
-   - Description: Multi-file arc42 layout; `README.md` is the table of contents with links to all 12 sections and a "how to edit diagrams" note (Mermaid in fenced blocks)
-   - Testing: All links resolve; files render on GitHub
+   - Description: Multi-file arc42 layout; `README.md` is the table of contents with links to all 12 sections and a "how to edit diagrams" note (Mermaid in fenced blocks). Fetch the current official template/section structure from https://arc42.org/ to confirm §1–§12 titles and guidance before generating the stubs, so the skeleton matches the latest arc42 version rather than a remembered one
+   - Testing: All links resolve; files render on GitHub; section titles match the fetched arc42.org template
 2. **Step 1.2**: Write §1 Introduction & Goals and §2 Constraints
    - Files: `doc/arc42/01_introduction_and_goals.md`, `doc/arc42/02_architecture_constraints.md`
    - Description: Requirements overview (build ASM projects for MOS 65xx / C64), quality goals (extensibility for new dialects/processors, incremental builds, testability), stakeholders (retro devs, contributors, AI agents). Constraints: Gradle plugin model, Kotlin, JDK 11 target, hexagonal architecture as a mandated convention, plugin portal publishing
@@ -244,6 +245,7 @@ A single, complete, maintainable arc42 document set in Markdown with Mermaid dia
 | 2026-07-15 | AI Agent | Initial plan created from codebase exploration |
 | 2026-07-15 | AI Agent | All 4 unresolved questions answered by user (location: doc/arc42/, GitHub rendering only, port tables + representative adapters, §11 debt with follow-up issue suggestions); design decisions finalized |
 | 2026-07-15 | AI Agent | Refinement round 2: confirmed all 5 §6 runtime scenarios; rollout changed to single PR at the end; status transitioned draft → accepted (acceptance gate passed — no unresolved questions) |
+| 2026-07-15 | AI Agent | Noted that the latest official arc42 template can be fetched from https://arc42.org/; Step 1.1 now instructs fetching it to confirm §1–§12 structure before generating the skeleton |
 
 ---
 
