@@ -22,7 +22,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.c64lib.rbt.processors.spritepad.domain
+package com.github.c64lib.rbt.processors.spritepad.domain
 
 import com.github.c64lib.rbt.shared.domain.OutOfDataException
 import com.github.c64lib.rbt.shared.processor.BinaryProducer

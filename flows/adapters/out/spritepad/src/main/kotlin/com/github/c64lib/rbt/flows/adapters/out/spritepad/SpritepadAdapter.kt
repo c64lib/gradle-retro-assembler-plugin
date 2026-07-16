@@ -24,10 +24,10 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.out.spritepad
 
-import com.c64lib.rbt.processors.spritepad.usecase.ProcessSpritepadUseCase
 import com.github.c64lib.rbt.flows.domain.FlowValidationException
 import com.github.c64lib.rbt.flows.domain.config.SpritepadCommand
 import com.github.c64lib.rbt.flows.domain.port.SpritepadPort
+import com.github.c64lib.rbt.processors.spritepad.usecase.ProcessSpritepadUseCase
 import com.github.c64lib.rbt.shared.processor.InputByteStream
 import java.io.FileInputStream
 import java.io.FileNotFoundException
