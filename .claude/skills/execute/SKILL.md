@@ -1,5 +1,5 @@
 ---
-description: Implement a development action plan created by the plan skill. Locates a plan in plans/, lets the user pick scope (all / a phase / specific steps / a range) and an engagement mode (per-step, per-phase, or autonomous), executes each step following the repo's architecture, verifies deliverables, records progress back into the plan via the plan skill, keeps a per-plan execution log (plans/EXEC-nnnn_{slug}.md) with all deviations, and offers to sync the linked issue description afterwards. Invoke for "/execute", "execute the plan", "implement phase N", "run the action plan".
+description: Implement a development action plan created by the plan skill. Locates a plan in plans/, offers an adversarial challenge review before executing, lets the user pick scope (all / a phase / specific steps / a range) and an engagement mode (per-step, per-phase, or autonomous), executes each step following the repo's architecture, verifies deliverables, records progress back into the plan via the plan skill, keeps a per-plan execution log (plans/EXEC-nnnn_{slug}.md) with all deviations, and afterwards offers to sync the linked issue description and then close the issue. Invoke for "/execute", "execute the plan", "implement phase N", "run the action plan".
 user-invocable: true
 allowed-tools: Agent Skill Bash Read Edit Write Grep Glob AskUserQuestion TodoWrite
 ---
@@ -66,6 +66,8 @@ Parse Section 5 into phases and steps. Present a summary:
 - Each phase name and its steps (`N.M`), with each step's deliverable and testing note.
 - Current status of each step, inferred from checkboxes / completion markers already in the plan (pending / completed / skipped / blocked).
 
+**Offer an adversarial challenge**: before executing, ask the user (via `AskUserQuestion`) whether to run an adversarial **`challenge`** review of the plan first (mode A — red-team the plan). If they accept, invoke `Skill(skill: "challenge", ...)` on the plan, relay its findings, and let the user decide whether to revise the plan (hand back to `/plan update`) or proceed with execution as-is. If they decline, continue. This is an explicit offer, not a default — never run the challenge silently, and never block execution on it.
+
 ### Step 3 — Choose scope
 
 Ask (via `AskUserQuestion`) what to execute:
@@ -119,6 +121,8 @@ Also close out the exec log for this run: set the session's Outcome, update `**L
 
 **Offer the issue sync**: if the plan is linked to a GitHub issue, ask the user (via `AskUserQuestion`) whether to update the issue's description with the actual, post-execution plan content. Only if they accept, have the update pushed to the issue (via the `plan` skill's issue sync / `gh issue edit`). Never sync the issue silently.
 
+**Offer to close the issue**: only after the issue has been updated with the plan (i.e. the sync above was accepted and pushed) **and** the plan is fully `implemented` (every step complete), ask the user (via `AskUserQuestion`) whether to close the linked issue. If they accept, close it via `gh issue close <number> -c "<comment>"` with a short comment referencing the completed work (and the PR when one exists). Never close the issue silently, and do not offer to close it while steps remain pending or the sync was declined.
+
 ### Step 8 — Summarise and offer follow-ups
 
 Report: steps completed, steps skipped/blocked (with reasons), steps still pending, the verification results, and any deviations logged (point at the exec log). Then offer git follow-ups by delegating to the existing skills — commit via **`git-utils`**, open a PR via **`gh-utils`** — only if the user wants them. Never commit or push automatically.
@@ -131,6 +135,8 @@ Report: steps completed, steps skipped/blocked (with reasons), steps still pendi
 - **All plan-file writes go through the `plan` skill's UPDATE**, not direct edits — except the exec log (`plans/EXEC-*.md`) and its `Exec` index cell, which this skill owns and writes directly.
 - **Keep the exec log honest and current** — session logged when execution starts, step rows as steps finish, deviations the moment they occur.
 - **Never update the linked issue's description without asking** — the issue sync in Step 7 is an explicit offer, not a default.
+- **Never close the linked issue without asking**, and only offer to close it once the issue has been updated with the plan and the plan is fully `implemented` — see Step 7.
+- **The adversarial challenge is an offer, not a gate** — offer it in Step 2, never run it silently, and never block execution on it.
 - **Never run `./gradlew` inline** — delegate every Gradle run to `build` / `test` / `e2e-test`.
 - **Stay within the selected scope** — implement only the steps the user chose.
 - **Never commit or push without an explicit request**; delegate git to `git-utils` / `gh-utils`.
