@@ -25,7 +25,7 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.adapters.out.charpad
 
 import com.github.c64lib.rbt.flows.domain.config.*
-import com.github.c64lib.rbt.shared.gradle.fllter.Nybbler
+import com.github.c64lib.rbt.shared.gradle.filter.Nybbler
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
