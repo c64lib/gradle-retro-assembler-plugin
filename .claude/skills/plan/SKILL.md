@@ -1,5 +1,5 @@
 ---
-description: Create, update, and list structured development action plans in plans/. Runs the full interactive planning workflow (codebase analysis, clarifying questions, refinement) and handles all plan file I/O, index maintenance, and GitHub issue sync. Invoke for "/plan", "create a plan", "update the plan", "list plans".
+description: Create, update, and list structured development action plans in plans/. Runs the full interactive planning workflow (codebase analysis, clarifying questions, refinement) and handles all plan file I/O, index maintenance, and GitHub issue sync. On acceptance, offers to create the plan's feature branch. Invoke for "/plan", "create a plan", "update the plan", "list plans".
 user-invocable: true
 ---
 
@@ -34,7 +34,7 @@ Normal flow: `draft → accepted → in progress → implemented`. A plan may go
 
 **Terminal states are historical.** Once a plan is `implemented` or `rejected` it is a historical record: it is not kept in sync with the codebase and **is allowed to go stale**. Do not "freshen" or re-verify terminal plans, and do not re-open one — create a new plan instead. Terminal plans are never deleted (see Storage Rules); they stay in `plans/` and the index as history.
 
-**Acceptance gate (`→ accepted`).** A plan may only transition to `accepted` when its `### Unresolved Questions` list is empty (every question answered and moved to `### Self-Reflection Questions`). If any remain, do not set `accepted` — resolve them first (via the UPDATE rules), then retry. On acceptance, also ask the user whether the plan should be copied onto the linked GitHub issue's description (see UPDATE Step 4).
+**Acceptance gate (`→ accepted`).** A plan may only transition to `accepted` when its `### Unresolved Questions` list is empty (every question answered and moved to `### Self-Reflection Questions`). If any remain, do not set `accepted` — resolve them first (via the UPDATE rules), then retry. On acceptance, also ask the user whether the plan should be copied onto the linked GitHub issue's description (see UPDATE Step 4), and offer to create the feature branch the work will be implemented on (see UPDATE Step 4a).
 
 ---
 
@@ -160,6 +160,17 @@ Apply the change **and propagate its impact** across all relevant sections — a
 
 Preserve historical context — don't delete answered questions or superseded content unless explicitly asked. Maintain the template's exact section structure and numbering.
 
+### Step 4a — Propose the feature branch (on `→ accepted`)
+
+An accepted plan is ready to implement, so it should have a feature branch to be implemented on. **Only on the `→ accepted` transition**, after the acceptance gate passes:
+
+1. Check the current git branch. If it is already the plan's `feature/{issue}-{slug}` branch, note that and skip creation.
+2. Otherwise ask the user (via `AskUserQuestion`) **"Create the feature branch `feature/{issue}-{slug}` for this plan now?"** — deriving `{issue}` from the plan's linked issue (omit it for unlinked plans → `feature/{slug}`) and `{slug}` from the plan's feature short name.
+3. If the user accepts, delegate branch creation to the **`git-utils`** skill (which branches from an up-to-date `develop` as `feature/{issue}-{slug}`). Do not run `git` directly.
+4. If the user declines, leave the branch as-is; the `execute` skill can still create it later.
+
+This is an explicit offer, not a gate — never create the branch silently, and never block acceptance on it.
+
 ### Step 5 — Revision history
 
 Add/append Section 10 (before the final note):
@@ -218,5 +229,5 @@ If the user is logging a historical plan, accept a custom date and use it for th
 | Operation | Input | Output |
 |-----------|-------|--------|
 | CREATE | issue number, feature slug, spec | analysed + refined `plans/PLAN-nnnn_slug.md`, index updated, issue synced |
-| UPDATE | plan path, change set | plan file updated (consistently), index updated (if status changed), issue synced |
+| UPDATE | plan path, change set | plan file updated (consistently), index updated (if status changed), issue synced; on `→ accepted`, offers the feature branch |
 | LIST | — | index table from `plans/README.md` |
