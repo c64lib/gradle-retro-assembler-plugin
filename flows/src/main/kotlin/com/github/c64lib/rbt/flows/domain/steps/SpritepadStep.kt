@@ -29,7 +29,7 @@ import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.config.SpritepadCommand
 import com.github.c64lib.rbt.flows.domain.config.SpritepadConfig
 import com.github.c64lib.rbt.flows.domain.config.SpritepadOutputs
-import com.github.c64lib.rbt.flows.domain.port.SpritepadPort
+import com.github.c64lib.rbt.flows.usecase.port.SpritepadPort
 
 /**
  * SpritePad file processor step.

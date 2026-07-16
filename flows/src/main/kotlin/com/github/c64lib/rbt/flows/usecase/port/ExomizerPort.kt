@@ -22,31 +22,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.flows.domain.port
+package com.github.c64lib.rbt.flows.usecase.port
 
-import com.github.c64lib.rbt.flows.domain.config.DasmCommand
+import java.io.File
 
 /**
- * Domain port for dasm assembly operations.
+ * Port for Exomizer compression operations within the flows domain.
  *
- * This port defines the contract for dasm assembly compilation within the flows domain, abstracting
- * away the specific implementation details.
+ * Abstracts the crunchers domain implementation, allowing flows to orchestrate compression steps
+ * with full option support without knowledge of underlying compression mechanics.
  */
-interface DasmAssemblyPort {
+interface ExomizerPort {
+  /**
+   * Execute raw mode compression with all available options.
+   *
+   * @param source Input file to compress
+   * @param output Output file path
+   * @param options Map of raw compression options (backwards, reverse, decrunch, etc.)
+   */
+  fun crunchRaw(source: File, output: File, options: Map<String, Any?>)
 
   /**
-   * Executes dasm assembly compilation for a single command.
+   * Execute memory mode compression with all available options.
    *
-   * @param command The dasm assembly command containing all necessary compilation parameters
+   * @param source Input file to compress
+   * @param output Output file path
+   * @param options Map of memory compression options (includes all raw options plus loadAddress and
+   * forward)
    */
-  fun assemble(command: DasmCommand)
-
-  /**
-   * Executes dasm assembly compilation for multiple commands.
-   *
-   * @param commands The list of dasm assembly commands to execute
-   */
-  fun assemble(commands: List<DasmCommand>) {
-    commands.forEach { command -> assemble(command) }
-  }
+  fun crunchMem(source: File, output: File, options: Map<String, Any?>)
 }

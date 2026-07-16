@@ -26,7 +26,7 @@ package com.github.c64lib.rbt.flows.domain.steps
 
 import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.StepValidationException
-import com.github.c64lib.rbt.flows.domain.port.ExomizerPort
+import com.github.c64lib.rbt.flows.usecase.port.ExomizerPort
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe

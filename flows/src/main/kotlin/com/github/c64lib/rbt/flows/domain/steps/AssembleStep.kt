@@ -28,7 +28,7 @@ import com.github.c64lib.rbt.flows.domain.FlowStep
 import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.config.AssemblyConfig
 import com.github.c64lib.rbt.flows.domain.config.AssemblyConfigMapper
-import com.github.c64lib.rbt.flows.domain.port.AssemblyPort
+import com.github.c64lib.rbt.flows.usecase.port.AssemblyPort
 
 /**
  * Assembly step for compiling 6502 assembly files.

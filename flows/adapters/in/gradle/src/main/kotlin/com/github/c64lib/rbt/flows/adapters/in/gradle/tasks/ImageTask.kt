@@ -67,7 +67,7 @@ abstract class ImageTask : BaseFlowStepTask() {
       val adapterClass =
           Class.forName("com.github.c64lib.rbt.flows.adapters.out.image.ImageAdapter")
       val imageAdapter = adapterClass.getDeclaredConstructor().newInstance()
-      val imagePort = imageAdapter as com.github.c64lib.rbt.flows.domain.port.ImagePort
+      val imagePort = imageAdapter as com.github.c64lib.rbt.flows.usecase.port.ImagePort
       step.setImagePort(imagePort)
 
       // Create execution context with project information

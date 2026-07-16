@@ -25,7 +25,7 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.adapters.out.image
 
 import com.github.c64lib.rbt.flows.domain.config.ImageCommand
-import com.github.c64lib.rbt.flows.domain.port.ImagePort
+import com.github.c64lib.rbt.flows.usecase.port.ImagePort
 import java.io.File
 
 /**

@@ -25,7 +25,7 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle.command
 
 import com.github.c64lib.rbt.flows.domain.config.CommandCommand
-import com.github.c64lib.rbt.flows.domain.port.CommandPort
+import com.github.c64lib.rbt.flows.usecase.port.CommandPort
 import java.util.concurrent.TimeUnit
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging

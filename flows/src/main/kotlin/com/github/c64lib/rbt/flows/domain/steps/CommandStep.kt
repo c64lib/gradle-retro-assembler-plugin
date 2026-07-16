@@ -27,7 +27,7 @@ package com.github.c64lib.rbt.flows.domain.steps
 import com.github.c64lib.rbt.flows.domain.FlowStep
 import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.config.CommandConfigMapper
-import com.github.c64lib.rbt.flows.domain.port.CommandPort
+import com.github.c64lib.rbt.flows.usecase.port.CommandPort
 
 /**
  * Generic CLI command execution step.

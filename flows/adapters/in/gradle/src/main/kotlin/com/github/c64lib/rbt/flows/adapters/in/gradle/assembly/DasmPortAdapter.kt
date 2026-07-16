@@ -26,7 +26,7 @@ package com.github.c64lib.rbt.flows.adapters.`in`.gradle.assembly
 
 import com.github.c64lib.rbt.compilers.dasm.usecase.DasmAssembleUseCase
 import com.github.c64lib.rbt.flows.domain.config.DasmCommand
-import com.github.c64lib.rbt.flows.domain.port.DasmAssemblyPort
+import com.github.c64lib.rbt.flows.usecase.port.DasmAssemblyPort
 
 /**
  * Adapter implementation of DasmAssemblyPort that bridges to DasmAssembleUseCase.

@@ -26,7 +26,7 @@ package com.github.c64lib.rbt.flows.adapters.out.charpad
 
 import com.github.c64lib.rbt.flows.domain.FlowValidationException
 import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
-import com.github.c64lib.rbt.flows.domain.port.CharpadPort
+import com.github.c64lib.rbt.flows.usecase.port.CharpadPort
 import com.github.c64lib.rbt.processors.charpad.domain.InsufficientDataException
 import com.github.c64lib.rbt.processors.charpad.domain.InvalidCTMFormatException
 import com.github.c64lib.rbt.processors.charpad.usecase.ProcessCharpadUseCase

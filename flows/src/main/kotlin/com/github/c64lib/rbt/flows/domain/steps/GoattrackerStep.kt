@@ -28,7 +28,7 @@ import com.github.c64lib.rbt.flows.domain.FlowStep
 import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.config.GoattrackerCommand
 import com.github.c64lib.rbt.flows.domain.config.GoattrackerConfig
-import com.github.c64lib.rbt.flows.domain.port.GoattrackerPort
+import com.github.c64lib.rbt.flows.usecase.port.GoattrackerPort
 
 /**
  * GoatTracker music processor step.

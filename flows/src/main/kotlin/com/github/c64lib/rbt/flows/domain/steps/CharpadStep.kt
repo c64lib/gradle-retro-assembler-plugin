@@ -30,7 +30,7 @@ import com.github.c64lib.rbt.flows.domain.StepValidationException
 import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
 import com.github.c64lib.rbt.flows.domain.config.CharpadConfig
 import com.github.c64lib.rbt.flows.domain.config.CharpadOutputs
-import com.github.c64lib.rbt.flows.domain.port.CharpadPort
+import com.github.c64lib.rbt.flows.usecase.port.CharpadPort
 import java.io.File
 
 /**

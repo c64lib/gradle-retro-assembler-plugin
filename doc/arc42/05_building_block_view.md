@@ -53,7 +53,7 @@ flowchart TB
 **Relationships:**
 
 - **`infra:gradle` → all domains** — the plugin module holds every domain as a `compileOnly` dependency and instantiates use cases + adapters in `RetroAssemblerPlugin.afterEvaluate`. It owns no business logic (see the `compileOnly` rule in [`infra.md`](building-blocks/infra.md)).
-- **`flows` → processors / crunchers / compilers** — `flows` defines its own domain ports (`CharpadPort`, `ExomizerPort`, `AssemblyPort`, …) and delegates to the underlying domains through out-adapters, keeping the orchestrator decoupled from each processor's internals.
+- **`flows` → processors / crunchers / compilers** — `flows` defines its own usecase ports (`CharpadPort`, `ExomizerPort`, `AssemblyPort`, …) and delegates to the underlying domains through out-adapters, keeping the orchestrator decoupled from each processor's internals.
 - **`testing:64spec` → `emulators:vice`** — the 64spec runner drives tests through the VICE emulator use case.
 - **all domains → `shared`** — every context depends on the shared kernel for value types, exceptions, Gradle DSL helpers, and streaming processor abstractions.
 

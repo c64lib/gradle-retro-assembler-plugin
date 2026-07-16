@@ -29,7 +29,7 @@ import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.config.ImageCommand
 import com.github.c64lib.rbt.flows.domain.config.ImageConfig
 import com.github.c64lib.rbt.flows.domain.config.ImageOutputs
-import com.github.c64lib.rbt.flows.domain.port.ImagePort
+import com.github.c64lib.rbt.flows.usecase.port.ImagePort
 
 /**
  * Image file processor step.

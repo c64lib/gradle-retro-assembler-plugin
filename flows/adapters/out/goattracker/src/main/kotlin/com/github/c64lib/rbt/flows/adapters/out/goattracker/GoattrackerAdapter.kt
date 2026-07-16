@@ -26,7 +26,7 @@ package com.github.c64lib.rbt.flows.adapters.out.goattracker
 
 import com.github.c64lib.rbt.flows.domain.FlowValidationException
 import com.github.c64lib.rbt.flows.domain.config.GoattrackerCommand
-import com.github.c64lib.rbt.flows.domain.port.GoattrackerPort
+import com.github.c64lib.rbt.flows.usecase.port.GoattrackerPort
 import com.github.c64lib.rbt.processors.goattracker.usecase.PackSongCommand
 import com.github.c64lib.rbt.processors.goattracker.usecase.PackSongUseCase
 import com.github.c64lib.rbt.processors.goattracker.usecase.port.ExecuteGt2RelocPort

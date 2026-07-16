@@ -27,7 +27,7 @@ package com.github.c64lib.rbt.flows.domain.steps
 import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.config.AssemblyCommand
 import com.github.c64lib.rbt.flows.domain.config.AssemblyConfig
-import com.github.c64lib.rbt.flows.domain.port.AssemblyPort
+import com.github.c64lib.rbt.flows.usecase.port.AssemblyPort
 import com.github.c64lib.rbt.shared.domain.OutputFormat
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode

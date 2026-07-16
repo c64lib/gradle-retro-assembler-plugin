@@ -29,7 +29,7 @@ import com.github.c64lib.rbt.flows.domain.FlowValidationException
 import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.StepValidationException
 import com.github.c64lib.rbt.flows.domain.config.*
-import com.github.c64lib.rbt.flows.domain.port.CharpadPort
+import com.github.c64lib.rbt.flows.usecase.port.CharpadPort
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
