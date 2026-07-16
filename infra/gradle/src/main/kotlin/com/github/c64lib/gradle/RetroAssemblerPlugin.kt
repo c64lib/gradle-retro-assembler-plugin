@@ -93,8 +93,14 @@ import com.github.c64lib.rbt.testing.a64spec.usecase.Run64SpecTestUseCase
 import java.io.File
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 
 class RetroAssemblerPlugin : Plugin<Project> {
+
+  /**
+   * Task handles produced by [wireDependencies], consumed by [wireSources] and [wireSpecAndTest].
+   */
+  private data class DependencyTasks(val resolveDevDeps: Task, val downloadDependencies: Task)
 
   override fun apply(project: Project) {
 
@@ -109,55 +115,8 @@ class RetroAssemblerPlugin : Plugin<Project> {
     val flowsExtension = project.extensions.create("flows", FlowsExtension::class.java)
 
     project.afterEvaluate {
-      // deps
-      val resolveDevDeps =
-          project.tasks.create(TASK_RESOLVE_DEV_DEPENDENCIES, ResolveDevDeps::class.java) { task ->
-            task.extension = extension
-            task.downloadKickAssemblerUseCase =
-                DownloadKickAssemblerUseCase(
-                    DownloadKickAssemblerAdapter(project, FileDownloader()),
-                    ReadVersionAdapter(project),
-                    SaveVersionAdapter(project))
-          }
-      val downloadDependencies =
-          project.tasks.create(TASK_DEPENDENCIES, DownloadDependencies::class.java) { task ->
-            task.extension = extension
-            task.resolveGitHubDependencyUseCase =
-                ResolveGitHubDependencyUseCase(
-                    DownloadDependencyAdapter(project, extension, FileDownloader()),
-                    UntarDependencyAdapter(project),
-                    ReadDependencyVersionAdapter(project),
-                    SaveDependencyVersionAdapter(project))
-          }
-      // preprocess
-      val charpad =
-          project.tasks.create(TASK_CHARPAD, Charpad::class.java) { task ->
-            task.preprocessingExtension = preprocessExtension
-          }
-      val spritepad =
-          project.tasks.create(TASK_SPRITEPAD, Spritepad::class.java) { task ->
-            task.preprocessingExtension = preprocessExtension
-          }
-      val goattracker =
-          project.tasks.create(TASK_GOATTRACKER, Goattracker::class.java) { task ->
-            task.preprocessingExtension = preprocessExtension
-            task.packSongUseCase = PackSongUseCase(ExecuteGt2RelocAdapter(project))
-          }
-      val image =
-          project.tasks.create(TASK_IMAGE, ProcessImage::class.java) { task ->
-            task.preprocessingExtension = preprocessExtension
-            task.readSourceImageUseCase = ReadSourceImageUseCase(ReadPngImageAdapter())
-            task.writeImageUseCase =
-                WriteImageUseCase(C64SpriteWriter(project), C64CharsetWriter(project))
-            task.cutImageUseCase = CutImageUseCase()
-            task.extendImageUseCase = ExtendImageUseCase()
-            task.splitImageUseCase = SplitImageUseCase()
-            task.flipImageUseCase = FlipImageUseCase()
-            task.reduceResolutionUseCase = ReduceResolutionUseCase()
-          }
-      val preprocess = project.tasks.create(TASK_PREPROCESS, Preprocess::class.java)
-
-      preprocess.dependsOn(charpad, spritepad, goattracker, image)
+      val depTasks = wireDependencies(project, extension)
+      val preprocess = wirePreprocess(project, preprocessExtension)
 
       // TODO Somehow, the ResolveDevDeps should give the settings. How!?
       val settings =
@@ -165,59 +124,143 @@ class RetroAssemblerPlugin : Plugin<Project> {
               File("${extension.workDir}/asms/ka/${extension.dialectVersion}/KickAss.jar"),
               SemVer.fromString(extension.dialectVersion))
 
-      // sources
-      val assemble =
-          project.tasks.create(TASK_ASM, Assemble::class.java) { task ->
-            task.extension = extension
-            task.kickAssembleUseCase = KickAssembleUseCase(KickAssembleAdapter(project, settings))
-          }
-      assemble.dependsOn(resolveDevDeps, downloadDependencies, preprocess)
-
-      project.tasks.create(TASK_CLEAN, Clean::class.java) { task ->
-        task.extension = extension
-        task.cleanBuildArtefactsUseCase = CleanBuildArtefactsUseCase(DeleteFilesAdapter(project))
-      }
-
-      // spec
-      val assembleSpec =
-          project.tasks.create(TASK_ASM_SPEC, AssembleSpec::class.java) { task ->
-            task.extension = extension
-            task.kickAssembleSpecUseCase =
-                KickAssembleSpecUseCase(KickAssembleSpecAdapter(project, settings))
-          }
-      assembleSpec.dependsOn(resolveDevDeps, downloadDependencies)
-      val runSpec =
-          project.tasks.create(TASK_TEST, Test::class.java) { task ->
-            task.extension = extension
-            task.run64SpecTestUseCase =
-                Run64SpecTestUseCase(RunTestOnViceUseCase(RunTestOnViceAdapter(project, extension)))
-          }
-      runSpec.dependsOn(assembleSpec)
-
-      // build
-      val build = project.tasks.create(TASK_BUILD, Build::class.java)
-      build.dependsOn(assemble, runSpec)
-
-      // Create KickAssembleUseCase for flow tasks that contain AssembleSteps
-      val kickAssembleUseCase = KickAssembleUseCase(KickAssembleAdapter(project, settings))
-
-      // Create DasmAssembleUseCase for flow tasks that contain DasmSteps
-      val dasmAssembleUseCase = DasmAssembleUseCase(DasmAssembleAdapter(project))
-
-      // Register generated flow tasks leveraging Gradle parallelization with dependency injection
-      FlowTasksGenerator(
-              project, flowsExtension.getFlows(), kickAssembleUseCase, dasmAssembleUseCase)
-          .registerTasks()
-
-      // Make the asm task depend on flows task to ensure flows run before assembly
-      val flowsTask = project.tasks.findByName(TASK_FLOWS)
-      if (flowsTask != null) {
-        assemble.dependsOn(flowsTask)
-      }
+      val assemble = wireSources(project, extension, settings, depTasks, preprocess)
+      val runSpec = wireSpecAndTest(project, extension, settings, depTasks)
+      wireBuild(project, assemble, runSpec)
+      wireFlows(project, settings, flowsExtension, assemble)
 
       if (project.defaultTasks.isEmpty()) {
         project.defaultTasks.add(TASK_BUILD)
       }
+    }
+  }
+
+  private fun wireDependencies(
+      project: Project,
+      extension: RetroAssemblerPluginExtension
+  ): DependencyTasks {
+    val resolveDevDeps =
+        project.tasks.create(TASK_RESOLVE_DEV_DEPENDENCIES, ResolveDevDeps::class.java) { task ->
+          task.extension = extension
+          task.downloadKickAssemblerUseCase =
+              DownloadKickAssemblerUseCase(
+                  DownloadKickAssemblerAdapter(project, FileDownloader()),
+                  ReadVersionAdapter(project),
+                  SaveVersionAdapter(project))
+        }
+    val downloadDependencies =
+        project.tasks.create(TASK_DEPENDENCIES, DownloadDependencies::class.java) { task ->
+          task.extension = extension
+          task.resolveGitHubDependencyUseCase =
+              ResolveGitHubDependencyUseCase(
+                  DownloadDependencyAdapter(project, extension, FileDownloader()),
+                  UntarDependencyAdapter(project),
+                  ReadDependencyVersionAdapter(project),
+                  SaveDependencyVersionAdapter(project))
+        }
+    return DependencyTasks(resolveDevDeps, downloadDependencies)
+  }
+
+  private fun wirePreprocess(project: Project, preprocessExtension: PreprocessingExtension): Task {
+    val charpad =
+        project.tasks.create(TASK_CHARPAD, Charpad::class.java) { task ->
+          task.preprocessingExtension = preprocessExtension
+        }
+    val spritepad =
+        project.tasks.create(TASK_SPRITEPAD, Spritepad::class.java) { task ->
+          task.preprocessingExtension = preprocessExtension
+        }
+    val goattracker =
+        project.tasks.create(TASK_GOATTRACKER, Goattracker::class.java) { task ->
+          task.preprocessingExtension = preprocessExtension
+          task.packSongUseCase = PackSongUseCase(ExecuteGt2RelocAdapter(project))
+        }
+    val image =
+        project.tasks.create(TASK_IMAGE, ProcessImage::class.java) { task ->
+          task.preprocessingExtension = preprocessExtension
+          task.readSourceImageUseCase = ReadSourceImageUseCase(ReadPngImageAdapter())
+          task.writeImageUseCase =
+              WriteImageUseCase(C64SpriteWriter(project), C64CharsetWriter(project))
+          task.cutImageUseCase = CutImageUseCase()
+          task.extendImageUseCase = ExtendImageUseCase()
+          task.splitImageUseCase = SplitImageUseCase()
+          task.flipImageUseCase = FlipImageUseCase()
+          task.reduceResolutionUseCase = ReduceResolutionUseCase()
+        }
+    val preprocess = project.tasks.create(TASK_PREPROCESS, Preprocess::class.java)
+    preprocess.dependsOn(charpad, spritepad, goattracker, image)
+    return preprocess
+  }
+
+  private fun wireSources(
+      project: Project,
+      extension: RetroAssemblerPluginExtension,
+      settings: KickAssemblerSettings,
+      depTasks: DependencyTasks,
+      preprocess: Task
+  ): Task {
+    val assemble =
+        project.tasks.create(TASK_ASM, Assemble::class.java) { task ->
+          task.extension = extension
+          task.kickAssembleUseCase = KickAssembleUseCase(KickAssembleAdapter(project, settings))
+        }
+    assemble.dependsOn(depTasks.resolveDevDeps, depTasks.downloadDependencies, preprocess)
+
+    project.tasks.create(TASK_CLEAN, Clean::class.java) { task ->
+      task.extension = extension
+      task.cleanBuildArtefactsUseCase = CleanBuildArtefactsUseCase(DeleteFilesAdapter(project))
+    }
+    return assemble
+  }
+
+  private fun wireSpecAndTest(
+      project: Project,
+      extension: RetroAssemblerPluginExtension,
+      settings: KickAssemblerSettings,
+      depTasks: DependencyTasks
+  ): Task {
+    val assembleSpec =
+        project.tasks.create(TASK_ASM_SPEC, AssembleSpec::class.java) { task ->
+          task.extension = extension
+          task.kickAssembleSpecUseCase =
+              KickAssembleSpecUseCase(KickAssembleSpecAdapter(project, settings))
+        }
+    assembleSpec.dependsOn(depTasks.resolveDevDeps, depTasks.downloadDependencies)
+    val runSpec =
+        project.tasks.create(TASK_TEST, Test::class.java) { task ->
+          task.extension = extension
+          task.run64SpecTestUseCase =
+              Run64SpecTestUseCase(RunTestOnViceUseCase(RunTestOnViceAdapter(project, extension)))
+        }
+    runSpec.dependsOn(assembleSpec)
+    return runSpec
+  }
+
+  private fun wireBuild(project: Project, assemble: Task, runSpec: Task) {
+    val build = project.tasks.create(TASK_BUILD, Build::class.java)
+    build.dependsOn(assemble, runSpec)
+  }
+
+  private fun wireFlows(
+      project: Project,
+      settings: KickAssemblerSettings,
+      flowsExtension: FlowsExtension,
+      assemble: Task
+  ) {
+    // Create KickAssembleUseCase for flow tasks that contain AssembleSteps
+    val kickAssembleUseCase = KickAssembleUseCase(KickAssembleAdapter(project, settings))
+
+    // Create DasmAssembleUseCase for flow tasks that contain DasmSteps
+    val dasmAssembleUseCase = DasmAssembleUseCase(DasmAssembleAdapter(project))
+
+    // Register generated flow tasks leveraging Gradle parallelization with dependency injection
+    FlowTasksGenerator(project, flowsExtension.getFlows(), kickAssembleUseCase, dasmAssembleUseCase)
+        .registerTasks()
+
+    // Make the asm task depend on flows task to ensure flows run before assembly
+    val flowsTask = project.tasks.findByName(TASK_FLOWS)
+    if (flowsTask != null) {
+      assemble.dependsOn(flowsTask)
     }
   }
 }
