@@ -28,8 +28,8 @@ import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
 import com.github.c64lib.rbt.flows.domain.config.FilterConfig
 import com.github.c64lib.rbt.flows.domain.config.MetadataOutput
 import com.github.c64lib.rbt.processors.charpad.domain.*
-import com.github.c64lib.rbt.shared.gradle.fllter.BinaryInterleaver as BinaryInterleaverImpl
-import com.github.c64lib.rbt.shared.gradle.fllter.Nybbler as NybblerImpl
+import com.github.c64lib.rbt.shared.gradle.filter.BinaryInterleaver as BinaryInterleaverImpl
+import com.github.c64lib.rbt.shared.gradle.filter.Nybbler as NybblerImpl
 import com.github.c64lib.rbt.shared.processor.Output
 import com.github.c64lib.rbt.shared.processor.OutputProducer
 import com.github.c64lib.rbt.shared.processor.TextOutput

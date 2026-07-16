@@ -24,7 +24,6 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.shared.gradle.filter
 
-import com.github.c64lib.rbt.shared.gradle.fllter.Nybbler
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 

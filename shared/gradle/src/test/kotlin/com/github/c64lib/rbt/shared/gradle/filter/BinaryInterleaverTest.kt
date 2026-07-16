@@ -25,7 +25,6 @@ SOFTWARE.
 package com.github.c64lib.rbt.shared.gradle.filter
 
 import com.github.c64lib.rbt.shared.domain.IllegalInputException
-import com.github.c64lib.rbt.shared.gradle.fllter.BinaryInterleaver
 import io.vavr.collection.List
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.fail
