@@ -24,8 +24,8 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.processors.spritepad.adapters.`in`.gradle
 
-import com.c64lib.rbt.processors.spritepad.domain.SpriteProducer
-import com.c64lib.rbt.processors.spritepad.usecase.ProcessSpritepadUseCase
+import com.github.c64lib.rbt.processors.spritepad.domain.SpriteProducer
+import com.github.c64lib.rbt.processors.spritepad.usecase.ProcessSpritepadUseCase
 import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.dsl.PreprocessingExtension
 import com.github.c64lib.rbt.shared.gradle.dsl.SpritepadPipelineExtension

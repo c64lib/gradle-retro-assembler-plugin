@@ -22,10 +22,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import com.c64lib.rbt.processors.spritepad.domain.InvalidSPDFormatException
-import com.c64lib.rbt.processors.spritepad.domain.SpriteProducer
-import com.c64lib.rbt.processors.spritepad.usecase.ProcessSpritepadUseCase
-import com.c64lib.rbt.processors.spritepad.usecase.spd4.SPD4Processor
+import com.github.c64lib.rbt.processors.spritepad.domain.InvalidSPDFormatException
+import com.github.c64lib.rbt.processors.spritepad.domain.SpriteProducer
+import com.github.c64lib.rbt.processors.spritepad.usecase.ProcessSpritepadUseCase
+import com.github.c64lib.rbt.processors.spritepad.usecase.spd4.SPD4Processor
 import com.github.c64lib.rbt.shared.processor.InputByteStream
 import com.github.c64lib.rbt.shared.processor.OutputProducer
 import io.kotest.assertions.throwables.shouldThrow

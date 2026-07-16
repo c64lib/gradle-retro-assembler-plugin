@@ -45,7 +45,6 @@ The charpad and spritepad sub-domains build on the shared **streaming processor*
 
 **Outbound:** `ReadPngImageAdapter` uses [PNGJ](../12_glossary.md); `C64CharsetWriter` / `C64SpriteWriter` write C64 binary formats; `ExecuteGt2RelocAdapter` launches the native `gt2reloc` process.
 
-> **Note:** `processors:spritepad` uses the package root `com.c64lib.rbt...` rather than the project-standard `com.github.c64lib.rbt...`. This inconsistency is recorded in [§11 Risks & Technical Debt](../11_risks_and_technical_debt.md).
 
 ## Hexagon (image sub-domain)
 

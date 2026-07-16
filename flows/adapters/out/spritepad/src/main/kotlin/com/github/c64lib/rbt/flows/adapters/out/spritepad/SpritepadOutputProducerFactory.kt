@@ -24,8 +24,8 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.out.spritepad
 
-import com.c64lib.rbt.processors.spritepad.domain.SpriteProducer
 import com.github.c64lib.rbt.flows.domain.config.SpritepadCommand
+import com.github.c64lib.rbt.processors.spritepad.domain.SpriteProducer
 import com.github.c64lib.rbt.shared.processor.Output
 import com.github.c64lib.rbt.shared.processor.OutputProducer
 import java.io.File

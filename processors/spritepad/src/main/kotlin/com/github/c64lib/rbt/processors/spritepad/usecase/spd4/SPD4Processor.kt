@@ -22,10 +22,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.c64lib.rbt.processors.spritepad.usecase.spd4
+package com.github.c64lib.rbt.processors.spritepad.usecase.spd4
 
-import com.c64lib.rbt.processors.spritepad.usecase.ProcessSpritepadUseCase
-import com.c64lib.rbt.processors.spritepad.usecase.SPDProcessor
+import com.github.c64lib.rbt.processors.spritepad.usecase.ProcessSpritepadUseCase
+import com.github.c64lib.rbt.processors.spritepad.usecase.SPDProcessor
 import com.github.c64lib.rbt.shared.binutils.toWord
 import com.github.c64lib.rbt.shared.processor.InputByteStream
 
