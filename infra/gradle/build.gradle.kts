@@ -15,6 +15,9 @@ plugins {
 
 group = "com.github.c64lib.retro-assembler"
 
+// Gradle's ProjectBuilder needs reflective access to java.lang on JDK 16+
+tasks.withType<Test> { jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED") }
+
 configurations {
   // Create a new configuration that extends from 'implementation'
   create("resolvableImplementation") {
@@ -127,6 +130,59 @@ dependencies {
 
     compileOnly(project(":crunchers:exomizer"))
     compileOnly(project(":crunchers:exomizer:adapters:in:gradle"))
+
+    // Test-time equivalents of the compileOnly deps above: RetroAssemblerPluginTest actually
+    // applies the plugin via ProjectBuilder, so it needs these on the runtime test classpath.
+    testImplementation(project(":shared:domain"))
+    testImplementation(project(":shared:gradle"))
+    testImplementation(project(":shared:filedownload"))
+    testImplementation(project(":shared:binary-utils"))
+    testImplementation(project(":shared:processor"))
+
+    testImplementation(project(":compilers:kickass"))
+    testImplementation(project(":compilers:kickass:adapters:in:gradle"))
+    testImplementation(project(":compilers:kickass:adapters:out:gradle"))
+    testImplementation(project(":compilers:kickass:adapters:out:filedownload"))
+
+    testImplementation(project(":compilers:dasm"))
+    testImplementation(project(":compilers:dasm:adapters:out:gradle"))
+
+    testImplementation(project(":flows:"))
+    testImplementation(project(":flows:adapters:in:gradle"))
+    testImplementation(project(":flows:adapters:out:gradle"))
+    testImplementation(project(":flows:adapters:out:charpad"))
+    testImplementation(project(":flows:adapters:out:spritepad"))
+    testImplementation(project(":flows:adapters:out:image"))
+    testImplementation(project(":flows:adapters:out:goattracker"))
+    testImplementation(project(":flows:adapters:out:exomizer"))
+
+    testImplementation(project(":emulators:vice"))
+    testImplementation(project(":emulators:vice:adapters:out:gradle"))
+
+    testImplementation(project(":testing:64spec"))
+    testImplementation(project(":testing:64spec:adapters:in:gradle"))
+
+    testImplementation(project(":dependencies"))
+    testImplementation(project(":dependencies:adapters:in:gradle"))
+    testImplementation(project(":dependencies:adapters:out:gradle"))
+
+    testImplementation(project(":processors:goattracker"))
+    testImplementation(project(":processors:goattracker:adapters:in:gradle"))
+    testImplementation(project(":processors:goattracker:adapters:out:gradle"))
+
+    testImplementation(project(":processors:spritepad"))
+    testImplementation(project(":processors:spritepad:adapters:in:gradle"))
+
+    testImplementation(project(":processors:charpad"))
+    testImplementation(project(":processors:charpad:adapters:in:gradle"))
+
+    testImplementation(project(":processors:image"))
+    testImplementation(project(":processors:image:adapters:in:gradle"))
+    testImplementation(project(":processors:image:adapters:out:png"))
+    testImplementation(project(":processors:image:adapters:out:file"))
+
+    testImplementation(project(":crunchers:exomizer"))
+    testImplementation(project(":crunchers:exomizer:adapters:in:gradle"))
 }
 
 publishing { repositories { maven { url = uri("../../../consuming/maven-repo") } } }
