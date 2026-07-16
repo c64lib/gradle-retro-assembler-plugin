@@ -46,7 +46,10 @@ Produce a comprehensive, refined plan and persist it.
 
 Collect (use `AskUserQuestion` for anything not already supplied):
 
-1. **Issue number** — the GitHub issue this addresses (or `N/A` if unlinked)
+1. **Issue number** — the GitHub issue this addresses. If the user has not supplied one, do not silently default to unlinked — **ask** (via `AskUserQuestion`) whether the work maps to an existing issue, and offer these options:
+   - **Existing issue** — the user provides the number; use it and sync per Step 6.
+   - **Create a new issue** — if the user picks this, create one via `gh issue create` (owner `c64lib`, repo `gradle-retro-assembler-plugin`) with a concise title and a short body derived from the task specification, then use the returned number as the plan's linked issue. Confirm the drafted title/body with the user before creating it.
+   - **No issue (`N/A`)** — proceed unlinked only when the user explicitly chooses this.
 2. **Feature short name** — a kebab-case slug (e.g. `pipeline-dsl-parallel-execution`)
 3. **Task specification** — what needs to be built or fixed
 
