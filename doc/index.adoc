@@ -868,6 +868,262 @@ In result an appropriate `SID` file will be created in build directory (it will 
 Conversion will use default settings of all export parameters as specified by `gt2reloc` command.
 It is, however, possible to override them.
 
+=== Image exports
+
+The *PNG / Image preprocessor* converts PNG images into C64-friendly binary assets: hardware
+sprite shapes and hires bitmap/charset data.
+It also provides a small set of composable image transformations (`cut`, `split`, `extend`,
+`flip`, `reduceResolution`) that can be nested to build a processing pipeline from a single
+source PNG.
+
+Like the other preprocessors, it runs as part of the `preprocess` phase before assembling.
+It can also be launched explicitly:
+
+[source,bash]
+----
+gradle image
+----
+
+The image processor runs only if at least one `image { }` pipeline is defined in the
+`preprocess` section.
+Each `image { }` block processes a single input PNG; declare one block per source image.
+
+[NOTE]
+====
+The examples in this section use the Kotlin DSL (`build.gradle.kts`), which is how the image
+preprocessor is driven in practice.
+The `input`, `useBuildDir` and `output` values are Gradle `Property` objects, so they are set
+with `getInput().set(...)`, `getUseBuildDir().set(...)` and `getOutput().set(...)` rather than
+plain assignment.
+====
+
+A minimal pipeline that converts a single 24x21 PNG into one hardware sprite:
+
+[source,kotlin]
+----
+preprocess {
+    image {
+        getInput().set(file("src/sprites/ball.png"))
+        getUseBuildDir().set(true)
+        sprite {
+            getOutput().set(file("sprites/ball.bin"))
+        }
+    }
+}
+----
+
+==== Pipeline elements
+
+.Elements of the `image` pipeline
+getInput()::
+Input PNG file for the pipeline (a Gradle `Property<File>`), set with
+`getInput().set(file("..."))`.
+
+getUseBuildDir()::
+Whether output files are written under the project's `build` directory (`Property<Boolean>`).
+Set it explicitly with `getUseBuildDir().set(true)` or `getUseBuildDir().set(false)`.
+When `true`, the output path you give is resolved relative to the project root and re-rooted
+under `build/` -- so `getOutput().set(file("sprites/ball.bin"))` is written to
+`build/sprites/ball.bin`.
+When `false`, the output path is used as-is, relative to the project root.
+
+An `image { }` block is itself the root of a transformation tree: the writers (`sprite`,
+`bitmap`) and the transformations (`cut`, `split`, `extend`, `flip`, `reduceResolution`) can be
+declared directly inside `image { }` and nested inside one another (see
+<<Transformation pipeline>>).
+
+==== Output writers
+
+Two writers turn the (possibly transformed) image into a binary file.
+
+sprite::
+Writes the image as a *C64 hires hardware sprite*.
+The image passed to this writer must be exactly *24x21 pixels*.
+Output is *64 bytes*: 63 bytes of sprite bitmap data (21 rows x 3 bytes) followed by one
+trailing padding byte (always zero -- it is not an attribute byte).
+
+bitmap::
+Writes the image as *C64 hires charset/bitmap* data.
+The image width and height must both be *multiples of 8*.
+The image is split into 8x8 blocks in row-major order; each block is emitted as 8 bytes
+(one byte per pixel row, MSB = leftmost pixel).
+
+Both writers take a single `getOutput().set(file("..."))`.
+
+[NOTE]
+====
+Both writers are *monochrome*: each pixel is either set or clear.
+A pixel counts as *set* (bit = 1) unless it is opaque black (`Color(0, 0, 0, 255)`), which
+counts as *clear* (bit = 0).
+Design your source PNGs accordingly: use black for the background and any other colour for the
+shape.
+====
+
+==== Transformations
+
+Transformations are applied to the image before it reaches a writer.
+Each transformation is an optional nested block; each may in turn contain further
+transformations and/or writers (see <<Transformation pipeline>>).
+
+.`cut` -- extract a rectangular region
+left:: Left edge of the region (zero-based, default: `0`).
+top:: Top edge of the region (zero-based, default: `0`).
+width:: Width of the region; default: to the right edge of the image.
+height:: Height of the region; default: to the bottom edge of the image.
+
+.`split` -- cut into a grid of equally sized sub-images
+width:: Sub-image width; default: full image width.
+height:: Sub-image height; default: full image height.
+
+`split` is the *fan-out* transformation: it turns one image into several sub-images (row by
+row, left to right).
+Any writer downstream of a `split` then emits one file per sub-image (see
+<<Multi-image output naming>>).
+
+.`extend` -- enlarge the canvas, filling the new area
+newWidth:: New image width; default: keep the current width.
+newHeight:: New image height; default: keep the current height.
+fillColor:: Colour used to fill the added area, as `Color(red, green, blue, alpha)`;
+default: opaque black `Color(0, 0, 0, 255)`.
+
+.`flip` -- mirror the image
+axis:: Axis to mirror across: `Axis.X` (vertical flip), `Axis.Y` (horizontal flip, the
+default) or `Axis.BOTH`.
+
+.`reduceResolution` -- downsample by dropping pixels
+reduceX:: Horizontal reduction factor (default: `1`, i.e. no reduction).
+reduceY:: Vertical reduction factor (default: `1`).
+
+==== Transformation pipeline
+
+Because a pipeline (and every transformation block) can contain both further transformations
+and writers, you compose a processing tree.
+At each level the block's own transformation is applied first, then any nested transformation
+blocks are processed, and finally any `sprite` / `bitmap` writers at that level emit their
+output(s).
+
+A common real-world pattern takes a sprite sheet drawn at 16-pixel width, cuts it into frames,
+pads each frame to the 24x21 hardware-sprite size, and writes one sprite per frame:
+
+[source,kotlin]
+----
+preprocess {
+    image {
+        getInput().set(file("src/sprites/enemy/skull.png"))
+        getUseBuildDir().set(true)
+
+        split {
+            width = 16
+            height = 21
+            extend {
+                newWidth = 24
+                newHeight = 21
+                fillColor = Color(0, 0, 0, 255)
+                split {
+                    width = 24
+                    height = 21
+                    sprite {
+                        getOutput().set(file("sprites/skull.bin"))
+                    }
+                }
+            }
+        }
+    }
+}
+----
+
+To also produce a mirrored copy, wrap the same sub-pipeline in a `flip`:
+
+[source,kotlin]
+----
+preprocess {
+    image {
+        getInput().set(file("src/sprites/enemy/scorpio.png"))
+        getUseBuildDir().set(true)
+
+        flip {
+            axis = Axis.Y
+            split {
+                width = 16
+                height = 16
+                extend {
+                    newWidth = 24
+                    newHeight = 21
+                    fillColor = Color(0, 0, 0, 255)
+                    split {
+                        width = 24
+                        height = 21
+                        sprite {
+                            getOutput().set(file("sprites/scorpio-left.bin"))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+----
+
+[IMPORTANT]
+====
+Each writer or transformation block (`sprite`, `bitmap`, `cut`, `split`, `extend`, `flip`,
+`reduceResolution`) may appear *only once per level* -- declaring the same block twice at the
+same level fails the build at configuration time.
+To produce several outputs from one source image, use `split` to fan out into multiple
+sub-images (see below) rather than repeating a `sprite`/`bitmap` block.
+====
+
+==== Multi-image output naming
+
+When a `split` produces more than one sub-image, the downstream writer's single `output` name
+is expanded per sub-image by inserting a zero-based index before the extension:
+
+* if only one image reaches the writer, the file is written under the exact `output` name;
+* if N > 1 images reach the writer, each is written as `name_{index}.ext`.
+
+For example, a 96x21 sheet split into 24x21 frames written with
+`getOutput().set(file("sprites/dino.bin"))` yields:
+
+[source]
+----
+build/sprites/dino_0.bin
+build/sprites/dino_1.bin
+build/sprites/dino_2.bin
+build/sprites/dino_3.bin
+----
+
+==== A bitmap example
+
+Converting a hires image (dimensions multiple of 8) into charset/bitmap data:
+
+[source,kotlin]
+----
+preprocess {
+    image {
+        getInput().set(file("src/gfx/logo.png"))
+        getUseBuildDir().set(true)
+        bitmap {
+            getOutput().set(file("gfx/logo.bin"))
+        }
+    }
+}
+----
+
+==== Input requirements
+
+* Input must be a *PNG* file.
+* Both *palette* PNGs and *RGB / RGBA* PNGs are supported; palette images are expanded to RGB
+  via their palette.
+* The PNG must use *8-bit* channel depth.
+* Colour is interpreted as monochrome by the writers (see the note under
+  <<Output writers>>): opaque black is treated as a clear pixel, everything else as set.
+* Remember the writer size constraints: `sprite` requires a 24x21 image (use `cut` / `split` /
+  `extend` to reach that size), and `bitmap` requires width and height that are multiples of 8.
+
+See also <<Charpad exports>> and <<Spritepad exports>> for the other graphical preprocessors,
+and the image step of the experimental <<Pipeline DSL (Experimental)>> for using image
+processing inside a flow.
+
 === Output transformations
 The processors produce binary files for each of the element.
 It is possible to apply further filtering to these files when needed.
