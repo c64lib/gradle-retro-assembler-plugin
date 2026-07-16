@@ -2,7 +2,7 @@
 
 **Plan ID**: PLAN-0005
 **Issue**: #159
-**Status**: accepted
+**Status**: implemented
 **Created**: 2026-07-16
 **Last Updated**: 2026-07-16
 
@@ -209,6 +209,7 @@ None — scope is fully determined via Explore-agent analysis and the design dec
 | Date | Updated By | Changes |
 |------|------------|---------|
 | 2026-07-16 | AI Agent | Plan created via Explore-agent analysis; design decision (move vs. document exception) confirmed with user as "move"; no unresolved questions remain. |
+| 2026-07-16 | AI Agent | Execution completed: all 5 steps (Phase 1) finished successfully. All 8 port files moved to usecase/port, all 21 consuming files updated, build passed, docs updated. Status → implemented. |
 
 ---
 
