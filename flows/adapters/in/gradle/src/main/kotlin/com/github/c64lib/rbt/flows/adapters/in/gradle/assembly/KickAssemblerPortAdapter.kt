@@ -26,7 +26,7 @@ package com.github.c64lib.rbt.flows.adapters.`in`.gradle.assembly
 
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.flows.domain.config.AssemblyCommand
-import com.github.c64lib.rbt.flows.domain.port.AssemblyPort
+import com.github.c64lib.rbt.flows.usecase.port.AssemblyPort
 
 /**
  * Adapter implementation of AssemblyPort that bridges to KickAssembleUseCase.

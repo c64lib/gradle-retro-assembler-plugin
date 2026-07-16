@@ -27,7 +27,7 @@ package com.github.c64lib.rbt.flows.domain.steps
 import com.github.c64lib.rbt.flows.domain.FlowStep
 import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.StepValidationException
-import com.github.c64lib.rbt.flows.domain.port.ExomizerPort
+import com.github.c64lib.rbt.flows.usecase.port.ExomizerPort
 import java.io.File
 
 /**

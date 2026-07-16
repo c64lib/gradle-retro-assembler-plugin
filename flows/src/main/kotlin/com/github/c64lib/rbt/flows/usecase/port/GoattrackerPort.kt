@@ -22,45 +22,44 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package com.github.c64lib.rbt.flows.domain.port
+package com.github.c64lib.rbt.flows.usecase.port
 
-import com.github.c64lib.rbt.flows.domain.config.CharpadCommand
+import com.github.c64lib.rbt.flows.domain.config.GoattrackerCommand
 
 /**
- * Domain port for charpad processing operations.
+ * Domain port for goattracker processing operations.
  *
- * This port defines the contract for Charpad CTM file processing within the flows domain,
+ * This port defines the contract for GoatTracker SNG file processing within the flows domain,
  * abstracting away the specific processor implementation details. The port supports processing of
- * all CTM format versions (5, 6, 7, 8, 82, 9) and all output producer types including charset,
- * maps, tiles, attributes, colors, materials, and metadata.
+ * all GoatTracker song files and configuration options including frequency, channels, optimization,
+ * and advanced gt2reloc parameters.
  */
-interface CharpadPort {
+interface GoattrackerPort {
 
   /**
-   * Processes a single Charpad CTM file according to the specified command configuration.
+   * Processes a single GoatTracker SNG file according to the specified command configuration.
    *
    * This method handles:
-   * - CTM file format detection and parsing (versions 5-9)
-   * - Generation of all configured output types (charset, map, tiles, etc.)
-   * - Metadata output with explicit configuration parameters
-   * - File I/O with user-specified output file names
+   * - SNG file format parsing and validation
+   * - SID file generation with proper frequency and channel settings
+   * - All optional gt2reloc parameters for advanced configuration
+   * - File I/O with user-specified output file path
    *
-   * @param command The charpad command containing input file, output specifications, and
-   * configuration
-   * @throws RuntimeException if the CTM file format is invalid or processing fails
+   * @param command The goattracker command containing input file, output path, and configuration
+   * @throws RuntimeException if the SNG file format is invalid or processing fails
    */
-  fun process(command: CharpadCommand)
+  fun process(command: GoattrackerCommand)
 
   /**
-   * Processes multiple Charpad CTM files in sequence.
+   * Processes multiple GoatTracker SNG files in sequence.
    *
    * If any processing fails, execution stops and an exception is thrown. This provides fail-fast
    * behavior for batch processing operations.
    *
-   * @param commands The list of charpad commands to execute
-   * @throws RuntimeException if any CTM file processing fails
+   * @param commands The list of goattracker commands to execute
+   * @throws RuntimeException if any SNG file processing fails
    */
-  fun process(commands: List<CharpadCommand>) {
+  fun process(commands: List<GoattrackerCommand>) {
     commands.forEach { command -> process(command) }
   }
 }

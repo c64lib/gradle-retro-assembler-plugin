@@ -16,7 +16,7 @@ See [§8 Crosscutting Concepts](../08_crosscutting_concepts.md) for parallelism/
 
 ## Ports (flows-owned domain ports)
 
-All ports live under `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/port/`. Each abstracts a downstream context; the implementing out-adapter bridges to that context's use case.
+All ports live under `flows/src/main/kotlin/com/github/c64lib/rbt/flows/usecase/port/`. Each abstracts a downstream context; the implementing out-adapter bridges to that context's use case.
 
 | Port | Delegates to context | Implementing adapter | Path |
 |------|----------------------|----------------------|------|
@@ -29,7 +29,6 @@ All ports live under `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/p
 | `ExomizerPort` | crunchers:exomizer | `ExomizerAdapter` | `flows/adapters/out/exomizer/.../ExomizerAdapter.kt` |
 | `CommandPort` | (native process) | `GradleCommandPortAdapter` | `flows/adapters/in/gradle/.../command/GradleCommandPortAdapter.kt` |
 
-> **Note:** the flows ports sit under `domain/port/`, whereas every other context places ports under `usecase/port/`. This inconsistency is recorded in [§11 Risks & Technical Debt](../11_risks_and_technical_debt.md).
 
 ## Adapters
 

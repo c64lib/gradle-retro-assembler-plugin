@@ -28,7 +28,7 @@ import com.github.c64lib.rbt.flows.domain.FlowStep
 import com.github.c64lib.rbt.flows.domain.StepExecutionException
 import com.github.c64lib.rbt.flows.domain.config.DasmConfig
 import com.github.c64lib.rbt.flows.domain.config.DasmConfigMapper
-import com.github.c64lib.rbt.flows.domain.port.DasmAssemblyPort
+import com.github.c64lib.rbt.flows.usecase.port.DasmAssemblyPort
 
 /**
  * Dasm assembly step for compiling 6502 assembly files using the dasm assembler.

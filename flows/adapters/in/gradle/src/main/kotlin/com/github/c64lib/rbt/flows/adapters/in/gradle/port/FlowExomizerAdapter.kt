@@ -31,7 +31,7 @@ import com.github.c64lib.rbt.crunchers.exomizer.domain.RawOptions
 import com.github.c64lib.rbt.crunchers.exomizer.usecase.CrunchMemUseCase
 import com.github.c64lib.rbt.crunchers.exomizer.usecase.CrunchRawUseCase
 import com.github.c64lib.rbt.crunchers.exomizer.usecase.port.ExecuteExomizerPort
-import com.github.c64lib.rbt.flows.domain.port.ExomizerPort
+import com.github.c64lib.rbt.flows.usecase.port.ExomizerPort
 import java.io.File
 
 /**
