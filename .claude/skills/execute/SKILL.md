@@ -1,5 +1,5 @@
 ---
-description: Implement a development action plan created by the plan skill. Locates a plan in plans/, offers an adversarial challenge review before executing, lets the user pick scope (all / a phase / specific steps / a range) and an engagement mode (per-step, per-phase, or autonomous), executes each step following the repo's architecture, verifies deliverables, records progress back into the plan via the plan skill, keeps a per-plan execution log (plans/EXEC-nnnn_{slug}.md) with all deviations, and afterwards offers to sync the linked issue description and then close the issue. Invoke for "/execute", "execute the plan", "implement phase N", "run the action plan".
+description: Implement a development action plan created by the plan skill. Locates a plan in plans/, offers an adversarial challenge review before executing, ensures work happens on a feature branch, lets the user pick scope (all / a phase / specific steps / a range) and an engagement mode (per-step, per-phase, or autonomous), executes each step following the repo's architecture, verifies deliverables, records progress back into the plan via the plan skill, keeps a per-plan execution log (plans/EXEC-nnnn_{slug}.md) with all deviations, and afterwards ships the work in order — commit and push onto the branch, open a pull request, sync the linked issue description, then close the issue. Invoke for "/execute", "execute the plan", "implement phase N", "run the action plan".
 user-invocable: true
 allowed-tools: Agent Skill Bash Read Edit Write Grep Glob AskUserQuestion TodoWrite
 ---
@@ -87,6 +87,8 @@ Ask (via `AskUserQuestion`):
 
 ### Step 5 — Execute
 
+**Ensure a feature branch first.** Check the current git branch. If it is not the plan's `feature/{issue}-{slug}` branch (and not another feature branch the user has directed you to use), do not implement onto `develop`/`master`: ask the user (via `AskUserQuestion`) whether to create `feature/{issue}-{slug}` now, and if they accept, delegate to the **`git-utils`** skill to create it (branched from an up-to-date `develop`). The `plan` skill may already have created this branch on acceptance; if so, just confirm you are on it. Never run `git` directly.
+
 Open the execution log: if `plans/EXEC-{nnnn}_{slug}.md` does not exist, create it from `.claude/templates/exec.template.md` and fill the `Exec` cell of the plan's row in `plans/README.md`; then append a new `### Session` block with the chosen scope and mode.
 
 Create a `TodoWrite` list with one entry per in-scope step. Then, for each step in order:
@@ -119,13 +121,18 @@ Provide it the plan path and the change set so it updates the plan consistently:
 
 Also close out the exec log for this run: set the session's Outcome, update `**Last Updated**` and `**State**`, and make sure Sections 2 (Deviations) and 3 (Follow-ups) reflect everything encountered ("None" is an acceptable entry).
 
-**Offer the issue sync**: if the plan is linked to a GitHub issue, ask the user (via `AskUserQuestion`) whether to update the issue's description with the actual, post-execution plan content. Only if they accept, have the update pushed to the issue (via the `plan` skill's issue sync / `gh issue edit`). Never sync the issue silently.
+### Step 8 — Ship the work: commit, push, PR, then close the issue
 
-**Offer to close the issue**: only after the issue has been updated with the plan (i.e. the sync above was accepted and pushed) **and** the plan is fully `implemented` (every step complete), ask the user (via `AskUserQuestion`) whether to close the linked issue. If they accept, close it via `gh issue close <number> -c "<comment>"` with a short comment referencing the completed work (and the PR when one exists). Never close the issue silently, and do not offer to close it while steps remain pending or the sync was declined.
+Once the in-scope work is recorded, drive it toward a reviewable, closeable state **in this order**. Each hand-off to git/GitHub is an explicit offer via `AskUserQuestion` — never commit, push, open a PR, sync, or close silently.
 
-### Step 8 — Summarise and offer follow-ups
+1. **Commit & push onto the feature branch.** Offer to commit the changes and push them, delegating to the **`git-utils`** skill (which commits per this repo's convention and, on push, sets upstream on `feature/{issue}-{slug}`). Do not run `git` directly. If the user declines, stop here — the remaining steps depend on pushed work.
+2. **Create the pull request.** After the branch is pushed, offer to open a PR into `develop` by delegating to the **`gh-utils`** skill. Draft a title and body that reference the linked issue (e.g. `Closes #{issue}`). Report the PR URL. If a PR already exists for the branch, report that instead of creating a duplicate.
+3. **Sync the issue description.** If the plan is linked to a GitHub issue, offer to update the issue's description with the actual, post-execution plan content (via the `plan` skill's issue sync / `gh issue edit`). Never sync silently.
+4. **Close the issue.** Only after **(a)** a PR exists for the branch (step 2 accepted, or one already open), **(b)** the issue has been synced with the plan (step 3 accepted and pushed), **and (c)** the plan is fully `implemented` (every step complete), offer to close the linked issue. If the user accepts, close it via `gh issue close <number> -c "<comment>"` with a short comment referencing the completed work and the PR URL. Do not offer to close while steps remain pending, no PR exists, or the sync was declined.
 
-Report: steps completed, steps skipped/blocked (with reasons), steps still pending, the verification results, and any deviations logged (point at the exec log). Then offer git follow-ups by delegating to the existing skills — commit via **`git-utils`**, open a PR via **`gh-utils`** — only if the user wants them. Never commit or push automatically.
+### Step 9 — Summarise
+
+Report: steps completed, steps skipped/blocked (with reasons), steps still pending, the verification results, and any deviations logged (point at the exec log). Note which ship steps (commit, push, PR, issue sync, issue close) were done, declined, or left pending, with the PR URL when one was created.
 
 ---
 
@@ -134,10 +141,12 @@ Report: steps completed, steps skipped/blocked (with reasons), steps still pendi
 - **Never create or restructure a plan** — that's the `plan` skill. This skill only executes and records progress.
 - **All plan-file writes go through the `plan` skill's UPDATE**, not direct edits — except the exec log (`plans/EXEC-*.md`) and its `Exec` index cell, which this skill owns and writes directly.
 - **Keep the exec log honest and current** — session logged when execution starts, step rows as steps finish, deviations the moment they occur.
-- **Never update the linked issue's description without asking** — the issue sync in Step 7 is an explicit offer, not a default.
-- **Never close the linked issue without asking**, and only offer to close it once the issue has been updated with the plan and the plan is fully `implemented` — see Step 7.
+- **Implement on a feature branch, not `develop`/`master`** — ensure `feature/{issue}-{slug}` exists (create via `git-utils` if needed) before executing steps — see Step 5.
+- **Ship in order: commit → push → PR → issue sync → issue close** (Step 8). Each is an explicit `AskUserQuestion` offer; never do any of them silently or automatically.
+- **Never update the linked issue's description without asking** — the issue sync in Step 8 is an explicit offer, not a default.
+- **Never close the linked issue without asking**, and only offer to close it once a PR exists, the issue has been synced with the plan, and the plan is fully `implemented` — see Step 8.
 - **The adversarial challenge is an offer, not a gate** — offer it in Step 2, never run it silently, and never block execution on it.
 - **Never run `./gradlew` inline** — delegate every Gradle run to `build` / `test` / `e2e-test`.
 - **Stay within the selected scope** — implement only the steps the user chose.
-- **Never commit or push without an explicit request**; delegate git to `git-utils` / `gh-utils`.
+- **Never run `git`/`gh` directly** — delegate all branch/commit/push/PR/status work to `git-utils` and `gh-utils`.
 - If a step's instructions are ambiguous, ask before implementing — don't guess.
