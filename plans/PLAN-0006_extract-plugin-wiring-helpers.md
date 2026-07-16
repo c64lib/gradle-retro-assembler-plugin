@@ -2,8 +2,9 @@
 
 **Plan ID**: PLAN-0006
 **Issue**: #160
-**Status**: draft
+**Status**: implemented
 **Created**: 2026-07-16
+**Last Updated**: 2026-07-16
 
 ## 1. Feature Description
 
@@ -157,13 +158,14 @@ passed between helpers.
 **Goal**: Replace the monolithic `afterEvaluate` body with a short orchestration calling
 private per-domain wiring helpers, preserving all behavior.
 
-1. **Step 1.1**: Confirm the safety net.
+1. **Step 1.1** ✅: Confirm the safety net.
    - Files: `infra/gradle/src/test/kotlin/**`
    - Description: Grep for existing plugin-application tests. If found, run them to establish
      a green baseline. If none assert task graph, note the gap for Step 1.4.
    - Testing: `./gradlew :infra:gradle:test` green before any edit.
+   - Result: no `src/test` existed under `infra/gradle` — gap confirmed, addressed in Step 1.4.
 
-2. **Step 1.2**: Introduce private wiring helpers.
+2. **Step 1.2** ✅: Introduce private wiring helpers.
    - Files: `infra/gradle/src/main/kotlin/com/github/c64lib/gradle/RetroAssemblerPlugin.kt`
    - Description: Add private member functions, moving each domain's construction verbatim:
      - `wireDependencies(project, extension): DependencyTasks` → returns `resolveDevDeps`,
@@ -181,15 +183,17 @@ private per-domain wiring helpers, preserving all behavior.
    - Description (cont.): Use a small private data holder (e.g. `data class DependencyTasks`)
      or a `Pair` for the two dependency task handles — keep it local to the file.
    - Testing: compiles; no `dependsOn` edge dropped (checklist against §2 Current State list).
+   - Result: `DependencyTasks` data class + 6 helpers added; compiles clean.
 
-3. **Step 1.3**: Rewrite `apply()` to orchestrate.
+3. **Step 1.3** ✅: Rewrite `apply()` to orchestrate.
    - Files: `RetroAssemblerPlugin.kt`
    - Description: `apply()` = create the 3 extensions, then inside `afterEvaluate`:
      compute `settings`, call helpers in order, thread the returned handles, and finish with
      the `defaultTasks` default. The cross-domain graph stays visible via the arguments.
    - Testing: `./gradlew :infra:gradle:jar` builds; `./gradlew build` passes.
+   - Result: `apply()` reduced to a short orchestration; full `./gradlew build` green.
 
-4. **Step 1.4**: Add/strengthen a ProjectBuilder application test.
+4. **Step 1.4** ✅: Add/strengthen a ProjectBuilder application test.
    - Files: `infra/gradle/src/test/kotlin/com/github/c64lib/gradle/RetroAssemblerPluginTest.kt`
    - Description: Apply the plugin to a `ProjectBuilder` project, trigger evaluation, and
      assert all `TASK_*` tasks exist and that the key edges hold (`assemble` dependsOn
@@ -197,6 +201,9 @@ private per-domain wiring helpers, preserving all behavior.
      `runSpec` dependsOn assembleSpec; `preprocess` dependsOn the four processors). Run with
      `--add-opens java.base/java.lang=ALL-UNNAMED`.
    - Testing: new test green.
+   - Result: `RetroAssemblerPluginTest` added; required creating `infra/gradle/src/test` from
+     scratch plus `testImplementation` deps mirroring every `compileOnly` entry (see
+     [EXEC-0006](EXEC-0006_extract-plugin-wiring-helpers.md) for details/deviations). Green.
 
 **Phase 1 Deliverable**: A single mergeable commit — `RetroAssemblerPlugin.apply()` refactored
 into named per-domain helpers, all behavior preserved, build green. This is the whole feature;
@@ -239,6 +246,13 @@ no further phases required.
    internal refactor, no version bump, no consumer change.
 2. Verify via CI build + the ProjectBuilder application test + one `/e2e-test` run on `tony`.
 3. Rollback is trivial (revert the single commit) since no API/DSL surface changed.
+
+## 10. Revision History
+
+| Date | Updated By | Changes |
+|------|------------|---------|
+| 2026-07-16 | AI Agent | Status: draft → accepted. All Unresolved Questions resolved (helper granularity, helper shape, test scope) per user confirmation. |
+| 2026-07-16 | AI Agent | Status: accepted → implemented. All Phase 1 steps (1.1–1.4) executed and verified; `./gradlew build` green. See [EXEC-0006](EXEC-0006_extract-plugin-wiring-helpers.md) for the full session log and deviations. |
 
 ---
 

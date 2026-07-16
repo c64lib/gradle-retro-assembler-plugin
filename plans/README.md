@@ -10,4 +10,4 @@ Plans are permanent artifacts — do not delete. Terminal plans (`implemented`, 
 | [PLAN-0003](PLAN-0003_rename-fllter-to-filter.md) | 2026-07-16 | implemented | Rename `fllter` package to `filter` | #158 | [EXEC-0003](EXEC-0003_rename-fllter-to-filter.md) |
 | [PLAN-0004](PLAN-0004_rename-spritepad-package-root.md) | 2026-07-16 | implemented | Rename `processors/spritepad` package root from `com.c64lib` to `com.github.c64lib` | #157 | [EXEC-0004](EXEC-0004_rename-spritepad-package-root.md) |
 | [PLAN-0005](PLAN-0005_move-flows-ports-to-usecase-port.md) | 2026-07-16 | implemented | Move `flows` port interfaces from `domain/port` to `usecase/port` | #159 | [EXEC-0005](EXEC-0005_move-flows-ports-to-usecase-port.md) |
-| [PLAN-0006](PLAN-0006_extract-plugin-wiring-helpers.md) | 2026-07-16 | draft | Extract per-domain wiring helpers from `RetroAssemblerPlugin.afterEvaluate` | #160 | — |
+| [PLAN-0006](PLAN-0006_extract-plugin-wiring-helpers.md) | 2026-07-16 | implemented | Extract per-domain wiring helpers from `RetroAssemblerPlugin.afterEvaluate` | #160 | [EXEC-0006](EXEC-0006_extract-plugin-wiring-helpers.md) |
