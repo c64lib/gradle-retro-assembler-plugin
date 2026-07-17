@@ -12,16 +12,17 @@ Add a new step type to the flows Pipeline DSL that runs 64spec (spec64) tests, s
 
 ### Requirements
 - A new **self-contained** `TestStep` domain step in the flows subdomain: for each spec source it first assembles the spec (via `KickAssembleSpecUseCase`, producing `.prg` + `.vs`) and then runs it on VICE (via `Run64SpecTestUseCase`, producing `.specOut` and a parsed `TestResult`).
-- A `testStep(...)` DSL builder available inside `flow { ... }` blocks, following the existing `xxxStep` builder conventions; inputs are the `*.spec.asm` source files.
-- The step is wired into `FlowTasksGenerator` so it produces a Gradle task per step, with both use cases injected the same way `AssembleTask` receives `KickAssembleUseCase`.
-- The step participates in the flows file-based dependency graph: its inputs (spec sources, plus any files produced by upstream steps that specs depend on) drive task ordering; `.specOut` outputs drive up-to-date checks.
+- A `testStep(...)` DSL builder available inside `flow { ... }` blocks, following the existing `xxxStep` builder conventions. The DSL distinguishes **specs to execute** (`specs(...)`, must be `*.spec.asm`) from **additional watched inputs** (`from(...)`, e.g. the library sources under test that specs `#import`) — both feed the step's `inputs` for up-to-date checks, but only the specs are assembled and run.
+- The step is wired into `FlowTasksGenerator` so it produces a Gradle task per step, with both use cases injected the same way `AssembleTask` receives `KickAssembleUseCase`, and with an explicit task dependency on `resolveDevDeps`/`downloadDeps` (spec assembly needs the KickAssembler jar and the 64spec library fetched by `libFromGitHub`).
+- The step participates in the flows file-based dependency graph: its inputs (spec sources + watched sources, plus any files produced by upstream steps) drive task ordering; `.specOut` outputs drive up-to-date checks — so editing a watched library source re-runs the tests.
 - All specs in a step run; the aggregate `TestReport` is printed; the task fails afterwards if any spec failed.
 - VICE configuration (`viceExecutable`, `viceHeadless`, `viceAutostartPrgMode`) and KickAssembler settings are reused from the existing plugin configuration — no duplicate configuration in the DSL.
 
 ### Success Criteria
 - A flow containing `testStep` runs 64spec tests through VICE and reports per-spec and overall results.
 - A failing spec fails the corresponding flow task (and thus the build).
-- Task dependencies are correctly derived: the test step runs after the step that produces its input `.prg`/`.vs` files.
+- Task dependencies are correctly derived: the test step runs after any upstream step that produces one of its watched inputs, and after dependency resolution (`resolveDevDeps`/`downloadDeps`).
+- Editing a watched library source (e.g. `lib/math.asm` in `../common`) invalidates the up-to-date state and re-runs the tests — no silently stale green builds.
 - Unit tests cover the new domain step, DSL builder, and generator wiring; overall coverage targets (70% domain) are maintained.
 - Existing legacy `asmSpec`/`test` tasks continue to work unchanged.
 
@@ -43,6 +44,8 @@ A `testStep` inside a flow runs 64spec tests, ordered after whichever step produ
 - New DSL builder + `FlowBuilder` registration.
 - New Gradle task class + port adapter delegating to `KickAssembleSpecUseCase` and `Run64SpecTestUseCase`.
 - `FlowTasksGenerator` and `RetroAssemblerPlugin.wireFlows` need to construct and inject the use case (and `wireFlows` needs access to the `RetroAssemblerPluginExtension`, which it currently does not receive).
+- **Flow tasks have no dependency-resolution wiring**: legacy `asmSpec` explicitly depends on `resolveDevDeps` + `downloadDependencies` (`RetroAssemblerPlugin.kt:228`), but `FlowTasksGenerator` creates tasks with only step/flow/file-producer edges, and `wireFlows` merely adds `assemble.dependsOn(flowsTask)` (`RetroAssemblerPlugin.kt:261-263`). Gradle does not order sibling dependencies, so even `./gradlew asm` may run flow tasks before `downloadDeps`, and `./gradlew flows` never resolves dependencies at all. The test step's tasks must depend on the dependency tasks explicitly (Step 3.1).
+- **Spec assembly needs `libDirs`/`defines`**: the legacy `AssembleSpec` builds its command from `extension.libDirs`/`extension.defines` (`compilers/kickass/adapters/in/gradle/.../AssembleSpec.kt:57-58`); the flows test task must obtain them the same way (Step 2.2).
 - `flows/adapters/in/gradle` needs new module dependencies on `:testing:64spec`, `:emulators:vice`, and `:emulators:vice:adapters:out:gradle`.
 
 ## 3. Relevant Code Parts
@@ -126,7 +129,7 @@ None — all questions resolved (see Self-Reflection Questions).
 ### Design Decisions
 - **Decision**: Where the port's result type lives.
   - **Chosen**: Reuse `TestResult` from `:testing:64spec` in the `TestPort` signature (flows module gains a dependency on the `:testing:64spec` domain module).
-  - **Rationale**: `TestResult` is a pure value object; flows already orchestrates other domains, and a flows-local type would add a mapping layer with no practical decoupling benefit. (User decision, 2026-07-17.)
+  - **Rationale (corrected 2026-07-17 after red-team review)**: `TestResult` is a pure value object, so the dependency is low-risk — but note this is the flows domain module's **first** cross-domain compile dependency: `flows/build.gradle.kts:7-11` depends only on `:shared:domain`, and even `OutputFormat` comes from the shared kernel. The dependency is accepted consciously; if it proves troublesome, the repo-consistent alternatives are moving `TestResult` to `shared/domain` or a flows-local type — both cheap fallbacks isolated to the port signature. (User decision, 2026-07-17.)
 - **Decision**: Spec assembly inside the step vs. upstream step.
   - **Chosen**: Self-contained step — `testStep` assembles each spec (via `KickAssembleSpecUseCase`) and then runs it (via `Run64SpecTestUseCase`). *(Revised 2026-07-17; supersedes the earlier run-only choice.)*
   - **Rationale**: Spec assembly is a specialised KickAssembler invocation (`-vicesymbols` + 64spec variables) that the flows `assembleStep` doesn't and shouldn't produce; a self-contained step keeps the DSL simple (specs in, results out) and avoids either a second step type or overloading `assembleStep`. Mirrors what `asmSpec` + `test` do together.
@@ -140,11 +143,17 @@ None — all questions resolved (see Self-Reflection Questions).
   - **Chosen**: Flows-only — no dependency from legacy `test`/`build` onto flow test tasks.
   - **Rationale**: Keeps the legacy and flows pipelines independent; users opt in by running `flows`/`asm` or wiring dependencies themselves.
 - **Decision**: DSL input style.
-  - **Chosen**: Explicit files only — `from("spec/foo.spec.asm", ...)` like other flow steps; no glob/directory discovery.
-  - **Rationale**: Keeps the file-based dependency graph exact and each spec source individually tracked for up-to-date checks. (User decision, 2026-07-17.)
+  - **Chosen**: Explicit files only, with **two distinct concepts** *(revised 2026-07-17 after red-team review)*: `specs("spec/foo.spec.asm", ...)` declares the specs to assemble and run (validated as `*.spec.asm`); `from(...)` declares additional watched inputs — the library sources the specs `#import` (e.g. `lib/math-global.asm`). The step's `inputs` = specs ∪ watched files; only specs are executed. No glob/directory discovery.
+  - **Rationale**: Specs import the sources under test (see `../common/spec/math-add16.spec.asm:26-27`); if only `.spec.asm` files could be inputs, editing a library source would leave the task UP-TO-DATE and tests would be silently skipped — a stale green build. Separating "what to run" from "what to watch" keeps up-to-date checks correct while retaining exact file-based dependency tracking. (Supersedes the earlier single-list `from(...)` design.)
 - **Decision**: Failure mode with multiple specs.
   - **Chosen**: Run all specs, print the aggregate `TestReport`, then fail the task if any spec failed.
   - **Rationale**: Identical semantics to the legacy `test` task; gives a complete picture per run. (User decision, 2026-07-17.)
+- **Decision**: Dependency-resolution wiring for test-step tasks.
+  - **Chosen**: `TestStep` tasks explicitly depend on `resolveDevDeps` and `downloadDeps`, mirroring legacy `asmSpec` (`RetroAssemblerPlugin.kt:228`); `wireFlows` receives the `DependencyTasks` to make this possible.
+  - **Rationale**: Spec assembly needs the KickAssembler jar and the 64spec library (`libFromGitHub`); without the edge, `./gradlew flows` on a clean checkout fails, and even `asm` gives no ordering guarantee between sibling dependencies. (Added 2026-07-17 after red-team review.)
+- **Decision**: Source of `libDirs`/`defines` for the spec-assembly phase.
+  - **Chosen**: From `RetroAssemblerPluginExtension` (`extension.libDirs`, `extension.defines`), exactly as legacy `AssembleSpec` does (`AssembleSpec.kt:57-58`) — passed into `Spec64TestPortAdapter` at construction; no duplicate DSL configuration.
+  - **Rationale**: The 64spec framework arrives via `libFromGitHub` into `extension.libDirs`; reusing it keeps one configuration source and matches the plan's no-duplicate-config requirement. (Added 2026-07-17 after red-team review.)
 
 ## 5. Implementation Plan
 
@@ -157,8 +166,8 @@ None — all questions resolved (see Self-Reflection Questions).
    - Testing: Compilation; exercised via step tests with a fake port.
 2. **Step 1.2**: Create `TestStep` domain step
    - Files: `flows/src/main/kotlin/.../domain/steps/TestStep.kt`
-   - Description: `data class TestStep(name, inputs, outputs, var port: TestPort? = null) : FlowStep(name, "test", inputs, outputs)`. Inputs are `*.spec.asm` sources; outputs are the derived `.specOut` files. `execute()` validates the port, resolves input spec sources via base-class helpers, then for each spec assembles and runs it via the port; all specs run, results are aggregated, and `StepExecutionException` is thrown afterwards if any failed. `validate()` enforces at least one input and the `.spec.asm` extension convention.
-   - Testing: `flows/src/test/kotlin/.../domain/steps/TestStepTest.kt` (Kotest BehaviorSpec, fake `TestPort`): success, failing tests (all specs still executed), missing port, missing inputs.
+   - Description: `data class TestStep(name, specs: List<String>, inputs, outputs, var port: TestPort? = null) : FlowStep(name, "test", inputs, outputs)` where `specs` are the `*.spec.asm` sources to execute and `inputs` = specs ∪ watched files (per the DSL-input-style decision); outputs are the derived `.specOut` files (`.prg`/`.vs` are declared as outputs too so the produced files are tracked, mirroring `functions.kt` naming). `execute()` validates the port, resolves the spec sources via base-class helpers, then for each spec assembles and runs it via the port; all specs run, results are aggregated, and `StepExecutionException` is thrown afterwards if any failed. `validate()` enforces at least one spec, the `.spec.asm` extension on `specs` (not on watched inputs), and that every spec appears in `inputs`.
+   - Testing: `flows/src/test/kotlin/.../domain/steps/TestStepTest.kt` (Kotest BehaviorSpec, fake `TestPort`): success, failing tests (all specs still executed), missing port, no specs, non-`.spec.asm` spec rejected, watched non-spec input accepted.
 
 **Phase 1 Deliverable**: Mergeable domain-layer step (unused by DSL yet), fully unit-tested.
 
@@ -167,12 +176,12 @@ None — all questions resolved (see Self-Reflection Questions).
 
 1. **Step 2.1**: Create `TestStepBuilder` and register `testStep` in `FlowBuilder`
    - Files: `flows/adapters/in/gradle/.../dsl/TestStepBuilder.kt`, `flows/adapters/in/gradle/.../dsl/FlowDsl.kt`
-   - Description: Builder with `from(...)`/`to(...)` following `AssembleStepBuilder`; `FlowBuilder.testStep(name, configure)` registers the step and its `FlowArtifact`s for dependency tracking.
-   - Testing: `TestStepBuilderTest.kt` mirroring `CommandStepBuilderTest.kt`; `FlowDslDependencyTest.kt` addition asserting ordering after a producing step.
+   - Description: Builder with `specs(...)` (specs to execute), `from(...)` (additional watched inputs, e.g. imported library sources), following `AssembleStepBuilder` conventions; `build()` composes `inputs` = specs ∪ watched files. `FlowBuilder.testStep(name, configure)` registers the step and its `FlowArtifact`s for dependency tracking. Ensure the DSL is callable from **Groovy** build scripts as well as Kotlin (use `Action<T>`-style configure parameters if the existing builders don't already) — the e2e project `../common` uses `build.gradle`.
+   - Testing: `TestStepBuilderTest.kt` mirroring `CommandStepBuilderTest.kt` (incl. specs/watched separation); `FlowDslDependencyTest.kt` addition asserting ordering after a producing step.
 2. **Step 2.2**: Create `Spec64TestPortAdapter` and `TestTask`
    - Files: `flows/adapters/in/gradle/.../port/Spec64TestPortAdapter.kt`, `flows/adapters/in/gradle/.../tasks/TestTask.kt`, `flows/adapters/in/gradle/build.gradle.kts`
-   - Description: Adapter implements `TestPort` by delegating to injected `KickAssembleSpecUseCase` (assemble phase — deriving `resultFileName` via `functions.kt` conventions) and `Run64SpecTestUseCase` (run phase). `TestTask : BaseFlowStepTask` follows `AssembleTask.kt:38`: injects both use cases, sets the port on the step, builds the context, executes, and reports via `TestReport`, throwing `GradleException` on failure. Add the module dependencies per Section 3.
-   - Testing: Unit test for the adapter with stubbed use cases (assemble called before run, result mapping); task covered in Step 2.3's generator test.
+   - Description: Adapter implements `TestPort` by delegating to injected `KickAssembleSpecUseCase` (assemble phase — built with `libDirs`/`defines` from `RetroAssemblerPluginExtension` exactly as `AssembleSpec.kt:57-58`, deriving `resultFileName` via `functions.kt` conventions) and `Run64SpecTestUseCase` (run phase). `TestTask : BaseFlowStepTask` follows `AssembleTask.kt:38`: injects both use cases plus the extension, sets the port on the step, builds the context, executes, and reports via `TestReport`, throwing `GradleException` on failure. Add the module dependencies per Section 3.
+   - Testing: Unit test for the adapter with stubbed use cases (assemble called before run, libDirs/defines propagated, result mapping); task covered in Step 2.3's generator test.
 3. **Step 2.3**: Wire `FlowTasksGenerator`
    - Files: `flows/adapters/in/gradle/.../FlowTasksGenerator.kt`
    - Description: Add `kickAssembleSpecUseCase` and `run64SpecTestUseCase` constructor params (nullable, mirroring `kickAssembleUseCase`), `is TestStep ->` branch in `createStepTask` (`:138`), and injection block in `configureBaseTask` (`:200`).
@@ -185,15 +194,15 @@ None — all questions resolved (see Self-Reflection Questions).
 
 1. **Step 3.1**: Wire the plugin composition root
    - Files: `infra/gradle/src/main/kotlin/com/github/c64lib/gradle/RetroAssemblerPlugin.kt`
-   - Description: Thread `extension` into `wireFlows` (`:244`); construct `KickAssembleSpecUseCase(KickAssembleSpecAdapter(project, settings))` and `Run64SpecTestUseCase(RunTestOnViceUseCase(RunTestOnViceAdapter(project, extension)))` exactly as in `wireSpecAndTest` (`:222-234`) and pass both to `FlowTasksGenerator` (`settings` is already available in `wireFlows`). Per the lifecycle decision, do **not** add any dependency from the legacy `test`/`build` tasks onto flow test tasks.
-   - Testing: `./gradlew build`; plugin functional test if present.
+   - Description: Thread `extension` and the `DependencyTasks` into `wireFlows` (`:244`); construct `KickAssembleSpecUseCase(KickAssembleSpecAdapter(project, settings))` and `Run64SpecTestUseCase(RunTestOnViceUseCase(RunTestOnViceAdapter(project, extension)))` exactly as in `wireSpecAndTest` (`:222-234`) and pass both to `FlowTasksGenerator`; make each `TestStep` task `dependsOn(resolveDevDeps, downloadDeps)` mirroring `asmSpec` (`:228`) so `./gradlew flows` works on a clean checkout. Per the lifecycle decision, do **not** add any dependency from the legacy `test`/`build` tasks onto flow test tasks.
+   - Testing: `./gradlew build`; generator test asserting the dependency edges; plugin functional test if present.
 2. **Step 3.2**: End-to-end verification against `../common`
    - Files: none in this repo (scratch changes in `../common`, not committed)
-   - Description: Publish `1.8.1-SNAPSHOT` to mavenLocal (as the `e2e-test` skill does for tony); temporarily switch `../common/build.gradle` to that version (with mavenLocal in plugin resolution) and add a `flows { flow { testStep(...) } }` block listing a few of its 8 real spec files (e.g. `spec/math-add16.spec.asm`, `spec/mem-cmp16.spec.asm`). Verify: specs assemble, VICE runs them, per-spec and overall `TestReport` output matches the legacy `test` task's, and the flow task is UP-TO-DATE on re-run without input changes.
-   - Testing: Manual/e2e — all 8 common specs pass via `testStep`; a deliberately broken assertion fails the build; results match running the legacy `./gradlew test` in the same project.
+   - Description: **First verify the flows DSL is callable from a Groovy build script** (`../common` uses `build.gradle`; the DSL has so far been exercised from Kotlin DSL in tony) — if not, fix the DSL surface (Step 2.1) or use a minimal Kotlin-DSL scratch project pointing at `../common`'s `spec/` + `lib/` as fallback. Then: publish `1.8.1-SNAPSHOT` to mavenLocal (as the `e2e-test` skill does for tony); temporarily switch `../common/build.gradle` to that version (with mavenLocal in plugin resolution) and add a `flows { flow { testStep(...) } }` block with `specs(...)` listing a few of its 8 real spec files (e.g. `spec/math-add16.spec.asm`) and `from(...)` listing the imported `lib/` sources. Verify: specs assemble, VICE runs them, per-spec and overall `TestReport` output matches the legacy `test` task's; the flow task is UP-TO-DATE on re-run without input changes; **editing a watched `lib/` source re-runs the tests**; and a clean checkout (`git clean` of `.ra/`) still works via the dependency-resolution edges.
+   - Testing: Manual/e2e — all 8 common specs pass via `testStep`; a deliberately broken assertion fails the build; a `lib/` edit invalidates UP-TO-DATE; results match running the legacy `./gradlew test` in the same project.
 3. **Step 3.3**: Documentation
    - Files: `doc/arc42/05_building_block_view.md`, `doc/arc42/08_crosscutting_concepts.md`, `FlowsExtension.kt`/`FlowDsl.kt` KDoc, `CLAUDE.md` (step list if enumerated), AsciiDoc user docs under `doc/` if flows are documented there
-   - Description: Document the new step type, its required upstream artifacts (`.prg`/`.vs`), VICE configuration reuse, and update the arc42 building-block page per CLAUDE.md's architecture-docs rule.
+   - Description: Document the new step type, the `specs(...)`/`from(...)` distinction (watch the sources your specs import!), the produced files (`.prg`/`.vs`/`.specOut` land next to the spec sources), VICE/KickAssembler configuration reuse, and update the arc42 building-block page per CLAUDE.md's architecture-docs rule.
    - Testing: Docs build (documentation workflow) renders.
 
 **Phase 3 Deliverable**: Fully integrated, verified, documented feature.
@@ -201,16 +210,16 @@ None — all questions resolved (see Self-Reflection Questions).
 ## 6. Testing Strategy
 
 ### Unit Tests
-- `TestStepTest` (flows domain): execute/validate paths with a fake port — success, test failure → `StepExecutionException` (with all specs still executed), null port, empty inputs, non-`.spec.asm` input rejected.
-- `TestStepBuilderTest` (dsl): builder produces correctly configured step; validation errors.
-- `Spec64TestPortAdapterTest`: delegates to stubbed `KickAssembleSpecUseCase` + `Run64SpecTestUseCase` (assemble before run), maps results.
-- `FlowTasksGeneratorTest` extension: task creation + injection for `TestStep`.
+- `TestStepTest` (flows domain): execute/validate paths with a fake port — success, test failure → `StepExecutionException` (with all specs still executed), null port, no specs, non-`.spec.asm` spec rejected, watched non-spec input accepted, only specs (not watched inputs) executed.
+- `TestStepBuilderTest` (dsl): builder produces correctly configured step (`specs`/`from` separation, composed `inputs`); validation errors.
+- `Spec64TestPortAdapterTest`: delegates to stubbed `KickAssembleSpecUseCase` + `Run64SpecTestUseCase` (assemble before run, `libDirs`/`defines` propagated), maps results.
+- `FlowTasksGeneratorTest` extension: task creation + injection for `TestStep`, including the `resolveDevDeps`/`downloadDeps` dependency edges.
 
 ### Integration Tests
 - `FlowDslDependencyTest`: a flow where an upstream step produces a file the `testStep` declares as input (e.g. a generated include) derives the correct task dependency; independent `testStep` runs in parallel with unrelated steps.
 
 ### Manual Testing
-- e2e against `../common` (c64lib/common, 8 real spec files — see Section 3 *Verification Project*): green specs pass with output matching the legacy `test` task, a deliberately broken assertion fails the build with the `Overall test report (n/m)` output; incremental build marks the test task UP-TO-DATE when inputs unchanged.
+- e2e against `../common` (c64lib/common, 8 real spec files — see Section 3 *Verification Project*): green specs pass with output matching the legacy `test` task, a deliberately broken assertion fails the build with the `Overall test report (n/m)` output; incremental build marks the test task UP-TO-DATE when inputs unchanged **and re-runs it when a watched `lib/` source changes**; works from a clean checkout (dependency-resolution edges).
 
 ## 7. Risks and Mitigation
 
@@ -219,7 +228,11 @@ None — all questions resolved (see Self-Reflection Questions).
 | VICE not installed/headless issues in e2e or CI environments | Medium | Medium | Keep VICE interaction behind the existing `RunTestOnVicePort`; unit tests use fakes; e2e is manual via `../common` where VICE is available |
 | Self-contained step re-assembles and re-runs all its specs when any single input changes | Low | Medium | Accepted trade-off of the multi-spec granularity decision; users can split specs across multiple `testStep`s for finer incremental builds |
 | Flows domain gaining a compile dependency on `:testing:64spec` blurs domain boundaries | Low | Medium | Accepted by design decision — only the `TestResult` value object crosses the boundary; a flows-local result type remains a cheap fallback isolated to the port signature |
-| `.specOut` produced next to spec sources pollutes the flows outputs model (outputs land in source tree, not `build/`) | Medium | Medium | Declare `.specOut` as the step's output for up-to-date checks; document; a later refactor could redirect outputs but is out of scope |
+| Stale green tests: a change to a source the specs `#import` doesn't re-run the step | High | High (without mitigation) | Mitigated by design: `specs(...)`/`from(...)` separation puts watched sources into task inputs; e2e explicitly verifies a `lib/` edit invalidates UP-TO-DATE |
+| Flow test task runs before dependency resolution (missing 64spec lib / KickAssembler jar) | High | High (without mitigation) | Mitigated by design: `TestStep` tasks `dependsOn(resolveDevDeps, downloadDeps)` (Step 3.1); e2e verifies a clean checkout |
+| Flows DSL may not be callable from Groovy build scripts (`../common` uses `build.gradle`) | Medium | Medium | Verified first in Step 3.2; fix DSL surface (`Action<T>`) in Step 2.1 or fall back to a Kotlin-DSL scratch project |
+| Two steps sharing a spec file race on the same `.prg`/`.specOut` under `--parallel` (hypothetical) | Medium | Low | Document one-spec-one-step ownership; optionally validate cross-step duplicate spec declarations in `FlowService` |
+| `.specOut` (and `.prg`/`.vs`) produced next to spec sources pollutes the flows outputs model (outputs land in source tree, not `build/`) | Medium | Medium | Declare all three derived files as step outputs for tracking; document; a later refactor could redirect outputs but is out of scope |
 | Threading `extension` into `wireFlows` disturbs existing wiring | Low | Low | Mechanical parameter addition; covered by existing build + generator tests |
 | Duplicate task-name clash if a flow step task collides with legacy `test` task | Low | Low | Flow tasks are namespaced `flow{Flow}Step{Name}`; no collision with `test` |
 
@@ -234,7 +247,7 @@ None — all questions resolved (see Self-Reflection Questions).
 ## 9. Rollout Plan
 
 1. Merge per phase behind no flag — the step is inert unless a user writes `testStep` in their DSL; legacy `asmSpec`/`test` untouched.
-2. e2e-verify against tony before release; release as part of the next minor version (new DSL capability).
+2. e2e-verify against `../common` before release; release as part of the next minor version (new DSL capability).
 3. Rollback: revert the PR(s); no data or config migration involved.
 
 ## 10. Revision History
@@ -245,6 +258,7 @@ None — all questions resolved (see Self-Reflection Questions).
 | 2026-07-17 | AI Agent | Resolved all four open questions (run-only step, `testStep` name, multi-spec granularity, flows-only lifecycle); updated Design Decisions and Step 3.1 accordingly. |
 | 2026-07-17 | AI Agent | Recorded three further decisions: reuse `TestResult` in `TestPort`, explicit-files-only DSL input, run-all-then-fail failure mode; propagated to Steps 1.1 and Risks. |
 | 2026-07-17 | AI Agent | Gap analysis: flows `assembleStep` cannot produce spec binaries (`-vicesymbols` + 64spec variables only in `KickAssembleSpecAdapter`); decision revised to **self-contained `testStep`** (assemble + run). Added `../common` (c64lib/common) as the e2e verification project. Propagated to Requirements, Gap Analysis, Relevant Code, Design Decisions, Implementation Plan, Testing Strategy, and Risks. |
+| 2026-07-17 | AI Agent | Applied red-team review findings: (1) input model reworked — `specs(...)` (what to run) vs `from(...)` (what to watch) to prevent stale green tests; (2) added dependency-resolution wiring (`resolveDevDeps`/`downloadDeps`) for test-step tasks; (3) specified `libDirs`/`defines` source (extension, as legacy `AssembleSpec`); (4) corrected `TestResult` decision rationale (first cross-domain compile dep of flows domain); (5) Groovy-DSL compatibility check added to Steps 2.1/3.2; (6) fixed stale run-only-era text in Success Criteria, Step 3.3, and Rollout; (7) `.prg`/`.vs` declared as tracked outputs; risks table extended. |
 
 ---
 
