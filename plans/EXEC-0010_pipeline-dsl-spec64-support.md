@@ -41,6 +41,5 @@
 
 ## 3. Follow-ups
 
-- **Incremental re-run vs. stale outputs in source tree** (from deviation #4): when a spec's `.prg`/`.vs`/`.specOut` already exist next to the source, editing the spec re-runs the flow task but the run may execute a not-freshly-reassembled `.prg`, masking a newly-introduced failure until the artifacts are deleted. From a clean state the feature is correct (pass/fail propagate properly). Candidate fix: declare the derived files as proper `@OutputFiles` so Gradle snapshots/restores them, or make the assemble phase unconditional per run. Worth a dedicated issue.
-- **Groovy DSL coverage for other step types** (from deviation #2): only `flow` + `testStep` got Groovy `Closure` overloads. If Groovy consumers need `assembleStep`/`commandStep`/etc., the same overload treatment (or a shared approach) should be applied across all `FlowBuilder` step methods.
-- **Build/publish note** (from deviation #3): document that `:infra:gradle:clean` must precede `publishToMavenLocal` after subproject changes so the fat jar isn't stale — candidate for CLAUDE.md and/or the `e2e-test` skill.
+- **Incremental re-run vs. stale outputs in source tree** (from deviation #4): filed as [#175](https://github.com/c64lib/gradle-retro-assembler-plugin/issues/175) — `testStep may report stale pass/fail results when derived .prg/.vs/.specOut already exist`.
+- **Groovy DSL coverage for other step types + build/publish note** (from deviations #2 and #3): filed together as [#176](https://github.com/c64lib/gradle-retro-assembler-plugin/issues/176) — `flows DSL: Groovy Closure overloads incomplete; infra/gradle publish can bundle stale subproject classes`.
