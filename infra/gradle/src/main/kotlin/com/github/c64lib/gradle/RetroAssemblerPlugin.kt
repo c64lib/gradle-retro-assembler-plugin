@@ -53,6 +53,7 @@ import com.github.c64lib.rbt.emulators.vice.adapters.out.gradle.RunTestOnViceAda
 import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowTasksGenerator
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowsExtension
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.TestTask
 import com.github.c64lib.rbt.processors.charpad.adapters.`in`.gradle.Charpad
 import com.github.c64lib.rbt.processors.goattracker.adapters.`in`.gradle.Goattracker
 import com.github.c64lib.rbt.processors.goattracker.adapters.out.gradle.ExecuteGt2RelocAdapter
@@ -127,7 +128,7 @@ class RetroAssemblerPlugin : Plugin<Project> {
       val assemble = wireSources(project, extension, settings, depTasks, preprocess)
       val runSpec = wireSpecAndTest(project, extension, settings, depTasks)
       wireBuild(project, assemble, runSpec)
-      wireFlows(project, settings, flowsExtension, assemble)
+      wireFlows(project, extension, settings, flowsExtension, assemble, depTasks)
 
       if (project.defaultTasks.isEmpty()) {
         project.defaultTasks.add(TASK_BUILD)
@@ -243,9 +244,11 @@ class RetroAssemblerPlugin : Plugin<Project> {
 
   private fun wireFlows(
       project: Project,
+      extension: RetroAssemblerPluginExtension,
       settings: KickAssemblerSettings,
       flowsExtension: FlowsExtension,
-      assemble: Task
+      assemble: Task,
+      depTasks: DependencyTasks
   ) {
     // Create KickAssembleUseCase for flow tasks that contain AssembleSteps
     val kickAssembleUseCase = KickAssembleUseCase(KickAssembleAdapter(project, settings))
@@ -253,9 +256,30 @@ class RetroAssemblerPlugin : Plugin<Project> {
     // Create DasmAssembleUseCase for flow tasks that contain DasmSteps
     val dasmAssembleUseCase = DasmAssembleUseCase(DasmAssembleAdapter(project))
 
+    // Create 64spec use cases for flow tasks that contain TestSteps (spec assembly + VICE run),
+    // constructed exactly as in wireSpecAndTest
+    val kickAssembleSpecUseCase =
+        KickAssembleSpecUseCase(KickAssembleSpecAdapter(project, settings))
+    val run64SpecTestUseCase =
+        Run64SpecTestUseCase(RunTestOnViceUseCase(RunTestOnViceAdapter(project, extension)))
+
     // Register generated flow tasks leveraging Gradle parallelization with dependency injection
-    FlowTasksGenerator(project, flowsExtension.getFlows(), kickAssembleUseCase, dasmAssembleUseCase)
+    FlowTasksGenerator(
+            project,
+            flowsExtension.getFlows(),
+            kickAssembleUseCase,
+            dasmAssembleUseCase,
+            kickAssembleSpecUseCase,
+            run64SpecTestUseCase,
+            extension)
         .registerTasks()
+
+    // Spec assembly needs the KickAssembler jar and the 64spec library (libFromGitHub); mirror the
+    // legacy asmSpec task's dependency on resolveDevDeps + downloadDependencies so that both
+    // ./gradlew flows (on a clean checkout) and ./gradlew asm order dependency resolution first.
+    project.tasks.withType(TestTask::class.java).configureEach { task ->
+      task.dependsOn(depTasks.resolveDevDeps, depTasks.downloadDependencies)
+    }
 
     // Make the asm task depend on flows task to ensure flows run before assembly
     val flowsTask = project.tasks.findByName(TASK_FLOWS)

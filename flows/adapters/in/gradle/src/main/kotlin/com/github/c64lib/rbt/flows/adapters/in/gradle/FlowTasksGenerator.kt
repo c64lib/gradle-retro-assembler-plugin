@@ -25,6 +25,7 @@ SOFTWARE.
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
 import com.github.c64lib.rbt.compilers.dasm.usecase.DasmAssembleUseCase
+import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.*
 import com.github.c64lib.rbt.flows.domain.Flow
@@ -35,6 +36,8 @@ import com.github.c64lib.rbt.flows.domain.IssueSeverity
 import com.github.c64lib.rbt.flows.domain.steps.*
 import com.github.c64lib.rbt.flows.domain.steps.CommandStep
 import com.github.c64lib.rbt.shared.gradle.TASK_FLOWS
+import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.testing.a64spec.usecase.Run64SpecTestUseCase
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -53,7 +56,10 @@ class FlowTasksGenerator(
     private val project: Project,
     private val flows: Collection<Flow>,
     private val kickAssembleUseCase: KickAssembleUseCase? = null,
-    private val dasmAssembleUseCase: DasmAssembleUseCase? = null
+    private val dasmAssembleUseCase: DasmAssembleUseCase? = null,
+    private val kickAssembleSpecUseCase: KickAssembleSpecUseCase? = null,
+    private val run64SpecTestUseCase: Run64SpecTestUseCase? = null,
+    private val extension: RetroAssemblerPluginExtension? = null
 ) {
   private val tasksByFlowName = mutableMapOf<String, Task>()
   private val stepTasks = mutableListOf<Task>()
@@ -191,6 +197,12 @@ class FlowTasksGenerator(
             configureOutputFiles(task, step)
           }
         }
+        is TestStep -> {
+          taskContainer.create(taskName, TestTask::class.java) { task ->
+            configureBaseTask(task, step, flow)
+            configureOutputFiles(task, step)
+          }
+        }
         else ->
             taskContainer.create(taskName, BaseFlowStepTask::class.java) { task ->
               configureBaseTask(task, step, flow)
@@ -224,6 +236,17 @@ class FlowTasksGenerator(
       } else {
         throw IllegalStateException(
             "DasmAssembleUseCase not provided to FlowTasksGenerator but required for DasmStep '${step.name}'")
+      }
+    }
+
+    if (task is TestTask && step is TestStep) {
+      if (kickAssembleSpecUseCase != null && run64SpecTestUseCase != null && extension != null) {
+        task.kickAssembleSpecUseCase = kickAssembleSpecUseCase
+        task.run64SpecTestUseCase = run64SpecTestUseCase
+        task.extension = extension
+      } else {
+        throw IllegalStateException(
+            "64spec use cases / extension not provided to FlowTasksGenerator but required for TestStep '${step.name}'")
       }
     }
 
@@ -294,6 +317,7 @@ class FlowTasksGenerator(
       is ImageTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
       is CommandTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
       is ExomizerTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
+      is TestTask -> task.outputFiles.setFrom(getStepOutputFiles(step))
     }
   }
 

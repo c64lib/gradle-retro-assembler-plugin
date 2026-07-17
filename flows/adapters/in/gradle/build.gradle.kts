@@ -13,6 +13,7 @@ dependencies {
   implementation(project(":shared:domain"))
   implementation(project(":compilers:kickass"))
   implementation(project(":compilers:dasm"))
+  implementation(project(":testing:64spec"))
   implementation(project(":flows:adapters:out:charpad"))
   implementation(project(":flows:adapters:out:spritepad"))
   implementation(project(":flows:adapters:out:goattracker"))
@@ -22,4 +23,6 @@ dependencies {
   implementation(project(":processors:goattracker:adapters:out:gradle"))
   implementation(project(":crunchers:exomizer"))
   implementation(project(":crunchers:exomizer:adapters:in:gradle"))
+  // Vice types are only needed to build the 64spec run use case in tests.
+  testImplementation(project(":emulators:vice"))
 }

@@ -28,6 +28,8 @@ import com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl.*
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.flows.domain.FlowArtifact
 import com.github.c64lib.rbt.flows.domain.FlowStep
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 
 /**
  * DSL builder for creating Flow definitions with processing steps.
@@ -41,6 +43,20 @@ open class FlowDslBuilder {
   fun flow(name: String, configure: FlowBuilder.() -> Unit): FlowDslBuilder {
     val flowBuilder = FlowBuilder(name)
     flowBuilder.configure()
+    flows.add(flowBuilder.build())
+    return this
+  }
+
+  /**
+   * Groovy-friendly overload: binds the closure's delegate to [FlowBuilder] so that `flow("name") {
+   * ... }` works from a Groovy `build.gradle`. Kotlin callers use the receiver-lambda overload
+   * above.
+   */
+  fun flow(name: String, @DelegatesTo(FlowBuilder::class) configure: Closure<*>): FlowDslBuilder {
+    val flowBuilder = FlowBuilder(name)
+    configure.delegate = flowBuilder
+    configure.resolveStrategy = Closure.DELEGATE_FIRST
+    configure.call(flowBuilder)
     flows.add(flowBuilder.build())
     return this
   }
@@ -185,6 +201,36 @@ class FlowBuilder(private val name: String) {
     steps.add(step)
 
     // Add artifacts for dependency tracking
+    step.inputs.forEach { input ->
+      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
+    }
+    step.outputs.forEach { output ->
+      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
+    }
+  }
+
+  /** Creates a type-safe 64spec test step. */
+  fun testStep(stepName: String, configure: TestStepBuilder.() -> Unit) {
+    val stepBuilder = TestStepBuilder(stepName)
+    stepBuilder.configure()
+    registerStep(stepName, stepBuilder.build())
+  }
+
+  /**
+   * Groovy-friendly overload of [testStep] that binds the closure's delegate to [TestStepBuilder]
+   * so that `testStep("name") { ... }` works from a Groovy `build.gradle`.
+   */
+  fun testStep(stepName: String, @DelegatesTo(TestStepBuilder::class) configure: Closure<*>) {
+    val stepBuilder = TestStepBuilder(stepName)
+    configure.delegate = stepBuilder
+    configure.resolveStrategy = Closure.DELEGATE_FIRST
+    configure.call(stepBuilder)
+    registerStep(stepName, stepBuilder.build())
+  }
+
+  /** Adds a built step and registers its input/output artifacts for dependency tracking. */
+  private fun registerStep(stepName: String, step: FlowStep) {
+    steps.add(step)
     step.inputs.forEach { input ->
       inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
     }

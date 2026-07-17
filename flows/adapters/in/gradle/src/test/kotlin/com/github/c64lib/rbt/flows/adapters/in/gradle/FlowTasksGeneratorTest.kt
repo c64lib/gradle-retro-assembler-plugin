@@ -24,13 +24,23 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
+import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecUseCase
+import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssembleSpecPort
+import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
+import com.github.c64lib.rbt.emulators.vice.usecase.port.RunTestOnVicePort
+import com.github.c64lib.rbt.emulators.vice.usecase.port.ViceParameters
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.TestTask
 import com.github.c64lib.rbt.flows.domain.Flow
+import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
+import com.github.c64lib.rbt.testing.a64spec.usecase.Run64SpecTestUseCase
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeInstanceOf
+import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.testfixtures.ProjectBuilder
 
@@ -271,6 +281,81 @@ class FlowTasksGeneratorTest :
 
           then("the top-level flows task depends on both flow tasks") {
             dependenciesOf(project, "flows") shouldBe setOf("flowLeft", "flowRight")
+          }
+        }
+      }
+
+      val noopSpecUseCase =
+          KickAssembleSpecUseCase(
+              object : KickAssembleSpecPort {
+                override fun assemble(
+                    libDirs: List<File>,
+                    defines: List<String>,
+                    resultFileName: String,
+                    source: File
+                ) {}
+              })
+      val noopRunUseCase =
+          Run64SpecTestUseCase(
+              RunTestOnViceUseCase(
+                  object : RunTestOnVicePort {
+                    override fun run(parameters: ViceParameters) {}
+                  }))
+      val extension = RetroAssemblerPluginExtension()
+
+      fun registerTestFlow(project: org.gradle.api.Project, flows: List<Flow>) =
+          FlowTasksGenerator(
+                  project,
+                  flows,
+                  kickAssembleSpecUseCase = noopSpecUseCase,
+                  run64SpecTestUseCase = noopRunUseCase,
+                  extension = extension)
+              .registerTasks()
+
+      given("a flow with a test step") {
+        val flows =
+            FlowDslBuilder()
+                .flow("verification") {
+                  testStep("specs") {
+                    specs("spec/math.spec.asm")
+                    from("lib/math.asm")
+                  }
+                }
+                .build()
+
+        `when`("registering tasks with the 64spec use cases provided") {
+          val project = newProject()
+          registerTestFlow(project, flows)
+
+          then("a TestTask is created with the flow{Flow}Step{Name} name") {
+            val task = project.tasks.findByName("flowVerificationStepSpecs")
+            task.shouldNotBeNull()
+            task.shouldBeInstanceOf<TestTask>()
+          }
+
+          then("the 64spec use cases and extension are injected") {
+            val task = project.tasks.getByName("flowVerificationStepSpecs") as TestTask
+            task.kickAssembleSpecUseCase shouldBe noopSpecUseCase
+            task.run64SpecTestUseCase shouldBe noopRunUseCase
+            task.extension shouldBe extension
+          }
+        }
+      }
+
+      given("a flow with a test step but no 64spec use cases provided") {
+        val flows =
+            FlowDslBuilder()
+                .flow("verification") { testStep("specs") { specs("spec/math.spec.asm") } }
+                .build()
+
+        `when`("registering tasks without the use cases") {
+          then("the build fails with a clear message") {
+            val project = newProject()
+            val exception =
+                shouldThrow<IllegalStateException> {
+                  FlowTasksGenerator(project, flows).registerTasks()
+                }
+            exception.message.shouldNotBeNull() shouldContain "TestStep 'specs'"
           }
         }
       }

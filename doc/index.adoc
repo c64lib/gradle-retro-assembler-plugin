@@ -1420,6 +1420,45 @@ Properties::
 - `option(name, value)` - Add named option
 - `flag(name)` - Add boolean flag
 
+==== Test Step
+
+Run https://github.com/c64lib/64spec[64spec] tests as part of a flow.
+The step is *self-contained*: for each spec it first assembles the `+*.spec.asm+` source
+(with the KickAssembler options 64spec needs) and then runs it on the VICE emulator,
+reporting per-spec and overall results.
+All specs run; the task fails afterwards if any spec fails.
+
+[source,groovy]
+----
+flows {
+    flow("verification") {
+        testStep("specs") {
+            specs("spec/math-add16.spec.asm", "spec/mem-cmp16.spec.asm")   // <1>
+            from("lib/math-global.asm", "lib/mem-global.asm")             // <2>
+        }
+    }
+}
+----
+<1> `specs(...)` — the specs to assemble and run (must be `+*.spec.asm+`).
+<2> `from(...)` — additional *watched* sources your specs `#import` (the library sources
+    under test). Editing one of these re-runs the tests, so you never get a stale green build.
+
+Properties::
+- `spec(path)` / `specs(vararg paths)` - Spec file(s) to assemble and run (each must end with `+.spec.asm+`)
+- `from(path)` / `from(vararg paths)` - Additional watched inputs (e.g. the library sources the specs import)
+
+[NOTE]
+====
+The `testStep` reuses the plugin's existing VICE and KickAssembler configuration from the
+`retroProject { }` block (`viceExecutable`, `libDirs`, `defines`, `dialectVersion`, …) — there is
+no duplicate configuration in the flow.
+The 64spec framework itself is pulled in via `libFromGitHub "c64lib/64spec", "<version>"`, and the
+step's tasks depend on dependency resolution automatically.
+
+Each spec produces `+<name>.prg+`, `+<name>.vs+`, and `+<name>.specOut+` next to the spec source.
+This test step is independent of the legacy `asmSpec`/`test` tasks — both mechanisms continue to work.
+====
+
 === Flow Dependencies
 
 Flows can depend on other flows to ensure correct execution order:

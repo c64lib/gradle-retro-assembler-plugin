@@ -14,4 +14,4 @@ Plans are permanent artifacts — do not delete. Terminal plans (`implemented`, 
 | [PLAN-0007](PLAN-0007_document-image-preprocessor.md) | 2026-07-16 | implemented | Document the PNG / Image preprocessor in the user manual | #148 | [EXEC-0007](EXEC-0007_document-image-preprocessor.md) |
 | [PLAN-0008](PLAN-0008_mark-concept-paper-historical.md) | 2026-07-17 | implemented | Mark `doc/concept` as historical, point to arc42 docs | #161 | [EXEC-0008](EXEC-0008_mark-concept-paper-historical.md) |
 | [PLAN-0009](PLAN-0009_document-crunchers-domain-in-kb.md) | 2026-07-17 | implemented | Document the `crunchers` domain in `doc/kb/domain.md` | #156 | [EXEC-0009](EXEC-0009_document-crunchers-domain-in-kb.md) |
-| [PLAN-0010](PLAN-0010_pipeline-dsl-spec64-support.md) | 2026-07-17 | draft | Pipeline DSL - support for spec64 test framework | #130 | — |
+| [PLAN-0010](PLAN-0010_pipeline-dsl-spec64-support.md) | 2026-07-17 | implemented | Pipeline DSL - support for spec64 test framework | #130 | [EXEC-0010](EXEC-0010_pipeline-dsl-spec64-support.md) |
