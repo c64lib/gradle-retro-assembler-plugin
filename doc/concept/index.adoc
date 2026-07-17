@@ -7,7 +7,7 @@
 :highlightjs-languages: assembly
 :includedir:  concept/
 
-WARNING: This document is under development!
+WARNING: This document is historical and superseded. It predates the flows, crunchers, and dasm subsystems and is no longer maintained. See the current, complete architecture reference at link:../arc42/README.md[doc/arc42/].
 
 This is initial concept paper of Retro Build Tool - an automation device to build various 8-bit targeted assembly projects.
 

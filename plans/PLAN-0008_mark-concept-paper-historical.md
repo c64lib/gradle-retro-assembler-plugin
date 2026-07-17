@@ -2,7 +2,7 @@
 
 **Plan ID**: PLAN-0008
 **Issue**: #161
-**Status**: accepted
+**Status**: implemented
 **Created**: 2026-07-17
 **Last Updated**: 2026-07-17
 
@@ -102,18 +102,18 @@ The `doc/arc42/` set (12 sections, built under PLAN-0002) fully superseded `doc/
 ### Phase 1: Add historical notice and close the loop (single deliverable)
 **Goal**: Make `doc/concept/` unambiguously marked as historical and pointed at `doc/arc42/`, and update the risk register that tracks this as debt.
 
-1. **Step 1.1**: Add historical/superseded banner to `doc/concept/index.adoc`
+1. **Step 1.1**: [x] Add historical/superseded banner to `doc/concept/index.adoc`
    - Files: `doc/concept/index.adoc`
    - Description: Replace line 10 (`WARNING: This document is under development!`) with:
      `WARNING: This document is historical and superseded. It predates the flows, crunchers, and dasm subsystems and is no longer maintained. See the current, complete architecture reference at link:../arc42/README.md[doc/arc42/].`
    - Testing: Visual check of rendered AsciiDoc (if a local AsciiDoc renderer/preview is available) or careful manual review of markup syntax; confirm relative link path resolves correctly given `doc/concept/` → `doc/arc42/README.md`.
 
-2. **Step 1.2**: Update D6 in the arc42 risk register
+2. **Step 1.2**: [x] Update D6 in the arc42 risk register
    - Files: `doc/arc42/11_risks_and_technical_debt.md`
    - Description: Update the D6 row (line 14) following the D2/D4/D5 convention: append `✅ **RESOLVED**` to the title cell, rewrite the description as "Was: {original D6 problem}. Now: {resolved state — doc/concept/index.adoc carries a historical notice pointing to doc/arc42/}", and set the last column to `Resolved via [PLAN-0008](../../plans/PLAN-0008_mark-concept-paper-historical.md) issue #161`.
    - Testing: Manual review; confirm the table still renders correctly as Markdown.
 
-3. **Step 1.3**: Verify no other doc cross-references need updating
+3. **Step 1.3**: [x] Verify no other doc cross-references need updating
    - Files: grep for `doc/concept` references across `doc/`, `README.md`, `CLAUDE.md`
    - Description: Confirm `doc/arc42/README.md:25` wording is still accurate after the change (it already says "superseded" - probably no change needed there), and check no other doc points into `doc/concept/` expecting current content.
    - Testing: `grep -rn "doc/concept" doc/ README.md CLAUDE.md` (or ripgrep equivalent) and manual review of any hits.
@@ -159,6 +159,7 @@ The `doc/arc42/` set (12 sections, built under PLAN-0002) fully superseded `doc/
 |------|------------|---------|
 | 2026-07-17 | AI Agent | Initial plan created and synced to issue #161 |
 | 2026-07-17 | AI Agent | Resolved D6-update-convention question (follows D2/D4/D5 pattern); resolved banner-wording question (replace existing WARNING); status moved draft → accepted |
+| 2026-07-17 | AI Agent | Executed all 3 steps of Phase 1 (see [EXEC-0008](EXEC-0008_mark-concept-paper-historical.md)); no deviations; status moved accepted → implemented |
 
 ---
 

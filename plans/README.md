@@ -12,4 +12,4 @@ Plans are permanent artifacts — do not delete. Terminal plans (`implemented`, 
 | [PLAN-0005](PLAN-0005_move-flows-ports-to-usecase-port.md) | 2026-07-16 | implemented | Move `flows` port interfaces from `domain/port` to `usecase/port` | #159 | [EXEC-0005](EXEC-0005_move-flows-ports-to-usecase-port.md) |
 | [PLAN-0006](PLAN-0006_extract-plugin-wiring-helpers.md) | 2026-07-16 | implemented | Extract per-domain wiring helpers from `RetroAssemblerPlugin.afterEvaluate` | #160 | [EXEC-0006](EXEC-0006_extract-plugin-wiring-helpers.md) |
 | [PLAN-0007](PLAN-0007_document-image-preprocessor.md) | 2026-07-16 | implemented | Document the PNG / Image preprocessor in the user manual | #148 | [EXEC-0007](EXEC-0007_document-image-preprocessor.md) |
-| [PLAN-0008](PLAN-0008_mark-concept-paper-historical.md) | 2026-07-17 | accepted | Mark `doc/concept` as historical, point to arc42 docs | #161 | — |
+| [PLAN-0008](PLAN-0008_mark-concept-paper-historical.md) | 2026-07-17 | implemented | Mark `doc/concept` as historical, point to arc42 docs | #161 | [EXEC-0008](EXEC-0008_mark-concept-paper-historical.md) |
