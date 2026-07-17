@@ -11,10 +11,10 @@ GEM
     asciidoctor-diagram-plantuml (1.2021.0)
     asciidoctor-kroki (0.4.0)
       asciidoctor (~> 2.0)
-    rexml (3.2.5)
+    rexml (3.4.2)
 
 PLATFORMS
-  x64-mingw32
+  x64-mingw-ucrt
   x86_64-linux
 
 DEPENDENCIES
