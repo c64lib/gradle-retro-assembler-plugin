@@ -2,7 +2,7 @@
 
 **Plan ID**: PLAN-0009
 **Issue**: #156
-**Status**: accepted
+**Status**: implemented
 **Last Updated**: 2026-07-17
 **Created**: 2026-07-17
 
@@ -104,12 +104,12 @@ _(none — resolved during planning; see below)_
 ### Phase 1: Documentation fix (single mergeable deliverable)
 **Goal**: Close the `crunchers` documentation gap in the knowledge base and record the resolution in the tech-debt tracker.
 
-1. **Step 1.1**: Add the `crunchers` paragraph to `doc/kb/domain.md`
+1. **Step 1.1** [x]: Add the `crunchers` paragraph to `doc/kb/domain.md`
    - Files: `doc/kb/domain.md`
    - Description: Insert a new paragraph immediately after the `processors`-domain paragraph (after line 17, before the `flows` paragraph), describing `crunchers` as the domain responsible for compressing/crunching binary assets, with `exomizer` as its current subdomain (wrapping the Exomizer compression tool). Match the existing prose style exactly (one domain sentence, one subdomain sentence, no headers/bullets). Append a short closing line at the end of the file pointing to `doc/arc42/05_building_block_view.md` for the complete, diagrammed domain inventory.
    - Testing: Manual read-through; confirm the new paragraph reads consistently with neighboring paragraphs and accurately reflects `crunchers/exomizer/src/main/kotlin/.../usecase/{CrunchMemUseCase,CrunchRawUseCase}.kt`.
 
-2. **Step 1.2**: Mark D1 resolved in the risks/tech-debt table
+2. **Step 1.2** [x]: Mark D1 resolved in the risks/tech-debt table
    - Files: `doc/arc42/11_risks_and_technical_debt.md`
    - Description: Update the D1 row (line 9) to follow the D6 precedent (line 14) — append "✅ **RESOLVED**" to the item name and update the "Suggested follow-up" cell to reference this plan/issue, e.g. `Resolved via PLAN-0009 issue #156`.
    - Testing: Manual read-through; verify table formatting stays intact (pipe alignment not required, GitHub-flavored Markdown renders regardless).
@@ -154,6 +154,7 @@ _(none — resolved during planning; see below)_
 | Date | Updated By | Changes |
 |------|------------|---------|
 | 2026-07-17 | AI Agent | Plan created and refined (placement + arc42 cross-reference, D1 tech-debt resolution) via interactive Q&A; both decisions confirmed matching original recommendations. Status set to accepted. |
+| 2026-07-17 | AI Agent | Execution completed via [EXEC-0009](EXEC-0009_document-crunchers-domain-in-kb.md): Steps 1.1 and 1.2 both done, no deviations. Status set to implemented. |
 
 ---
 
