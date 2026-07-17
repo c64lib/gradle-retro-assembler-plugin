@@ -15,3 +15,4 @@ Plans are permanent artifacts — do not delete. Terminal plans (`implemented`, 
 | [PLAN-0008](PLAN-0008_mark-concept-paper-historical.md) | 2026-07-17 | implemented | Mark `doc/concept` as historical, point to arc42 docs | #161 | [EXEC-0008](EXEC-0008_mark-concept-paper-historical.md) |
 | [PLAN-0009](PLAN-0009_document-crunchers-domain-in-kb.md) | 2026-07-17 | implemented | Document the `crunchers` domain in `doc/kb/domain.md` | #156 | [EXEC-0009](EXEC-0009_document-crunchers-domain-in-kb.md) |
 | [PLAN-0010](PLAN-0010_pipeline-dsl-spec64-support.md) | 2026-07-17 | implemented | Pipeline DSL - support for spec64 test framework | #130 | [EXEC-0010](EXEC-0010_pipeline-dsl-spec64-support.md) |
+| [PLAN-0011](PLAN-0011_flows-groovy-dsl-and-fat-jar-fix.md) | 2026-07-17 | accepted | Complete Groovy DSL Coverage for Flow Steps + Fix Stale Fat Jar Root Cause | #176 | — |
