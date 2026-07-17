@@ -16,7 +16,11 @@ The `spritepad` subdomain of the `processors` domain contains code that is suppo
 The `goattracker` subdomain of the `processors` domain contains code that is supposed to process GoatTracker files to extract musical assets that are consumed by the source files of the project.
 The `image` subdomain of the `processors` domain contains code that is supposed to process image files to extract graphical assets that are consumed by the source files of the project.
 
+The `crunchers` domain contains code that is supposed to compress binary assets so that they take up less space in the final build.
+The `exomizer` subdomain of the `crunchers` domain contains code that is supposed to compress binary data using the Exomizer tool.
+
 The `flows` domain contains code that is supposed to orchestrate and execute build pipelines using the Pipeline DSL.
 It provides the infrastructure for defining complex build workflows with multiple steps, dependencies, and data transformations.
 The flows domain integrates with processors and compilers to execute coordinated build tasks.
- 
+
+See [`doc/arc42/05_building_block_view.md`](../arc42/05_building_block_view.md) for the complete, diagrammed inventory of all domains and their relationships.
