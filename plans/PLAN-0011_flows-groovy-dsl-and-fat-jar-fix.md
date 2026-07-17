@@ -73,6 +73,7 @@ The `jar` task itself bundles the classes of all project dependencies by unpacki
 
 - Add 8 `Closure` overloads + shared helper + tests in `FlowDsl.kt`.
 - Replace `copySubProjectClasses` with `tasks.jar { from(<project-dep jars as zipTrees>) }` using an `artifactView` filtered to `ProjectComponentIdentifier`; delete dead configuration; simplify the self-reference; update docs/memory that prescribe the clean-first workaround.
+- Note (unchanged by this fix, flagged by `/challenge` red-team): deriving the bundled-module set from `compileClasspath` project dependencies is fully automatic, but it still silently trusts that the `compileOnly(project(...))` list (lines 83–132) is exhaustive and correct — the same trust assumption the codebase already makes today (per CLAUDE.md's existing warning about forgetting `compileOnly` in `infra/gradle`). This plan does not add new risk here, nor does it reduce the existing one; a module wired only as `testImplementation` would still compile and test green while shipping a runtime `ClassNotFoundError` for real users, exactly as today.
 
 ## 3. Relevant Code Parts
 
@@ -117,10 +118,8 @@ The `jar` task itself bundles the classes of all project dependencies by unpacki
   - **A**: Both (user decision, 2026-07-17): `FlowDslGroovyOverloadTest` in-module for all 10 overloads plus the Groovy consumer smoke test in Phase 3.
 - **Q**: Are the `sources`/`javadoc` jars in scope? They currently do not bundle subproject sources.
   - **A**: Out of scope (user decision, 2026-07-17): keep as-is; only the classes fat jar is fixed.
-
-### Unresolved Questions
-
-*(none — all resolved)*
+- **Q** (raised by `/challenge` red-team, 2026-07-17): Does the Gradle Plugin Portal release path (`publishPlugins`) actually consume `tasks.jar`, or could it package a different artifact that Phase 2's fix wouldn't reach?
+  - **A**: Verified, not just assumed — ran `./gradlew :infra:gradle:tasks --all` and `./gradlew :infra:gradle:publishPlugins --dry-run` (read-only, no plan step consumed). Findings: `publishPluginJar` is a *pre-existing, unrelated* task created by the java-gradle-plugin/plugin-publish integration that bundles "main source code" — it is a **sources jar**, not the classes fat jar, and has no bearing on this fix. The real chain is `publishPlugins` → (Maven publication) → `generateMetadataFileForPluginMavenPublication` → `:infra:gradle:jar`, and `:infra:gradle:jar` is exactly the task Step 2.1 reconfigures (it currently `dependsOn(copySubProjectClasses)`). So the Plugin Portal release **does** go through `tasks.jar` — Phase 2's fix covers the real published artifact, not just `publishToMavenLocal`. This closes the high-severity gap the challenge review raised; no plan redesign needed.
 
 ### Design Decisions
 
@@ -139,11 +138,11 @@ The `jar` task itself bundles the classes of all project dependencies by unpacki
 1. **Step 1.1**: Extract a shared closure-binding helper and converge older step methods on `registerStep`.
    - Files: `flows/adapters/in/gradle/.../FlowDsl.kt`
    - Description: add `private fun <T> bindClosure(builder: T, closure: Closure<*>): T` (sets delegate, `DELEGATE_FIRST`, calls); refactor `flow(String, Closure)`/`testStep(String, Closure)` to use it; refactor the 8 older Kotlin step methods to call `registerStep` instead of inlined registration blocks (behavior-preserving).
-   - Testing: `./gradlew :flows:adapters:in:gradle:test` — existing DSL tests stay green.
+   - Testing: `./gradlew :flows:adapters:in:gradle:test` — existing DSL tests stay green. Per `/challenge` red-team finding (low severity: this step bundles two behavior-preserving refactors — the `bindClosure` extraction and the `registerStep` convergence — with no dedicated before/after-equivalence check): run the existing DSL test suite **before** touching the 8 older step methods to capture a green baseline, then again immediately **after** the `registerStep` convergence, and confirm identical pass/fail results — call this out explicitly as two distinct test runs bracketing the convergence change, not just "stays green" in the abstract.
 2. **Step 1.2**: Add `Closure` overloads for the 8 remaining step methods.
    - Files: `flows/adapters/in/gradle/.../FlowDsl.kt`
    - Description: for each of `assembleStep`, `charpadStep`, `spritepadStep`, `goattrackerStep`, `dasmStep`, `imageStep`, `exomizerStep` add `fun xxxStep(stepName: String, @DelegatesTo(XxxStepBuilder::class) configure: Closure<*>)`; for `commandStep` add `fun commandStep(stepName: String, command: String, @DelegatesTo(CommandStepBuilder::class) configure: Closure<*>)`. Kdoc one-liner mirroring the `testStep` overload.
-   - Testing: new `FlowDslGroovyOverloadTest` (Kotlin, instantiating `object : Closure<Unit>(null) { fun doCall() { ... } }`) asserting each overload configures its builder and registers artifacts.
+   - Testing: new `FlowDslGroovyOverloadTest` (Kotlin, instantiating `object : Closure<Unit>(null) { fun doCall() { ... } }`) asserting each overload configures its builder and registers artifacts. **Additionally** (per `/challenge` red-team finding, medium severity: the plan asserted "Kotlin DSL consumers unaffected" for all 8 new pairs but only ever tested the 2 pairs shipped in PR #174) — add a companion assertion per step method that the existing **Kotlin trailing-lambda** call site (e.g. `assembleStep("x") { ... }`) still resolves to the lambda overload, not the new `Closure` overload, for all 8 newly-added pairs. Don't rely solely on the `flow`/`testStep` precedent generalizing.
 3. **Step 1.3**: Spotless + Detekt pass.
    - Files: as above
    - Description: `./gradlew :flows:adapters:in:gradle:spotlessApply detekt` — 8 near-identical overloads may trip duplication rules; keep the helper tight.
@@ -156,20 +155,24 @@ The `jar` task itself bundles the classes of all project dependencies by unpacki
 
 1. **Step 2.1**: Replace `copySubProjectClasses` with jar-level merging.
    - Files: `infra/gradle/build.gradle.kts`
+   - Prep check (per `/challenge` red-team finding, medium severity: `DuplicatesStrategy.FAIL` was asserted as a mitigation but never verified): **before** implementing, grep `src/main/resources` across all ~40 `compileOnly`-bundled subproject modules (lines 83–132) for overlapping resource filenames. Record the outcome in the plan/EXEC log either way — if collisions are found, decide the resolution (broaden the exclude, or an explicit per-module rename) before relying on `DuplicatesStrategy.FAIL` to merely detect the problem at build time.
    - Description: delete the `tasks { copySubProjectClasses ... }` block (lines 30–53), the `dependsOn` wiring (line 55), the `mustRunAfter` (line 57), and the unused `resolvableImplementation` configuration (lines 21–27). Configure instead:
      ```kotlin
-     val bundledProjectJars = configurations.compileClasspath.get().incoming
-         .artifactView { componentFilter { it is ProjectComponentIdentifier } }
-         .files
+     val bundledProjectJars: Provider<List<FileTree>> = provider {
+       configurations.compileClasspath.get().incoming
+           .artifactView { componentFilter { it is ProjectComponentIdentifier } }
+           .files
+           .map { zipTree(it) }
+     }
      tasks.jar {
-       from(bundledProjectJars.elements.map { jars -> jars.map { zipTree(it) } }) {
+       from(bundledProjectJars) {
          exclude("META-INF/**")
        }
        duplicatesStrategy = DuplicatesStrategy.FAIL
      }
      ```
-     (`DuplicatesStrategy.FAIL` surfaces accidental class collisions between subprojects instead of silently picking one.)
-   - Testing: `./gradlew :infra:gradle:clean :infra:gradle:jar` then `unzip -l`/`javap` — jar contains `com/github/c64lib/rbt/**` classes, plugin descriptor intact, no duplicates error.
+     (`DuplicatesStrategy.FAIL` surfaces accidental class collisions between subprojects instead of silently picking one. Per `/challenge` red-team finding, medium severity: the plan's original snippet called `configurations.compileClasspath.get()` directly at configuration time, which — despite the Risks table calling the wiring "lazy" — forced eager resolution before any `artifactView` laziness could apply. Wrapping the whole resolution in `provider { }` defers `compileClasspath` resolution to execution/task-graph time as actually claimed; verify this holds with `--dry-run` showing no premature resolution warnings and a `--configuration-cache` trial if convenient.)
+   - Testing: `./gradlew :infra:gradle:clean :infra:gradle:jar` then `unzip -l`/`javap` — jar contains `com/github/c64lib/rbt/**` classes, plugin descriptor intact, no duplicates error (informed by the prep-check outcome above).
 2. **Step 2.2**: Verify incremental correctness (the reproduction scenarios).
    - Files: none (verification step)
    - Description: (a) add a probe method to `FlowBuilder`, run `:infra:gradle:jar` *without clean*, `javap` confirms presence; (b) add then delete a probe class, rebuild *without clean*, confirm absence; (c) `./gradlew publishToMavenLocal` without clean reflects a fresh change in `~/.m2/.../gradle-1.8.1-SNAPSHOT.jar`. Revert probes.
@@ -200,7 +203,8 @@ The `jar` task itself bundles the classes of all project dependencies by unpacki
 ### Unit Tests
 
 - `FlowDslGroovyOverloadTest` in `flows/adapters/in/gradle/src/test/kotlin/...`: for each of the 8 overloads, build a `Closure` from Kotlin, invoke via `FlowBuilder`, assert the step lands in the built `Flow` with expected inputs/outputs. (There are currently **no** Closure-overload tests, even for `flow`/`testStep` — cover those two as well.)
-- Existing `TestStepBuilderTest`, `FlowTasksGeneratorTest` etc. remain green (regression guard for the `registerStep` convergence).
+- **Kotlin lambda-overload-resolution assertions** (added per `/challenge` red-team finding): for each of the 8 newly-added step methods, a companion test/assertion that the existing Kotlin trailing-lambda call site still resolves to the `XxxStepBuilder.() -> Unit` overload, not the new `Closure` overload — don't rely solely on the `flow`/`testStep` precedent from PR #174 generalizing untested to 8 more methods.
+- Existing `TestStepBuilderTest`, `FlowTasksGeneratorTest` etc. remain green (regression guard for the `registerStep` convergence) — run once as a baseline **before** the Step 1.1 `registerStep` convergence and again **after**, per the two-run bracketing note added to Step 1.1.
 
 ### Integration Tests
 
@@ -216,12 +220,13 @@ The `jar` task itself bundles the classes of all project dependencies by unpacki
 
 | Risk | Impact | Probability | Mitigation |
 |------|--------|-------------|------------|
-| `zipTree` merging changes jar layout subtly (services files, module-info, duplicate resources) | Medium | Medium | `DuplicatesStrategy.FAIL` + before/after `unzip -l` diff of jar contents in Step 2.1; `META-INF/**` excluded as today |
-| `artifactView`/`componentFilter` resolves at configuration time and behaves differently under `--parallel` or future Gradle versions (project on Gradle 7.6, already emitting 8.0 deprecations) | Medium | Low | Lazy wiring via `files.elements.map`; verify with `--parallel` run in Step 2.2 |
+| `zipTree` merging changes jar layout subtly (services files, module-info, duplicate resources) | Medium | Medium | `DuplicatesStrategy.FAIL` + before/after `unzip -l` diff of jar contents in Step 2.1; `META-INF/**` excluded as today; **prep check** (grep all bundled modules' `src/main/resources` for filename collisions) run before implementation, not assumed away |
+| `configurations.compileClasspath.get()` resolves eagerly at configuration time if called directly, undermining "lazy wiring" under `--parallel` or future Gradle versions (project on Gradle 7.6, already emitting 8.0 deprecations) | Medium | Low | **Resolved in the Step 2.1 snippet**: the whole `compileClasspath` resolution is now wrapped in `provider { }` so it defers to execution/task-graph time, not just the `artifactView` call; verify with `--dry-run` and a `--parallel` run in Step 2.2 |
 | Stale classes already sitting in `infra/gradle/build/classes` from the old mechanism pollute the first post-fix build | Low | High | One-time `:infra:gradle:clean` when the fix lands (called out in EXEC log + PR description); afterwards clean is never needed |
 | 8 new overloads bloat `FlowBuilder` past Detekt complexity/length limits | Low | Medium | Shared `bindClosure` helper keeps each overload to ~3 lines; Detekt run in Step 1.3 |
-| Groovy `Closure` overload resolution ambiguity for Kotlin callers (lambda vs SAM) | Low | Low | Same shape as the already-shipped `flow`/`testStep` pair, proven in PR #174 with tony unaffected |
-| Plugin-portal publish (`publishPlugins`, plugin-publish 0.14.0) packages a different artifact than `tasks.jar` | High | Low | Verify `publishPluginJar`/`publishPlugins --validate-only` (or inspect task wiring) uses the configured `jar` output in Step 2.2 |
+| Groovy `Closure` overload resolution ambiguity for Kotlin callers (lambda vs SAM) | Low | Low | Same shape as the already-shipped `flow`/`testStep` pair, proven in PR #174 with tony unaffected; **now also unit-tested per-method** in Step 1.2 rather than relying on the 2-method precedent alone |
+| Plugin-portal publish (`publishPlugins`, plugin-publish 0.14.0) packages a different artifact than `tasks.jar` | ~~High~~ Resolved | — | **Verified, not just mitigated** (2026-07-17): `./gradlew :infra:gradle:publishPlugins --dry-run` traced confirms `publishPlugins` → Maven publication → `generateMetadataFileForPluginMavenPublication` → `:infra:gradle:jar`, the exact task Step 2.1 reconfigures. `publishPluginJar` is an unrelated pre-existing sources-jar task and was a false lead. See Section 4 Self-Reflection Questions. |
+| Bundled-module set is derived automatically from `compileClasspath` project dependencies, but still silently trusts the `compileOnly(project(...))` list is exhaustive/correct | Low | Low | Not new or newly mitigated by this plan — same trust assumption the codebase already makes today (CLAUDE.md's existing `infra/gradle` `compileOnly` warning); noted for awareness, no action required in this plan |
 
 ## 8. Documentation Updates
 
@@ -242,6 +247,7 @@ The `jar` task itself bundles the classes of all project dependencies by unpacki
 |------|------------|---------|
 | 2026-07-17 | AI Agent | Plan created from root-cause investigation of the stale fat jar (reproduced deletion-staleness; fix upgraded from documentation to build-script change). |
 | 2026-07-17 | AI Agent | Resolved both open questions (unit tests + e2e for overloads; sources/javadoc jars out of scope); accepted. |
+| 2026-07-17 | AI Agent | Applied `/challenge` red-team findings on Phase 2: verified (via `publishPlugins --dry-run`) that the Plugin Portal release path consumes `tasks.jar`, closing the plan's one high-severity gap; fixed the Step 2.1 snippet's eager `compileClasspath` resolution with `provider { }`; added a resource-collision prep check before relying on `DuplicatesStrategy.FAIL`; added Kotlin-lambda-overload-resolution tests alongside the Groovy-Closure tests in Step 1.2; added before/after baseline test runs bracketing the Step 1.1 `registerStep` convergence; noted (without new mitigation) that automatic module-bundling still trusts the existing `compileOnly` dependency list. Design decision (artifactView + zipTree) unchanged — confirmed sound. |
 
 ---
 
