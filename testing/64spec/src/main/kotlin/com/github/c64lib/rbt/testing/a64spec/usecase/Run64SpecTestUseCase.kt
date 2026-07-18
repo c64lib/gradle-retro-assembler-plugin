@@ -28,13 +28,26 @@ import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceCommand
 import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
 import java.io.File
 
+/**
+ * Runs a 64spec spec on VICE and parses its `.specOut` result.
+ *
+ * The `.specOut` file is written by the 64spec test program running *inside* VICE, so a stale file
+ * from a previous run is deleted before VICE starts, and its absence afterward is a hard failure —
+ * a result is never read unless this run produced it.
+ */
 class Run64SpecTestUseCase(private val runTestOnViceUseCase: RunTestOnViceUseCase) {
   fun apply(testSource: File): TestResult {
+    val resultFile = File(resultFile(testSource))
+    resultFile.delete()
     runTestOnViceUseCase.apply(
         RunTestOnViceCommand(
             autostart = File(prgFile(testSource.absoluteFile)),
             monCommands = File(viceSymbolFile(testSource))))
-    val resultFile = File(resultFile(testSource))
+    if (!resultFile.exists()) {
+      throw IllegalStateException(
+          "Spec '${testSource.name}' did not produce a result file: expected " +
+              "'${resultFile.path}' after running VICE")
+    }
     return parseTestOutput(fromPetscii(resultFile.readBytes()))
   }
 

@@ -2,7 +2,7 @@
 
 **Plan ID**: PLAN-0013
 **Issue**: #175
-**Status**: accepted
+**Status**: implemented
 **Created**: 2026-07-18
 **Last Updated**: 2026-07-18
 
@@ -160,10 +160,11 @@ _None — all resolved._
 
 ## 5. Implementation Plan
 
-### Phase 1: Harden Run64SpecTestUseCase (core fix)
+### Phase 1: Harden Run64SpecTestUseCase (core fix) — ✅ completed
+
 **Goal**: Guarantee every `.specOut` read reflects the current run, or fails loudly.
 
-1. **Step 1.1**: Delete the stale `.specOut` at the start of the run use case, before VICE.
+1. - [x] **Step 1.1**: Delete the stale `.specOut` at the start of the run use case, before VICE.
    - Files: `testing/64spec/src/main/kotlin/.../usecase/Run64SpecTestUseCase.kt`
    - Description: At the top of `apply`, before the `runTestOnViceUseCase.apply(...)` call, delete the
      spec's `.specOut` if present, using the `resultFile` helper. Deletion must be tolerant of an
@@ -174,7 +175,7 @@ _None — all resolved._
      result read afterwards belongs to this run.
    - Testing: unit test asserting `.specOut` is removed before the VICE port is invoked, and that
      `.prg`/`.vs` are left intact.
-2. **Step 1.2**: Guard the result-file read after the run.
+2. - [x] **Step 1.2**: Guard the result-file read after the run.
    - Files: `testing/64spec/src/main/kotlin/.../usecase/Run64SpecTestUseCase.kt`
    - Description: After the VICE run and before `readBytes()`, check `resultFile.exists()`; if it does
      not, throw a descriptive exception naming the spec and the expected `.specOut` path, so a run
@@ -184,10 +185,11 @@ _None — all resolved._
 **Phase 1 Deliverable**: The core correctness fix, contained in one module and mergeable on its own —
 stale reads are eliminated and missing results fail the build, for both flows and the legacy task.
 
-### Phase 2: Regression tests
+### Phase 2: Regression tests — ✅ completed
+
 **Goal**: Lock in the fixed behaviour with automated coverage.
 
-1. **Step 2.1**: Add `src/test` to the `testing/64spec` module for `Run64SpecTestUseCase`.
+1. - [x] **Step 2.1**: Add `src/test` to the `testing/64spec` module for `Run64SpecTestUseCase`.
    - Files: `testing/64spec/src/test/kotlin/.../usecase/Run64SpecTestUseCaseTest.kt`
      (and `parseTestOutput`/`fromPetscii` coverage if convenient)
    - Description: Fake `RunTestOnVicePort`. Cover the full lifecycle in one place:
@@ -203,15 +205,16 @@ stale reads are eliminated and missing results fail the build, for both flows an
 **Phase 2 Deliverable**: Regression suite covering stale-artifact and missing-result scenarios,
 entirely within `testing/64spec`.
 
-### Phase 3: Verification and docs
+### Phase 3: Verification and docs — ✅ completed
+
 **Goal**: Confirm the real-world scenario and record the invariant.
 
-1. **Step 3.1**: E2E verification against a real spec project.
+1. - [x] **Step 3.1**: E2E verification against a real spec project.
    - Files: n/a (uses `c64lib/common` or the `e2e-test` harness)
    - Description: Reproduce the issue's steps — run `flowVerificationStepSpecs`, break an assertion
      **without** deleting artifacts, re-run, and confirm the build now fails with the corrected count.
    - Testing: manual/e2e per the reproduction in issue #175.
-2. **Step 3.2**: Document the invariant.
+2. - [x] **Step 3.2**: Document the invariant.
    - Files: `CLAUDE.md` (Flows Subdomain Patterns or a 64spec note), inline Kdoc on the run use case.
    - Description: State that the stale `.specOut` is deleted before each run and a missing `.specOut`
      afterwards is a hard failure, so spec results never go stale.
@@ -247,11 +250,11 @@ entirely within `testing/64spec`.
 
 ## 8. Documentation Updates
 
-- [ ] Update CLAUDE.md (flows/64spec) with the "stale `.specOut` deleted before each run; missing
+- [x] Update CLAUDE.md (flows/64spec) with the "stale `.specOut` deleted before each run; missing
       `.specOut` is a hard failure" invariant.
-- [ ] Add inline Kdoc to `Run64SpecTestUseCase.apply` (deletes stale `.specOut` before the run, guards
+- [x] Add inline Kdoc to `Run64SpecTestUseCase.apply` (deletes stale `.specOut` before the run, guards
       result-file existence after).
-- [ ] No README/arc42 architecture change (no new port/domain/wiring).
+- [x] No README/arc42 architecture change (no new port/domain/wiring) — confirmed, none needed.
 
 ## 9. Rollout Plan
 
@@ -267,6 +270,7 @@ entirely within `testing/64spec`.
 | 2026-07-18 | AI Agent | Initial draft. |
 | 2026-07-18 | AI Agent | Resolved fix-location question: whole fix in `Run64SpecTestUseCase` (run-side), `KickAssembleSpecUseCase` untouched. Narrowed run-side deletion to **`.specOut` only** — `.prg`/`.vs` must survive into VICE autostart since the caller assembles immediately before running. Propagated through overview, gap analysis, architecture, phases, tests, and risks. |
 | 2026-07-18 | AI Agent | Status → accepted (all Unresolved Questions resolved). |
+| 2026-07-18 | AI Agent | Status → implemented. All 5 steps executed and verified (see [EXEC-0013](EXEC-0013_teststep-stale-spec-results.md)): `/challenge` review before execution caught that `Spec64TestPortAdapterTest.kt` would break, fixed inline; e2e-verified the exact #175 repro against `c64lib/common`'s legacy `Run64Spec` task (flows `testStep` shares the same use case); CLAUDE.md and Kdoc updated. |
 
 ---
 

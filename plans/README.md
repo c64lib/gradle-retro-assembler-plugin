@@ -17,4 +17,4 @@ Plans are permanent artifacts — do not delete. Terminal plans (`implemented`, 
 | [PLAN-0010](PLAN-0010_pipeline-dsl-spec64-support.md) | 2026-07-17 | implemented | Pipeline DSL - support for spec64 test framework | #130 | [EXEC-0010](EXEC-0010_pipeline-dsl-spec64-support.md) |
 | [PLAN-0011](PLAN-0011_flows-groovy-dsl-and-fat-jar-fix.md) | 2026-07-17 | implemented | Complete Groovy DSL Coverage for Flow Steps + Fix Stale Fat Jar Root Cause | #176 | [EXEC-0011](EXEC-0011_flows-groovy-dsl-and-fat-jar-fix.md) |
 | [PLAN-0012](PLAN-0012_flows-user-documentation.md) | 2026-07-18 | implemented | Extend User Documentation with Flows Capabilities | #178 | [EXEC-0012](EXEC-0012_flows-user-documentation.md) |
-| [PLAN-0013](PLAN-0013_teststep-stale-spec-results.md) | 2026-07-18 | accepted | Fix stale pass/fail results in testStep when derived artifacts already exist | #175 | — |
+| [PLAN-0013](PLAN-0013_teststep-stale-spec-results.md) | 2026-07-18 | implemented | Fix stale pass/fail results in testStep when derived artifacts already exist | #175 | [EXEC-0013](EXEC-0013_teststep-stale-spec-results.md) |
