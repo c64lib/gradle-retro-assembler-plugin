@@ -2,7 +2,7 @@
 
 **Plan ID**: PLAN-0012
 **Issue**: #178
-**Status**: accepted
+**Status**: implemented
 **Created**: 2026-07-18
 **Last Updated**: 2026-07-18
 
@@ -202,7 +202,7 @@ _None — all resolved._
 **Goal**: Establish the expanded section skeleton and document the two behaviours the issue
 explicitly names, so the highest-value gap is closed first and independently mergeable.
 
-1. **Step 1.1**: Reorganise the "Pipeline DSL (Experimental)" section outline.
+1. **Step 1.1** — [x] done: Reorganise the "Pipeline DSL (Experimental)" section outline.
    - Files: `doc/index.adoc`
    - Description: Keep the Experimental warning and the `preprocess`-is-default note. Establish
      subsection order: Basics → Step Types → Path Helpers → Parallel Execution → Change
@@ -210,7 +210,7 @@ explicitly names, so the highest-value gap is closed first and independently mer
      Complete Example. Add a short intro paragraph. (Per Q2, no diagrams — text + code only.)
    - Testing: `./gradlew asciidoctor` renders without errors.
 
-2. **Step 1.2**: Write the **Parallel Execution** subsection.
+2. **Step 1.2** — [x] done: Write the **Parallel Execution** subsection.
    - Files: `doc/index.adoc`
    - Description: Explain that step ordering within a flow is derived solely from file
      input/output relationships (`FlowTasksGenerator.setupFileDependencies`), that independent
@@ -220,7 +220,7 @@ explicitly names, so the highest-value gap is closed first and independently mer
      wording for consistency.
    - Testing: Renders; wording cross-checked against `FlowTasksGenerator.kt:52-54,78-80,125,329`.
 
-3. **Step 1.3**: Write the **Change Detection & Incremental Builds** subsection.
+3. **Step 1.3** — [x] done: Write the **Change Detection & Incremental Builds** subsection.
    - Files: `doc/index.adoc`
    - Description: Explain Gradle up-to-date checking via `@InputFiles`/`@OutputDirectory`
      (`BaseFlowStepTask`), that `inputs`/`outputs` (`from`/`to`) drive re-runs, that assembly
@@ -236,14 +236,14 @@ accurately — the issue's named requirements — even before every step is expa
 ### Phase 2: Step Type Reference (mergeable: complete, accurate step catalogue)
 **Goal**: Every step type documented accurately with a realistic example and properties list.
 
-1. **Step 2.1**: Add **`dasmStep`** and **`exomizerStep`** (currently undocumented).
+1. **Step 2.1** — [x] done: Add **`dasmStep`** and **`exomizerStep`** (currently undocumented).
    - Files: `doc/index.adoc`
    - Description: New subsections with Kotlin + Groovy examples and **full parameter tables**
      (Q1: exhaustive, including exomizer `raw{}`/`mem{}` modes and dasm output/verboseness/error
      options).
    - Testing: Methods/defaults verified against `DasmStepBuilder.kt`, `ExomizerStepBuilder.kt`.
 
-2. **Step 2.2**: Expand **`charpadStep`** and **`imageStep`**.
+2. **Step 2.2** — [x] done: Expand **`charpadStep`** and **`imageStep`**.
    - Files: `doc/index.adoc`
    - Description: Per Q4 — fully document CharPad output types and `nybbler{}`/`interleaver{}`
      filters, and the Image transformation pipeline (`cut/split/extend/flip/reduceResolution`)
@@ -251,7 +251,7 @@ accurately — the issue's named requirements — even before every step is expa
      `from/to`-only example. Kotlin + Groovy examples.
    - Testing: Verified against `CharpadStepBuilder.kt`, `ImageStepBuilder.kt`.
 
-3. **Step 2.3**: Correct and round out the remaining steps.
+3. **Step 2.3** — [x] done: Correct and round out the remaining steps.
    - Files: `doc/index.adoc`
    - Description: Verify/fix `assembleStep` (add `outputFormat`, `srcDirs`, `watchFiles`),
      `spritepadStep` (confirm SPD `.spr` input, format/optimization/exportRaw props),
@@ -263,13 +263,13 @@ accurately — the issue's named requirements — even before every step is expa
 ### Phase 3: Path Helpers, Task Naming, Examples & Polish (mergeable: finished section)
 **Goal**: Cover the remaining cross-cutting DSL surface and finalise examples.
 
-1. **Step 3.1**: Write the **Path Helpers** subsection.
+1. **Step 3.1** — [x] done: Write the **Path Helpers** subsection.
    - Files: `doc/index.adoc`
    - Description: Document `from()`/`to()` (single + vararg) generally, and the
      Command-step-specific `useFrom(index)`/`useTo(index)` with the DRY example from CLAUDE.md.
    - Testing: Verified against `CommandStepBuilder.kt:191,235`.
 
-2. **Step 3.2**: Write the **Task Naming & Build Integration** subsection.
+2. **Step 3.2** — [x] done: Write the **Task Naming & Build Integration** subsection.
    - Files: `doc/index.adoc`
    - Description: Document task names `flows`, `flow{Flow}`, `flow{Flow}Step{Step}`; that
      `./gradlew flows` runs all flows and `asm`/`assemble` depend on `flows`; and the
@@ -277,7 +277,7 @@ accurately — the issue's named requirements — even before every step is expa
      Execution Order".
    - Testing: Verified against `FlowTasksGenerator.kt:82,92,367` and `RetroAssemblerPlugin.kt:284-287`.
 
-3. **Step 3.3**: Refresh the **Complete Example** and add Kotlin/Groovy coverage per Q3.
+3. **Step 3.3** — [x] done: Refresh the **Complete Example** and add Kotlin/Groovy coverage per Q3.
    - Files: `doc/index.adoc`
    - Description: Update the end-to-end example to exercise multiple steps + a `dependsOn`,
      ensuring every method used exists. Provide it in both Kotlin (`.kts`) and Groovy (Q3).
@@ -319,7 +319,7 @@ accurately — the issue's named requirements — even before every step is expa
 - [x] This IS the documentation update (`doc/index.adoc`).
 - [ ] `README.md` — no change needed (it only links to the manual).
 - [ ] `CLAUDE.md` — no new pattern introduced; no change expected.
-- [ ] `CHANGES.adoc` — optionally add a changelog entry noting expanded flows documentation.
+- [x] `CHANGES.adoc` — added a changelog entry (#178) under `1.8.0::`.
 - [ ] Cross-check against `doc/arc42/building-blocks/flows.md` (internal) — no edit expected,
       read-only accuracy reference.
 
@@ -338,6 +338,8 @@ accurately — the issue's named requirements — even before every step is expa
 | 2026-07-18 | AI Agent | Initial draft created for issue #178 |
 | 2026-07-18 | AI Agent | Resolved Q1–Q4: full parameter tables for all steps, Kotlin+Groovy examples throughout, no diagrams. Propagated into requirements, Phase 2/3 steps, and risks. |
 | 2026-07-18 | AI Agent | Status → accepted (no unresolved questions). |
+| 2026-07-18 | AI Agent | Status → in progress; execution started (EXEC-0012). |
+| 2026-07-18 | AI Agent | All steps 1.1–3.3 completed. Rewrote the Pipeline DSL section of `doc/index.adoc` (all 9 steps documented with full tables + Kotlin/Groovy examples, parallel-execution/change-detection/task-naming subsections) and added a `CHANGES.adoc` entry (#178). `:doc:asciidoctor` renders clean (BUILD SUCCESSFUL). Status → implemented. See EXEC-0012 for the per-step log and deviations. |
 
 ---
 

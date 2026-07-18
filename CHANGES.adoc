@@ -1,6 +1,7 @@
 = Change log
 
 1.8.0::
+* Documentation: Expand flows Pipeline DSL manual with full step reference, parallel-execution and change-detection sections (#178)
 * Processors: Add GoatTracker music processor support (#122)
 * Processors: Enhance PNG image processor step support (#121)
 * Processors: Improve SpritePad asset processor functionality (#119)
