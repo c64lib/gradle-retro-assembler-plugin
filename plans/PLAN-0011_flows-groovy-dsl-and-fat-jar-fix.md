@@ -2,9 +2,9 @@
 
 **Plan ID**: PLAN-0011
 **Issue**: #176
-**Status**: accepted
+**Status**: implemented
 **Created**: 2026-07-17
-**Last Updated**: 2026-07-17
+**Last Updated**: 2026-07-18
 
 ## 1. Feature Description
 
@@ -135,15 +135,15 @@ The `jar` task itself bundles the classes of all project dependencies by unpacki
 ### Phase 1: Groovy DSL overloads (flows domain)
 **Goal**: Every step type callable from Groovy `build.gradle`.
 
-1. **Step 1.1**: Extract a shared closure-binding helper and converge older step methods on `registerStep`.
+1. **Step 1.1** [x]: Extract a shared closure-binding helper and converge older step methods on `registerStep`.
    - Files: `flows/adapters/in/gradle/.../FlowDsl.kt`
    - Description: add `private fun <T> bindClosure(builder: T, closure: Closure<*>): T` (sets delegate, `DELEGATE_FIRST`, calls); refactor `flow(String, Closure)`/`testStep(String, Closure)` to use it; refactor the 8 older Kotlin step methods to call `registerStep` instead of inlined registration blocks (behavior-preserving).
    - Testing: `./gradlew :flows:adapters:in:gradle:test` — existing DSL tests stay green. Per `/challenge` red-team finding (low severity: this step bundles two behavior-preserving refactors — the `bindClosure` extraction and the `registerStep` convergence — with no dedicated before/after-equivalence check): run the existing DSL test suite **before** touching the 8 older step methods to capture a green baseline, then again immediately **after** the `registerStep` convergence, and confirm identical pass/fail results — call this out explicitly as two distinct test runs bracketing the convergence change, not just "stays green" in the abstract.
-2. **Step 1.2**: Add `Closure` overloads for the 8 remaining step methods.
+2. **Step 1.2** [x]: Add `Closure` overloads for the 8 remaining step methods.
    - Files: `flows/adapters/in/gradle/.../FlowDsl.kt`
    - Description: for each of `assembleStep`, `charpadStep`, `spritepadStep`, `goattrackerStep`, `dasmStep`, `imageStep`, `exomizerStep` add `fun xxxStep(stepName: String, @DelegatesTo(XxxStepBuilder::class) configure: Closure<*>)`; for `commandStep` add `fun commandStep(stepName: String, command: String, @DelegatesTo(CommandStepBuilder::class) configure: Closure<*>)`. Kdoc one-liner mirroring the `testStep` overload.
    - Testing: new `FlowDslGroovyOverloadTest` (Kotlin, instantiating `object : Closure<Unit>(null) { fun doCall() { ... } }`) asserting each overload configures its builder and registers artifacts. **Additionally** (per `/challenge` red-team finding, medium severity: the plan asserted "Kotlin DSL consumers unaffected" for all 8 new pairs but only ever tested the 2 pairs shipped in PR #174) — add a companion assertion per step method that the existing **Kotlin trailing-lambda** call site (e.g. `assembleStep("x") { ... }`) still resolves to the lambda overload, not the new `Closure` overload, for all 8 newly-added pairs. Don't rely solely on the `flow`/`testStep` precedent generalizing.
-3. **Step 1.3**: Spotless + Detekt pass.
+3. **Step 1.3** [x]: Spotless + Detekt pass.
    - Files: as above
    - Description: `./gradlew :flows:adapters:in:gradle:spotlessApply detekt` — 8 near-identical overloads may trip duplication rules; keep the helper tight.
    - Testing: `./gradlew :flows:adapters:in:gradle:check`
@@ -153,7 +153,7 @@ The `jar` task itself bundles the classes of all project dependencies by unpacki
 ### Phase 2: Fat jar root-cause fix (infra)
 **Goal**: Correct, incremental fat-jar assembly; no clean-first workflow.
 
-1. **Step 2.1**: Replace `copySubProjectClasses` with jar-level merging.
+1. **Step 2.1** [x]: Replace `copySubProjectClasses` with jar-level merging.
    - Files: `infra/gradle/build.gradle.kts`
    - Prep check (per `/challenge` red-team finding, medium severity: `DuplicatesStrategy.FAIL` was asserted as a mitigation but never verified): **before** implementing, grep `src/main/resources` across all ~40 `compileOnly`-bundled subproject modules (lines 83–132) for overlapping resource filenames. Record the outcome in the plan/EXEC log either way — if collisions are found, decide the resolution (broaden the exclude, or an explicit per-module rename) before relying on `DuplicatesStrategy.FAIL` to merely detect the problem at build time.
    - Description: delete the `tasks { copySubProjectClasses ... }` block (lines 30–53), the `dependsOn` wiring (line 55), the `mustRunAfter` (line 57), and the unused `resolvableImplementation` configuration (lines 21–27). Configure instead:
@@ -173,11 +173,11 @@ The `jar` task itself bundles the classes of all project dependencies by unpacki
      ```
      (`DuplicatesStrategy.FAIL` surfaces accidental class collisions between subprojects instead of silently picking one. Per `/challenge` red-team finding, medium severity: the plan's original snippet called `configurations.compileClasspath.get()` directly at configuration time, which — despite the Risks table calling the wiring "lazy" — forced eager resolution before any `artifactView` laziness could apply. Wrapping the whole resolution in `provider { }` defers `compileClasspath` resolution to execution/task-graph time as actually claimed; verify this holds with `--dry-run` showing no premature resolution warnings and a `--configuration-cache` trial if convenient.)
    - Testing: `./gradlew :infra:gradle:clean :infra:gradle:jar` then `unzip -l`/`javap` — jar contains `com/github/c64lib/rbt/**` classes, plugin descriptor intact, no duplicates error (informed by the prep-check outcome above).
-2. **Step 2.2**: Verify incremental correctness (the reproduction scenarios).
+2. **Step 2.2** [x]: Verify incremental correctness (the reproduction scenarios).
    - Files: none (verification step)
    - Description: (a) add a probe method to `FlowBuilder`, run `:infra:gradle:jar` *without clean*, `javap` confirms presence; (b) add then delete a probe class, rebuild *without clean*, confirm absence; (c) `./gradlew publishToMavenLocal` without clean reflects a fresh change in `~/.m2/.../gradle-1.8.1-SNAPSHOT.jar`. Revert probes.
    - Testing: as described; also `./gradlew build` full pass.
-3. **Step 2.3**: Retire the workaround documentation.
+3. **Step 2.3** [x]: Retire the workaround documentation.
    - Files: `.claude/skills/e2e-test/SKILL.md` (if it prescribes clean-first), team memory note `infra-gradle-fat-jar-stale.md`, `doc/arc42/08_crosscutting_concepts.md` (if fat-jar assembly is described)
    - Description: remove/replace clean-first guidance with a note that `jar` now merges subproject jars with proper dependencies; update the arc42 concept if it documents the old mechanism.
    - Testing: doc review only.
@@ -187,11 +187,11 @@ The `jar` task itself bundles the classes of all project dependencies by unpacki
 ### Phase 3: End-to-end verification
 **Goal**: Prove both streams against real consumers.
 
-1. **Step 3.1**: e2e against tony (Kotlin DSL consumer).
+1. **Step 3.1** [blocked]: e2e against tony (Kotlin DSL consumer). Blocked — pre-existing tony flow-validation bug (`Artifact path ''` produced by multiple flows), confirmed present on `develop` before this plan; see EXEC-0011 for details and follow-up.
    - Files: none
    - Description: via `e2e-test` skill — publish 1.8.1-SNAPSHOT (no manual clean!) and run tony's `flows`.
    - Testing: expected artifacts produced; publish-without-clean exercises the Phase 2 fix on the real path.
-2. **Step 3.2**: e2e against `../common` (Groovy DSL consumer).
+2. **Step 3.2** [x]: e2e against `../common` (Groovy DSL consumer).
    - Files: scratch edits to `C:/Users/maciek/prj/cbm/common/build.gradle` (reverted afterwards, as in EXEC-0010 step 3.2)
    - Description: exercise at least `assembleStep` and one processor step (e.g. `charpadStep` or `commandStep`) from Groovy syntax; confirm no `Could not find method` errors.
    - Testing: configuration phase succeeds; steps execute or fail only for environmental reasons (missing assets), not DSL binding.
@@ -248,6 +248,8 @@ The `jar` task itself bundles the classes of all project dependencies by unpacki
 | 2026-07-17 | AI Agent | Plan created from root-cause investigation of the stale fat jar (reproduced deletion-staleness; fix upgraded from documentation to build-script change). |
 | 2026-07-17 | AI Agent | Resolved both open questions (unit tests + e2e for overloads; sources/javadoc jars out of scope); accepted. |
 | 2026-07-17 | AI Agent | Applied `/challenge` red-team findings on Phase 2: verified (via `publishPlugins --dry-run`) that the Plugin Portal release path consumes `tasks.jar`, closing the plan's one high-severity gap; fixed the Step 2.1 snippet's eager `compileClasspath` resolution with `provider { }`; added a resource-collision prep check before relying on `DuplicatesStrategy.FAIL`; added Kotlin-lambda-overload-resolution tests alongside the Groovy-Closure tests in Step 1.2; added before/after baseline test runs bracketing the Step 1.1 `registerStep` convergence; noted (without new mitigation) that automatic module-bundling still trusts the existing `compileOnly` dependency list. Design decision (artifactView + zipTree) unchanged — confirmed sound. |
+| 2026-07-18 | AI Agent | Execution session 1 (EXEC-0011): Steps 1.1–2.3 and 3.2 completed and verified (98/98 baseline tests preserved through the `registerStep` convergence; 18 new tests for all 10 Closure + 8 Kotlin-lambda overloads; fat-jar addition/deletion/publish-without-clean scenarios all confirmed fixed via `javap`; `clean build --parallel` green; Groovy consumer `../common` successfully exercised `assembleStep`/`commandStep` Closure overloads). Step 3.1 (tony e2e) blocked by a pre-existing, unrelated flow-validation bug confirmed present on `develop` before this plan — kept `in progress` rather than `implemented` pending that follow-up. Full detail in [EXEC-0011](EXEC-0011_flows-groovy-dsl-and-fat-jar-fix.md). |
+| 2026-07-18 | AI Agent | Transitioned Status to `implemented` (terminal). Both of this plan's actual work streams — the 8 remaining Groovy `Closure` DSL overloads and the `infra/gradle` fat-jar root-cause fix — are complete and independently verified; Step 3.1 (tony e2e) remains marked `[blocked]` in Section 5 and is tracked as a follow-up in EXEC-0011 rather than reopening this plan, since its blocker (a pre-existing flow-validation bug already present on `develop` before this plan started) is unrelated to either work stream. Per the Status Lifecycle, this plan is now historical — no further syncing or freshening. |
 
 ---
 
