@@ -18,43 +18,25 @@ group = "com.github.c64lib.retro-assembler"
 // Gradle's ProjectBuilder needs reflective access to java.lang on JDK 16+
 tasks.withType<Test> { jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED") }
 
-configurations {
-  // Create a new configuration that extends from 'implementation'
-  create("resolvableImplementation") {
-    extendsFrom(project.configurations.implementation.get())
-    isCanBeResolved = true
-  }
+// Bundles the classes of every project dependency (all compileOnly modules below) into the
+// published plugin jar. Merging at the jar level (rather than copying resolved classes dirs into
+// this project's own build/classes, as the previous copySubProjectClasses task did) gives Gradle
+// implicit task dependencies on each subproject's jar task, correct up-to-date checks, and
+// removal propagation: a class deleted or renamed in a subproject simply isn't in the jar that
+// gets zipped in, with no stale leftovers and no manual `clean` required.
+val bundledProjectJars: Provider<List<FileTree>> = provider {
+  configurations.compileClasspath
+      .get()
+      .incoming
+      .artifactView { componentFilter { it is ProjectComponentIdentifier } }
+      .files
+      .map { zipTree(it) }
 }
 
-
- tasks {
-    val copySubProjectClasses by
-        register("copySubProjectClasses") {
-            doLast {
-              val localDependencies =
-                  project.configurations.compileClasspath
-                      .get()
-                      .resolvedConfiguration
-                      .firstLevelModuleDependencies
-                      .filter { it.moduleGroup.startsWith(project.group.toString()) }
-                      .flatMap { it.moduleArtifacts }
-                      .map { it.file.parentFile.parentFile }
-
-
-                copy {
-                    from(localDependencies)
-                    into(buildDir)
-                    include("classes/**")
-                    exclude("**/META-INF/*")
-                }
-            }
-            group = "build"
-        }
- }
-
-project(":infra:gradle").tasks.jar { dependsOn(tasks.named("copySubProjectClasses")) }
-
-tasks.named("copySubProjectClasses") { mustRunAfter(project(":infra:gradle").tasks.classes) }
+tasks.jar {
+  from(bundledProjectJars) { exclude("META-INF/**") }
+  duplicatesStrategy = DuplicatesStrategy.FAIL
+}
 
 pluginBundle {
     website = "https://c64lib.github.io/gradle-retro-assembler-plugin/"

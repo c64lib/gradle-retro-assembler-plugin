@@ -53,10 +53,7 @@ open class FlowDslBuilder {
    * above.
    */
   fun flow(name: String, @DelegatesTo(FlowBuilder::class) configure: Closure<*>): FlowDslBuilder {
-    val flowBuilder = FlowBuilder(name)
-    configure.delegate = flowBuilder
-    configure.resolveStrategy = Closure.DELEGATE_FIRST
-    configure.call(flowBuilder)
+    val flowBuilder = bindClosure(FlowBuilder(name), configure)
     flows.add(flowBuilder.build())
     return this
   }
@@ -77,6 +74,17 @@ open class FlowDslBuilder {
               })
     }
   }
+}
+
+/**
+ * Binds a Groovy [Closure]'s delegate to [builder] with [Closure.DELEGATE_FIRST] resolution, then
+ * calls it. Shared by every Groovy-friendly DSL overload so the binding idiom exists exactly once.
+ */
+private fun <T> bindClosure(builder: T, closure: Closure<*>): T {
+  closure.delegate = builder
+  closure.resolveStrategy = Closure.DELEGATE_FIRST
+  closure.call(builder)
+  return builder
 }
 
 /** Builder for individual Flow definitions. */
@@ -101,112 +109,128 @@ class FlowBuilder(private val name: String) {
   fun charpadStep(stepName: String, configure: CharpadStepBuilder.() -> Unit) {
     val stepBuilder = CharpadStepBuilder(stepName)
     stepBuilder.configure()
-    val step = stepBuilder.build()
-    steps.add(step)
+    registerStep(stepName, stepBuilder.build())
+  }
 
-    // Add artifacts for dependency tracking
-    step.inputs.forEach { input ->
-      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
-    }
-    step.outputs.forEach { output ->
-      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
-    }
+  /**
+   * Groovy-friendly overload of [charpadStep] that binds the closure's delegate to
+   * [CharpadStepBuilder] so that `charpadStep("name") { ... }` works from a Groovy `build.gradle`.
+   */
+  fun charpadStep(stepName: String, @DelegatesTo(CharpadStepBuilder::class) configure: Closure<*>) {
+    val stepBuilder = bindClosure(CharpadStepBuilder(stepName), configure)
+    registerStep(stepName, stepBuilder.build())
   }
 
   /** Creates a type-safe Spritepad processing step. */
   fun spritepadStep(stepName: String, configure: SpritepadStepBuilder.() -> Unit) {
     val stepBuilder = SpritepadStepBuilder(stepName)
     stepBuilder.configure()
-    val step = stepBuilder.build()
-    steps.add(step)
+    registerStep(stepName, stepBuilder.build())
+  }
 
-    // Add artifacts for dependency tracking
-    step.inputs.forEach { input ->
-      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
-    }
-    step.outputs.forEach { output ->
-      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
-    }
+  /**
+   * Groovy-friendly overload of [spritepadStep] that binds the closure's delegate to
+   * [SpritepadStepBuilder] so that `spritepadStep("name") { ... }` works from a Groovy
+   * `build.gradle`.
+   */
+  fun spritepadStep(
+      stepName: String,
+      @DelegatesTo(SpritepadStepBuilder::class) configure: Closure<*>
+  ) {
+    val stepBuilder = bindClosure(SpritepadStepBuilder(stepName), configure)
+    registerStep(stepName, stepBuilder.build())
   }
 
   /** Creates a type-safe GoatTracker processing step. */
   fun goattrackerStep(stepName: String, configure: GoattrackerStepBuilder.() -> Unit) {
     val stepBuilder = GoattrackerStepBuilder(stepName)
     stepBuilder.configure()
-    val step = stepBuilder.build()
-    steps.add(step)
+    registerStep(stepName, stepBuilder.build())
+  }
 
-    // Add artifacts for dependency tracking
-    step.inputs.forEach { input ->
-      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
-    }
-    step.outputs.forEach { output ->
-      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
-    }
+  /**
+   * Groovy-friendly overload of [goattrackerStep] that binds the closure's delegate to
+   * [GoattrackerStepBuilder] so that `goattrackerStep("name") { ... }` works from a Groovy
+   * `build.gradle`.
+   */
+  fun goattrackerStep(
+      stepName: String,
+      @DelegatesTo(GoattrackerStepBuilder::class) configure: Closure<*>
+  ) {
+    val stepBuilder = bindClosure(GoattrackerStepBuilder(stepName), configure)
+    registerStep(stepName, stepBuilder.build())
   }
 
   /** Creates a type-safe Assembly processing step. */
   fun assembleStep(stepName: String, configure: AssembleStepBuilder.() -> Unit) {
     val stepBuilder = AssembleStepBuilder(stepName)
     stepBuilder.configure()
-    val step = stepBuilder.build()
-    steps.add(step)
+    registerStep(stepName, stepBuilder.build())
+  }
 
-    // Add artifacts for dependency tracking
-    step.inputs.forEach { input ->
-      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
-    }
-    step.outputs.forEach { output ->
-      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
-    }
+  /**
+   * Groovy-friendly overload of [assembleStep] that binds the closure's delegate to
+   * [AssembleStepBuilder] so that `assembleStep("name") { ... }` works from a Groovy
+   * `build.gradle`.
+   */
+  fun assembleStep(
+      stepName: String,
+      @DelegatesTo(AssembleStepBuilder::class) configure: Closure<*>
+  ) {
+    val stepBuilder = bindClosure(AssembleStepBuilder(stepName), configure)
+    registerStep(stepName, stepBuilder.build())
   }
 
   /** Creates a type-safe dasm assembly processing step. */
   fun dasmStep(stepName: String, configure: DasmStepBuilder.() -> Unit) {
     val stepBuilder = DasmStepBuilder(stepName)
     stepBuilder.configure()
-    val step = stepBuilder.build()
-    steps.add(step)
+    registerStep(stepName, stepBuilder.build())
+  }
 
-    // Add artifacts for dependency tracking
-    step.inputs.forEach { input ->
-      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
-    }
-    step.outputs.forEach { output ->
-      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
-    }
+  /**
+   * Groovy-friendly overload of [dasmStep] that binds the closure's delegate to [DasmStepBuilder]
+   * so that `dasmStep("name") { ... }` works from a Groovy `build.gradle`.
+   */
+  fun dasmStep(stepName: String, @DelegatesTo(DasmStepBuilder::class) configure: Closure<*>) {
+    val stepBuilder = bindClosure(DasmStepBuilder(stepName), configure)
+    registerStep(stepName, stepBuilder.build())
   }
 
   /** Creates a type-safe Image processing step. */
   fun imageStep(stepName: String, configure: ImageStepBuilder.() -> Unit) {
     val stepBuilder = ImageStepBuilder(stepName)
     stepBuilder.configure()
-    val step = stepBuilder.build()
-    steps.add(step)
+    registerStep(stepName, stepBuilder.build())
+  }
 
-    // Add artifacts for dependency tracking
-    step.inputs.forEach { input ->
-      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
-    }
-    step.outputs.forEach { output ->
-      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
-    }
+  /**
+   * Groovy-friendly overload of [imageStep] that binds the closure's delegate to [ImageStepBuilder]
+   * so that `imageStep("name") { ... }` works from a Groovy `build.gradle`.
+   */
+  fun imageStep(stepName: String, @DelegatesTo(ImageStepBuilder::class) configure: Closure<*>) {
+    val stepBuilder = bindClosure(ImageStepBuilder(stepName), configure)
+    registerStep(stepName, stepBuilder.build())
   }
 
   /** Creates a type-safe Exomizer compression step. */
   fun exomizerStep(stepName: String, configure: ExomizerStepBuilder.() -> Unit) {
     val stepBuilder = ExomizerStepBuilder(stepName)
     stepBuilder.configure()
-    val step = stepBuilder.build()
-    steps.add(step)
+    registerStep(stepName, stepBuilder.build())
+  }
 
-    // Add artifacts for dependency tracking
-    step.inputs.forEach { input ->
-      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
-    }
-    step.outputs.forEach { output ->
-      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
-    }
+  /**
+   * Groovy-friendly overload of [exomizerStep] that binds the closure's delegate to
+   * [ExomizerStepBuilder] so that `exomizerStep("name") { ... }` works from a Groovy
+   * `build.gradle`.
+   */
+  fun exomizerStep(
+      stepName: String,
+      @DelegatesTo(ExomizerStepBuilder::class) configure: Closure<*>
+  ) {
+    val stepBuilder = bindClosure(ExomizerStepBuilder(stepName), configure)
+    registerStep(stepName, stepBuilder.build())
   }
 
   /** Creates a type-safe 64spec test step. */
@@ -221,32 +245,34 @@ class FlowBuilder(private val name: String) {
    * so that `testStep("name") { ... }` works from a Groovy `build.gradle`.
    */
   fun testStep(stepName: String, @DelegatesTo(TestStepBuilder::class) configure: Closure<*>) {
-    val stepBuilder = TestStepBuilder(stepName)
-    configure.delegate = stepBuilder
-    configure.resolveStrategy = Closure.DELEGATE_FIRST
-    configure.call(stepBuilder)
+    val stepBuilder = bindClosure(TestStepBuilder(stepName), configure)
     registerStep(stepName, stepBuilder.build())
-  }
-
-  /** Adds a built step and registers its input/output artifacts for dependency tracking. */
-  private fun registerStep(stepName: String, step: FlowStep) {
-    steps.add(step)
-    step.inputs.forEach { input ->
-      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
-    }
-    step.outputs.forEach { output ->
-      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
-    }
   }
 
   /** Creates a type-safe Command execution step. */
   fun commandStep(stepName: String, command: String, configure: CommandStepBuilder.() -> Unit) {
     val stepBuilder = CommandStepBuilder(stepName, command)
     stepBuilder.configure()
-    val step = stepBuilder.build()
-    steps.add(step)
+    registerStep(stepName, stepBuilder.build())
+  }
 
-    // Add artifacts for dependency tracking
+  /**
+   * Groovy-friendly overload of [commandStep] that binds the closure's delegate to
+   * [CommandStepBuilder] so that `commandStep("name", "cmd") { ... }` works from a Groovy
+   * `build.gradle`.
+   */
+  fun commandStep(
+      stepName: String,
+      command: String,
+      @DelegatesTo(CommandStepBuilder::class) configure: Closure<*>
+  ) {
+    val stepBuilder = bindClosure(CommandStepBuilder(stepName, command), configure)
+    registerStep(stepName, stepBuilder.build())
+  }
+
+  /** Adds a built step and registers its input/output artifacts for dependency tracking. */
+  private fun registerStep(stepName: String, step: FlowStep) {
+    steps.add(step)
     step.inputs.forEach { input ->
       inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
     }
