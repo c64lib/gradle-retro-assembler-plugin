@@ -1264,11 +1264,41 @@ The traditional `preprocess` section continues to be the recommended approach fo
 The Pipeline DSL complements this existing functionality rather than replacing it.
 ====
 
+This section covers:
+
+* <<Pipeline DSL Basics>> — the `flows { }` block and how to declare a flow
+* <<Step Types>> — every step type, with a full option reference and examples
+* <<Path Helpers>> — `from()` / `to()` and the command-step `useFrom()` / `useTo()`
+* <<Parallel Execution>> — how independent steps and flows run concurrently
+* <<Change Detection and Incremental Builds>> — when steps re-run and when they are skipped
+* <<Flow Dependencies>> — ordering flows with `dependsOn`
+* <<Task Naming and Build Integration>> — the Gradle tasks flows generate
+* <<Complete Example>> — an end-to-end pipeline
+
+All examples are shown for both the **Groovy** DSL (`build.gradle`) and the **Kotlin**
+DSL (`build.gradle.kts`). The two are equivalent; use whichever matches your build script.
+Enum values (such as `CpuType.MOS6510`) are imported from the plugin's packages — with the
+Kotlin DSL you may need an explicit `import` or a fully-qualified name.
+
 === Pipeline DSL Basics
 
-Pipelines are defined in the `flows` section of your `build.gradle` file:
+Pipelines are defined in the `flows` section of your build script. A flow groups a sequence of
+steps under a name and an optional description:
 
 [source,groovy]
+.build.gradle (Groovy)
+----
+flows {
+    flow("myFlow") {
+        description = "Optional description of what this flow does"
+
+        // Define pipeline steps here
+    }
+}
+----
+
+[source,kotlin]
+.build.gradle.kts (Kotlin)
 ----
 flows {
     flow("myFlow") {
@@ -1281,87 +1311,337 @@ flows {
 
 === Step Types
 
-The Pipeline DSL supports multiple step types, each tailored to a specific task:
+The Pipeline DSL supports multiple step types, each tailored to a specific task. Every step is
+declared inside a `flow { }` block by its builder method (`assembleStep`, `charpadStep`, …).
 
 ==== Assembly Step
 
-Compile assembly source code with symbol generation support:
+Compile assembly source code with Kick Assembler, with symbol generation support:
 
 [source,groovy]
+.build.gradle (Groovy)
 ----
 assembleStep("main") {
     from("src/main.asm")
     to("build/output/main.prg")
     cpu = CpuType.MOS6510
     generateSymbols = true
+    outputFormat = OutputFormat.PRG
     includePaths("lib/c64lib")
     define("VERSION", "1.0")
+    watchFiles("src/**/*.asm")
 }
 ----
 
-Properties::
-- `from(path)` / `from(vararg paths)` - Input assembly file(s)
-- `to(path)` / `to(vararg paths)` - Output file(s)
-- `cpu` - CPU type (e.g., `CpuType.MOS6510`)
-- `generateSymbols` - Generate symbol files for debugging
-- `includePaths(paths...)` - Add include directories
-- `define(name, value)` - Define preprocessor symbols
+[source,kotlin]
+.build.gradle.kts (Kotlin)
+----
+assembleStep("main") {
+    from("src/main.asm")
+    to("build/output/main.prg")
+    cpu = CpuType.MOS6510
+    generateSymbols = true
+    outputFormat = OutputFormat.PRG
+    includePaths("lib/c64lib")
+    define("VERSION", "1.0")
+    watchFiles("src/**/*.asm")
+}
+----
+
+[cols="1,3,1", options="header"]
+|===
+| Property | Description | Default
+
+| `from(path...)`      | Input assembly file(s). | —
+| `to(path...)`        | Output file(s). If omitted, output goes to `build/flows/{flow}/{step}`. | —
+| `cpu`                | CPU type: `MOS6502`, `MOS6510`, or `MOS65C02`. | `MOS6510`
+| `generateSymbols`    | Generate a symbol file for debugging. | `true`
+| `optimization`       | `AssemblyOptimization`: `NONE`, `SIZE`, or `SPEED`. | `SPEED`
+| `verbose`            | Verbose assembler output. | `false`
+| `outputFormat`       | `OutputFormat`: `PRG` or `BIN`. | `PRG`
+| `workDir`            | Working directory for the assembler. | `".ra"`
+| `includePaths(p...)` / `includePath(p)` | Add include (library) directories. | —
+| `define(name, value)` / `defines(pairs...)` | Define preprocessor symbols. | —
+| `srcDirs(dirs...)` / `srcDir(dir)`   | Source directories for file discovery. | —
+| `includes(pat...)` / `include(pat)`  | Include patterns for file discovery. | —
+| `excludes(pat...)` / `exclude(pat)`  | Exclude patterns for file discovery. | —
+| `watchFiles(pat...)` / `watchFile(pat)` | Additional files to watch for change detection (alias of `includeFiles`); e.g. sources your main file `#import`s. | —
+|===
+
+==== dasm Step
+
+Assemble sources with the https://dasm-assembler.github.io/[dasm] assembler:
+
+[source,groovy]
+.build.gradle (Groovy)
+----
+dasmStep("build") {
+    from("src/main.asm")
+    to("build/main.bin")
+    outputFormat(1)
+    define("TARGET", "c64")
+}
+----
+
+[source,kotlin]
+.build.gradle.kts (Kotlin)
+----
+dasmStep("build") {
+    from("src/main.asm")
+    to("build/main.bin")
+    outputFormat(1)
+    define("TARGET", "c64")
+}
+----
+
+[cols="1,3,1", options="header"]
+|===
+| Property | Description | Default
+
+| `from(path...)`      | Input source file(s). | —
+| `to(path...)`        | Output file(s). If omitted, output goes to `build/flows/{flow}/{step}`. | —
+| `outputFormat(n)`    | dasm output format (1–3). | `1`
+| `verboseness(n)`     | Verboseness level (0–4). | unset
+| `errorFormat(n)`     | Error format: `0`=MS, `1`=Dillon, `2`=GNU. | unset
+| `strictSyntax(b)`    | Enable strict syntax checking. | unset
+| `removeOnError(b)`   | Remove output file when errors occur. | unset
+| `symbolTableSort(n)` | Symbol table sort order: `0`=alphabetical, `1`=address. | unset
+| `listFile(path)`     | Emit a list file at `path`. | unset
+| `symbolFile(path)`   | Emit a symbol file at `path`. | unset
+| `workDir`            | Working directory for the assembler. | `".ra"`
+| `includePaths(p...)` / `includePath(p)` | Add include directories. | —
+| `define(name, value)` / `defines(pairs...)` | Define preprocessor symbols. | —
+| `srcDirs(dirs...)` / `srcDir(dir)`   | Source directories for file discovery. | `["."]`
+| `includes(pat...)` / `include(pat)`  | Include patterns for file discovery. | `["**/*.asm"]`
+| `excludes(pat...)` / `exclude(pat)`  | Exclude patterns for file discovery. | `[".ra/**/*.asm"]`
+| `additionalInputs(pat...)` / `additionalInput(pat)` | Extra input-file patterns to track as dependencies. | —
+|===
 
 ==== CharPad Step
 
-Process CharPad CTM files to extract charset, maps, tiles, and other graphical assets:
+Process CharPad CTM files to extract charset, maps, tiles, and other graphical assets. Each
+output type is a nested block that takes an `output` path and optional `start`/`end` byte
+range (maps use a `left`/`top`/`right`/`bottom` rectangle instead):
 
 [source,groovy]
+.build.gradle (Groovy)
 ----
-charpadStep("charset") {
-    from("src/charset.ctm")
-    charset { output = "build/charset.chr" }
-    map { output = "build/charset.map" }
+charpadStep("graphics") {
+    from("src/game.ctm")
     compression = CharpadCompression.NONE
+    tileSize = 8
+
+    charset { output = "build/charset.chr" }
+    charsetColours { output = "build/charset-colours.bin" }
+    tiles { output = "build/tiles.bin" }
+    tileColours { output = "build/tile-colours.bin" }
+    map {
+        output = "build/map.bin"
+        left = 0; top = 0; right = 40; bottom = 25
+    }
+    meta {
+        output = "build/charpad.asm"
+        namespace = "game"
+        includeVersion = true
+    }
 }
 ----
 
-Properties::
-- `from(path)` - Input CTM file
-- `charset { }` - Extract character set
-- `map { }` - Extract map data
-- `tiles { }` - Extract tile set
-- `tileColours { }` - Extract tile colors
-- `charsetAttributes { }` - Extract character attributes
-- Additional output options available for each type
+[source,kotlin]
+.build.gradle.kts (Kotlin)
+----
+charpadStep("graphics") {
+    from("src/game.ctm")
+    compression = CharpadCompression.NONE
+    tileSize = 8
+
+    charset { output = "build/charset.chr" }
+    charsetColours { output = "build/charset-colours.bin" }
+    tiles { output = "build/tiles.bin" }
+    tileColours { output = "build/tile-colours.bin" }
+    map {
+        output = "build/map.bin"
+        left = 0; top = 0; right = 40; bottom = 25
+    }
+    meta {
+        output = "build/charpad.asm"
+        namespace = "game"
+        includeVersion = true
+    }
+}
+----
+
+Step options::
+[cols="1,3,1", options="header"]
+|===
+| Property | Description | Default
+
+| `from(path...)`  | Input CTM file(s). | —
+| `compression`    | `CharpadCompression`: `NONE`, `RLE`, or `EXOMIZER`. | `NONE`
+| `exportFormat`   | `CharpadFormat`: `STANDARD`, `OPTIMIZED`, or `C64LIB`. | `STANDARD`
+| `tileSize`       | Tile size in characters. | `8`
+| `charsetOptimization` | Optimise the charset. | `true`
+| `generateMap` / `generateCharset` | Whether to generate map / charset data. | `true`
+| `ctm8PrototypeCompatibility` | CTM8 prototype compatibility mode. | `false`
+| `namespace` / `prefix` | Default metadata namespace / symbol prefix. | `""`
+| `includeVersion` / `includeMode` | Include version / mode in metadata. | `false`
+| `includeBgColours` / `includeCharColours` | Include background / char colours in metadata. | `true`
+|===
+
+Output blocks:: Each takes `output` plus an optional `start` (default `0`) / `end`
+(default `65536`) byte range: `charset`, `charsetAttributes`, `charsetColours`,
+`charsetMaterials`, `charsetScreenColours`, `tiles`, `tileTags`, `tileColours`,
+`tileScreenColours`. The `map` block instead takes `output` plus a `left`/`top` (default `0`)
+and `right`/`bottom` (default `65536`) rectangle. The `meta` block emits an assembler source of
+symbol definitions and accepts `output`, `namespace`, `prefix`, `includeVersion`,
+`includeBgColours`, `includeCharColours`, and `includeMode` (overriding the step-level defaults).
+
+Filters:: Any of the range/map output blocks can additionally apply a filter to the extracted
+bytes:
++
+--
+* `nybbler { loOutput = "..."; hiOutput = "..."; normalizeHi = true }` — splits each byte into
+its low and high nibble, writing them to separate outputs. `loOutput`/`hiOutput` may each be
+omitted to discard that half. `normalizeHi` (default `true`) shifts the high nibble down so
+`0xA0` becomes `0x0A`.
+* `interleaver { outputs = listOf("a.bin", "b.bin") }` — distributes bytes round-robin across
+the listed outputs (the input size must divide evenly by the number of outputs).
+--
++
+[source,kotlin]
+.Nybbler filter example (Kotlin)
+----
+charpadStep("split-charset") {
+    from("src/game.ctm")
+    charset {
+        nybbler {
+            loOutput = "build/charset-lo.chr"
+            hiOutput = "build/charset-hi.chr"
+        }
+    }
+}
+----
+
+[NOTE]
+====
+The generic `to(path)` and `metadata { }` methods are deprecated — use the dedicated output
+blocks (`charset { }`, `map { }`, `meta { }`, …) shown above.
+====
 
 ==== SpritePad Step
 
-Process SpritePad SPD files to extract sprite definitions:
+Process SpritePad SPD files (`.spr`) to extract sprite definitions. The `sprites` block takes an
+`output` path and an optional `start`/`end` sprite range:
 
 [source,groovy]
+.build.gradle (Groovy)
 ----
 spritepadStep("sprites") {
     from("src/sprites.spr")
-    sprites { output = "build/sprites.bin" }
+    format = SpriteFormat.MULTICOLOR
+    sprites {
+        output = "build/sprites.bin"
+        start = 0
+        end = 8
+    }
 }
 ----
 
-Properties::
-- `from(path)` - Input SPD file
-- `sprites { }` - Extract sprite data
-- `start` / `end` - Sprite range (optional)
+[source,kotlin]
+.build.gradle.kts (Kotlin)
+----
+spritepadStep("sprites") {
+    from("src/sprites.spr")
+    format = SpriteFormat.MULTICOLOR
+    sprites {
+        output = "build/sprites.bin"
+        start = 0
+        end = 8
+    }
+}
+----
+
+[cols="1,3,1", options="header"]
+|===
+| Property | Description | Default
+
+| `from(path...)`     | Input SPD (`.spr`) file(s). | —
+| `format`            | `SpriteFormat`: `HIRES` or `MULTICOLOR`. | `MULTICOLOR`
+| `optimization`      | `SpriteOptimization`: `NONE`, `SIZE`, or `SPEED`. | `SIZE`
+| `exportRaw`         | Export raw sprite data. | `true`
+| `exportOptimized`   | Export optimised sprite data. | `false`
+| `animationSupport`  | Enable animation support. | `false`
+| `sprites { output; start; end }` | Sprite output with optional range (`start` default `0`, `end` default `65536`). | —
+|===
+
+[NOTE]
+====
+The generic `to(path)` method is deprecated — use the `sprites { }` block instead.
+====
 
 ==== Image Step
 
-Process image files (PNG, etc.) into binary format:
+Process image files (PNG) into C64 graphics formats. An image step optionally applies
+transformations (each at most once, in a fixed order — cut, split, extend, flip, reduce
+resolution) and then writes `sprite` and/or `bitmap` outputs:
 
 [source,groovy]
+.build.gradle (Groovy)
 ----
 imageStep("background") {
     from("src/background.png")
-    to("build/background.img")
+    targetFormat = ImageFormat.KOALA
+    dithering = DitheringAlgorithm.FLOYD_STEINBERG
+
+    cut { left = 0; top = 0; width = 320; height = 200 }
+    reduceResolution { reduceX = 1; reduceY = 1 }
+
+    bitmap { output = "build/background.bin" }
 }
 ----
 
-Properties::
-- `from(path)` - Input image file
-- `to(path)` - Output binary file
+[source,kotlin]
+.build.gradle.kts (Kotlin)
+----
+imageStep("background") {
+    from("src/background.png")
+    targetFormat = ImageFormat.KOALA
+    dithering = DitheringAlgorithm.FLOYD_STEINBERG
+
+    cut { left = 0; top = 0; width = 320; height = 200 }
+    reduceResolution { reduceX = 1; reduceY = 1 }
+
+    bitmap { output = "build/background.bin" }
+}
+----
+
+Step options::
+[cols="1,3,1", options="header"]
+|===
+| Property | Description | Default
+
+| `from(path...)`        | Input image file(s) (PNG). | —
+| `targetFormat`         | `ImageFormat`: `KOALA`, `ART_STUDIO`, `HIRES_BITMAP`, or `MULTICOLOR_BITMAP`. | `KOALA`
+| `paletteOptimization`  | `PaletteOptimization`: `NONE`, `REDUCE_COLORS`, or `QUANTIZE`. | `REDUCE_COLORS`
+| `dithering`            | `DitheringAlgorithm`: `NONE`, `FLOYD_STEINBERG`, or `ORDERED`. | `FLOYD_STEINBERG`
+| `backgroundColor`      | Background colour index. | `0`
+| `transparencySupport`  | Enable transparency support. | `false`
+|===
+
+Transformations (each optional, applied in this order)::
+[cols="1,3", options="header"]
+|===
+| Block | Parameters
+
+| `cut { }`   | `left` (0), `top` (0), `width`, `height` — crop a region.
+| `split { }` | `width`, `height` — split into equally-sized sub-images (tiles).
+| `extend { }`| `newWidth`, `newHeight`, `fillColor` (default opaque black `Color(0,0,0,255)`) — enlarge the canvas.
+| `flip { }`  | `axis`: `Axis.X`, `Axis.Y`, or `Axis.BOTH` (default `Y`) — reflect the image.
+| `reduceResolution { }` | `reduceX` (1), `reduceY` (1) — scale down by the given factors.
+|===
+
+Outputs:: `sprite { output = "..." }` writes sprite-format data; `bitmap { output = "..." }`
+writes bitmap-format data. Both may be used in the same step.
 
 ==== GoatTracker Step
 
@@ -1375,50 +1655,161 @@ The syntax and behavior may change in future releases.
 Convert GoatTracker 2 music files (SNG format) to SID format for embedding in programs:
 
 [source,groovy]
+.build.gradle (Groovy)
 ----
 goattrackerStep("music") {
     from("src/music.sng")
     to("build/music.sid")
+    frequency = Frequency.PAL
     bufferedSidWrites = true
     sfxSupport = true
 }
 ----
 
-Properties::
-- `from(path)` - Input SNG file
-- `to(path)` - Output SID file
-- `bufferedSidWrites` - Enable SID register buffering for better quality
-- `sfxSupport` - Enable sound effects support
-- `disableOptimization` - Disable output optimization
-- `playerMemoryLocation` - Memory location for player code
-- `sidMemoryLocation` - SID chip base address
-- `storeAuthorInfo` - Include author information in output
-- `volumeChangeSupport` - Enable master volume control
-- `zeroPageLocation` - Zero page address for variables
-- `zeropageGhostRegisters` - Use zero page for internal variables
-- `executable` - Name of gt2reloc executable (default: "gt2reloc")
+[source,kotlin]
+.build.gradle.kts (Kotlin)
+----
+goattrackerStep("music") {
+    from("src/music.sng")
+    to("build/music.sid")
+    frequency = Frequency.PAL
+    bufferedSidWrites = true
+    sfxSupport = true
+}
+----
+
+[cols="1,3,1", options="header"]
+|===
+| Property | Description | Default
+
+| `from(path...)`          | Input SNG file(s). | —
+| `to(path...)`            | Output SID file(s). | —
+| `frequency`              | `Frequency`: `PAL` or `NTSC`. | `PAL`
+| `channels`               | Number of channels. | `3`
+| `optimization`           | Enable output optimisation. | `true`
+| `executable`             | Name of the `gt2reloc` executable. | `"gt2reloc"`
+| `bufferedSidWrites`      | Enable SID register buffering for better quality. | unset
+| `disableOptimization`    | Disable output optimisation. | unset
+| `playerMemoryLocation`   | Memory location for player code. | unset
+| `sfxSupport`             | Enable sound-effects support. | unset
+| `sidMemoryLocation`      | SID chip base address. | unset
+| `storeAuthorInfo`        | Include author information in output. | unset
+| `volumeChangeSupport`    | Enable master volume control. | unset
+| `zeroPageLocation`       | Zero-page address for variables. | unset
+| `zeropageGhostRegisters` | Use zero page for internal variables. | unset
+|===
+
+==== Exomizer Step
+
+Compress a binary with https://bitbucket.org/magli143/exomizer/wiki/Home[Exomizer]. The mode is
+selected by a `raw { }` or `mem { }` block; both accept the compression options as **property
+assignments**:
+
+[source,groovy]
+.build.gradle (Groovy)
+----
+exomizerStep("crunch") {
+    from("build/game.prg")
+    to("build/game.exo")
+    raw {
+        backwards = true
+        passes = 100
+    }
+}
+----
+
+[source,kotlin]
+.build.gradle.kts (Kotlin)
+----
+exomizerStep("crunch") {
+    from("build/game.prg")
+    to("build/game.exo")
+    raw {
+        backwards = true
+        passes = 100
+    }
+}
+----
+
+Step methods::
+- `from(path)` — input file to compress.
+- `to(path)` — output file.
+- `raw { }` — raw compression mode (the default). Accepts the common options below.
+- `mem { }` — memory (self-decrunching) mode. Accepts the common options plus `loadAddress` and `forward`.
+
+Common options (set inside `raw { }` or `mem { }`)::
+[cols="1,3,1", options="header"]
+|===
+| Option | Description | Default
+
+| `backwards`       | Compress backwards. | `false`
+| `reverse`         | Reverse the output. | `false`
+| `decrunch`        | Generate decrunch-compatible output. | `false`
+| `compatibility`   | Compatibility mode. | `false`
+| `speedOverRatio`  | Favour speed over compression ratio. | `false`
+| `encoding`        | Explicit encoding string. | unset
+| `skipEncoding`    | Skip encoding. | `false`
+| `maxOffset`       | Maximum offset. | `65535`
+| `maxLength`       | Maximum length. | `65535`
+| `passes`          | Number of optimisation passes. | `100`
+| `bitStreamTraits` | Bit-stream traits. | unset
+| `bitStreamFormat` | Bit-stream format. | unset
+| `controlAddresses`| Control addresses. | unset
+| `quiet`           | Suppress output. | `false`
+| `brief`           | Brief output. | `false`
+|===
+
+Memory-mode (`mem { }`) additional options::
+[cols="1,3,1", options="header"]
+|===
+| Option | Description | Default
+
+| `loadAddress` | Load address (or `"auto"`). | `"auto"`
+| `forward`     | Forward decrunching. | `false`
+|===
 
 ==== Command Step
 
-Execute external CLI commands:
+Execute an arbitrary external CLI command. Declare inputs and outputs (for change detection),
+then build the command line with positional parameters, flags, and options:
 
 [source,groovy]
+.build.gradle (Groovy)
 ----
 commandStep("compress", "exomizer") {
     from("build/output.prg")
     to("build/output.exo")
     param("sfx")
+    flag("-q")
     option("-o", "build/output.exo")
-    flag("--verbose")
 }
 ----
 
-Properties::
-- `from(path)` / `from(vararg paths)` - Input file(s)
-- `to(path)` / `to(vararg paths)` - Output file(s)
-- `param(value)` - Add positional parameter
-- `option(name, value)` - Add named option
-- `flag(name)` - Add boolean flag
+[source,kotlin]
+.build.gradle.kts (Kotlin)
+----
+commandStep("compress", "exomizer") {
+    from("build/output.prg")
+    to("build/output.exo")
+    param("sfx")
+    flag("-q")
+    option("-o", "build/output.exo")
+}
+----
+
+[cols="1,3", options="header"]
+|===
+| Method | Description
+
+| `from(path...)` / `to(path...)` | Declare input / output file(s).
+| `param(value)` / `params(values...)` | Add positional parameter(s).
+| `flag(f)` / `flags(f...)`       | Add boolean flag(s), e.g. `-q`.
+| `option(flag, value)` / `options(pairs...)` | Add an option with a value (two arguments).
+| `inputOption(flag, path)`       | Add `flag path` and register `path` as an input.
+| `outputOption(flag, path)`      | Add `flag path` and register `path` as an output.
+| `with(param...)` / `withOption(flag, value)` | Chainable variants of the above.
+| `useFrom(index)` / `useTo(index)` | Reference a declared input / output path — see <<Path Helpers>>.
+|===
 
 ==== Test Step
 
@@ -1459,11 +1850,96 @@ Each spec produces `+<name>.prg+`, `+<name>.vs+`, and `+<name>.specOut+` next to
 This test step is independent of the legacy `asmSpec`/`test` tasks — both mechanisms continue to work.
 ====
 
-=== Flow Dependencies
+=== Path Helpers
 
-Flows can depend on other flows to ensure correct execution order:
+Every step declares its inputs with `from(...)` and its outputs with `to(...)` (or, for
+processor steps, dedicated output blocks such as `charset { output = ... }`). Both accept a
+single path or a vararg list:
 
 [source,groovy]
+----
+from("a.asm", "b.asm")   // two inputs
+to("out.prg")            // one output
+----
+
+The **command step** additionally offers `useFrom(index)` and `useTo(index)` to reference a path
+you already declared, so a path is written exactly once (DRY) and reused as a command argument.
+Both default to index `0` and throw if no matching path was declared:
+
+[source,groovy]
+.build.gradle (Groovy)
+----
+commandStep("exomize", "exomizer") {
+    from("build/game-linked.bin")
+    to("build/game-linked.z.bin")
+    param("raw")
+    option("-o", useTo())     // -> "build/game-linked.z.bin"
+    param(useFrom())          // -> "build/game-linked.bin"
+}
+----
+
+[source,kotlin]
+.build.gradle.kts (Kotlin)
+----
+commandStep("exomize", "exomizer") {
+    from("build/game-linked.bin")
+    to("build/game-linked.z.bin")
+    param("raw")
+    option("-o", useTo())     // -> "build/game-linked.z.bin"
+    param(useFrom())          // -> "build/game-linked.bin"
+}
+----
+
+With multiple inputs or outputs, pass the zero-based index: `useFrom(1)`, `useTo(0)`, etc.
+
+=== Parallel Execution
+
+Within a flow, the plugin does not run steps in declaration order. Instead it derives the
+execution order **solely from the file input/output relationships between steps** — if step B's
+`from(...)` names a file that step A's `to(...)` produces, B runs after A. Steps with no such
+relationship are independent.
+
+Independent steps, and independent flows, run **concurrently** when Gradle's parallel mode is
+enabled — either with the `--parallel` command-line flag or `org.gradle.parallel=true` in
+`gradle.properties`. Parallelism inside a single processor (for example splitting work across
+outputs) uses Gradle's Workers API. No extra configuration is required; you only declare the
+`from`/`to` relationships and let Gradle schedule the work.
+
+The flow graph is validated at configuration time. A circular dependency between steps or flows,
+or a step that consumes an intermediate file nothing produces, fails the build before any task
+runs.
+
+=== Change Detection and Incremental Builds
+
+Flow steps are ordinary Gradle tasks with declared inputs and outputs, so Gradle's incremental
+build and up-to-date checking apply: a step is skipped (reported `UP-TO-DATE`) when its inputs
+and outputs are unchanged since the last run, and re-runs only when something it depends on
+changes.
+
+* **Inputs** are the paths you pass to `from(...)` (and, for processors, the source file);
+  **outputs** are the paths from `to(...)` or the output blocks.
+* When you omit `to(...)`, a step writes into a default output directory,
+  `build/flows/{flow}/{step}`.
+* Assembly steps additionally track *indirect* inputs — the sources your main file `#import`s /
+  includes. Register these with `watchFiles(...)` (or `includeFiles(...)`) so that editing an
+  imported library invalidates the step and you never get a stale build. The test step watches
+  the sources passed to its `from(...)` for the same reason.
+
+[NOTE]
+====
+`gradle clean` removes the `build/` directory. Steps that write outside `build/` (via an
+explicit `to(...)`) are not cleaned by `clean`; re-running the flow still refreshes them through
+normal up-to-date checking.
+====
+
+=== Flow Dependencies
+
+Beyond the automatic file-based ordering, a flow can explicitly depend on another flow with
+`dependsOn(...)`, ensuring the named flow(s) complete first. Explicit dependencies combine with
+the implicit artifact-based ones:
+
+[source,groovy]
+.build.gradle (Groovy)
 ----
 flows {
     flow("preprocessing") {
@@ -1484,13 +1960,68 @@ flows {
 }
 ----
 
-=== Complete Example
-
-[source,groovy]
+[source,kotlin]
+.build.gradle.kts (Kotlin)
 ----
 flows {
-    flow("build") {
-        description = "Complete game build pipeline"
+    flow("preprocessing") {
+        charpadStep("charset") {
+            from("src/game.ctm")
+            charset { output = "build/charset.chr" }
+        }
+    }
+
+    flow("compilation") {
+        dependsOn("preprocessing")
+
+        assembleStep("main") {
+            from("src/main.asm")
+            to("build/main.prg")
+        }
+    }
+}
+----
+
+`dependsOn` accepts one flow name or several (`dependsOn("a", "b")`).
+
+=== Task Naming and Build Integration
+
+Each flow and step becomes a Gradle task, following a fixed naming scheme:
+
+[cols="1,2", options="header"]
+|===
+| Task | Purpose
+
+| `flows` | Top-level aggregation task — runs *all* flows in dependency order (`./gradlew flows`).
+| `flow{FlowName}` | Aggregation task for one flow, e.g. `flowPreprocessing` for `flow("preprocessing")`.
+| `flow{FlowName}Step{StepName}` | A single step, e.g. `flowPreprocessingStepCharset`.
+|===
+
+Flow and step names are capitalised when embedded in the task name. All flow tasks are placed in
+the `flows` task group, so `./gradlew tasks --group flows` lists them.
+
+The `asm` (and `assemble`) task depends on the `flows` task, so any flow-based preprocessing runs
+automatically before assembly. You can also run flows on their own:
+
+[source,bash]
+----
+./gradlew flows                       # run every flow
+./gradlew flowPreprocessing           # run one flow
+./gradlew flowPreprocessingStepCharset  # run one step
+./gradlew asm                         # runs flows first, then assembles
+----
+
+=== Complete Example
+
+An end-to-end pipeline that preprocesses assets in one flow and compiles + packs in a second flow
+that depends on the first:
+
+[source,groovy]
+.build.gradle (Groovy)
+----
+flows {
+    flow("assets") {
+        description = "Convert graphics, sprites and music"
 
         charpadStep("graphics") {
             from("src/game.ctm")
@@ -1508,18 +2039,70 @@ flows {
             to("build/music.sid")
             bufferedSidWrites = true
         }
+    }
+
+    flow("game") {
+        description = "Compile and pack the game"
+        dependsOn("assets")
 
         assembleStep("main") {
             from("src/main.asm")
             to("build/game.prg")
             includePaths("lib/c64lib")
             generateSymbols = true
+            watchFiles("src/**/*.asm")
         }
 
-        commandStep("pack") {
+        exomizerStep("pack") {
             from("build/game.prg")
             to("build/game.exo")
-            param("sfx")
+            raw { backwards = true }
+        }
+    }
+}
+----
+
+[source,kotlin]
+.build.gradle.kts (Kotlin)
+----
+flows {
+    flow("assets") {
+        description = "Convert graphics, sprites and music"
+
+        charpadStep("graphics") {
+            from("src/game.ctm")
+            charset { output = "build/charset.chr" }
+            map { output = "build/map.bin" }
+        }
+
+        spritepadStep("sprites") {
+            from("src/sprites.spr")
+            sprites { output = "build/sprites.bin" }
+        }
+
+        goattrackerStep("music") {
+            from("src/soundtrack.sng")
+            to("build/music.sid")
+            bufferedSidWrites = true
+        }
+    }
+
+    flow("game") {
+        description = "Compile and pack the game"
+        dependsOn("assets")
+
+        assembleStep("main") {
+            from("src/main.asm")
+            to("build/game.prg")
+            includePaths("lib/c64lib")
+            generateSymbols = true
+            watchFiles("src/**/*.asm")
+        }
+
+        exomizerStep("pack") {
+            from("build/game.prg")
+            to("build/game.exo")
+            raw { backwards = true }
         }
     }
 }

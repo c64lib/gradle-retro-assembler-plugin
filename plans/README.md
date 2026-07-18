@@ -16,4 +16,4 @@ Plans are permanent artifacts — do not delete. Terminal plans (`implemented`, 
 | [PLAN-0009](PLAN-0009_document-crunchers-domain-in-kb.md) | 2026-07-17 | implemented | Document the `crunchers` domain in `doc/kb/domain.md` | #156 | [EXEC-0009](EXEC-0009_document-crunchers-domain-in-kb.md) |
 | [PLAN-0010](PLAN-0010_pipeline-dsl-spec64-support.md) | 2026-07-17 | implemented | Pipeline DSL - support for spec64 test framework | #130 | [EXEC-0010](EXEC-0010_pipeline-dsl-spec64-support.md) |
 | [PLAN-0011](PLAN-0011_flows-groovy-dsl-and-fat-jar-fix.md) | 2026-07-17 | implemented | Complete Groovy DSL Coverage for Flow Steps + Fix Stale Fat Jar Root Cause | #176 | [EXEC-0011](EXEC-0011_flows-groovy-dsl-and-fat-jar-fix.md) |
-| [PLAN-0012](PLAN-0012_flows-user-documentation.md) | 2026-07-18 | accepted | Extend User Documentation with Flows Capabilities | #178 | — |
+| [PLAN-0012](PLAN-0012_flows-user-documentation.md) | 2026-07-18 | implemented | Extend User Documentation with Flows Capabilities | #178 | [EXEC-0012](EXEC-0012_flows-user-documentation.md) |
