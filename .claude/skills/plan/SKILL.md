@@ -1,5 +1,5 @@
 ---
-description: Create, update, and list structured development action plans in plans/. Runs the full interactive planning workflow (codebase analysis, clarifying questions, refinement) and handles all plan file I/O, index maintenance, and GitHub issue sync. On acceptance, offers to create the plan's feature branch. Invoke for "/plan", "create a plan", "update the plan", "list plans".
+description: Create, update, and list structured development action plans in plans/. Runs the full interactive planning workflow (codebase analysis, clarifying questions, refinement) and handles all plan file I/O, index maintenance, and GitHub issue sync. "plan #xyz" reads GitHub issue xyz and starts planning from its description; when planning begins on a linked issue, offers to move it to In Progress on the c64lib project board. On acceptance, offers to create the plan's feature branch. Invoke for "/plan", "plan #123", "create a plan", "update the plan", "list plans".
 user-invocable: true
 ---
 
@@ -15,6 +15,8 @@ Invoke when the user wants to:
 - **List** all plans via the index
 
 Dispatch by intent: a new feature/fix → CREATE; a reference to an existing plan → UPDATE; "list/show plans" → LIST. Ask only if genuinely ambiguous.
+
+**`plan #xyz` shorthand.** When the user says **"plan #xyz"** (or "plan issue xyz" / "/plan #xyz"), this is a CREATE keyed to GitHub issue `xyz`: read that issue and start planning from its description. Do not ask for the issue number or the task specification — they come from the issue. Concretely, in CREATE Step 1, treat `xyz` as the **existing issue number** and derive the **task specification** from the issue body (title + description); still ask for a feature short name if one can't be sensibly derived from the issue title. Then, per CREATE Step 1a, propose moving the issue to **In Progress** on the project board.
 
 ---
 
@@ -64,11 +66,30 @@ Produce a comprehensive, refined plan and persist it.
 Collect (use `AskUserQuestion` for anything not already supplied):
 
 1. **Issue number** — the GitHub issue this addresses. If the user has not supplied one, do not silently default to unlinked — **ask** (via `AskUserQuestion`) whether the work maps to an existing issue, and offer these options:
-   - **Existing issue** — the user provides the number; use it and sync per Step 6.
-   - **Create a new issue** — if the user picks this, create one via `gh issue create` (owner `c64lib`, repo `gradle-retro-assembler-plugin`) with a concise title and a short body derived from the task specification, then use the returned number as the plan's linked issue. Confirm the drafted title/body with the user before creating it.
-   - **No issue (`N/A`)** — proceed unlinked only when the user explicitly chooses this.
-2. **Feature short name** — a kebab-case slug (e.g. `pipeline-dsl-parallel-execution`)
-3. **Task specification** — what needs to be built or fixed
+   - **Existing issue** — the user provides the number (or gave it via the `plan #xyz` shorthand); use it and sync per Step 6. **Read the issue body now** with `gh issue view {n} --repo c64lib/gradle-retro-assembler-plugin --json title,body` — the issue's title and description are the primary source for the task specification below. Then proceed to Step 1a (propose In Progress).
+   - **Create a new issue** — if the user picks this, create one via `gh issue create` (owner `c64lib`, repo `gradle-retro-assembler-plugin`) with a concise title and a short body derived from the task specification, then use the returned number as the plan's linked issue. Confirm the drafted title/body with the user before creating it. Then proceed to Step 1a.
+   - **No issue (`N/A`)** — proceed unlinked only when the user explicitly chooses this. Skip Step 1a (no issue to move).
+2. **Feature short name** — a kebab-case slug (e.g. `pipeline-dsl-parallel-execution`). When keyed to an issue, derive a sensible default from the issue title and confirm it; only ask outright if none can be derived.
+3. **Task specification** — what needs to be built or fixed. When keyed to an existing issue, this comes from the **issue body** just read; do not re-ask the user for it (ask only to clarify genuine gaps).
+
+### Step 1a — Propose moving the issue to In Progress (linked issues only)
+
+As soon as planning begins on an existing (or freshly created) issue, the issue should reflect that work has started. **Only when the plan is linked to an issue**, before diving into analysis:
+
+1. Ask the user (via `AskUserQuestion`) **"Move issue #{issue-number} to In Progress on the c64lib project board now?"**
+2. If the user accepts, move the issue's project-board **Status** field to **In Progress** using the `gh project` CLI (the GitHub Projects API, which requires the `read:project` **and** `project` token scopes). The issue number is **not** enough — you must resolve the project, the item, and the field/option ids first. Run, in order:
+   1. `gh project list --owner c64lib` → pick the target project; note its **number**. (If exactly one project exists, use it; if several, ask the user which board; if none, tell the user there is no board to update and skip.)
+   2. `gh project item-list {project-number} --owner c64lib --format json` → find the item whose `content.number` equals `{issue-number}`; note its **item id**. (If the issue is not yet on the board, add it with `gh project item-add {project-number} --owner c64lib --url {issue-url}` and re-list.)
+   3. `gh project field-list {project-number} --owner c64lib --format json` → find the single-select **Status** field; note its **field id** and the **option id** of the `In Progress` option (match by name).
+   4. `gh project item-edit --project-id {project-id} --id {item-id} --field-id {field-id} --single-select-option-id {option-id}` to set the status, then confirm the new status to the user. (`gh project item-list`/`field-list` also expose the project **node id** needed for `--project-id`.)
+   - **If any of these fail on missing scopes** (the current token has only `repo`/`read:org`/etc.), do **not** block planning. Tell the user exactly how to enable it:
+     ```
+     gh auth refresh -s read:project,project
+     ```
+     Then offer to retry the move after they've refreshed, and note they can alternatively move the card manually on the board. Proceed with planning either way.
+3. If the user declines, leave the board untouched and continue.
+
+This is an explicit offer, never automatic — never move the issue silently, and never block planning on the board update or on missing scopes.
 
 ### Step 2 — Analyse the codebase
 
@@ -115,9 +136,9 @@ Use `—` in the Issue column when unlinked. The `Exec` column stays `—` until
 
 ### Step 6 — Sync to the GitHub issue (if linked)
 
-1. Read the current issue body via `mcp__github__issue_read` (owner: `c64lib`, repo: `gradle-retro-assembler-plugin`).
+1. Read the current issue body with `gh issue view {issue-number} --repo c64lib/gradle-retro-assembler-plugin --json title,body`.
 2. Preserve the user's original issue description by prepending it into the plan's **Section 1** before any generated content.
-3. Replace the issue body with the full plan via `mcp__github__issue_write`.
+3. Replace the issue body with the full plan via `gh issue edit {issue-number} --repo c64lib/gradle-retro-assembler-plugin --body-file {file}` (write the plan body to a temp file to avoid shell-quoting issues).
 
 ### Step 7 — Interactive refinement (continuous architectural Q&A)
 
@@ -219,7 +240,7 @@ If status changed, update the `Status` column for this plan's row in `plans/READ
 
 ### Step 7 — Sync to the GitHub issue (if linked)
 
-Replace the linked issue body with the updated plan via `mcp__github__issue_write` **only when the update warrants it**:
+Replace the linked issue body with the updated plan via `gh issue edit {issue-number} --repo c64lib/gradle-retro-assembler-plugin --body-file {file}` (write the plan body to a temp file first) **only when the update warrants it**:
 - On an **acceptance** transition, honour the Step 4 prompt: copy onto the issue only if the user said yes.
 - For other content updates to a non-terminal plan, sync as before.
 - For **terminal** plans (`implemented`, `rejected`), do not push further updates to the issue — they are historical.
@@ -259,6 +280,6 @@ If the user is logging a historical plan, accept a custom date and use it for th
 
 | Operation | Input | Output |
 |-----------|-------|--------|
-| CREATE | issue number, feature slug, spec | analysed + refined `plans/PLAN-nnnn_slug.md`, index updated, issue synced |
+| CREATE | issue number, feature slug, spec | analysed + refined `plans/PLAN-nnnn_slug.md`, index updated, issue synced; on a linked issue, offers to move it to In Progress on the board (`plan #xyz` reads the issue as the spec) |
 | UPDATE | plan path, change set | plan file updated (consistently), index updated (if status changed), issue synced; on `→ accepted`, offers the feature branch |
 | LIST | — | index table from `plans/README.md` |
