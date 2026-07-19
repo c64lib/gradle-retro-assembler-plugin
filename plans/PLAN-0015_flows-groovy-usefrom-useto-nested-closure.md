@@ -2,7 +2,7 @@
 
 **Plan ID**: PLAN-0015
 **Issue**: #182
-**Status**: accepted
+**Status**: implemented
 **Challenge**: revised 2026-07-19
 **Created**: 2026-07-19
 **Last Updated**: 2026-07-19
@@ -52,6 +52,17 @@ Kotlin/Groovy DSL parity.
   (or documents any residual limitation).
 
 ## 2. Root Cause Analysis
+
+> **Post-implementation note (2026-07-19):** the Phase-0 spike **disproved** the
+> hypothesis in this section. The defect is **not** a `bindClosure` delegate/owner
+> resolution quirk and is not argument-expression-specific (a bare `useFrom()`
+> *statement* fails too). Actual root cause: `useFrom(index: Int = 0)` /
+> `useTo(index: Int = 0)` are **Kotlin default-parameter methods** that emit no
+> callable no-arg JVM signature, so Groovy's zero-arg `useFrom()` / `useTo()`
+> matches nothing on the `CommandStepBuilder` delegate and falls through the owner
+> chain to the `flows` extension. Fix: explicit zero-arg overloads on
+> `CommandStepBuilder` (not `FlowDsl.bindClosure`). See [EXEC-0015](EXEC-0015_flows-groovy-usefrom-useto-nested-closure.md)
+> Deviations #1–#2. The original analysis below is retained as historical record.
 
 ### Current State
 - `bindClosure` (`flows/adapters/in/gradle/src/main/kotlin/.../FlowDsl.kt:83`) sets
@@ -222,8 +233,11 @@ likely because:
 (a) can Gradle TestKit apply *this* plugin at all in `:flows:adapters:in:gradle`
 (no TestKit exists anywhere in the repo today — this is greenfield), and (b) which
 closure-nesting boundary actually leaks the `useFrom()` resolution.
+**Status**: ✅ Completed 2026-07-19. Spike used `GroovyShell`+`ProjectBuilder` in
+`infra/gradle` (not TestKit — see EXEC-0015 Deviation #1); root cause pinned to
+Kotlin default-param methods (Deviation #2).
 
-1. **Step 0.1**: Prove TestKit can apply the plugin.
+1. **[x] Step 0.1**: Prove TestKit can apply the plugin.
    - Files: a throwaway/keeper functional test + temp `build.gradle` in
      `flows/adapters/in/gradle/src/test/...`; add `gradleTestKit()` and configure
      `withPluginClasspath()` (needs `java-gradle-plugin` or a manual
@@ -236,7 +250,7 @@ closure-nesting boundary actually leaks the `useFrom()` resolution.
      TestKit variant that injects the classpath manually — decide here, not mid-fix.
    - Testing: The feasibility build runs green via `GradleRunner`.
 
-2. **Step 0.2**: Pin the leaking boundary.
+2. **[x] Step 0.2**: Pin the leaking boundary.
    - Files: extend the Step 0.1 fixture.
    - Description: Determine whether the `useFrom()` MissingMethodException arises at
      the **Gradle-owned** `flows {}`→`flow {}` boundary (the `flows` extension is
@@ -256,8 +270,10 @@ plan's fix-site decision is revised before proceeding.
 ### Phase 1: Reproduce + confirm root cause (failing test)
 **Goal**: A red test that reproduces the issue and pins down which object Groovy
 consults, so the fix targets the real cause rather than the guessed one.
+**Status**: ✅ Completed 2026-07-19. Keeper `FlowsGroovyUseFromUseToTest`
+(`GroovyShell`+`ProjectBuilder`, `infra/gradle`) confirmed RED before the fix.
 
-1. **Step 1.1**: Add a Gradle TestKit reproduction test for the nested-closure
+1. **[x] Step 1.1**: Add a Gradle TestKit reproduction test for the nested-closure
    argument case.
    - Files: a new functional test (e.g.
      `flows/adapters/in/gradle/src/test/kotlin/.../FlowDslGroovyNestedUseFromFunctionalTest.kt`)
@@ -283,8 +299,10 @@ candidates against this red test, not just observing the symptom.
 ### Phase 2: Fix the resolution
 **Goal**: `useFrom()`/`useTo()` resolve to the `CommandStepBuilder` in the nested
 Groovy closure; the Phase 1 test goes green.
+**Status**: ✅ Completed 2026-07-19. Fix = zero-arg `useFrom()`/`useTo()` overloads
+on `CommandStepBuilder` (not `bindClosure`). Step 2.2 skipped as moot.
 
-1. **Step 2.1**: Select and apply the fix mechanism.
+1. **[x] Step 2.1**: Select and apply the fix mechanism.
    - Files: `flows/adapters/in/gradle/src/main/kotlin/.../FlowDsl.kt` (fix site
      confirmed in Phase 0 — the shared `bindClosure` `FlowDsl.kt:83` **if** the leak
      is at the plugin-owned `flow→commandStep` boundary; and `CommandStepBuilder.kt`
@@ -299,7 +317,9 @@ Groovy closure; the Phase 1 test goes green.
    - Testing: Phase 1 reproduction test passes; all existing `FlowDslGroovyOverload`
      and `CommandStepBuilder` tests stay green.
 
-2. **Step 2.2**: Guard outer-scope access — as a TestKit test.
+2. **[~] Step 2.2 (SKIPPED — moot)**: Guard outer-scope access — as a TestKit test.
+   The fix does not touch closure delegate/owner binding, so there is no
+   `DELEGATE_ONLY`-style risk to outer Groovy variables. See EXEC-0015 Deviation #3.
    - Files: functional test alongside the Phase-1 reproduction.
    - Description: Add a TestKit `build.gradle` case that references an outer Groovy
      variable (a `def` or project property) *inside* a `commandStep` closure and
@@ -313,8 +333,9 @@ test green, existing overload tests green, and the outer-scope guard passing.
 
 ### Phase 3: Regression guard, e2e, and docs
 **Goal**: Lock in the behaviour and update guidance.
+**Status**: ✅ Completed 2026-07-19 (Steps 3.1–3.4).
 
-1. **Step 3.1**: Broaden test coverage + guard the rollback path.
+1. **[x] Step 3.1**: Broaden test coverage + guard the rollback path.
    - Files: `flows/adapters/in/gradle/src/test/kotlin/.../FlowDslGroovyOverloadTest.kt`
      and/or the TestKit fixtures.
    - Description: Add nested-closure cases for `useTo()`, indexed `useFrom(i)`/
@@ -323,7 +344,7 @@ test green, existing overload tests green, and the outer-scope guard passing.
      (`def i = useFrom(); param(i)`), since the plan names it as the rollback path.
    - Testing: `:flows:adapters:in:gradle:test` green.
 
-2. **Step 3.2**: Verify coverage did not regress.
+2. **[x] Step 3.2**: Verify coverage did not regress.
    - Files: none (verification only).
    - Description: A TestKit functional test runs in a separate build JVM and may
      **not** count toward JaCoCo coverage of the changed `bindClosure` lines, which
@@ -334,13 +355,13 @@ test green, existing overload tests green, and the outer-scope guard passing.
      `build`/`check` skill).
    - Testing: `verifyCodeCoverage` passes; `bindClosure`'s changed lines are covered.
 
-3. **Step 3.3**: E2E verification against the `../common` Groovy consumer.
+3. **[x] Step 3.3**: E2E verification against the `../common` Groovy consumer.
    - Files: none (verification only); note results in the exec log.
    - Description: Confirm `param(useFrom())` works without the two-statement
      workaround, via the `e2e-test`/`verify` path used in PLAN-0011.
    - Testing: Groovy consumer builds with the direct `useFrom()` form.
 
-4. **Step 3.4**: Update documentation.
+4. **[x] Step 3.4**: Update documentation.
    - Files: `CLAUDE.md` (the `useFrom()`/`useTo()` DSL-shortcut section), and any
      flows user docs mentioning the Kotlin-only caveat.
    - Description: State that `useFrom()`/`useTo()` now work in the Groovy DSL as
@@ -398,6 +419,7 @@ test green, existing overload tests green, and the outer-scope guard passing.
 | 2026-07-19 | AI Agent | Resolved all 3 open questions: (1) reproduce via Gradle TestKit functional test; (2) fix mechanism decided after Phase-1 spike; (3) harden the shared `bindClosure` for all overloads. Propagated to design decisions, Phase 1/2 steps, dependencies, testing, and risks. |
 | 2026-07-19 | AI Agent | Status draft → accepted (no unresolved questions). |
 | 2026-07-19 | AI Agent | Adversarial challenge at acceptance (revised): added Phase 0 (TestKit feasibility + pin leaking boundary), made fix-scope conditional on the boundary, moved fix-mechanism selection into Phase 2, added outer-variable TestKit guard (2.2), coverage check (3.2), workaround guard (3.1), and ordering note (1.1); re-rated TestKit risk to High. |
+| 2026-07-19 | AI Agent | Executed (per-phase). Phase-0 spike disproved the closure-binding hypothesis: real cause is Kotlin default-param methods lacking a no-arg JVM overload for Groovy. Fix = zero-arg `useFrom()`/`useTo()` overloads on `CommandStepBuilder`. Reproduction via `GroovyShell`+`ProjectBuilder` in `infra/gradle` (no TestKit). Steps 0.1–1.1, 2.1, 3.1–3.4 done; 2.2 skipped (moot). Verified: unit + Groovy repro + real-Gradle e2e green, coverage + spotless pass. Status → implemented. Deviations + a follow-up (dialectVersion parse for flows-only builds) in [EXEC-0015](EXEC-0015_flows-groovy-usefrom-useto-nested-closure.md). |
 
 ---
 

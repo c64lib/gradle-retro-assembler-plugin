@@ -203,6 +203,13 @@ class CommandStepBuilder(private val name: String, private val command: String) 
   }
 
   /**
+   * Zero-argument overload of [useFrom] for the Groovy DSL. Kotlin's `index` default parameter does
+   * not emit a callable no-arg JVM signature, so a Groovy `useFrom()` call would otherwise fail to
+   * resolve; this explicit overload provides one. Equivalent to `useFrom(0)`.
+   */
+  fun useFrom(): String = useFrom(0)
+
+  /**
    * Returns the output path at the specified index (default: 0 for first output). Useful for
    * referencing output paths defined via [to] in parameter values.
    *
@@ -245,6 +252,13 @@ class CommandStepBuilder(private val name: String, private val command: String) 
     }
     return outputs[index]
   }
+
+  /**
+   * Zero-argument overload of [useTo] for the Groovy DSL. Kotlin's `index` default parameter does
+   * not emit a callable no-arg JVM signature, so a Groovy `useTo()` call would otherwise fail to
+   * resolve; this explicit overload provides one. Equivalent to `useTo(0)`.
+   */
+  fun useTo(): String = useTo(0)
 
   internal fun build(): CommandStep {
     return CommandStep(name, command, inputs.toList(), outputs.toList(), parameters.toList())

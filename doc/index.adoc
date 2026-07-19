@@ -1892,6 +1892,13 @@ commandStep("exomize", "exomizer") {
 
 With multiple inputs or outputs, pass the zero-based index: `useFrom(1)`, `useTo(0)`, etc.
 
+[NOTE]
+====
+`useFrom()` / `useTo()` work as bare arguments (for example `param(useFrom())`) in **both** the
+Groovy and Kotlin DSLs, including inside a `commandStep` nested in a `flow`. No local-variable
+workaround is needed.
+====
+
 === Parallel Execution
 
 Within a flow, the plugin does not run steps in declaration order. Instead it derives the

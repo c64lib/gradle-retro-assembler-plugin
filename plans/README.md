@@ -19,4 +19,4 @@ Plans are permanent artifacts — do not delete. Terminal plans (`implemented`, 
 | [PLAN-0012](PLAN-0012_flows-user-documentation.md) | 2026-07-18 | implemented | Extend User Documentation with Flows Capabilities | #178 | [EXEC-0012](EXEC-0012_flows-user-documentation.md) |
 | [PLAN-0013](PLAN-0013_teststep-stale-spec-results.md) | 2026-07-18 | implemented | Fix stale pass/fail results in testStep when derived artifacts already exist | #175 | [EXEC-0013](EXEC-0013_teststep-stale-spec-results.md) |
 | [PLAN-0014](PLAN-0014_adversarial-challenge-at-acceptance.md) | 2026-07-19 | implemented | Move adversarial challenge to plan acceptance | #186 | [EXEC-0014](EXEC-0014_adversarial-challenge-at-acceptance.md) |
-| [PLAN-0015](PLAN-0015_flows-groovy-usefrom-useto-nested-closure.md) | 2026-07-19 | accepted | Fix useFrom()/useTo() in Groovy nested commandStep closures | #182 | — |
+| [PLAN-0015](PLAN-0015_flows-groovy-usefrom-useto-nested-closure.md) | 2026-07-19 | implemented | Fix useFrom()/useTo() in Groovy nested commandStep closures | #182 | [EXEC-0015](EXEC-0015_flows-groovy-usefrom-useto-nested-closure.md) |
