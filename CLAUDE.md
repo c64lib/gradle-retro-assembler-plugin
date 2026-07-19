@@ -240,6 +240,13 @@ commandStep("process", "tool") {
 - Prevents copy-paste errors
 - Works seamlessly in `param()`, `option()`, and `withOption()` methods
 
+**Groovy DSL note (issue #182):** `useFrom(index: Int = 0)` / `useTo(index: Int = 0)` also carry
+explicit **zero-argument overloads** (`fun useFrom(): String = useFrom(0)`). Kotlin default
+parameters do not emit a callable no-arg JVM signature, so a Groovy `useFrom()` / `useTo()` call
+(e.g. `param(useFrom())` in a `build.gradle`) would otherwise fail to resolve and fall through to
+the `flows` extension. Do not remove these overloads — they are what makes the shortcuts work from
+the Groovy DSL.
+
 ### Task Execution Order
 
 The flows subdomain integrates seamlessly with the build pipeline through automatic task dependencies:
