@@ -180,18 +180,23 @@ data class CharpadOutputs(
 ) {
   /** Returns all output file paths for dependency tracking. */
   fun getAllOutputPaths(): List<String> {
+    // Filter-only output blocks (e.g. `tiles { interleaver { ... } }`) and empty `meta {}` carry an
+    // empty primary `output`; their real files come from the filter sub-outputs below. Drop the
+    // blanks so they never register as `''` artifacts (mirrors FlowTasksGenerator.kt empty-path
+    // filtering) — see issue #181.
     val primaryOutputs =
-        charsets.map { it.output } +
-            charAttributes.map { it.output } +
-            charColours.map { it.output } +
-            charMaterials.map { it.output } +
-            charScreenColours.map { it.output } +
-            tiles.map { it.output } +
-            tileTags.map { it.output } +
-            tileColours.map { it.output } +
-            tileScreenColours.map { it.output } +
-            maps.map { it.output } +
-            metadata.map { it.output }
+        (charsets.map { it.output } +
+                charAttributes.map { it.output } +
+                charColours.map { it.output } +
+                charMaterials.map { it.output } +
+                charScreenColours.map { it.output } +
+                tiles.map { it.output } +
+                tileTags.map { it.output } +
+                tileColours.map { it.output } +
+                tileScreenColours.map { it.output } +
+                maps.map { it.output } +
+                metadata.map { it.output })
+            .filter { it.isNotEmpty() }
 
     val rangeFilterOutputs =
         (charsets +

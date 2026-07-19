@@ -273,12 +273,18 @@ class FlowBuilder(private val name: String) {
   /** Adds a built step and registers its input/output artifacts for dependency tracking. */
   private fun registerStep(stepName: String, step: FlowStep) {
     steps.add(step)
-    step.inputs.forEach { input ->
-      inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input))
-    }
-    step.outputs.forEach { output ->
-      outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
-    }
+    // Skip empty paths: a filter-only step output (e.g. Charpad `tiles { interleaver { ... } }`)
+    // carries an empty primary path whose real files come from the filter sub-outputs. Registering
+    // it as an artifact would create a `''` producer path that collides across flows during
+    // validation (issue #181). Mirrors the empty-path filtering in FlowTasksGenerator.
+    step.inputs
+        .filter { it.isNotEmpty() }
+        .forEach { input -> inputs.add(FlowArtifact("${stepName}_input_${inputs.size}", input)) }
+    step.outputs
+        .filter { it.isNotEmpty() }
+        .forEach { output ->
+          outputs.add(FlowArtifact("${stepName}_output_${outputs.size}", output))
+        }
   }
 
   internal fun build(): Flow =
