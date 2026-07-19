@@ -21,7 +21,7 @@ If no plan exists yet, this is a planning task — hand off to the `plan` skill 
 Plans live in **`plans/PLAN-nnnn_{slug}.md`** and follow the canonical template
 (`.claude/templates/plan.template.md`). The parts this skill reads:
 
-- Header: `**Plan ID**`, `**Issue**`, `**Status**`.
+- Header: `**Plan ID**`, `**Issue**`, `**Status**`, `**Challenge**` (whether an adversarial challenge was run — see Step 2).
 - **Section 5 — Implementation Plan**: `### Phase N: {name}` blocks, each containing numbered `**Step N.M**: {action}` entries with `Files:`, `Description:`, `Testing:` fields and a `**Phase N Deliverable**` line.
 
 This skill targets `plans/` only. It does not read or execute legacy `.ai/` plans.
@@ -66,7 +66,14 @@ Parse Section 5 into phases and steps. Present a summary:
 - Each phase name and its steps (`N.M`), with each step's deliverable and testing note.
 - Current status of each step, inferred from checkboxes / completion markers already in the plan (pending / completed / skipped / blocked).
 
-**Offer an adversarial challenge**: before executing, ask the user (via `AskUserQuestion`) whether to run an adversarial **`challenge`** review of the plan first (mode A — red-team the plan). If they accept, invoke `Skill(skill: "challenge", ...)` on the plan, relay its findings, and let the user decide whether to revise the plan (hand back to `/plan update`) or proceed with execution as-is. If they decline, continue. This is an explicit offer, not a default — never run the challenge silently, and never block execution on it.
+**Offer an adversarial challenge (only if not already challenged)**: the primary place to red-team a plan is at acceptance (the `plan` skill's `→ accepted` transition). This skill offers it only as a **fallback**, when the plan shows no challenge was run. Read the plan's `**Challenge**:` header field (the canonical four-value enum is defined in the `plan` skill's *Challenge Field* section):
+
+- If the field **starts with `not run`**, or the field is **missing** (treat missing as `not run` — fail safe toward offering), offer the challenge: ask the user (via `AskUserQuestion`) whether to run an adversarial **`challenge`** review first (mode A — red-team the plan).
+- If the field starts with `passed`/`revised`/`waived`, a challenge was already handled at acceptance — note that and **skip the offer** (the user may still request one explicitly).
+
+If the user accepts the offer, invoke `Skill(skill: "challenge", ...)` on the plan, relay its findings, and let the user decide whether to revise the plan (hand back to `/plan update`) or proceed with execution as-is. **Close the loop**: after a fallback challenge runs, record the outcome by delegating to the `plan` skill's UPDATE to set `**Challenge**:` to `revised {date}` (plan was updated to address findings), `passed {date}` (run, no changes needed), or `waived {date}` (offered again and declined) — do not hand-edit the field directly (all plan-file writes go through the `plan` skill). Without this write-back the field stays `not run` and this offer would recur on every run.
+
+This is an explicit offer, not a default — never run the challenge silently, and never block execution on it.
 
 ### Step 3 — Choose scope
 
@@ -145,7 +152,7 @@ Report: steps completed, steps skipped/blocked (with reasons), steps still pendi
 - **Ship in order: commit → push → PR → issue sync → issue close** (Step 8). Each is an explicit `AskUserQuestion` offer; never do any of them silently or automatically.
 - **Never update the linked issue's description without asking** — the issue sync in Step 8 is an explicit offer, not a default.
 - **Never close the linked issue without asking**, and only offer to close it once a PR exists, the issue has been synced with the plan, and the plan is fully `implemented` — see Step 8.
-- **The adversarial challenge is an offer, not a gate** — offer it in Step 2, never run it silently, and never block execution on it.
+- **The adversarial challenge is an offer, not a gate** — and only a **fallback** offer: in Step 2, offer it only when the plan's `**Challenge**:` field starts with `not run` (missing ⇒ `not run`); skip it when a challenge was already handled at acceptance. After a fallback challenge runs, write the `**Challenge**:` field back via the `plan` skill. Never run the challenge silently, and never block execution on it.
 - **Never run `./gradlew` inline** — delegate every Gradle run to `build` / `test` / `e2e-test`.
 - **Stay within the selected scope** — implement only the steps the user chose.
 - **Never run `git`/`gh` directly** — delegate all branch/commit/push/PR/status work to `git-utils` and `gh-utils`.

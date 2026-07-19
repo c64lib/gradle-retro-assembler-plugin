@@ -34,7 +34,24 @@ Normal flow: `draft → accepted → in progress → implemented`. A plan may go
 
 **Terminal states are historical.** Once a plan is `implemented` or `rejected` it is a historical record: it is not kept in sync with the codebase and **is allowed to go stale**. Do not "freshen" or re-verify terminal plans, and do not re-open one — create a new plan instead. Terminal plans are never deleted (see Storage Rules); they stay in `plans/` and the index as history.
 
-**Acceptance gate (`→ accepted`).** A plan may only transition to `accepted` when its `### Unresolved Questions` list is empty (every question answered and moved to `### Self-Reflection Questions`). If any remain, do not set `accepted` — resolve them first (via the UPDATE rules), then retry. On acceptance, also ask the user whether the plan should be copied onto the linked GitHub issue's description (see UPDATE Step 4), and offer to create the feature branch the work will be implemented on (see UPDATE Step 4a).
+**Acceptance gate (`→ accepted`).** A plan may only transition to `accepted` when its `### Unresolved Questions` list is empty (every question answered and moved to `### Self-Reflection Questions`). If any remain, do not set `accepted` — resolve them first (via the UPDATE rules), then retry. On acceptance, also offer the adversarial challenge (see UPDATE Step 4b), ask the user whether the plan should be copied onto the linked GitHub issue's description (see UPDATE Step 4), and offer to create the feature branch the work will be implemented on (see UPDATE Step 4a).
+
+---
+
+## Challenge Field
+
+Every plan also carries a `**Challenge**:` header field recording whether the adversarial **`challenge`** review (mode A — red-team the plan) has been run. **This section is the single, canonical source of truth for the `**Challenge**:` vocabulary** — the plan template, the `execute` skill, and any other asset must mirror it, not redefine it.
+
+Its value is one of exactly these four (a **closed enum**, mirroring how `**Status**` is defined):
+
+| Value | Meaning |
+|-------|---------|
+| `not run` | No challenge has been run yet. This is the default on creation. |
+| `passed {YYYY-MM-DD}` | A challenge was run and the plan needed no changes. |
+| `revised {YYYY-MM-DD}` | A challenge was run and the plan was updated to address its findings. |
+| `waived {YYYY-MM-DD}` | The challenge was explicitly offered and declined. |
+
+The challenge is **offered, never forced** — it is not a gate on acceptance or execution. New plans start at `not run`. The field is written at acceptance (UPDATE Step 4b) or, as a fallback, during execution (the `execute` skill writes it back after a fallback challenge). Findings are summarised in the plan's `### Adversarial Challenge` subsection (section 4). The `execute` skill re-offers the challenge only when the field **starts with `not run`** (a missing field is treated as `not run`), so an already-challenged plan is not re-challenged by default.
 
 ---
 
@@ -72,7 +89,7 @@ Extract the numeric part, increment, zero-pad to 4 digits. If none exist, start 
 
 ### Step 4 — Write the plan from the template
 
-Read `.claude/templates/plan.template.md`, fill in the header placeholders (`{nnnn}`, `{issue-number}`, `{Feature Name}`, `{YYYY-MM-DD}`), and complete the body sections from the Step 2 analysis. Write to:
+Read `.claude/templates/plan.template.md`, fill in the header placeholders (`{nnnn}`, `{issue-number}`, `{Feature Name}`, `{YYYY-MM-DD}`), and complete the body sections from the Step 2 analysis. New plans keep the template's `**Challenge**: not run` header field and its `### Adversarial Challenge` subsection (section 4) as-is — a challenge has not been run yet (see *Challenge Field*). Write to:
 ```
 plans/PLAN-{nnnn}_{feature-short-name}.md
 ```
@@ -170,6 +187,20 @@ An accepted plan is ready to implement, so it should have a feature branch to be
 4. If the user declines, leave the branch as-is; the `execute` skill can still create it later.
 
 This is an explicit offer, not a gate — never create the branch silently, and never block acceptance on it.
+
+### Step 4b — Offer the adversarial challenge (on `→ accepted`)
+
+An accepted plan is the point of maximum revisability, so it is the natural place to red-team it. **Only on the `→ accepted` transition**, after the acceptance gate passes and before finalising acceptance:
+
+1. If the plan's `**Challenge**:` field already starts with `passed`/`revised`/`waived`, a challenge was already handled — note that and skip the offer.
+2. Otherwise ask the user (via `AskUserQuestion`) **"Run an adversarial challenge (red-team) on this plan before accepting?"**
+3. If the user accepts, invoke `Skill(skill: "challenge", ...)` on the plan (mode A — red-team the plan), relay the findings, and let the user choose to **revise** the plan (apply the findings via these same UPDATE rules) or **accept as-is**:
+   - If the plan was revised to address findings, set `**Challenge**: revised {YYYY-MM-DD}`.
+   - If it was run and needed no changes, set `**Challenge**: passed {YYYY-MM-DD}`.
+   - Summarise the findings (and how they were addressed) in the `### Adversarial Challenge` subsection (section 4).
+4. If the user declines, set `**Challenge**: waived {YYYY-MM-DD}` and note "declined at acceptance" in the `### Adversarial Challenge` subsection.
+
+Use only the canonical four values (see *Challenge Field*). This is an explicit offer, **not a gate** — never run the challenge silently, and never block acceptance on it. The `challenge` skill only critiques; this skill records the outcome.
 
 ### Step 5 — Revision history
 
