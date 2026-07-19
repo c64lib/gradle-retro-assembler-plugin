@@ -165,6 +165,13 @@ Step classes are immutable data classes representing individual processing steps
 - Remove verbose multi-paragraph documentation and code examples
 - Add inline comments only for non-obvious logic
 
+**64spec Test Results (`testStep`)**: The `.specOut` result file is written by the 64spec test
+program running *inside VICE*, not by the plugin, so `Run64SpecTestUseCase` cannot otherwise tell
+whether a run actually produced it. It therefore deletes any stale `.specOut` before invoking VICE
+and throws if `.specOut` is still missing afterward — a spec result always reflects the current run,
+or the build fails explicitly, even when derived `.prg`/`.vs`/`.specOut` already exist from a
+previous run.
+
 ### Example Step Implementation
 
 ```kotlin

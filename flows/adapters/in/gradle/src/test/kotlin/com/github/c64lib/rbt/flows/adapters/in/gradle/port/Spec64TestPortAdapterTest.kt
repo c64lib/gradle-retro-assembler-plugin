@@ -63,8 +63,12 @@ class Spec64TestPortAdapterTest :
         val runCalls = mutableListOf<ViceParameters>()
         val vicePort =
             object : RunTestOnVicePort {
+              var resultFile: File? = null
+              var resultContent: String = ""
+
               override fun run(parameters: ViceParameters) {
                 runCalls.add(parameters)
+                resultFile?.writeText(resultContent)
               }
             }
 
@@ -100,8 +104,10 @@ class Spec64TestPortAdapterTest :
           val tempDir = Files.createTempDirectory("spec-adapter").toFile()
           val spec = File(tempDir, "math.spec.asm")
           spec.writeText("sfspec: init_spec()")
-          // Run64SpecTestUseCase reads the .specOut result file produced by the run.
-          File(tempDir, "math.spec.specOut").writeText("Overall test report (3/3)")
+          // Run64SpecTestUseCase deletes any stale .specOut before running, so the fake VICE port
+          // must write it during run() to mirror the real 64spec-in-VICE behaviour.
+          vicePort.resultFile = File(tempDir, "math.spec.specOut")
+          vicePort.resultContent = "Overall test report (3/3)"
 
           val result = adapter.runSpec(spec)
 
