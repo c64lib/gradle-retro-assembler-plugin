@@ -3,6 +3,7 @@
 **Plan ID**: PLAN-{nnnn}
 **Issue**: #{issue-number}
 **Status**: draft
+**Challenge**: not run
 **Created**: {YYYY-MM-DD}
 
 ## 1. Feature Description
@@ -64,6 +65,14 @@
 - **Decision**: {What needs to be decided}
   - **Options**: {Option A, Option B}
   - **Recommendation**: {Your recommendation and why}
+
+### Adversarial Challenge
+{Records the adversarial `challenge` review (mode A). Mirrors the `**Challenge**:`
+header field. Left as "not run" until a challenge is offered at acceptance (plan
+skill) or execution (execute skill).}
+- **Status**: not run
+- **Findings**: {Short summary of the strongest objections and how they were
+  addressed — or "none" once run with nothing to change.}
 
 ## 5. Implementation Plan
 
