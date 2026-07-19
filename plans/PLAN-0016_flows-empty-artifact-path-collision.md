@@ -2,7 +2,7 @@
 
 **Plan ID**: PLAN-0016
 **Issue**: #181
-**Status**: accepted
+**Status**: implemented
 **Challenge**: revised 2026-07-19
 **Created**: 2026-07-19
 **Last Updated**: 2026-07-19
@@ -195,7 +195,7 @@ empty-path guard sits at the registration choke point so no step type can reintr
 **Goal**: Empty output paths never enter `CharpadStep.outputs` or the flow artifact registry;
 regression tests lock the behaviour in.
 
-1. **Step 1.1**: Filter empty primary outputs in `CharpadOutputs.getAllOutputPaths()`.
+1. **Step 1.1** — [x] done: Filter empty primary outputs in `CharpadOutputs.getAllOutputPaths()`.
    - Files: `flows/src/main/kotlin/com/github/c64lib/rbt/flows/domain/config/CharpadOutputs.kt`
    - Description: Apply `.filter { it.isNotEmpty() }` to the **`primaryOutputs` sub-list only**
      (CharpadOutputs.kt:183–194), leaving `rangeFilterOutputs`/`mapFilterOutputs` untouched. Use
@@ -209,7 +209,7 @@ regression tests lock the behaviour in.
      filter sub-output paths, no `""`; **assert the real filter sub-outputs are still present**; and
      `hasOutputs()` stays true. Add a case for an empty `meta {}` output (unguarded builder path).
 
-2. **Step 1.2**: Filter empty paths at the artifact-registration choke point in `FlowDsl.registerStep()`.
+2. **Step 1.2** — [x] done: Filter empty paths at the artifact-registration choke point in `FlowDsl.registerStep()`.
    - Files: `flows/adapters/in/gradle/src/main/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/FlowDsl.kt`
    - Description: In `registerStep`, skip blank entries when building input/output `FlowArtifact`s
      (guard the `step.inputs`/`step.outputs` iterations at lines 276–281 with `isNotEmpty()`).
@@ -217,7 +217,8 @@ regression tests lock the behaviour in.
    - Testing: Unit test — a step whose `outputs` (and `inputs`) contain `""` registers no empty-path
      artifact.
 
-3. **Step 1.3**: Integration regression test for the two-flow collision — **through the real DSL path**.
+3. **Step 1.3** — [x] done: Integration regression test for the two-flow collision — **through the real DSL path**.
+   (Implemented as `FilterOnlyEmptyPathCollisionTest`; verified failing on HEAD without the fix, green with it. Drives `FlowDslBuilder` per exec-log deviation #1.)
    - Files: new test under
      `flows/adapters/in/gradle/src/test/kotlin/com/github/c64lib/rbt/flows/adapters/in/gradle/`
      (near `CharpadIntegrationTest.kt`)
@@ -237,8 +238,9 @@ mergeable on its own.
 ### Phase 2: End-to-end verification against tony
 **Goal**: Confirm the real-world harness that surfaced the bug now configures and builds.
 
-1. **Step 2.1**: e2e-test the locally built plugin against tony.
+1. **Step 2.1** — [x] done: e2e-test the locally built plugin against tony.
    - Files: none (verification only) — use the `e2e-test` skill.
+   - Result: tony `./gradlew tasks` and `./gradlew flows` both BUILD SUCCESSFUL; no "produced by multiple flows" error; 68 flow steps ran; representative artifacts present and non-empty.
    - Description: Publish the plugin to mavenLocal as the snapshot and run tony's `flows` (and
      `tasks`) task; confirm configuration completes with no empty-path `FlowValidationException` and
      expected artifacts are produced.
@@ -291,6 +293,7 @@ mergeable on its own.
 |------|------------|---------|
 | 2026-07-19 | AI Agent | Created plan; root cause traced to `CharpadOutputs.getAllOutputPaths` + `FlowDsl.registerStep`. |
 | 2026-07-19 | AI Agent | Accepted. Ran adversarial challenge (mode A) → revised: sharpened Step 1.3 to drive the real DSL path and assert sub-outputs survive; standardised on `isNotEmpty()`; verified `CharpadCommand` non-positional use (risk resolved); pinned Step 1.1 to the `primaryOutputs` sub-list. |
+| 2026-07-19 | AI Agent | Executed all steps (autonomous). Applied both source fixes + `FilterOnlyEmptyPathCollisionTest`; verified test fails on HEAD without fix and passes with it; flows unit tests + Spotless green; tony e2e (`tasks`, `flows`) BUILD SUCCESSFUL with artifacts present. Status → implemented. See [EXEC-0016](EXEC-0016_flows-empty-artifact-path-collision.md) (deviation: test drives `FlowDslBuilder`). |
 
 ---
 
