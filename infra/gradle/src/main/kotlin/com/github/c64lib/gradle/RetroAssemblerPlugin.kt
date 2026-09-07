@@ -26,8 +26,17 @@ package com.github.c64lib.gradle
 
 import com.github.c64lib.gradle.tasks.Build
 import com.github.c64lib.gradle.tasks.Preprocess
+import com.github.c64lib.rbt.compilers.dasm.adapters.`in`.gradle.DasmAssemble
+import com.github.c64lib.rbt.compilers.dasm.adapters.`in`.gradle.ResolveDasm
+import com.github.c64lib.rbt.compilers.dasm.adapters.out.filedownload.DownloadDasmAdapter
+import com.github.c64lib.rbt.compilers.dasm.adapters.out.filedownload.UnpackZipAdapter
 import com.github.c64lib.rbt.compilers.dasm.adapters.out.gradle.DasmAssembleAdapter
+import com.github.c64lib.rbt.compilers.dasm.adapters.out.gradle.ReadVersionAdapter as DasmReadVersionAdapter
+import com.github.c64lib.rbt.compilers.dasm.adapters.out.gradle.SaveVersionAdapter as DasmSaveVersionAdapter
+import com.github.c64lib.rbt.compilers.dasm.domain.DasmAssemblerSettings
+import com.github.c64lib.rbt.compilers.dasm.domain.DasmOperatingSystem
 import com.github.c64lib.rbt.compilers.dasm.usecase.DasmAssembleUseCase
+import com.github.c64lib.rbt.compilers.dasm.usecase.DownloadDasmUseCase
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.Assemble
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.AssembleSpec
 import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.Clean
@@ -53,6 +62,7 @@ import com.github.c64lib.rbt.emulators.vice.adapters.out.gradle.RunTestOnViceAda
 import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowTasksGenerator
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowsExtension
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.DasmAssembleTask
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.TestTask
 import com.github.c64lib.rbt.processors.charpad.adapters.`in`.gradle.Charpad
 import com.github.c64lib.rbt.processors.goattracker.adapters.`in`.gradle.Goattracker
@@ -72,6 +82,7 @@ import com.github.c64lib.rbt.processors.image.usecase.WriteImageUseCase
 import com.github.c64lib.rbt.processors.spritepad.adapters.`in`.gradle.Spritepad
 import com.github.c64lib.rbt.shared.domain.SemVer
 import com.github.c64lib.rbt.shared.filedownload.FileDownloader
+import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD
 import com.github.c64lib.rbt.shared.gradle.TASK_ASM
 import com.github.c64lib.rbt.shared.gradle.TASK_ASM_SPEC
 import com.github.c64lib.rbt.shared.gradle.TASK_BUILD
@@ -82,6 +93,7 @@ import com.github.c64lib.rbt.shared.gradle.TASK_FLOWS
 import com.github.c64lib.rbt.shared.gradle.TASK_GOATTRACKER
 import com.github.c64lib.rbt.shared.gradle.TASK_IMAGE
 import com.github.c64lib.rbt.shared.gradle.TASK_PREPROCESS
+import com.github.c64lib.rbt.shared.gradle.TASK_RESOLVE_DASM
 import com.github.c64lib.rbt.shared.gradle.TASK_RESOLVE_DEV_DEPENDENCIES
 import com.github.c64lib.rbt.shared.gradle.TASK_SPRITEPAD
 import com.github.c64lib.rbt.shared.gradle.TASK_TEST
@@ -91,6 +103,7 @@ import com.github.c64lib.rbt.shared.gradle.dsl.PreprocessingExtension
 import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
 import com.github.c64lib.rbt.testing.a64spec.adapters.`in`.gradle.Test
 import com.github.c64lib.rbt.testing.a64spec.usecase.Run64SpecTestUseCase
+import com.github.c64lib.retroassembler.domain.AssemblerType
 import java.io.File
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -100,8 +113,13 @@ class RetroAssemblerPlugin : Plugin<Project> {
 
   /**
    * Task handles produced by [wireDependencies], consumed by [wireSources] and [wireSpecAndTest].
+   * [resolveDasm] is only present when `retroProject.dasmVersion` is configured.
    */
-  private data class DependencyTasks(val resolveDevDeps: Task, val downloadDependencies: Task)
+  private data class DependencyTasks(
+      val resolveDevDeps: Task,
+      val downloadDependencies: Task,
+      val resolveDasm: Task? = null
+  )
 
   override fun apply(project: Project) {
 
@@ -120,15 +138,25 @@ class RetroAssemblerPlugin : Plugin<Project> {
       val preprocess = wirePreprocess(project, preprocessExtension)
 
       // TODO Somehow, the ResolveDevDeps should give the settings. How!?
+      // Under the Dasm dialect the KickAssembler version may stay at its unparseable "latest"
+      // default; fall back so configuration does not fail — the Kick jar is only exercised
+      // when a KickAssembler use case actually runs.
+      val kickVersion =
+          if (extension.dialect == AssemblerType.Dasm) {
+            SemVer.fromStringOrNull(extension.dialectVersion) ?: SemVer(0, 0)
+          } else {
+            SemVer.fromString(extension.dialectVersion)
+          }
       val settings =
           KickAssemblerSettings(
               File("${extension.workDir}/asms/ka/${extension.dialectVersion}/KickAss.jar"),
-              SemVer.fromString(extension.dialectVersion))
+              kickVersion)
+      val dasmSettings = dasmAssemblerSettings(project, extension)
 
-      val assemble = wireSources(project, extension, settings, depTasks, preprocess)
+      val assemble = wireSources(project, extension, settings, dasmSettings, depTasks, preprocess)
       val runSpec = wireSpecAndTest(project, extension, settings, depTasks)
       wireBuild(project, assemble, runSpec)
-      wireFlows(project, extension, settings, flowsExtension, assemble, depTasks)
+      wireFlows(project, extension, settings, dasmSettings, flowsExtension, assemble, depTasks)
 
       if (project.defaultTasks.isEmpty()) {
         project.defaultTasks.add(TASK_BUILD)
@@ -159,8 +187,38 @@ class RetroAssemblerPlugin : Plugin<Project> {
                   ReadDependencyVersionAdapter(project),
                   SaveDependencyVersionAdapter(project))
         }
-    return DependencyTasks(resolveDevDeps, downloadDependencies)
+    val resolveDasm =
+        if (extension.dasmVersion != null) {
+          project.tasks.create(TASK_RESOLVE_DASM, ResolveDasm::class.java) { task ->
+            task.extension = extension
+            task.downloadDasmUseCase =
+                DownloadDasmUseCase(
+                    DownloadDasmAdapter(project, FileDownloader()),
+                    UnpackZipAdapter(project),
+                    DasmReadVersionAdapter(project),
+                    DasmSaveVersionAdapter(project))
+          }
+        } else {
+          null
+        }
+    return DependencyTasks(resolveDevDeps, downloadDependencies, resolveDasm)
   }
+
+  /**
+   * Resolves the dasm executable: explicit `dasmExecutable` wins, then the auto-downloaded
+   * `dasmVersion` binary, then PATH (null).
+   */
+  private fun dasmAssemblerSettings(
+      project: Project,
+      extension: RetroAssemblerPluginExtension
+  ): DasmAssemblerSettings =
+      DasmAssemblerSettings(
+          pathToExecutable = extension.dasmExecutable?.let { project.file(it) }
+                  ?: extension.dasmVersion?.let { version ->
+                    project.file(
+                        "${extension.workDir}/asms/dasm/$version/${DasmOperatingSystem.detect().executableName}")
+                  },
+          version = extension.dasmVersion)
 
   private fun wirePreprocess(project: Project, preprocessExtension: PreprocessingExtension): Task {
     val charpad =
@@ -197,15 +255,32 @@ class RetroAssemblerPlugin : Plugin<Project> {
       project: Project,
       extension: RetroAssemblerPluginExtension,
       settings: KickAssemblerSettings,
+      dasmSettings: DasmAssemblerSettings,
       depTasks: DependencyTasks,
       preprocess: Task
   ): Task {
     val assemble =
-        project.tasks.create(TASK_ASM, Assemble::class.java) { task ->
-          task.extension = extension
-          task.kickAssembleUseCase = KickAssembleUseCase(KickAssembleAdapter(project, settings))
+        if (extension.dialect == AssemblerType.Dasm) {
+          // dasm dialect: assemble with dasm; KickAssembler jar resolution is not needed
+          val dasmAssemble =
+              project.tasks.create(TASK_ASM, DasmAssemble::class.java) { task ->
+                task.extension = extension
+                task.dasmAssembleUseCase =
+                    DasmAssembleUseCase(DasmAssembleAdapter(project, dasmSettings))
+              }
+          dasmAssemble.dependsOn(depTasks.downloadDependencies, preprocess)
+          depTasks.resolveDasm?.let { dasmAssemble.dependsOn(it) }
+          dasmAssemble
+        } else {
+          val kickAssemble =
+              project.tasks.create(TASK_ASM, Assemble::class.java) { task ->
+                task.extension = extension
+                task.kickAssembleUseCase =
+                    KickAssembleUseCase(KickAssembleAdapter(project, settings))
+              }
+          kickAssemble.dependsOn(depTasks.resolveDevDeps, depTasks.downloadDependencies, preprocess)
+          kickAssemble
         }
-    assemble.dependsOn(depTasks.resolveDevDeps, depTasks.downloadDependencies, preprocess)
 
     project.tasks.create(TASK_CLEAN, Clean::class.java) { task ->
       task.extension = extension
@@ -220,6 +295,30 @@ class RetroAssemblerPlugin : Plugin<Project> {
       settings: KickAssemblerSettings,
       depTasks: DependencyTasks
   ): Task {
+    // 64spec runs on KickAssembler only; under the dasm dialect the spec tasks degrade to
+    // explicit no-ops so that `build` stays green
+    if (extension.dialect == AssemblerType.Dasm) {
+      val assembleSpec =
+          project.tasks.create(TASK_ASM_SPEC) { task ->
+            task.group = GROUP_BUILD
+            task.description = "Assembles spec files (skipped: 64spec requires KickAssembler)"
+            task.doLast {
+              task.logger.warn(
+                  "64spec testing requires the KickAssembler dialect - skipping asmSpec")
+            }
+          }
+      val runSpec =
+          project.tasks.create(TASK_TEST) { task ->
+            task.group = GROUP_BUILD
+            task.description = "Runs 64spec tests (skipped: 64spec requires KickAssembler)"
+            task.doLast {
+              task.logger.warn("64spec testing requires the KickAssembler dialect - skipping test")
+            }
+          }
+      runSpec.dependsOn(assembleSpec)
+      return runSpec
+    }
+
     val assembleSpec =
         project.tasks.create(TASK_ASM_SPEC, AssembleSpec::class.java) { task ->
           task.extension = extension
@@ -246,6 +345,7 @@ class RetroAssemblerPlugin : Plugin<Project> {
       project: Project,
       extension: RetroAssemblerPluginExtension,
       settings: KickAssemblerSettings,
+      dasmSettings: DasmAssemblerSettings,
       flowsExtension: FlowsExtension,
       assemble: Task,
       depTasks: DependencyTasks
@@ -254,7 +354,7 @@ class RetroAssemblerPlugin : Plugin<Project> {
     val kickAssembleUseCase = KickAssembleUseCase(KickAssembleAdapter(project, settings))
 
     // Create DasmAssembleUseCase for flow tasks that contain DasmSteps
-    val dasmAssembleUseCase = DasmAssembleUseCase(DasmAssembleAdapter(project))
+    val dasmAssembleUseCase = DasmAssembleUseCase(DasmAssembleAdapter(project, dasmSettings))
 
     // Create 64spec use cases for flow tasks that contain TestSteps (spec assembly + VICE run),
     // constructed exactly as in wireSpecAndTest
@@ -279,6 +379,13 @@ class RetroAssemblerPlugin : Plugin<Project> {
     // ./gradlew flows (on a clean checkout) and ./gradlew asm order dependency resolution first.
     project.tasks.withType(TestTask::class.java).configureEach { task ->
       task.dependsOn(depTasks.resolveDevDeps, depTasks.downloadDependencies)
+    }
+
+    // When a managed dasm binary is configured, download it before any dasm flow step runs
+    depTasks.resolveDasm?.let { resolveDasm ->
+      project.tasks.withType(DasmAssembleTask::class.java).configureEach { task ->
+        task.dependsOn(resolveDasm)
+      }
     }
 
     // Make the asm task depend on flows task to ensure flows run before assembly

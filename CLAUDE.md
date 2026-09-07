@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Gradle Retro Assembler Plugin is a Gradle plugin that adds capability for building Assembly projects for MOS 65xx family of microprocessors (primarily Commodore 64). Currently supports Kick Assembler as the ASM dialect.
+Gradle Retro Assembler Plugin is a Gradle plugin that adds capability for building Assembly projects for MOS 65xx family of microprocessors (primarily Commodore 64). Supports Kick Assembler and DASM as ASM dialects (DASM via the flows `dasmStep {}` and the legacy `dialect = Dasm` path; the dasm binary can be auto-downloaded via `retroProject.dasmVersion` or taken from PATH).
 
 Published at: https://plugins.gradle.org/plugin/com.github.c64lib.retro-assembler
 

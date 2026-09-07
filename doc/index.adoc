@@ -183,8 +183,15 @@ retroProject {
 
 The minimal amount of information you have to provide is:
 
-dialect:: A type of assembler that you want to use (currently only `KickAssembler` is supported).
-dialectVersion:: A version of the selected assembler you want to use. For KickAssembler, see https://github.com/c64lib/asm-ka/releases for list of all available versions.
+dialect:: A type of assembler that you want to use: `KickAssembler` or `Dasm`.
+dialectVersion:: A version of the selected assembler you want to use. For KickAssembler, see https://github.com/c64lib/asm-ka/releases for list of all available versions. This property applies to KickAssembler only; for dasm see `dasmVersion` below.
+
+When using the `Dasm` dialect, the following optional properties control how the dasm binary is located:
+
+dasmVersion:: Version of the dasm binary to download automatically from https://github.com/dasm-assembler/dasm/releases[dasm-assembler releases] (2.20.16 or newer, e.g. `"2.20.17"`). The binary is cached under `.ra/asms/dasm/{version}/`. When unset, `dasm` must be installed and available on the `PATH`.
+dasmExecutable:: Explicit path to a dasm executable; takes precedence over the downloaded binary and the `PATH`.
+
+NOTE: 64spec testing (`asmSpec`, `test` tasks) requires the KickAssembler dialect. Under the `Dasm` dialect these tasks are skipped with a warning, so `build` still runs end to end. The `dasmVersion`/`dasmExecutable` properties also apply to <<dasm Step,dasm flow steps>>, so flows-based projects can use the managed binary too.
 
 In this setup, the tool will assemble all files with `asm` extension located in project directory and all subdirectories.
 See <<Customizing your build>> section to see how to modify this default behavior.
@@ -1416,6 +1423,11 @@ dasmStep("build") {
 | `excludes(pat...)` / `exclude(pat)`  | Exclude patterns for file discovery. | `[".ra/**/*.asm"]`
 | `additionalInputs(pat...)` / `additionalInput(pat)` | Extra input-file patterns to track as dependencies. | —
 |===
+
+By default the step invokes `dasm` from the `PATH`. Set `dasmVersion` (auto-download from the
+official releases) or `dasmExecutable` (explicit path) in the `retroProject { }` block to use a
+managed binary instead; when `dasmVersion` is set, dasm flow steps automatically depend on the
+`resolveDasm` download task.
 
 ==== CharPad Step
 

@@ -34,6 +34,7 @@ import com.github.c64lib.rbt.shared.gradle.TASK_FLOWS
 import com.github.c64lib.rbt.shared.gradle.TASK_GOATTRACKER
 import com.github.c64lib.rbt.shared.gradle.TASK_IMAGE
 import com.github.c64lib.rbt.shared.gradle.TASK_PREPROCESS
+import com.github.c64lib.rbt.shared.gradle.TASK_RESOLVE_DASM
 import com.github.c64lib.rbt.shared.gradle.TASK_RESOLVE_DEV_DEPENDENCIES
 import com.github.c64lib.rbt.shared.gradle.TASK_SPRITEPAD
 import com.github.c64lib.rbt.shared.gradle.TASK_TEST
@@ -41,6 +42,7 @@ import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import java.nio.file.Files
 import org.gradle.testfixtures.ProjectBuilder
 
@@ -133,6 +135,132 @@ class RetroAssemblerPluginTest :
         `when`("checking default tasks") {
           then("build is registered as the default task") {
             project.defaultTasks shouldContain TASK_BUILD
+          }
+        }
+      }
+
+      given("the plugin is applied with a flow containing a dasmStep") {
+        val project =
+            ProjectBuilder.builder()
+                .withProjectDir(Files.createTempDirectory("retro-assembler-plugin-test").toFile())
+                .build()
+        project.pluginManager.apply(RetroAssemblerPlugin::class.java)
+        project.extensions.getByType(RetroAssemblerPluginExtension::class.java).dialectVersion =
+            "5.25"
+        project.extensions
+            .getByType(com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowsExtension::class.java)
+            .flow("dasmBuild") {
+              dasmStep("assembleGame") {
+                from("game.asm")
+                to("build/game.prg")
+              }
+            }
+        (project as org.gradle.api.internal.project.ProjectInternal).evaluate()
+
+        `when`("checking generated flow tasks") {
+          then("the flow and step tasks are registered") {
+            project.tasks.findByName("flowDasmBuild") shouldBe
+                project.tasks.getByName("flowDasmBuild")
+            project.tasks.findByName("flowDasmBuildStepAssembleGame") shouldBe
+                project.tasks.getByName("flowDasmBuildStepAssembleGame")
+            project.tasks.findByName(TASK_FLOWS) shouldBe project.tasks.getByName(TASK_FLOWS)
+          }
+
+          then("the step task is a DasmAssembleTask with the use case injected") {
+            val stepTask =
+                project.tasks.getByName("flowDasmBuildStepAssembleGame")
+                    as com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.DasmAssembleTask
+            stepTask.dasmAssembleUseCase shouldNotBe null
+          }
+
+          then("the flow task depends on its step task") {
+            taskNamesDependedOnBy(project, "flowDasmBuild") shouldContain
+                "flowDasmBuildStepAssembleGame"
+          }
+
+          then("the flows aggregation task depends on the flow task") {
+            taskNamesDependedOnBy(project, TASK_FLOWS) shouldContain "flowDasmBuild"
+          }
+
+          then("no resolveDasm task exists without a configured dasmVersion") {
+            project.tasks.findByName(TASK_RESOLVE_DASM) shouldBe null
+          }
+        }
+      }
+
+      given("the plugin is applied with a dasmVersion and a dasm flow step") {
+        val project =
+            ProjectBuilder.builder()
+                .withProjectDir(Files.createTempDirectory("retro-assembler-plugin-test").toFile())
+                .build()
+        project.pluginManager.apply(RetroAssemblerPlugin::class.java)
+        val extension = project.extensions.getByType(RetroAssemblerPluginExtension::class.java)
+        extension.dialectVersion = "5.25"
+        extension.dasmVersion = "2.20.17"
+        project.extensions
+            .getByType(com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowsExtension::class.java)
+            .flow("dasmBuild") {
+              dasmStep("assembleGame") {
+                from("game.asm")
+                to("build/game.prg")
+              }
+            }
+        (project as org.gradle.api.internal.project.ProjectInternal).evaluate()
+
+        `when`("checking dasm binary resolution wiring") {
+          then("the resolveDasm task is registered") {
+            project.tasks.findByName(TASK_RESOLVE_DASM) shouldBe
+                project.tasks.getByName(TASK_RESOLVE_DASM)
+          }
+
+          then("the dasm flow step task depends on resolveDasm") {
+            taskNamesDependedOnBy(project, "flowDasmBuildStepAssembleGame") shouldContain
+                TASK_RESOLVE_DASM
+          }
+        }
+      }
+
+      given("the plugin is applied with the Dasm dialect") {
+        val project =
+            ProjectBuilder.builder()
+                .withProjectDir(Files.createTempDirectory("retro-assembler-plugin-test").toFile())
+                .build()
+        project.pluginManager.apply(RetroAssemblerPlugin::class.java)
+        val extension = project.extensions.getByType(RetroAssemblerPluginExtension::class.java)
+        @Suppress("DEPRECATION")
+        extension.dialect = com.github.c64lib.retroassembler.domain.AssemblerType.Dasm
+        extension.dasmVersion = "2.20.17"
+        (project as org.gradle.api.internal.project.ProjectInternal).evaluate()
+
+        `when`("checking the asm task wiring") {
+          then("asm is a DasmAssemble task") {
+            (project.tasks.getByName(TASK_ASM)
+                is com.github.c64lib.rbt.compilers.dasm.adapters.`in`.gradle.DasmAssemble) shouldBe
+                true
+          }
+
+          then("asm depends on resolveDasm, downloadDeps, and preprocess but not resolveDevDeps") {
+            val deps = taskNamesDependedOnBy(project, TASK_ASM)
+            deps shouldContain TASK_RESOLVE_DASM
+            deps shouldContain TASK_DEPENDENCIES
+            deps shouldContain TASK_PREPROCESS
+            deps.contains(TASK_RESOLVE_DEV_DEPENDENCIES) shouldBe false
+          }
+        }
+
+        `when`("checking the 64spec degradation") {
+          then("asmSpec and test are plain no-op tasks and test depends on asmSpec") {
+            (project.tasks.getByName(TASK_ASM_SPEC)
+                is
+                com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gradle.AssembleSpec) shouldBe
+                false
+            taskNamesDependedOnBy(project, TASK_TEST) shouldContain TASK_ASM_SPEC
+          }
+
+          then("build still depends on asm and test") {
+            val deps = taskNamesDependedOnBy(project, TASK_BUILD)
+            deps shouldContain TASK_ASM
+            deps shouldContain TASK_TEST
           }
         }
       }

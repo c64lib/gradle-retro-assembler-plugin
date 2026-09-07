@@ -31,13 +31,14 @@ The full wiring and task-dependency graph is walked step by step in [§6 Runtime
 | Task | Constant | Depends on |
 |------|----------|------------|
 | `resolveDevDeps` | `TASK_RESOLVE_DEV_DEPENDENCIES` | — |
+| `resolveDasm` (only when `dasmVersion` is set) | `TASK_RESOLVE_DASM` | — |
 | `downloadDeps` | `TASK_DEPENDENCIES` | — |
 | `charpad` / `spritepad` / `goattracker` / `image` | `TASK_CHARPAD` … | — |
 | `preprocess` | `TASK_PREPROCESS` | charpad, spritepad, goattracker, image |
-| `flows` | `TASK_FLOWS` | all top-level flow tasks (via `FlowTasksGenerator`) |
-| `asm` | `TASK_ASM` | resolveDevDeps, downloadDeps, preprocess, flows |
-| `asmSpec` | `TASK_ASM_SPEC` | resolveDevDeps, downloadDeps |
-| `test` | `TASK_TEST` | asmSpec |
+| `flows` | `TASK_FLOWS` | all top-level flow tasks (via `FlowTasksGenerator`); dasm flow step tasks additionally depend on `resolveDasm` when present |
+| `asm` | `TASK_ASM` | resolveDevDeps, downloadDeps, preprocess, flows — with `dialect = Dasm`: downloadDeps, preprocess, flows, resolveDasm (no resolveDevDeps) |
+| `asmSpec` | `TASK_ASM_SPEC` | resolveDevDeps, downloadDeps — with `dialect = Dasm`: a warning-only no-op task |
+| `test` | `TASK_TEST` | asmSpec — with `dialect = Dasm`: a warning-only no-op task |
 | `clean` | `TASK_CLEAN` | — |
 | `build` | `TASK_BUILD` | asm, test |
 

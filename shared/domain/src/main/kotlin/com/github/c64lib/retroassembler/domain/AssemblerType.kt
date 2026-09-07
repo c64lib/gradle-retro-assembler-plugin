@@ -27,5 +27,6 @@ package com.github.c64lib.retroassembler.domain
 @Deprecated("Will be removed in 2.0.0")
 enum class AssemblerType {
   KickAssembler,
+  Dasm,
   None
 }

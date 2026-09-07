@@ -24,15 +24,19 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.compilers.dasm.adapters.out.gradle
 
+import com.github.c64lib.rbt.compilers.dasm.domain.DasmAssemblerSettings
 import com.github.c64lib.rbt.compilers.dasm.usecase.port.DasmAssemblePort
 import java.io.File
 import org.gradle.api.Project
 
 /**
- * Gradle adapter that implements DasmAssemblePort by executing dasm via system command. Assumes
- * dasm is installed and available in system PATH environment variable.
+ * Gradle adapter that implements DasmAssemblePort by executing dasm via system command. Uses the
+ * executable resolved in [DasmAssemblerSettings], falling back to `dasm` on the PATH.
  */
-class DasmAssembleAdapter(private val project: Project) : DasmAssemblePort {
+class DasmAssembleAdapter(
+    private val project: Project,
+    private val settings: DasmAssemblerSettings = DasmAssemblerSettings()
+) : DasmAssemblePort {
   override fun assemble(
       libDirs: List<File>,
       defines: Map<String, String>,
@@ -62,14 +66,15 @@ class DasmAssembleAdapter(private val project: Project) : DasmAssemblePort {
             .symbolTableSort(symbolTableSort)
             .build()
 
+    val executable = settings.pathToExecutable?.absolutePath ?: "dasm"
     project.exec {
-      it.executable = "dasm"
+      it.executable = executable
       it.args = args
-      printArgs(args)
+      printArgs(executable, args)
     }
   }
 
-  private fun printArgs(args: List<String>) {
-    println("dasm ${args.joinToString(" ")}")
+  private fun printArgs(executable: String, args: List<String>) {
+    println("$executable ${args.joinToString(" ")}")
   }
 }

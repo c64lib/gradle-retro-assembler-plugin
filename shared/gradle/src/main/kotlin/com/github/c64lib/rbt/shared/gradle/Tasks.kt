@@ -33,6 +33,8 @@ const val TASK_CLEAN = "clean"
 
 const val TASK_RESOLVE_DEV_DEPENDENCIES = "resolveDevDeps"
 
+const val TASK_RESOLVE_DASM = "resolveDasm"
+
 const val TASK_DEPENDENCIES = "downloadDeps"
 
 const val TASK_TEST = "test"

@@ -40,6 +40,15 @@ open class RetroAssemblerPluginExtension {
   var workDir = ".ra"
   var dialect = AssemblerType.None
   var dialectVersion = DIALECT_VERSION_LATEST
+
+  /**
+   * Version of the dasm binary to auto-download from dasm-assembler GitHub releases (2.20.16 or
+   * newer). When unset, no download happens and dasm is expected on the PATH.
+   */
+  var dasmVersion: String? = null
+
+  /** Explicit path to a dasm executable; takes precedence over the downloaded binary. */
+  var dasmExecutable: String? = null
   var libDirs: Array<String> = emptyArray()
   var srcDirs = arrayOf(".")
   var includes: Array<String> = arrayOf("**/*.asm")

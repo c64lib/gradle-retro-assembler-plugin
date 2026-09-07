@@ -74,7 +74,9 @@ dependencies {
     compileOnly(project(":compilers:kickass:adapters:out:filedownload"))
 
     compileOnly(project(":compilers:dasm"))
+    compileOnly(project(":compilers:dasm:adapters:in:gradle"))
     compileOnly(project(":compilers:dasm:adapters:out:gradle"))
+    compileOnly(project(":compilers:dasm:adapters:out:filedownload"))
 
     compileOnly(project(":flows:"))
     compileOnly(project(":flows:adapters:in:gradle"))
@@ -127,7 +129,9 @@ dependencies {
     testImplementation(project(":compilers:kickass:adapters:out:filedownload"))
 
     testImplementation(project(":compilers:dasm"))
+    testImplementation(project(":compilers:dasm:adapters:in:gradle"))
     testImplementation(project(":compilers:dasm:adapters:out:gradle"))
+    testImplementation(project(":compilers:dasm:adapters:out:filedownload"))
 
     testImplementation(project(":flows:"))
     testImplementation(project(":flows:adapters:in:gradle"))

@@ -66,7 +66,7 @@ Every module declared in [`settings.gradle.kts`](../../settings.gradle.kts) is m
 | **infra** | `:infra:gradle` | [infra.md](building-blocks/infra.md) |
 | **shared** | `:shared:domain`, `:shared:filedownload`, `:shared:gradle`, `:shared:binary-utils`, `:shared:processor`, `:shared:testutils` | [shared.md](building-blocks/shared.md) |
 | **flows** | `:flows`, `:flows:adapters:in:gradle`, `:flows:adapters:out:gradle`, `:flows:adapters:out:charpad`, `:flows:adapters:out:spritepad`, `:flows:adapters:out:image`, `:flows:adapters:out:goattracker`, `:flows:adapters:out:exomizer` | [flows.md](building-blocks/flows.md) |
-| **compilers** | `:compilers:kickass`, `:compilers:kickass:adapters:in:gradle`, `:compilers:kickass:adapters:out:gradle`, `:compilers:kickass:adapters:out:filedownload`, `:compilers:dasm`, `:compilers:dasm:adapters:out:gradle` | [compilers.md](building-blocks/compilers.md) |
+| **compilers** | `:compilers:kickass`, `:compilers:kickass:adapters:in:gradle`, `:compilers:kickass:adapters:out:gradle`, `:compilers:kickass:adapters:out:filedownload`, `:compilers:dasm`, `:compilers:dasm:adapters:in:gradle`, `:compilers:dasm:adapters:out:gradle`, `:compilers:dasm:adapters:out:filedownload` | [compilers.md](building-blocks/compilers.md) |
 | **emulators** | `:emulators:vice`, `:emulators:vice:adapters:out:gradle` | [emulators.md](building-blocks/emulators.md) |
 | **testing** | `:testing:64spec`, `:testing:64spec:adapters:in:gradle` | [testing.md](building-blocks/testing.md) |
 | **dependencies** | `:dependencies`, `:dependencies:adapters:in:gradle`, `:dependencies:adapters:out:gradle` | [dependencies.md](building-blocks/dependencies.md) |

@@ -24,9 +24,12 @@ SOFTWARE.
 */
 package com.github.c64lib.rbt.compilers.dasm.domain
 
+import java.io.File
+
 /**
- * Marker settings class for dasm assembler. dasm is a system command-line tool that is assumed to
- * be installed and available via PATH environment variable. Unlike Kick Assembler, there is no
- * version management or JAR file handling needed.
+ * Settings for the dasm assembler.
+ *
+ * When [pathToExecutable] is null, dasm is expected to be installed and available on the PATH.
+ * [version] is set when a managed (auto-downloaded) dasm binary is configured.
  */
-data class DasmAssemblerSettings(val dummy: Boolean = true)
+data class DasmAssemblerSettings(val pathToExecutable: File? = null, val version: String? = null)
