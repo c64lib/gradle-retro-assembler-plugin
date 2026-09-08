@@ -1,0 +1,2599 @@
+ ▐▛███▛█   Claude Code v2.1.263
+▝▜██████▀  Fable 5 · Microsoft Foundry
+  ▝▝ ▝▝    C:\prj\github.com\c64lib\gradle-retro-assembler-plugin
+
+▎ Capgemini policy: review and validate all AI-generated content before sharing externally. Never paste credentials, secrets, or regulated client data into prompts.
+
+❯ /model fable                                                                  
+  ⎿  Set model to Fable 5 and saved as your default for new sessions
+          Managed settings pins Sonnet 5 — that applies on restart
+
+❯ Build feature to handle DASM (a Dialect of 6502 assembly) as supported        
+  assembler                                                                     
+
+● I'll start by invoking the readiness gate as required before building.
+
+● Skill(dialogue-core:dialogue-implement)
+  ⎿  Successfully loaded skill · 2 tools allowed
+
+● Skill(dialogue-data-fs:context)
+  ⎿  Successfully loaded skill · 2 tools allowed
+
+  Listed 1 directory, ran 1 shell command (ctrl+o to expand)
+
+● Explore(Survey assembler integration points)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● While that survey runs, I'll open a dialogue thread for this piece of work as
+  the framework requires.
+
+● Skill(dialogue-data-fs:thread)
+  ⎿  Successfully loaded skill · 2 tools allowed
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Thread opened. While the code survey runs, let me verify current DASM
+  distribution facts (releases, invocation) so the design rests on accurate
+  ground.
+
+● Web Search("dasm assembler GitHub releases latest version 6502 cross assembler
+            download binaries")
+  ⎿  Did 2 searches in 22s
+
+● DASM facts confirmed: it's a native macro assembler distributed via GitHub 
+  releases (dasm-assembler/dasm) with prebuilt binaries for Windows, macOS and
+  Linux; latest packaged release is 2.20.14.1 (project site). Unlike Kick
+  Assembler (a Java jar), DASM is a per-OS native executable — that distribution
+  difference will be the key design decision.
+
+  Now waiting for the codebase survey to complete before drafting the plan.
+
+  Sources: dasm-assembler/dasm, dasm-assembler.github.io
+
+✻ Worked for 2m 47s · done 6:22 PM
+
+● Agent "Survey assembler integration points" finished · 4m 40s
+
+● The survey came back with a decisive finding: DASM support already exists in 
+  this repo — implemented as a flows dasmStep {} (compilers/dasm module,
+  adapters, plugin wiring all present), though not as a legacy dialect = option,
+  and with some gaps (no tests, PATH-only binary). Let me verify the key claims
+  and check what's documented/released before deciding scope.
+
+  Searched for 3 patterns, ran 2 shell commands (ctrl+o to expand)
+
+● Skill(dialogue-data-fs:capture)
+  ⎿  Successfully loaded skill · 1 tool allowed
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● The requested feature substantially exists already, so what remains is a
+  genuine scope decision — I'll put it to you rather than guess.
+
+● User answered Claude's questions:
+  ⎿  · DASM support already exists on develop (PR #131: `dasmStep {}` in the 
+     flows DSL, compilers/dasm module, user-manual docs) but it's unreleased and
+     has zero tests. What should I build on top of that? → Harden existing 
+     dasmStep (Recommended), DASM binary auto-download, First-class dialect for 
+     asm task
+
+● All three streams selected: harden with tests, binary auto-download, and
+  first-class dialect. Recording that decision, then routing through this repo's
+  /plan skill as CLAUDE.md mandates.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Skill(plan)
+  ⎿  Successfully loaded skill
+
+● The /plan skill is loaded — starting CREATE. First let me check GitHub for any
+  existing DASM-related issues so the issue-linking question is informed.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The original DASM issue (#129) is closed — this is new work, so per the plan
+  skill I need to settle the issue linkage.
+● User answered Claude's questions:
+  ⎿  · The original DASM issue #129 is closed (flows-only support, shipped in PR
+     #131). Should this new plan (tests + binary auto-download + first-class 
+     dialect) be linked to a GitHub issue? → Create new issue (Recommended)
+
+● Creating the issue as approved.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The gh CLI is authenticated as an Enterprise Managed User that can't create
+  issues on c64lib. Checking whether another account is available.
+
+  Read 5 files, ran 1 shell command (ctrl+o to expand)
+
+● I have everything needed. Writing PLAN-0017 now, following the template.
+
+  Listed 1 directory (ctrl+o to expand)
+
+● Write(plans\PLAN-0017_complete-dasm-support.md)
+  ⎿  Wrote 239 lines to plans\PLAN-0017_complete-dasm-support.md
+      1 # Feature: Complete DASM Support
+      2 
+      3 **Plan ID**: PLAN-0017
+      4 **Issue**: #TBD (issue creation currently blocked — active `gh` a
+        ccount `MMALECKI_CGEMU` cannot create issues on c64lib; create an
+      5 **Status**: draft
+      6 **Challenge**: not run
+      7 **Created**: 2026-09-07
+      8 
+      9 ## 1. Feature Description
+     … +413 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(plans\README.md)
+  ⎿  Added 1 line
+      21  | [PLAN-0014](PLAN-0014_adversarial-challenge-at-acceptance.md)
+           | 2026-07-19 | implemented | Move adversarial challenge to pla
+          n acceptance | #186 | [EXEC-0014](EXEC-0014_adversarial-challen
+          ge-at-acceptance.md) |
+      22  | [PLAN-0015](PLAN-0015_flows-groovy-usefrom-useto-nested-closu
+          re.md) | 2026-07-19 | implemented | Fix useFrom()/useTo() in Gr
+          oovy nested commandStep closures | #182 | [EXEC-0015](EXEC-0015
+          _flows-groovy-usefrom-useto-nested-closure.md) |
+      23  | [PLAN-0016](PLAN-0016_flows-empty-artifact-path-collision.md)
+           | 2026-07-19 | implemented | Fix empty-path flow artifact coll
+          ision blocking all Gradle tasks | #181 | [EXEC-0016](EXEC-0016_
+          flows-empty-artifact-path-collision.md) |
+      24 +| [PLAN-0017](PLAN-0017_complete-dasm-support.md) | 2026-09-07 
+         +| draft | Complete DASM Support | — | — |                      
+
+● PLAN-0017 written and indexed. Registering it on the thread, then running the
+  refinement Q&A — the plan's four unresolved questions must be answered before
+  it can be accepted.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● User answered Claude's questions:
+  ⎿  · Where should the dasm binary be downloaded from? → Upstream releases 
+     (Recommended)
+     · How should the dasm version be configured for auto-download? → Dedicated 
+     dasmVersion (Recommended)
+     · What should asmSpec/test (64spec) do when dialect = Dasm? The 64spec 
+     pipeline is KickAssembler-only. → Skip with warning (Recommended)
+     · How should the dasm executable be resolved when both a downloaded binary 
+     and a PATH install exist? → Configured > downloaded > PATH (Recommended)
+
+● All four design decisions resolved (all recommended options). Updating the
+  plan to record them and propagate the impacts.
+
+● Update(plans\PLAN-0017_complete-dasm-support.md)
+  ⎿  Added 9 lines, removed 4 lines
+      109    - **A**: `{workDir}/asms/{tool}/{version}/` with a sibling `
+           version` stamp file (`.ra` by default); mirror this for dasm.
+      110  - **Q**: Are there tests to mirror?
+      111    - **A**: Yes — flows Kotest BehaviorSpec tests (`flows/src/t
+           est/kotlin/.../AssembleStepTest.kt`, builder tests under `flow
+           s/adapters/in/gradle/src/test/kotlin`), and `RetroAssemblerPlu
+           ginTest` (ProjectBuilder) in `infra/gradle`.
+      112 +- **Q**: Download source: upstream `dasm-assembler/dasm` relea
+          +ses directly, or a `c64lib/asm-dasm` mirror (consistent with `
+          +c64lib/asm-ka`)?                                              
+      113 +  - **A**: Upstream releases (user decision, 2026-09-07). No m
+          +irror to maintain; official provenance. Asset-naming drift is 
+          +mitigated by pinning the URL template per verified version (St
+          +ep 2.1).                                                      
+      114 +- **Q**: Version property: reuse `dialectVersion` when `dialec
+          +t = Dasm`, or a dedicated `dasmVersion` property?             
+      115 +  - **A**: Dedicated `dasmVersion` on `RetroAssemblerPluginExt
+          +ension` (user decision, 2026-09-07). Works for flows-only proj
+          +ects; `dialectVersion` keeps meaning the KickAssembler version
+          +. Unset ⇒ no download, PATH fallback.                         
+      116 +- **Q**: Behaviour of `asmSpec`/`test` when `dialect = Dasm`? 
+      117 +  - **A**: Skip with a logged warning (user decision, 2026-09-
+          +07) — `./gradlew build` stays green end-to-end under `dialect 
+          += Dasm`.                                                      
+      118 +- **Q**: Executable resolution precedence, and an override pro
+          +perty?                                                        
+      119 +  - **A**: `dasmExecutable` (explicit) → downloaded versioned 
+          +binary → `"dasm"` on PATH (user decision, 2026-09-07). Determi
+          +nistic once a version is pinned.                              
+      120  
+      121  ### Unresolved Questions
+      114 -- [ ] Download source: upstream `dasm-assembler/dasm` releases
+          - directly, or a `c64lib/asm-dasm` mirror (consistent with `c64
+          -lib/asm-ka`)?                                                 
+      115 -- [ ] Version property: reuse `dialectVersion` when `dialect =
+          - Dasm`, or a dedicated `dasmVersion` property (needed anyway f
+          -or flows-only projects that want auto-download)?              
+      116 -- [ ] Behaviour of `asmSpec`/`test` when `dialect = Dasm`: ski
+          -p with a warning, or fail fast with a clear message when spec 
+          -sources are present?                                          
+      117 -- [ ] Should the downloaded binary take precedence over an exp
+          -licitly PATH-installed dasm, and do we need an explicit `dasmE
+          -xecutable` override property?                                 
+      122 +(none — all resolved 2026-09-07)                              
+      123  
+      124  ### Design Decisions
+      125  - **Decision**: How the legacy `asm` task gains DASM support
+
+● Update(plans\PLAN-0017_complete-dasm-support.md)
+  ⎿  Added 12 lines
+      131  - **Decision**: Archive extraction implementation
+      132    - **Options**: (A) dasm-owned `UnpackArchivePort` + adapter 
+           using Java zip/commons-compress; (B) reuse `dependencies` doma
+           in's `UntarDependencyAdapter`
+      133    - **Recommendation**: (A) — cross-domain reuse of adapters v
+           iolates the hexagonal boundaries; copy the pattern, not the cl
+           ass.
+      134 +- **Decision**: Download source                               
+      135 +  - **Chosen**: Upstream `dasm-assembler/dasm` GitHub releases
+      136 +  - **Rationale**: No mirror maintenance; official provenance;
+          + URL template pinned per verified version.                    
+      137 +- **Decision**: Version configuration                         
+      138 +  - **Chosen**: Dedicated `dasmVersion` property on `RetroAsse
+          +mblerPluginExtension` (unset ⇒ no download)                   
+      139 +  - **Rationale**: Unambiguous alongside `dialectVersion` (Kic
+          +kAssembler); usable by flows-only projects.                   
+      140 +- **Decision**: 64spec under `dialect = Dasm`                 
+      141 +  - **Chosen**: `asmSpec`/`test` skip with a logged warning   
+      142 +  - **Rationale**: keeps `./gradlew build` green; 64spec remai
+          +ns a documented KickAssembler-only capability.                
+      143 +- **Decision**: Executable resolution                         
+      144 +  - **Chosen**: `dasmExecutable` property → downloaded `{workD
+          +ir}/asms/dasm/{version}/` binary → `"dasm"` on PATH           
+      145 +  - **Rationale**: explicit override for power users; determin
+          +istic builds once a version is pinned; unchanged behaviour for
+          + current PATH users.                                          
+      146  
+      147  ### Adversarial Challenge
+      148  - **Status**: not run
+
+● Update(plans\PLAN-0017_complete-dasm-support.md)
+  ⎿  Added 2 lines, removed 2 lines
+      188     - Description: implement ports with `shared/filedownload` `
+           FileDownloader` and JDK zip/tar handling.
+      189     - Testing: adapter unit tests where feasible; manual `resol
+           veDevDeps` run per OS.
+      190  4. **Step 2.4**: Executable resolution + wiring
+      191 -   - Files: `compilers/dasm/adapters/out/gradle/DasmAssembleAd
+          -apter.kt` (accept settings; use `pathToExecutable ?: "dasm"`),
+          - `infra/gradle/.../RetroAssemblerPlugin.kt` (build `DasmAssemb
+          -lerSettings`, extend `resolveDevDeps` wiring to trigger DASM d
+          -ownload when configured), extension property for the dasm vers
+          -ion (per unresolved question)                                 
+      192 -   - Description: thread settings through `wireFlows` (and lat
+          -er `wireSources`); download only when a dasm version is config
+          -ured / DASM is in use.                                        
+      191 +   - Files: `compilers/dasm/adapters/out/gradle/DasmAssembleAd
+          +apter.kt` (accept settings; use resolved executable, fallback 
+          +`"dasm"`), `infra/gradle/.../RetroAssemblerPlugin.kt` (build `
+          +DasmAssemblerSettings`, extend `resolveDevDeps` wiring to trig
+          +ger DASM download when `dasmVersion` is set), `shared/gradle/.
+          +../RetroAssemblerPluginExtension.kt` (new `dasmVersion` and `d
+          +asmExecutable` properties)                                    
+      192 +   - Description: thread settings through `wireFlows` (and lat
+          +er `wireSources`); resolution order `dasmExecutable` → downloa
+          +ded `{workDir}/asms/dasm/{dasmVersion}/` binary → PATH; downlo
+          +ad only when `dasmVersion` is configured.                     
+      193     - Testing: wiring tests in `RetroAssemblerPluginTest`; e2e 
+           on Windows (this machine) with no dasm on PATH.
+      194  
+      195  **Phase 2 Deliverable**: Auto-download behind explicit version
+            opt-in; PATH behaviour unchanged when unconfigured. Mergeable
+           .
+
+● Update(plans\PLAN-0017_complete-dasm-support.md)
+  ⎿  Added 2 lines, removed 2 lines
+      206     - Description: per-source assembly loop calling `DasmAssemb
+           leUseCase`; map extension `defines` (List) → dasm defines (Map
+           ) explicitly.
+      207     - Testing: task unit test (ProjectBuilder), e2e sample proj
+           ect.
+      208  3. **Step 3.3**: Plugin dialect branching
+      209 -   - Files: `infra/gradle/.../RetroAssemblerPlugin.kt` (`wireS
+          -ources` branches on `extension.dialect`; `wireSpecAndTest` deg
+          -rades for `Dasm` per unresolved question; `resolveDevDeps` dow
+          -nloads the right tool)                                        
+      210 -   - Description: `KickAssembler`/`None` keep today's behaviou
+          -r exactly; `Dasm` wires the new task.                         
+      209 +   - Files: `infra/gradle/.../RetroAssemblerPlugin.kt` (`wireS
+          +ources` branches on `extension.dialect`; `wireSpecAndTest` mak
+          +es `asmSpec`/`test` skip with a logged warning under `Dasm`; `
+          +resolveDevDeps` downloads the right tool)                     
+      210 +   - Description: `KickAssembler`/`None` keep today's behaviou
+          +r exactly; `Dasm` wires the new task; 64spec tasks log "64spec
+          + requires KickAssembler — skipping" and do nothing.           
+      211     - Testing: `RetroAssemblerPluginTest` cases per dialect val
+           ue.
+      212  4. **Step 3.4**: Documentation
+      213     - Files: `doc/index.adoc` (dialect section + dasm auto-down
+           load), `doc/arc42/building-blocks/compilers.md`, `doc/arc42/05
+           _building_block_view.md`, `doc/arc42/08_crosscutting_concepts.
+           md`, `CLAUDE.md` (project overview sentence: no longer Kick-on
+           ly)
+
+● Update(plans\PLAN-0017_complete-dasm-support.md)
+  ⎿  Added 7 lines
+      251  2. Monitor GitHub issues for dasm download failures on exotic 
+           platforms; PATH fallback is the escape hatch.
+      252  3. Rollback: each phase is revertable in isolation; Phase 2/3 
+           are opt-in by configuration, so disabling is config-level (uns
+           et version / dialect).
+      253  
+      254 +## 10. Revision History                                       
+      255 +                                                              
+      256 +| Date | Updated By | Changes |                               
+      257 +|------|------------|---------|                               
+      258 +| 2026-09-07 | AI Agent | Initial plan created from codebase a
+          +nalysis |                                                     
+      259 +| 2026-09-07 | AI Agent | All four unresolved questions resolv
+          +ed by user (upstream download, `dasmVersion`/`dasmExecutable` 
+          +properties, 64spec skip-with-warning, configured→downloaded→PA
+          +TH resolution); decisions and steps 2.4/3.3 updated accordingl
+          +y |                                                           
+      260 +                                                              
+      261  ---
+      262  
+      263  **Note**: This plan should be reviewed and approved before imp
+           lementation begins.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● User answered Claude's questions:
+  ⎿  · PLAN-0017 is complete with all questions resolved. Accept it now (draft →
+     accepted) so implementation can start? → Accept (Recommended)
+     · Run the adversarial challenge (red-team) on the plan before accepting? 
+     (Offered per the plan lifecycle — optional, not a gate.) → Waive
+     · Create the feature branch for this work now? (Would be 
+     feature/{issue}-complete-dasm-support once the issue exists; 
+     feature/complete-dasm-support if unlinked.) → Later
+
+● Accepting the plan: waiving the challenge as chosen, updating status and
+  index.
+
+● Update(plans\PLAN-0017_complete-dasm-support.md)
+  ⎿  Added 3 lines, removed 2 lines
+       2  
+       3  **Plan ID**: PLAN-0017
+       4  **Issue**: #TBD (issue creation currently blocked — active `gh`
+           account `MMALECKI_CGEMU` cannot create issues on c64lib; creat
+          e and link once re-authenticated)
+       5 -**Status**: draft                                              
+       6 -**Challenge**: not run                                         
+       5 +**Status**: accepted                                           
+       6 +**Challenge**: waived 2026-09-07                               
+       7  **Created**: 2026-09-07
+       8 +**Last Updated**: 2026-09-07                                   
+       9  
+      10  ## 1. Feature Description
+      11  
+
+● Update(plans\PLAN-0017_complete-dasm-support.md)
+  ⎿  Added 1 line, removed 1 line
+      146    - **Rationale**: explicit override for power users; determin
+           istic builds once a version is pinned; unchanged behaviour for
+            current PATH users.
+      147  
+      148  ### Adversarial Challenge
+      149 -- **Status**: not run                                         
+      149 +- **Status**: waived 2026-09-07 — declined at acceptance      
+      150  - **Findings**: —
+      151  
+      152  ## 5. Implementation Plan
+
+● Update(plans\PLAN-0017_complete-dasm-support.md)
+  ⎿  Added 1 line
+      258  |------|------------|---------|
+      259  | 2026-09-07 | AI Agent | Initial plan created from codebase a
+           nalysis |
+      260  | 2026-09-07 | AI Agent | All four unresolved questions resolv
+           ed by user (upstream download, `dasmVersion`/`dasmExecutable` 
+           properties, 64spec skip-with-warning, configured→downloaded→PA
+           TH resolution); decisions and steps 2.4/3.3 updated accordingl
+           y |
+      261 +| 2026-09-07 | AI Agent | Status → accepted; adversarial chall
+          +enge waived at acceptance; feature branch deferred to executio
+          +n |                                                           
+      262  
+      263  ---
+      264  
+
+● Update(plans\README.md)
+  ⎿  Added 1 line, removed 1 line
+      21  | [PLAN-0014](PLAN-0014_adversarial-challenge-at-acceptance.md)
+           | 2026-07-19 | implemented | Move adversarial challenge to pla
+          n acceptance | #186 | [EXEC-0014](EXEC-0014_adversarial-challen
+          ge-at-acceptance.md) |
+      22  | [PLAN-0015](PLAN-0015_flows-groovy-usefrom-useto-nested-closu
+          re.md) | 2026-07-19 | implemented | Fix useFrom()/useTo() in Gr
+          oovy nested commandStep closures | #182 | [EXEC-0015](EXEC-0015
+          _flows-groovy-usefrom-useto-nested-closure.md) |
+      23  | [PLAN-0016](PLAN-0016_flows-empty-artifact-path-collision.md)
+           | 2026-07-19 | implemented | Fix empty-path flow artifact coll
+          ision blocking all Gradle tasks | #181 | [EXEC-0016](EXEC-0016_
+          flows-empty-artifact-path-collision.md) |
+      24 -| [PLAN-0017](PLAN-0017_complete-dasm-support.md) | 2026-09-07 
+         -| draft | Complete DASM Support | — | — |                      
+      24 +| [PLAN-0017](PLAN-0017_complete-dasm-support.md) | 2026-09-07 
+         +| accepted | Complete DASM Support | — | — |                   
+● PLAN-0017 is accepted. Moving to execution via the /execute skill as agreed.
+
+● Skill(execute)
+  ⎿  Successfully loaded skill · 10 tools allowed
+
+● The execute skill needs scope, engagement mode, and branch confirmation before
+  starting.
+
+● User answered Claude's questions:
+  ⎿  · Which parts of PLAN-0017 should this execution run? → All phases 
+     (Recommended)
+     · How should I pace the execution? → Autonomous (Recommended)
+     · Implementation must not happen on develop — create the feature branch 
+     feature/complete-dasm-support now (from up-to-date develop)? → Create it 
+     (Recommended)
+
+● All phases, autonomous, with a fresh feature branch. Creating the branch via
+  git-utils first.
+
+● Skill(git-utils)
+  ⎿  Successfully loaded skill · 4 tools allowed
+
+● Agent(Create feature branch) Haiku 4.5
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Branch creation is running in the background; once it lands I'll open the
+  execution log and start Phase 1 (tests for the existing DASM classes).
+
+✻ Cogitated for 10m 49s · done 6:41 PM
+
+● Agent "Create feature branch" finished · 45s
+
+● The pull failed because my plan-file edits are uncommitted on develop — but
+  develop is already up to date with origin, so the pull is unnecessary.
+  Creating the branch directly; the plan files will be committed on it.
+
+● Agent(Create branch without pull) Haiku 4.5
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● Waiting for the branch to be created before opening the execution log.
+
+✻ Brewed for 23s · done 6:41 PM
+
+● Agent "Create branch without pull" finished · 25s
+
+● Branch feature/complete-dasm-support is ready with the plan files carried
+  over. Opening the execution log and starting Phase 1.
+
+● Write(plans\EXEC-0017_complete-dasm-support.md)
+  ⎿  Wrote 35 lines to plans\EXEC-0017_complete-dasm-support.md
+       1 # Execution Log: Complete DASM Support
+       2 
+       3 **Exec ID**: EXEC-0017
+       4 **Plan**: [PLAN-0017](PLAN-0017_complete-dasm-support.md)
+       5 **Issue**: #TBD (creation blocked — active `gh` account cannot c
+       6 **Started**: 2026-09-07
+       7 **Last Updated**: 2026-09-07
+       8 **State**: in progress
+       9 
+      10 ## 1. Execution Sessions
+     … +37 lines (ctrl+o to expand)
+
+● Update(plans\README.md)
+  ⎿  Added 1 line, removed 1 line
+      21  | [PLAN-0014](PLAN-0014_adversarial-challenge-at-acceptance.md)
+           | 2026-07-19 | implemented | Move adversarial challenge to pla
+          n acceptance | #186 | [EXEC-0014](EXEC-0014_adversarial-challen
+          ge-at-acceptance.md) |
+      22  | [PLAN-0015](PLAN-0015_flows-groovy-usefrom-useto-nested-closu
+          re.md) | 2026-07-19 | implemented | Fix useFrom()/useTo() in Gr
+          oovy nested commandStep closures | #182 | [EXEC-0015](EXEC-0015
+          _flows-groovy-usefrom-useto-nested-closure.md) |
+      23  | [PLAN-0016](PLAN-0016_flows-empty-artifact-path-collision.md)
+           | 2026-07-19 | implemented | Fix empty-path flow artifact coll
+          ision blocking all Gradle tasks | #181 | [EXEC-0016](EXEC-0016_
+          flows-empty-artifact-path-collision.md) |
+      24 -| [PLAN-0017](PLAN-0017_complete-dasm-support.md) | 2026-09-07 
+         -| accepted | Complete DASM Support | — | — |                   
+      24 +| [PLAN-0017](PLAN-0017_complete-dasm-support.md) | 2026-09-07 
+         +| accepted | Complete DASM Support | — | [EXEC-0017](EXEC-0017_
+         +complete-dasm-support.md) |                                    
+
+● Step 1.1 — flows domain tests for DasmStep and DasmConfigMapper. Reading the
+  classes under test and the test conventions to mirror.
+
+  Read 3 files (ctrl+o to expand)
+
+● Now I need the DasmConfig and DasmCommand definitions.
+
+  Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Port confirmed (single + list default method). Writing the two Phase 1.1 test
+  files.
+
+● Write(flows\src\test\kotlin\com\github\c64lib\rbt\flows\domain\steps\DasmStepT
+       est.kt)
+  ⎿  Wrote 393 lines to flows\src\test\kotlin\com\github\c64lib\rbt\flows\d
+     omain\steps\DasmStepTest.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +441 lines (ctrl+o to expand)
+
+● Write(flows\src\test\kotlin\com\github\c64lib\rbt\flows\domain\config\DasmConf
+       igMapperTest.kt)
+  ⎿  Wrote 192 lines to flows\src\test\kotlin\com\github\c64lib\rbt\flows\d
+     omain\config\DasmConfigMapperTest.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +218 lines (ctrl+o to expand)
+
+● Step 1.1 files written. Before running tests, I'll write Step 1.2's tests
+  (same area) and verify both modules in one run. Reading the builder and
+  command adapter.
+
+  Read 2 files (ctrl+o to expand)
+
+● Write(flows\adapters\in\gradle\src\test\kotlin\com\github\c64lib\rbt\flows\ada
+       pters\in\gradle\dsl\DasmStepBuilderTest.kt)  ⎿  Wrote 140 lines to flows\adapters\in\gradle\src\test\kotlin\com\github
+     \c64lib\rbt\flows\adapters\in\gradle\dsl\DasmStepBuilderTest.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +149 lines (ctrl+o to expand)
+
+● Write(flows\adapters\in\gradle\src\test\kotlin\com\github\c64lib\rbt\flows\ada
+       pters\in\gradle\assembly\DasmCommandAdapterTest.kt)
+  ⎿  Wrote 116 lines to
+     flows\adapters\in\gradle\src\test\kotlin\com\github\c64lib\rbt\flows\a
+     dapters\in\gradle\assembly\DasmCommandAdapterTest.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +125 lines (ctrl+o to expand)
+
+● Now Step 1.3 — reading the DASM use case, port, and the module build files to
+  confirm test infrastructure exists there.
+
+  Read 1 file (ctrl+o to expand)
+
+● The base convention (rbt.kotlin) already provides Kotest/JUnit5 in every
+  module, so tests will run in the compilers modules too. Checking the port
+  signature.
+
+  Read 1 file (ctrl+o to expand)
+
+● Write(compilers\dasm\src\test\kotlin\com\github\c64lib\rbt\compilers\dasm\usec
+       ase\DasmAssembleUseCaseTest.kt)
+  ⎿  Wrote 140 lines to compilers\dasm\src\test\kotlin\com\github\c64lib\rb
+     t\compilers\dasm\usecase\DasmAssembleUseCaseTest.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +144 lines (ctrl+o to expand)
+
+● Write(compilers\dasm\adapters\out\gradle\src\test\kotlin\com\github\c64lib\rbt
+       \compilers\dasm\adapters\out\gradle\DasmCommandLineBuilderTest.kt)
+  ⎿  Wrote 132 lines to
+     compilers\dasm\adapters\out\gradle\src\test\kotlin\com\github\c64lib\r
+     bt\compilers\dasm\adapters\out\gradle\DasmCommandLineBuilderTest.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +144 lines (ctrl+o to expand)
+
+● Step 1.4 — extending the plugin wiring test. Reading the existing test first.
+
+  Searched for 5 patterns, read 2 files (ctrl+o to expand)
+
+● Extending the plugin wiring test with a DASM flow scenario.
+
+● Update(infra\gradle\src\test\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        ginTest.kt)
+  ⎿  Added 45 lines
+      136            }
+      137          }
+      138        }
+      139 +                                                              
+      140 +      given("the plugin is applied with a flow containing a da
+          +smStep") {                                                    
+      141 +        val project =                                         
+      142 +            ProjectBuilder.builder()                          
+      143 +                .withProjectDir(Files.createTempDirectory("ret
+          +ro-assembler-plugin-test").toFile())                          
+      144 +                .build()                                      
+      145 +        project.pluginManager.apply(RetroAssemblerPlugin::clas
+          +s.java)                                                       
+      146 +        project.extensions.getByType(RetroAssemblerPluginExten
+          +sion::class.java).dialectVersion =                            
+      147 +            "5.25"                                            
+      148 +        project.extensions                                    
+      149 +            .getByType(com.github.c64lib.rbt.flows.adapters.`i
+          +n`.gradle.FlowsExtension::class.java)                         
+      150 +            .flow("dasmBuild") {                              
+      151 +              dasmStep("assembleGame") {                      
+      152 +                from("game.asm")                              
+      153 +                to("build/game.prg")                          
+      154 +              }                                               
+      155 +            }                                                 
+      156 +        (project as org.gradle.api.internal.project.ProjectInt
+          +ernal).evaluate()                                             
+      157 +                                                              
+      158 +        `when`("checking generated flow tasks") {             
+      159 +          then("the flow and step tasks are registered") {    
+      160 +            project.tasks.findByName("flowDasmBuild") shouldBe
+      161 +                project.tasks.getByName("flowDasmBuild")      
+      162 +            project.tasks.findByName("flowDasmBuildStepAssembl
+          +eGame") shouldBe                                              
+      163 +                project.tasks.getByName("flowDasmBuildStepAsse
+          +mbleGame")                                                    
+      164 +            project.tasks.findByName(TASK_FLOWS) shouldBe proj
+          +ect.tasks.getByName(TASK_FLOWS)                               
+      165 +          }                                                   
+      166 +                                                              
+      167 +          then("the step task is a DasmAssembleTask with the u
+          +se case injected") {                                          
+      168 +            val stepTask =                                    
+      169 +                project.tasks.getByName("flowDasmBuildStepAsse
+          +mbleGame")                                                    
+      170 +                    as com.github.c64lib.rbt.flows.adapters.`i
+          +n`.gradle.tasks.DasmAssembleTask                              
+      171 +            stepTask.dasmAssembleUseCase shouldNotBe null     
+      172 +          }                                                   
+      173 +                                                              
+      174 +          then("the flow task depends on its step task") {    
+      175 +            taskNamesDependedOnBy(project, "flowDasmBuild") sh
+          +ouldContain                                                   
+      176 +                "flowDasmBuildStepAssembleGame"               
+      177 +          }                                                   
+      178 +                                                              
+      179 +          then("the flows aggregation task depends on the flow
+          + task") {                                                     
+      180 +            taskNamesDependedOnBy(project, TASK_FLOWS) shouldC
+          +ontain "flowDasmBuild"                                        
+      181 +          }                                                   
+      182 +        }                                                     
+      183 +      }                                                       
+      184      })
+
+● Update(infra\gradle\src\test\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        ginTest.kt)
+  ⎿  Added 1 line
+      41  import io.kotest.core.spec.style.BehaviorSpec
+      42  import io.kotest.matchers.collections.shouldContain
+      43  import io.kotest.matchers.shouldBe
+      44 +import io.kotest.matchers.shouldNotBe                          
+      45  import java.nio.file.Files
+      46  import org.gradle.testfixtures.ProjectBuilder
+      47  
+
+● All Phase 1 tests written. Verifying via the test skill across the five
+  affected modules.
+
+● Skill(test)
+  ⎿  Successfully loaded skill · 6 tools allowed
+
+● Skill(build)
+  ⎿  Successfully loaded skill · 5 tools allowed
+
+● Agent(Run targeted module tests) Haiku 4.5
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● While tests run, doing Phase 2's Step 2.1 research: the actual dasm release
+  asset names.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Asset naming verified — and there's a newer release than the plan assumed:
+  v2.20.17, with uniform zip assets per OS. Checking the archive layout and
+  whether older releases share the scheme.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● All three platform zips contain a single root binary — clean. Recording Step
+  2.1 findings in the exec log while the test run finishes.
+
+● Update(plans\EXEC-0017_complete-dasm-support.md)
+  ⎿  Added 1 line
+      27  | # | Step | Deviation | Reason | Impact |
+      28  |---|------|-----------|--------|--------|
+      29  | 1 | — | Feature branch created as `feature/complete-dasm-supp
+          ort` without issue number, and `git pull --rebase` was skipped 
+          during branch creation | GitHub issue creation blocked (EMU acc
+          ount lacks permission); pull blocked by uncommitted plan files,
+           but `develop` was already up to date with origin | Branch may 
+          be renamed to `feature/{issue}-complete-dasm-support` once the 
+          issue exists |
+      30 +| 2 | 2.1 | Auto-download targets dasm ≥ 2.20.16 (default 2.20.
+         +17), not 2.20.14.1 as the plan assumed | Verified live: since v
+         +2.20.16 releases use tag `v{version}` and uniform assets `dasm-
+         +v{version}-{windows\|macos\|linux}.zip`, each zip containing a 
+         +single root binary (`dasm.exe`/`dasm`); older releases use mixe
+         +d tar.gz/arch-suffixed naming | Simpler design: zip-only extrac
+         +tion (JDK `java.util.zip`), no tar.gz support, no arch detectio
+         +n; older versions remain PATH-only |                           
+      31  
+      32  ## 3. Follow-ups
+      33  
+
+● Agent "Run targeted module tests" finished · 3m 1s
+
+● Phase 1 is fully green — all five module test runs passed. Logging results and
+  moving to Phase 2 (binary auto-download).
+
+● Update(plans\EXEC-0017_complete-dasm-support.md)
+  ⎿  Added 5 lines
+      19  
+      20  | Step | Result | Verification | Notes |
+      21  |------|--------|--------------|-------|
+      22 +| 1.1 | completed | `:flows:test` green (BUILD SUCCESSFUL) | `D
+         +asmStepTest.kt`, `DasmConfigMapperTest.kt` |                   
+      23 +| 1.2 | completed | `:flows:adapters:in:gradle:test` green | `D
+         +asmStepBuilderTest.kt`, `DasmCommandAdapterTest.kt` |          
+      24 +| 1.3 | completed | `:compilers:dasm:test`, `:compilers:dasm:ad
+         +apters:out:gradle:test` green | `DasmAssembleUseCaseTest.kt`, `
+         +DasmCommandLineBuilderTest.kt` |                               
+      25 +| 1.4 | completed | `:infra:gradle:test` green | `RetroAssemble
+         +rPluginTest` extended with dasm flow wiring scenario |         
+      26 +| 2.1 | completed | Live inspection of dasm-assembler/dasm rele
+         +ases + all three v2.20.17 zips | See deviation #2: modern schem
+         +e ≥ 2.20.16, default 2.20.17 |                                 
+      27  
+      28  ## 2. Deviations from Plan
+      29  
+
+  Searched for 2 patterns, listed 1 directory, ran 1 shell command (ctrl+o to expand)
+
+● Dummy settings class is unreferenced — safe to replace. Reading the files I'll
+  modify.
+
+  Read 2 files (ctrl+o to expand)
+
+● Writing all Phase 2 production files now.
+● Write(compilers\dasm\src\main\kotlin\com\github\c64lib\rbt\compilers\dasm\doma
+       in\DasmAssemblerSettings.kt)
+  ⎿  Added 10 lines, removed 4 lines
+      24  */
+      25  package com.github.c64lib.rbt.compilers.dasm.domain
+      26  
+      27 +import java.io.File                                            
+      28 +                                                               
+      29  /**
+      28 - * Marker settings class for dasm assembler. dasm is a system c
+         -ommand-line tool that is assumed to                            
+      29 - * be installed and available via PATH environment variable. Un
+         -like Kick Assembler, there is no                               
+      30 - * version management or JAR file handling needed.             
+      30 + * Settings for the dasm assembler.                            
+      31 + *                                                             
+      32 + * When [pathToExecutable] is null, dasm is expected to be inst
+         +alled and available on the PATH.                               
+      33 + * [version] is set when a managed (auto-downloaded) dasm binar
+         +y is configured.                                               
+      34   */
+      32 -data class DasmAssemblerSettings(val dummy: Boolean = true)    
+      35 +data class DasmAssemblerSettings(                              
+      36 +    val pathToExecutable: File? = null,                        
+      37 +    val version: String? = null                                
+      38 +)                                                              
+
+● Write(compilers\dasm\src\main\kotlin\com\github\c64lib\rbt\compilers\dasm\doma
+       in\DasmOperatingSystem.kt)
+  ⎿  Wrote 49 lines to compilers\dasm\src\main\kotlin\com\github\c64lib\rbt
+     \compilers\dasm\domain\DasmOperatingSystem.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +55 lines (ctrl+o to expand)
+
+● Write(compilers\dasm\src\main\kotlin\com\github\c64lib\rbt\compilers\dasm\usec
+       ase\port\DownloadDasmPort.kt)
+  ⎿  Wrote 33 lines to compilers\dasm\src\main\kotlin\com\github\c64lib\rbt
+     \compilers\dasm\usecase\port\DownloadDasmPort.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +35 lines (ctrl+o to expand)
+
+● Write(compilers\dasm\src\main\kotlin\com\github\c64lib\rbt\compilers\dasm\usec
+       ase\port\UnpackZipPort.kt)
+  ⎿  Wrote 33 lines to compilers\dasm\src\main\kotlin\com\github\c64lib\rbt
+     \compilers\dasm\usecase\port\UnpackZipPort.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +36 lines (ctrl+o to expand)
+
+● Write(compilers\dasm\src\main\kotlin\com\github\c64lib\rbt\compilers\dasm\usec
+       ase\port\ReadVersionPort.kt)
+  ⎿  Wrote 30 lines to compilers\dasm\src\main\kotlin\com\github\c64lib\rbt
+     \compilers\dasm\usecase\port\ReadVersionPort.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +33 lines (ctrl+o to expand)
+
+● Write(compilers\dasm\src\main\kotlin\com\github\c64lib\rbt\compilers\dasm\usec
+       ase\port\SaveVersionPort.kt)
+  ⎿  Wrote 30 lines to compilers\dasm\src\main\kotlin\com\github\c64lib\rbt
+     \compilers\dasm\usecase\port\SaveVersionPort.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +33 lines (ctrl+o to expand)
+
+● Write(compilers\dasm\src\main\kotlin\com\github\c64lib\rbt\compilers\dasm\usec
+       ase\DownloadDasmUseCase.kt)
+  ⎿  Wrote 69 lines to compilers\dasm\src\main\kotlin\com\github\c64lib\rbt
+     \compilers\dasm\usecase\DownloadDasmUseCase.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +84 lines (ctrl+o to expand)
+
+● Now the outbound adapter module (compilers/dasm/adapters/out/filedownload) and
+  version adapters.
+
+● Write(compilers\dasm\adapters\out\filedownload\build.gradle.kts)
+  ⎿  Wrote 10 lines to
+     compilers\dasm\adapters\out\filedownload\build.gradle.kts
+       1 plugins {
+       2   id("rbt.adapter.outbound.gradle")
+       3 }
+       4 
+       5 group = "com.github.c64lib.retro-assembler.compilers.dasm.out"
+       6 
+       7 dependencies {
+       8   implementation(project(":compilers:dasm"))
+       9   implementation(project(":shared:filedownload"))
+      10 }
+
+● Write(compilers\dasm\adapters\out\filedownload\src\main\kotlin\com\github\c64l
+       ib\rbt\compilers\dasm\adapters\out\filedownload\DownloadDasmAdapter.kt)
+  ⎿  Wrote 39 lines to compilers\dasm\adapters\out\filedownload\src\main\ko
+     tlin\com\github\c64lib\rbt\compilers\dasm\adapters\out\filedownload\Do
+     wnloadDasmAdapter.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +44 lines (ctrl+o to expand)
+
+● Write(compilers\dasm\adapters\out\filedownload\src\main\kotlin\com\github\c64l
+       ib\rbt\compilers\dasm\adapters\out\filedownload\UnpackZipAdapter.kt)
+  ⎿  Wrote 61 lines to
+     compilers\dasm\adapters\out\filedownload\src\main\kotlin\com\github\c6
+     4lib\rbt\compilers\dasm\adapters\out\filedownload\UnpackZipAdapter.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +72 lines (ctrl+o to expand)
+
+● Write(compilers\dasm\adapters\out\gradle\src\main\kotlin\com\github\c64lib\rbt
+       \compilers\dasm\adapters\out\gradle\ReadVersionAdapter.kt)
+  ⎿  Wrote 38 lines to
+     compilers\dasm\adapters\out\gradle\src\main\kotlin\com\github\c64lib\r
+     bt\compilers\dasm\adapters\out\gradle\ReadVersionAdapter.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +43 lines (ctrl+o to expand)
+
+● Write(compilers\dasm\adapters\out\gradle\src\main\kotlin\com\github\c64lib\rbt
+       \compilers\dasm\adapters\out\gradle\SaveVersionAdapter.kt)
+  ⎿  Wrote 43 lines to
+     compilers\dasm\adapters\out\gradle\src\main\kotlin\com\github\c64lib\r
+     bt\compilers\dasm\adapters\out\gradle\SaveVersionAdapter.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +47 lines (ctrl+o to expand)
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Write(compilers\dasm\adapters\in\gradle\build.gradle.kts)
+  ⎿  Wrote 11 lines to compilers\dasm\adapters\in\gradle\build.gradle.kts
+       1 plugins {
+       2   id("rbt.adapter.inbound.gradle")
+       3 }
+       4 
+       5 group = "com.github.c64lib.retro-assembler.compilers.dasm.in"
+       6 
+       7 dependencies {
+       8   implementation(project(":compilers:dasm"))
+       9   implementation(project(":shared:gradle"))
+      10   implementation(project(":shared:domain"))
+     … +1 line (ctrl+o to expand)
+
+● Write(compilers\dasm\adapters\in\gradle\src\main\kotlin\com\github\c64lib\rbt\
+       compilers\dasm\adapters\in\gradle\ResolveDasm.kt)
+  ⎿  Wrote 62 lines to compilers\dasm\adapters\in\gradle\src\main\kotlin\co
+     m\github\c64lib\rbt\compilers\dasm\adapters\in\gradle\ResolveDasm.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +71 lines (ctrl+o to expand)
+
+● Update(compilers\dasm\adapters\out\gradle\src\main\kotlin\com\github\c64lib\rb
+        t\compilers\dasm\adapters\out\gradle\DasmAssembleAdapter.kt)
+  ⎿  Added 7 lines, removed 3 lines
+      24  */
+      25  package com.github.c64lib.rbt.compilers.dasm.adapters.out.gradl
+          e
+      26  
+      27 +import com.github.c64lib.rbt.compilers.dasm.domain.DasmAssemble
+         +rSettings                                                      
+      28  import com.github.c64lib.rbt.compilers.dasm.usecase.port.DasmAs
+          semblePort
+      29  import java.io.File
+      30  import org.gradle.api.Project
+      31  
+      32  /**
+      32 - * Gradle adapter that implements DasmAssemblePort by executing
+         - dasm via system command. Assumes                              
+      33 - * dasm is installed and available in system PATH environment v
+         -ariable.                                                       
+      33 + * Gradle adapter that implements DasmAssemblePort by executing
+         + dasm via system command. Uses the                             
+      34 + * executable resolved in [DasmAssemblerSettings], falling back
+         + to `dasm` on the PATH.                                        
+      35   */
+      35 -class DasmAssembleAdapter(private val project: Project) : DasmA
+         -ssemblePort {                                                  
+      36 +class DasmAssembleAdapter(                                     
+      37 +    private val project: Project,                              
+      38 +    private val settings: DasmAssemblerSettings = DasmAssembler
+         +Settings()                                                     
+      39 +) : DasmAssemblePort {                                         
+      40    override fun assemble(
+      41        libDirs: List<File>,
+      42        defines: Map<String, String>,
+
+● Update(compilers\dasm\adapters\out\gradle\src\main\kotlin\com\github\c64lib\rb
+        t\compilers\dasm\adapters\out\gradle\DasmAssembleAdapter.kt)
+  ⎿  Added 3 lines, removed 2 lines
+      66              .symbolTableSort(symbolTableSort)
+      67              .build()
+      68  
+      69 +    val executable = settings.pathToExecutable?.absolutePath ?:
+         + "dasm"                                                        
+      70      project.exec {
+      70 -      it.executable = "dasm"                                   
+      71 +      it.executable = executable                               
+      72        it.args = args
+      72 -      printArgs(args)                                          
+      73 +      printArgs(executable, args)                              
+      74      }
+      75    }
+      76  
+
+● Update(compilers\dasm\adapters\out\gradle\src\main\kotlin\com\github\c64lib\rb
+        t\compilers\dasm\adapters\out\gradle\DasmAssembleAdapter.kt)
+  ⎿  Added 2 lines, removed 2 lines
+      74      }
+      75    }
+      76  
+      77 -  private fun printArgs(args: List<String>) {                  
+      78 -    println("dasm ${args.joinToString(" ")}")                  
+      77 +  private fun printArgs(executable: String, args: List<String>)
+         + {                                                             
+      78 +    println("$executable ${args.joinToString(" ")}")           
+      79    }
+      80  }
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(shared\gradle\src\main\kotlin\com\github\c64lib\rbt\shared\gradle\Tasks
+        .kt)
+  ⎿  Added 2 lines
+      33  
+      34  const val TASK_RESOLVE_DEV_DEPENDENCIES = "resolveDevDeps"
+      35  
+      36 +const val TASK_RESOLVE_DASM = "resolveDasm"                    
+      37 +                                                               
+      38  const val TASK_DEPENDENCIES = "downloadDeps"
+      39  
+      40  const val TASK_TEST = "test"
+
+● Update(shared\gradle\src\main\kotlin\com\github\c64lib\rbt\shared\gradle\dsl\R
+        etroAssemblerPluginExtension.kt)  ⎿  Added 9 lines
+      40    var workDir = ".ra"
+      41    var dialect = AssemblerType.None
+      42    var dialectVersion = DIALECT_VERSION_LATEST
+      43 +                                                               
+      44 +  /**                                                          
+      45 +   * Version of the dasm binary to auto-download from dasm-asse
+         +mbler GitHub releases (2.20.16 or                              
+      46 +   * newer). When unset, no download happens and dasm is expect
+         +ed on the PATH.                                                
+      47 +   */                                                          
+      48 +  var dasmVersion: String? = null                              
+      49 +                                                               
+      50 +  /** Explicit path to a dasm executable; takes precedence over
+         + the downloaded binary. */                                     
+      51 +  var dasmExecutable: String? = null                           
+      52    var libDirs: Array<String> = emptyArray()
+      53    var srcDirs = arrayOf(".")
+      54    var includes: Array<String> = arrayOf("**/*.asm")
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Now wiring it all in RetroAssemblerPlugin.
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 8 lines
+      26  
+      27  import com.github.c64lib.gradle.tasks.Build
+      28  import com.github.c64lib.gradle.tasks.Preprocess
+      29 +import com.github.c64lib.rbt.compilers.dasm.adapters.`in`.gradl
+         +e.ResolveDasm                                                  
+      30 +import com.github.c64lib.rbt.compilers.dasm.adapters.out.filedo
+         +wnload.DownloadDasmAdapter                                     
+      31 +import com.github.c64lib.rbt.compilers.dasm.adapters.out.filedo
+         +wnload.UnpackZipAdapter                                        
+      32  import com.github.c64lib.rbt.compilers.dasm.adapters.out.gradle
+          .DasmAssembleAdapter
+      33 +import com.github.c64lib.rbt.compilers.dasm.adapters.out.gradle
+         +.ReadVersionAdapter as DasmReadVersionAdapter                  
+      34 +import com.github.c64lib.rbt.compilers.dasm.adapters.out.gradle
+         +.SaveVersionAdapter as DasmSaveVersionAdapter                  
+      35 +import com.github.c64lib.rbt.compilers.dasm.domain.DasmAssemble
+         +rSettings                                                      
+      36 +import com.github.c64lib.rbt.compilers.dasm.domain.DasmOperatin
+         +gSystem                                                        
+      37  import com.github.c64lib.rbt.compilers.dasm.usecase.DasmAssembl
+          eUseCase
+      38 +import com.github.c64lib.rbt.compilers.dasm.usecase.DownloadDas
+         +mUseCase                                                       
+      39  import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gr
+          adle.Assemble
+      40  import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gr
+          adle.AssembleSpec
+      41  import com.github.c64lib.rbt.compilers.kickass.adapters.`in`.gr
+          adle.Clean
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 1 line
+      61  import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnVi
+          ceUseCase
+      62  import com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowTas
+          ksGenerator
+      63  import com.github.c64lib.rbt.flows.adapters.`in`.gradle.FlowsEx
+          tension
+      64 +import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.D
+         +asmAssembleTask                                                
+      65  import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.T
+          estTask
+      66  import com.github.c64lib.rbt.processors.charpad.adapters.`in`.g
+          radle.Charpad
+      67  import com.github.c64lib.rbt.processors.goattracker.adapters.`i
+          n`.gradle.Goattracker
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 1 line
+      91  import com.github.c64lib.rbt.shared.gradle.TASK_GOATTRACKER
+      92  import com.github.c64lib.rbt.shared.gradle.TASK_IMAGE
+      93  import com.github.c64lib.rbt.shared.gradle.TASK_PREPROCESS
+      94 +import com.github.c64lib.rbt.shared.gradle.TASK_RESOLVE_DASM   
+      95  import com.github.c64lib.rbt.shared.gradle.TASK_RESOLVE_DEV_DEP
+          ENDENCIES
+      96  import com.github.c64lib.rbt.shared.gradle.TASK_SPRITEPAD
+      97  import com.github.c64lib.rbt.shared.gradle.TASK_TEST
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 6 lines, removed 1 line
+      110  
+      111    /**
+      112     * Task handles produced by [wireDependencies], consumed by 
+           [wireSources] and [wireSpecAndTest].
+      113 +   * [resolveDasm] is only present when `retroProject.dasmVers
+          +ion` is configured.                                           
+      114     */
+      114 -  private data class DependencyTasks(val resolveDevDeps: Task,
+          - val downloadDependencies: Task)                              
+      115 +  private data class DependencyTasks(                         
+      116 +      val resolveDevDeps: Task,                               
+      117 +      val downloadDependencies: Task,                         
+      118 +      val resolveDasm: Task? = null                           
+      119 +  )                                                           
+      120  
+      121    override fun apply(project: Project) {
+      122  
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 2 lines, removed 1 line
+      139            KickAssemblerSettings(
+      140                File("${extension.workDir}/asms/ka/${extension.d
+           ialectVersion}/KickAss.jar"),
+      141                SemVer.fromString(extension.dialectVersion))
+      142 +      val dasmSettings = dasmAssemblerSettings(project, extens
+          +ion)                                                          
+      143  
+      144        val assemble = wireSources(project, extension, settings,
+            depTasks, preprocess)
+      145        val runSpec = wireSpecAndTest(project, extension, settin
+           gs, depTasks)
+      146        wireBuild(project, assemble, runSpec)
+      146 -      wireFlows(project, extension, settings, flowsExtension, 
+          -assemble, depTasks)                                           
+      147 +      wireFlows(project, extension, settings, dasmSettings, fl
+          +owsExtension, assemble, depTasks)                             
+      148  
+      149        if (project.defaultTasks.isEmpty()) {
+      150          project.defaultTasks.add(TASK_BUILD)
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 32 lines, removed 1 line
+      175                    ReadDependencyVersionAdapter(project),
+      176                    SaveDependencyVersionAdapter(project))
+      177          }
+      178 -    return DependencyTasks(resolveDevDeps, downloadDependencie
+          -s)                                                            
+      178 +    val resolveDasm =                                         
+      179 +        if (extension.dasmVersion != null) {                  
+      180 +          project.tasks.create(TASK_RESOLVE_DASM, ResolveDasm:
+          +:class.java) { task ->                                        
+      181 +            task.extension = extension                        
+      182 +            task.downloadDasmUseCase =                        
+      183 +                DownloadDasmUseCase(                          
+      184 +                    DownloadDasmAdapter(project, FileDownloade
+          +r()),                                                         
+      185 +                    UnpackZipAdapter(project),                
+      186 +                    DasmReadVersionAdapter(project),          
+      187 +                    DasmSaveVersionAdapter(project))          
+      188 +          }                                                   
+      189 +        } else {                                              
+      190 +          null                                                
+      191 +        }                                                     
+      192 +    return DependencyTasks(resolveDevDeps, downloadDependencie
+          +s, resolveDasm)                                               
+      193    }
+      194  
+      195 +  /**                                                         
+      196 +   * Resolves the dasm executable: explicit `dasmExecutable` w
+          +ins, then the auto-downloaded                                 
+      197 +   * `dasmVersion` binary, then PATH (null).                  
+      198 +   */                                                         
+      199 +  private fun dasmAssemblerSettings(                          
+      200 +      project: Project,                                       
+      201 +      extension: RetroAssemblerPluginExtension                
+      202 +  ): DasmAssemblerSettings =                                  
+      203 +      DasmAssemblerSettings(                                  
+      204 +          pathToExecutable =                                  
+      205 +              extension.dasmExecutable?.let { project.file(it)
+          + }                                                            
+      206 +                  ?: extension.dasmVersion?.let { version ->  
+      207 +                    project.file(                             
+      208 +                        "${extension.workDir}/asms/dasm/$versi
+          +on/${DasmOperatingSystem.detect().executableName}")           
+      209 +                  },                                          
+      210 +          version = extension.dasmVersion)                    
+      211 +                                                              
+      212    private fun wirePreprocess(project: Project, preprocessExten
+           sion: PreprocessingExtension): Task {
+      213      val charpad =
+      214          project.tasks.create(TASK_CHARPAD, Charpad::class.java
+           ) { task ->
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 2 lines, removed 1 line
+      293        project: Project,
+      294        extension: RetroAssemblerPluginExtension,
+      295        settings: KickAssemblerSettings,
+      296 +      dasmSettings: DasmAssemblerSettings,                    
+      297        flowsExtension: FlowsExtension,
+      298        assemble: Task,
+      299        depTasks: DependencyTasks
+     ...
+      302      val kickAssembleUseCase = KickAssembleUseCase(KickAssemble
+           Adapter(project, settings))
+      303  
+      304      // Create DasmAssembleUseCase for flow tasks that contain 
+           DasmSteps
+      304 -    val dasmAssembleUseCase = DasmAssembleUseCase(DasmAssemble
+          -Adapter(project))                                             
+      305 +    val dasmAssembleUseCase = DasmAssembleUseCase(DasmAssemble
+          +Adapter(project, dasmSettings))                               
+      306  
+      307      // Create 64spec use cases for flow tasks that contain Tes
+           tSteps (spec assembly + VICE run),
+      308      // constructed exactly as in wireSpecAndTest
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 7 lines
+      329        task.dependsOn(depTasks.resolveDevDeps, depTasks.downloa
+           dDependencies)
+      330      }
+      331  
+      332 +    // When a managed dasm binary is configured, download it b
+          +efore any dasm flow step runs                                 
+      333 +    depTasks.resolveDasm?.let { resolveDasm ->                
+      334 +      project.tasks.withType(DasmAssembleTask::class.java).con
+          +figureEach { task ->                                          
+      335 +        task.dependsOn(resolveDasm)                           
+      336 +      }                                                       
+      337 +    }                                                         
+      338 +                                                              
+      339      // Make the asm task depend on flows task to ensure flows 
+           run before assembly
+      340      val flowsTask = project.tasks.findByName(TASK_FLOWS)
+      341      if (flowsTask != null) {
+
+● Phase 2 production code complete. Now the unit tests. Checking what the
+  outbound-gradle convention provides for tests.
+
+  Read 1 file (ctrl+o to expand)
+
+● Write(compilers\dasm\src\test\kotlin\com\github\c64lib\rbt\compilers\dasm\doma
+       in\DasmOperatingSystemTest.kt)
+  ⎿  Wrote 66 lines to compilers\dasm\src\test\kotlin\com\github\c64lib\rbt
+     \compilers\dasm\domain\DasmOperatingSystemTest.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +75 lines (ctrl+o to expand)
+
+● Write(compilers\dasm\src\test\kotlin\com\github\c64lib\rbt\compilers\dasm\usec
+       ase\DownloadDasmUseCaseTest.kt)
+  ⎿  Wrote 162 lines to compilers\dasm\src\test\kotlin\com\github\c64lib\rb
+     t\compilers\dasm\usecase\DownloadDasmUseCaseTest.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +188 lines (ctrl+o to expand)
+
+● Write(compilers\dasm\adapters\out\filedownload\src\test\kotlin\com\github\c64l
+       ib\rbt\compilers\dasm\adapters\out\filedownload\UnpackZipAdapterTest.kt)
+  ⎿  Wrote 96 lines to compilers\dasm\adapters\out\filedownload\src\test\ko
+     tlin\com\github\c64lib\rbt\compilers\dasm\adapters\out\filedownload\Un
+     packZipAdapterTest.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +111 lines (ctrl+o to expand)
+
+● Adding a wiring test for the resolveDasm task, then running the Phase 2
+  verification build.
+
+● Update(infra\gradle\src\test\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        ginTest.kt)
+  ⎿  Added 36 lines
+      180            then("the flows aggregation task depends on the flow
+            task") {
+      181              taskNamesDependedOnBy(project, TASK_FLOWS) shouldC
+           ontain "flowDasmBuild"
+      182            }
+      183 +                                                              
+      184 +          then("no resolveDasm task exists without a configure
+          +d dasmVersion") {                                             
+      185 +            project.tasks.findByName(TASK_RESOLVE_DASM) should
+          +Be null                                                       
+      186 +          }                                                   
+      187          }
+      188        }
+      189 +                                                              
+      190 +      given("the plugin is applied with a dasmVersion and a da
+          +sm flow step") {                                              
+      191 +        val project =                                         
+      192 +            ProjectBuilder.builder()                          
+      193 +                .withProjectDir(Files.createTempDirectory("ret
+          +ro-assembler-plugin-test").toFile())                          
+      194 +                .build()                                      
+      195 +        project.pluginManager.apply(RetroAssemblerPlugin::clas
+          +s.java)                                                       
+      196 +        val extension = project.extensions.getByType(RetroAsse
+          +mblerPluginExtension::class.java)                             
+      197 +        extension.dialectVersion = "5.25"                     
+      198 +        extension.dasmVersion = "2.20.17"                     
+      199 +        project.extensions                                    
+      200 +            .getByType(com.github.c64lib.rbt.flows.adapters.`i
+          +n`.gradle.FlowsExtension::class.java)                         
+      201 +            .flow("dasmBuild") {                              
+      202 +              dasmStep("assembleGame") {                      
+      203 +                from("game.asm")                              
+      204 +                to("build/game.prg")                          
+      205 +              }                                               
+      206 +            }                                                 
+      207 +        (project as org.gradle.api.internal.project.ProjectInt
+          +ernal).evaluate()                                             
+      208 +                                                              
+      209 +        `when`("checking dasm binary resolution wiring") {    
+      210 +          then("the resolveDasm task is registered") {        
+      211 +            project.tasks.findByName(TASK_RESOLVE_DASM) should
+          +Be                                                            
+      212 +                project.tasks.getByName(TASK_RESOLVE_DASM)    
+      213 +          }                                                   
+      214 +                                                              
+      215 +          then("the dasm flow step task depends on resolveDasm
+          +") {                                                          
+      216 +            taskNamesDependedOnBy(project, "flowDasmBuildStepA
+          +ssembleGame") shouldContain                                   
+      217 +                TASK_RESOLVE_DASM                             
+      218 +          }                                                   
+      219 +        }                                                     
+      220 +      }                                                       
+      221      })
+
+● Update(infra\gradle\src\test\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        ginTest.kt)
+  ⎿  Added 1 line
+      34  import com.github.c64lib.rbt.shared.gradle.TASK_GOATTRACKER
+      35  import com.github.c64lib.rbt.shared.gradle.TASK_IMAGE
+      36  import com.github.c64lib.rbt.shared.gradle.TASK_PREPROCESS
+      37 +import com.github.c64lib.rbt.shared.gradle.TASK_RESOLVE_DASM   
+      38  import com.github.c64lib.rbt.shared.gradle.TASK_RESOLVE_DEV_DEP
+          ENDENCIES
+      39  import com.github.c64lib.rbt.shared.gradle.TASK_SPRITEPAD
+      40  import com.github.c64lib.rbt.shared.gradle.TASK_TEST
+
+● Phase 2 complete. Verifying with a full build (compiles everything, runs tests
+  and format checks — Phase 2 touched the shared extension, so broad
+  verification is warranted).
+
+● Agent(Run full gradle build) Haiku 4.5
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● While the build runs, preparing Phase 3 by reading the legacy asm task
+  implementation and OutputFormat.
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Phase 3 approach is clear. One important wrinkle: under dialect = Dasm the asm
+  task must not depend on resolveDevDeps (which downloads KickAss.jar and would
+  fail with the default dialectVersion = "latest"); it will depend on
+  downloadDeps, preprocess, and resolveDasm instead. Waiting for the Phase 2
+  verification build before touching the plugin file again.
+
+✻ Brewed for 19m 15s · done 8:30 PM
+● Agent "Run full gradle build" finished · 43s
+
+● Only Spotless (ktfmt) formatting violations in my new test files — fixing with
+  spotlessApply (scoped run) and re-running the build.
+
+● Agent(Apply formatting, rebuild) Haiku 4.5
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● Update(plans\EXEC-0017_complete-dasm-support.md)
+  ⎿  Added 2 lines
+      32  | # | Step | Deviation | Reason | Impact |
+      33  |---|------|-----------|--------|--------|
+      34  | 1 | — | Feature branch created as `feature/complete-dasm-supp
+          ort` without issue number, and `git pull --rebase` was skipped 
+          during branch creation | GitHub issue creation blocked (EMU acc
+          ount lacks permission); pull blocked by uncommitted plan files,
+           but `develop` was already up to date with origin | Branch may 
+          be renamed to `feature/{issue}-complete-dasm-support` once the 
+          issue exists |
+      35 +| 3 | 2.3/2.4 | `compilers/dasm/adapters/in/gradle` module crea
+         +ted in Phase 2 (with `ResolveDasm` task) instead of Phase 3 | T
+         +he download-trigger task is an inbound Gradle adapter and needs
+         + a home before Phase 3 | Phase 3 adds `DasmAssemble` to the alr
+         +eady-existing module |                                         
+      36 +| 4 | 1.x | `./gradlew spotlessApply` run once to fix ktfmt vio
+         +lations in the new test files | First full build failed on `:fl
+         +ows:spotlessKotlinCheck` for newly written tests | Formatting-o
+         +nly rewrite of new files; no logic change |                    
+      37  | 2 | 2.1 | Auto-download targets dasm ≥ 2.20.16 (default 2.20.
+          17), not 2.20.14.1 as the plan assumed | Verified live: since v
+          2.20.16 releases use tag `v{version}` and uniform assets `dasm-
+          v{version}-{windows\|macos\|linux}.zip`, each zip containing a 
+          single root binary (`dasm.exe`/`dasm`); older releases use mixe
+          d tar.gz/arch-suffixed naming | Simpler design: zip-only extrac
+          tion (JDK `java.util.zip`), no tar.gz support, no arch detectio
+          n; older versions remain PATH-only |
+      38  
+      39  ## 3. Follow-ups
+
+● Waiting for the formatting fix and rebuild to complete.
+
+✻ Brewed for 40s · done 8:31 PM
+
+● Agent "Apply formatting, rebuild" finished · 1m 20s
+
+● Two real failures caught: (1) a genuine bug — "darwin".contains("win") is
+  true, so Darwin was detected as WINDOWS; (2) the use case unpacked File.path
+  which uses backslashes on Windows. Fixing both.
+
+● Update(compilers\dasm\src\main\kotlin\com\github\c64lib\rbt\compilers\dasm\dom
+        ain\DasmOperatingSystem.kt)
+  ⎿  Added 2 lines, removed 1 line
+      38    companion object {
+      39      fun detect(osName: String = System.getProperty("os.name")):
+           DasmOperatingSystem {
+      40        val normalized = osName.lowercase()
+      41 +      // "darwin" contains "win", so macOS must be matched befo
+         +re Windows                                                     
+      42        return when {
+      42 -        normalized.contains("win") -> WINDOWS                  
+      43          normalized.contains("mac") || normalized.contains("darw
+          in") -> MACOS
+      44 +        normalized.contains("win") -> WINDOWS                  
+      45          else -> LINUX
+      46        }
+      47      }
+
+● Update(compilers\dasm\src\main\kotlin\com\github\c64lib\rbt\compilers\dasm\use
+        case\DownloadDasmUseCase.kt)
+  ⎿  Added 3 lines, removed 2 lines
+      54        val url =
+      55            URL(
+      56                "https://github.com/dasm-assembler/dasm/releases/
+          download/v${command.version}/$assetName")
+      57 -      val archive = downloadDasmPort.download(url, "$targetDire
+         -ctory/$assetName")                                             
+      58 -      unpackZipPort.unpack(archive.path, targetDirectory)      
+      57 +      val archivePath = "$targetDirectory/$assetName"          
+      58 +      downloadDasmPort.download(url, archivePath)              
+      59 +      unpackZipPort.unpack(archivePath, targetDirectory)       
+      60        saveVersionPort.saveVersion(versionFile, command.version)
+      61      }
+      62    }
+
+● Update(shared\domain\src\main\kotlin\com\github\c64lib\retroassembler\domain\A
+        ssemblerType.kt)
+  ⎿  Added 1 line
+      27  @Deprecated("Will be removed in 2.0.0")
+      28  enum class AssemblerType {
+      29    KickAssembler,
+      30 +  Dasm,                                                        
+      31    None
+      32  }
+
+● Write(compilers\dasm\adapters\in\gradle\src\main\kotlin\com\github\c64lib\rbt\
+       compilers\dasm\adapters\in\gradle\DasmAssemble.kt)
+  ⎿  Wrote 101 lines to compilers\dasm\adapters\in\gradle\src\main\kotlin\c
+     om\github\c64lib\rbt\compilers\dasm\adapters\in\gradle\DasmAssemble.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +117 lines (ctrl+o to expand)
+
+● Now the plugin dialect branching — re-reading the current (reformatted) plugin
+  file first.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 1 line, removed 1 line
+      141                SemVer.fromString(extension.dialectVersion))
+      142        val dasmSettings = dasmAssemblerSettings(project, extens
+           ion)
+      143  
+      144 -      val assemble = wireSources(project, extension, settings,
+          - depTasks, preprocess)                                        
+      144 +      val assemble = wireSources(project, extension, settings,
+          + dasmSettings, depTasks, preprocess)                          
+      145        val runSpec = wireSpecAndTest(project, extension, settin
+           gs, depTasks)
+      146        wireBuild(project, assemble, runSpec)
+      147        wireFlows(project, extension, settings, dasmSettings, fl
+           owsExtension, assemble, depTasks)
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 46 lines, removed 4 lines
+      243        project: Project,
+      244        extension: RetroAssemblerPluginExtension,
+      245        settings: KickAssemblerSettings,
+      246 +      dasmSettings: DasmAssemblerSettings,                    
+      247        depTasks: DependencyTasks,
+      248        preprocess: Task
+      249    ): Task {
+      250      val assemble =
+      250 -        project.tasks.create(TASK_ASM, Assemble::class.java) {
+          - task ->                                                      
+      251 -          task.extension = extension                          
+      252 -          task.kickAssembleUseCase = KickAssembleUseCase(KickA
+          -ssembleAdapter(project, settings))                            
+      251 +        if (extension.dialect == AssemblerType.Dasm) {        
+      252 +          // dasm dialect: assemble with dasm; KickAssembler j
+          +ar resolution is not needed                                   
+      253 +          val dasmAssemble =                                  
+      254 +              project.tasks.create(TASK_ASM, DasmAssemble::cla
+          +ss.java) { task ->                                            
+      255 +                task.extension = extension                    
+      256 +                task.dasmAssembleUseCase =                    
+      257 +                    DasmAssembleUseCase(DasmAssembleAdapter(pr
+          +oject, dasmSettings))                                         
+      258 +              }                                               
+      259 +          dasmAssemble.dependsOn(depTasks.downloadDependencies
+          +, preprocess)                                                 
+      260 +          depTasks.resolveDasm?.let { dasmAssemble.dependsOn(i
+          +t) }                                                          
+      261 +          dasmAssemble                                        
+      262 +        } else {                                              
+      263 +          val kickAssemble =                                  
+      264 +              project.tasks.create(TASK_ASM, Assemble::class.j
+          +ava) { task ->                                                
+      265 +                task.extension = extension                    
+      266 +                task.kickAssembleUseCase =                    
+      267 +                    KickAssembleUseCase(KickAssembleAdapter(pr
+          +oject, settings))                                             
+      268 +              }                                               
+      269 +          kickAssemble.dependsOn(                             
+      270 +              depTasks.resolveDevDeps, depTasks.downloadDepend
+          +encies, preprocess)                                           
+      271 +          kickAssemble                                        
+      272          }
+      254 -    assemble.dependsOn(depTasks.resolveDevDeps, depTasks.downl
+          -oadDependencies, preprocess)                                  
+      273  
+      274      project.tasks.create(TASK_CLEAN, Clean::class.java) { task
+            ->
+      275        task.extension = extension
+     ...
+      284        settings: KickAssemblerSettings,
+      285        depTasks: DependencyTasks
+      286    ): Task {
+      287 +    // 64spec runs on KickAssembler only; under the dasm diale
+          +ct the spec tasks degrade to                                  
+      288 +    // explicit no-ops so that `build` stays green            
+      289 +    if (extension.dialect == AssemblerType.Dasm) {            
+      290 +      val assembleSpec =                                      
+      291 +          project.tasks.create(TASK_ASM_SPEC) { task ->       
+      292 +            task.group = GROUP_BUILD                          
+      293 +            task.description = "Assembles spec files (skipped:
+          + 64spec requires KickAssembler)"                              
+      294 +            task.doLast {                                     
+      295 +              task.logger.warn(                               
+      296 +                  "64spec testing requires the KickAssembler d
+          +ialect - skipping asmSpec")                                   
+      297 +            }                                                 
+      298 +          }                                                   
+      299 +      val runSpec =                                           
+      300 +          project.tasks.create(TASK_TEST) { task ->           
+      301 +            task.group = GROUP_BUILD                          
+      302 +            task.description = "Runs 64spec tests (skipped: 64
+          +spec requires KickAssembler)"                                 
+      303 +            task.doLast {                                     
+      304 +              task.logger.warn("64spec testing requires the Ki
+          +ckAssembler dialect - skipping test")                         
+      305 +            }                                                 
+      306 +          }                                                   
+      307 +      runSpec.dependsOn(assembleSpec)                         
+      308 +      return runSpec                                          
+      309 +    }                                                         
+      310 +                                                              
+      311      val assembleSpec =
+      312          project.tasks.create(TASK_ASM_SPEC, AssembleSpec::clas
+           s.java) { task ->
+      313            task.extension = extension
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 2 lines
+      26  
+      27  import com.github.c64lib.gradle.tasks.Build
+      28  import com.github.c64lib.gradle.tasks.Preprocess
+      29 +import com.github.c64lib.retroassembler.domain.AssemblerType   
+      30 +import com.github.c64lib.rbt.compilers.dasm.adapters.`in`.gradl
+         +e.DasmAssemble                                                 
+      31  import com.github.c64lib.rbt.compilers.dasm.adapters.`in`.gradl
+          e.ResolveDasm
+      32  import com.github.c64lib.rbt.compilers.dasm.adapters.out.filedo
+          wnload.DownloadDasmAdapter
+      33  import com.github.c64lib.rbt.compilers.dasm.adapters.out.filedo
+          wnload.UnpackZipAdapter
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 1 line
+      83  import com.github.c64lib.rbt.processors.spritepad.adapters.`in`
+          .gradle.Spritepad
+      84  import com.github.c64lib.rbt.shared.domain.SemVer
+      85  import com.github.c64lib.rbt.shared.filedownload.FileDownloader
+      86 +import com.github.c64lib.rbt.shared.gradle.GROUP_BUILD         
+      87  import com.github.c64lib.rbt.shared.gradle.TASK_ASM
+      88  import com.github.c64lib.rbt.shared.gradle.TASK_ASM_SPEC
+      89  import com.github.c64lib.rbt.shared.gradle.TASK_BUILD
+
+● Adding Phase 3 tests: a DasmAssemble task test and plugin dialect-branching
+  scenarios.
+
+● Write(compilers\dasm\adapters\in\gradle\src\test\kotlin\com\github\c64lib\rbt\
+       compilers\dasm\adapters\in\gradle\DasmAssembleTest.kt)
+  ⎿  Wrote 128 lines to
+     compilers\dasm\adapters\in\gradle\src\test\kotlin\com\github\c64lib\rb
+     t\compilers\dasm\adapters\in\gradle\DasmAssembleTest.kt
+       1 /*
+       3 
+       4 Copyright (c) 2018-2025 c64lib: The Ultimate Commodore 64 Librar
+       5 Copyright (c) 2018-2025 Maciej Małecki
+       6 
+         ining a copy
+       8 of this software and associated documentation files (the "Softwa
+       9 in the Software without restriction, including without limitatio
+         n the rights
+         d/or sell
+     … +143 lines (ctrl+o to expand)
+
+● Update(infra\gradle\src\test\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        ginTest.kt)
+  ⎿  Added 44 lines
+      219            }
+      220          }
+      221        }
+      222 +                                                              
+      223 +      given("the plugin is applied with the Dasm dialect") {  
+      224 +        val project =                                         
+      225 +            ProjectBuilder.builder()                          
+      226 +                .withProjectDir(Files.createTempDirectory("ret
+          +ro-assembler-plugin-test").toFile())                          
+      227 +                .build()                                      
+      228 +        project.pluginManager.apply(RetroAssemblerPlugin::clas
+          +s.java)                                                       
+      229 +        val extension = project.extensions.getByType(RetroAsse
+          +mblerPluginExtension::class.java)                             
+      230 +        @Suppress("DEPRECATION")                              
+      231 +        extension.dialect = com.github.c64lib.retroassembler.d
+          +omain.AssemblerType.Dasm                                      
+      232 +        extension.dasmVersion = "2.20.17"                     
+      233 +        (project as org.gradle.api.internal.project.ProjectInt
+          +ernal).evaluate()                                             
+      234 +                                                              
+      235 +        `when`("checking the asm task wiring") {              
+      236 +          then("asm is a DasmAssemble task") {                
+      237 +            (project.tasks.getByName(TASK_ASM) is             
+      238 +                com.github.c64lib.rbt.compilers.dasm.adapters.
+          +`in`.gradle.DasmAssemble) shouldBe                            
+      239 +                true                                          
+      240 +          }                                                   
+      241 +                                                              
+      242 +          then("asm depends on resolveDasm, downloadDeps, and 
+          +preprocess but not resolveDevDeps") {                         
+      243 +            val deps = taskNamesDependedOnBy(project, TASK_ASM
+          +)                                                             
+      244 +            deps shouldContain TASK_RESOLVE_DASM              
+      245 +            deps shouldContain TASK_DEPENDENCIES              
+      246 +            deps shouldContain TASK_PREPROCESS                
+      247 +            deps.contains(TASK_RESOLVE_DEV_DEPENDENCIES) shoul
+          +dBe false                                                     
+      248 +          }                                                   
+      249 +        }                                                     
+      250 +                                                              
+      251 +        `when`("checking the 64spec degradation") {           
+      252 +          then("asmSpec and test are plain no-op tasks and tes
+          +t depends on asmSpec") {                                      
+      253 +            (project.tasks.getByName(TASK_ASM_SPEC) is        
+      254 +                com.github.c64lib.rbt.compilers.kickass.adapte
+          +rs.`in`.gradle.AssembleSpec) shouldBe                         
+      255 +                false                                         
+      256 +            taskNamesDependedOnBy(project, TASK_TEST) shouldCo
+          +ntain TASK_ASM_SPEC                                           
+      257 +          }                                                   
+      258 +                                                              
+      259 +          then("build still depends on asm and test") {       
+      260 +            val deps = taskNamesDependedOnBy(project, TASK_BUI
+          +LD)                                                           
+      261 +            deps shouldContain TASK_ASM                       
+      262 +            deps shouldContain TASK_TEST                      
+      263 +          }                                                   
+      264 +        }                                                     
+      265 +      }                                                       
+      266      })
+
+● Production code for Phase 3 done. Now Step 3.4 — documentation. Finding the
+  relevant manual sections.
+
+  Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Update(doc\index.adoc)
+  ⎿  Added 9 lines, removed 2 lines
+      183  
+      184  The minimal amount of information you have to provide is:
+      185  
+      186 -dialect:: A type of assembler that you want to use (currently 
+          -only `KickAssembler` is supported).                           
+      187 -dialectVersion:: A version of the selected assembler you want 
+          -to use. For KickAssembler, see https://github.com/c64lib/asm-k
+          -a/releases for list of all available versions.                
+      186 +dialect:: A type of assembler that you want to use: `KickAssem
+          +bler` or `Dasm`.                                              
+      187 +dialectVersion:: A version of the selected assembler you want 
+          +to use. For KickAssembler, see https://github.com/c64lib/asm-k
+          +a/releases for list of all available versions. This property a
+          +pplies to KickAssembler only; for dasm see `dasmVersion` below
+          +.                                                             
+      188  
+      189 +When using the `Dasm` dialect, the following optional properti
+          +es control how the dasm binary is located:                    
+      190 +                                                              
+      191 +dasmVersion:: Version of the dasm binary to download automatic
+          +ally from https://github.com/dasm-assembler/dasm/releases[dasm
+          +-assembler releases] (2.20.16 or newer, e.g. `"2.20.17"`). The
+          + binary is cached under `.ra/asms/dasm/{version}/`. When unset
+          +, `dasm` must be installed and available on the `PATH`.       
+      192 +dasmExecutable:: Explicit path to a dasm executable; takes pre
+          +cedence over the downloaded binary and the `PATH`.            
+      193 +                                                              
+      194 +NOTE: 64spec testing (`asmSpec`, `test` tasks) requires the Ki
+          +ckAssembler dialect. Under the `Dasm` dialect these tasks are 
+          +skipped with a warning, so `build` still runs end to end. The 
+          +`dasmVersion`/`dasmExecutable` properties also apply to <<dasm
+          + Step,dasm flow steps>>, so flows-based projects can use the m
+          +anaged binary too.                                            
+      195 +                                                              
+      196  In this setup, the tool will assemble all files with `asm` ext
+           ension located in project directory and all subdirectories.
+      197  See <<Customizing your build>> section to see how to modify th
+           is default behavior.
+      198  
+
+● Update(doc\index.adoc)
+  ⎿  Added 5 lines
+      1424  | `additionalInputs(pat...)` / `additionalInput(pat)` | Extra
+             input-file patterns to track as dependencies. | —
+      1425  |===
+      1426  
+      1427 +By default the step invokes `dasm` from the `PATH`. Set `dasm
+           +Version` (auto-download from the                             
+      1428 +official releases) or `dasmExecutable` (explicit path) in the
+           + `retroProject { }` block to use a                           
+      1429 +managed binary instead; when `dasmVersion` is set, dasm flow 
+           +steps automatically depend on the                            
+      1430 +`resolveDasm` download task.                                 
+      1431 +                                                             
+      1432  ==== CharPad Step
+      1433  
+      1434  Process CharPad CTM files to extract charset, maps, tiles, an
+            d other graphical assets. Each
+● Now the arc42 docs — checking what the compilers building-block page currently
+  says about DASM.
+
+  Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Update(doc\arc42\building-blocks\compilers.md)
+  ⎿  Added 1 line, removed 1 line
+       7  The `compilers` context turns assembly source into binary artif
+          acts (PRG and related formats) for MOS 65xx targets. It contain
+          s two independent sub-domains:
+       8  
+       9  - **`compilers:kickass`** — the primary dialect: [Kick Assemble
+          r](../12_glossary.md). Also owns downloading the KickAssembler 
+          jar as a dev dependency, spec (test) assembly, and build-artefa
+          ct cleanup.
+      10 -- **`compilers:dasm`** — the [DASM](../12_glossary.md) dialect,
+         - driven as an external command-line tool.                      
+      10 +- **`compilers:dasm`** — the [DASM](../12_glossary.md) dialect,
+         + driven as an external command-line tool. Also owns downloading
+         + the per-OS dasm binary from the official GitHub releases (opt-
+         +in via `retroProject.dasmVersion`).                            
+      11  
+      12  ## Use cases
+      13  
+
+● Update(doc\arc42\building-blocks\compilers.md)
+  ⎿  Added 1 line
+      19  | `GenerateKickAssSourceUseCase` | kickass | source-gen payload
+           | Generate KickAss source fragments |
+      20  | `CleanBuildArtefactsUseCase` | kickass | pattern → `Unit` | D
+          elete build artefacts matching a glob |
+      21  | `DasmAssembleUseCase` | dasm | `DasmAssembleCommand` → `Unit`
+           | Assemble a source file via the DASM CLI |
+      22 +| `DownloadDasmUseCase` | dasm | `DownloadDasmCommand` → `Unit`
+         + | Download and unpack the per-OS dasm binary (if the version c
+         +hanged) |                                                      
+      23  
+      24  ## Ports
+      25  
+
+● Update(doc\arc42\building-blocks\compilers.md)
+  ⎿  Added 3 lines
+      31  | `ReadVersionPort` / `SaveVersionPort` | out | `ReadVersionAda
+          pter` / `SaveVersionAdapter` | `compilers/kickass/adapters/out/
+          gradle/...` |
+      32  | `DeleteFilesPort` | out | `DeleteFilesAdapter` | `compilers/k
+          ickass/adapters/out/gradle/.../DeleteFilesAdapter.kt` |
+      33  | `DasmAssemblePort` | out | `DasmAssembleAdapter` | `compilers
+          /dasm/adapters/out/gradle/.../DasmAssembleAdapter.kt` |
+      34 +| `DownloadDasmPort` | out | `DownloadDasmAdapter` | `compilers
+         +/dasm/adapters/out/filedownload/.../DownloadDasmAdapter.kt` |  
+      35 +| `UnpackZipPort` | out | `UnpackZipAdapter` | `compilers/dasm/
+         +adapters/out/filedownload/.../UnpackZipAdapter.kt` |           
+      36 +| `ReadVersionPort` / `SaveVersionPort` (dasm) | out | `ReadVer
+         +sionAdapter` / `SaveVersionAdapter` | `compilers/dasm/adapters/
+         +out/gradle/...` |                                              
+      37  
+      38  ## Adapters
+      39  
+
+● Update(doc\arc42\building-blocks\compilers.md)
+  ⎿  Added 5 lines, removed 1 line
+      41  
+      42  **Outbound (kickass):** `KickAssembleAdapter` invokes the KickA
+          ssembler jar via a `CommandLineBuilder`; `DownloadKickAssembler
+          Adapter` uses the shared `FileDownloader`; version adapters per
+          sist the resolved dialect version.
+      43  
+      44 -**Outbound (dasm):** `DasmAssembleAdapter` builds a DASM comman
+         -d line via `DasmCommandLineBuilder` and executes it. DASM has *
+         -*no inbound Gradle adapter of its own** — it is reached only th
+         -rough the `flows` context's `DasmAssemblyPort` (see [flows.md](
+         -flows.md)).                                                    
+      44 +**Inbound (dasm, Gradle tasks):** `DasmAssemble` (`asm` when `r
+         +etroProject.dialect = Dasm`) and `ResolveDasm` (`resolveDasm`, 
+         +registered only when `dasmVersion` is set) — in `compilers/dasm
+         +/adapters/in/gradle/`.                                         
+      45  
+      46 +**Outbound (dasm):** `DasmAssembleAdapter` builds a DASM comman
+         +d line via `DasmCommandLineBuilder` and executes the binary res
+         +olved in `DasmAssemblerSettings` (explicit `dasmExecutable` → d
+         +ownloaded `{workDir}/asms/dasm/{version}/` binary → `dasm` on P
+         +ATH). `DownloadDasmAdapter`/`UnpackZipAdapter` fetch and unpack
+         + the release zip; version adapters persist the cached binary ve
+         +rsion. DASM is also reachable through the `flows` context's `Da
+         +smAssemblyPort` (see [flows.md](flows.md)).                    
+      47 +                                                               
+      48 +**Dialect selection:** `RetroAssemblerPlugin.wireSources` branc
+         +hes on `retroProject.dialect`: `Dasm` wires the `asm` task to `
+         +DasmAssembleUseCase` (dependencies: `downloadDeps`, `preprocess
+         +`, and `resolveDasm` when present — not `resolveDevDeps`); any 
+         +other value keeps the KickAssembler wiring. Under the `Dasm` di
+         +alect the 64spec tasks (`asmSpec`, `test`) are registered as no
+         +-op tasks that log a warning, since 64spec requires KickAssembl
+         +er.                                                            
+      49 +                                                               
+      50  ## Hexagon
+      51  
+      52  ```mermaid
+
+  Searched for 3 patterns, read 1 file (ctrl+o to expand)
+
+● Update(doc\arc42\05_building_block_view.md)
+  ⎿  Added 1 line, removed 1 line
+      66  | **infra** | `:infra:gradle` | [infra.md](building-blocks/infr
+          a.md) |
+      67  | **shared** | `:shared:domain`, `:shared:filedownload`, `:shar
+          ed:gradle`, `:shared:binary-utils`, `:shared:processor`, `:shar
+          ed:testutils` | [shared.md](building-blocks/shared.md) |
+      68  | **flows** | `:flows`, `:flows:adapters:in:gradle`, `:flows:ad
+          apters:out:gradle`, `:flows:adapters:out:charpad`, `:flows:adap
+          ters:out:spritepad`, `:flows:adapters:out:image`, `:flows:adapt
+          ers:out:goattracker`, `:flows:adapters:out:exomizer` | [flows.m
+          d](building-blocks/flows.md) |
+      69 -| **compilers** | `:compilers:kickass`, `:compilers:kickass:ada
+         -pters:in:gradle`, `:compilers:kickass:adapters:out:gradle`, `:c
+         -ompilers:kickass:adapters:out:filedownload`, `:compilers:dasm`,
+         - `:compilers:dasm:adapters:out:gradle` | [compilers.md](buildin
+         -g-blocks/compilers.md) |                                       
+      69 +| **compilers** | `:compilers:kickass`, `:compilers:kickass:ada
+         +pters:in:gradle`, `:compilers:kickass:adapters:out:gradle`, `:c
+         +ompilers:kickass:adapters:out:filedownload`, `:compilers:dasm`,
+         + `:compilers:dasm:adapters:in:gradle`, `:compilers:dasm:adapter
+         +s:out:gradle`, `:compilers:dasm:adapters:out:filedownload` | [c
+         +ompilers.md](building-blocks/compilers.md) |                   
+      70  | **emulators** | `:emulators:vice`, `:emulators:vice:adapters:
+          out:gradle` | [emulators.md](building-blocks/emulators.md) |
+      71  | **testing** | `:testing:64spec`, `:testing:64spec:adapters:in
+          :gradle` | [testing.md](building-blocks/testing.md) |
+      72  | **dependencies** | `:dependencies`, `:dependencies:adapters:i
+          n:gradle`, `:dependencies:adapters:out:gradle` | [dependencies.
+          md](building-blocks/dependencies.md) |
+
+● Update(CLAUDE.md)
+  ⎿  Added 1 line, removed 1 line
+       4  
+       5  ## Project Overview
+       6  
+       7 -Gradle Retro Assembler Plugin is a Gradle plugin that adds capa
+         -bility for building Assembly projects for MOS 65xx family of mi
+         -croprocessors (primarily Commodore 64). Currently supports Kick
+         - Assembler as the ASM dialect.                                 
+       7 +Gradle Retro Assembler Plugin is a Gradle plugin that adds capa
+         +bility for building Assembly projects for MOS 65xx family of mi
+         +croprocessors (primarily Commodore 64). Supports Kick Assembler
+         + and DASM as ASM dialects (DASM via the flows `dasmStep {}` and
+         + the legacy `dialect = Dasm` path; the dasm binary can be auto-
+         +downloaded via `retroProject.dasmVersion` or taken from PATH). 
+       8  
+       9  Published at: https://plugins.gradle.org/plugin/com.github.c64l
+          ib.retro-assembler
+      10  
+
+● Checking whether the crosscutting-concepts page documents the task graph
+  (CLAUDE.md requires updating it when task-dependency rules change).
+
+  Searched for 2 patterns, read 1 file (ctrl+o to expand)
+
+● Update(doc\arc42\building-blocks\infra.md)
+  ⎿  Added 5 lines, removed 4 lines
+      31  | Task | Constant | Depends on |
+      32  |------|----------|------------|
+      33  | `resolveDevDeps` | `TASK_RESOLVE_DEV_DEPENDENCIES` | — |
+      34 +| `resolveDasm` (only when `dasmVersion` is set) | `TASK_RESOLV
+         +E_DASM` | — |                                                  
+      35  | `downloadDeps` | `TASK_DEPENDENCIES` | — |
+      36  | `charpad` / `spritepad` / `goattracker` / `image` | `TASK_CHA
+          RPAD` … | — |
+      37  | `preprocess` | `TASK_PREPROCESS` | charpad, spritepad, goattr
+          acker, image |
+      37 -| `flows` | `TASK_FLOWS` | all top-level flow tasks (via `FlowT
+         -asksGenerator`) |                                              
+      38 -| `asm` | `TASK_ASM` | resolveDevDeps, downloadDeps, preprocess
+         -, flows |                                                      
+      39 -| `asmSpec` | `TASK_ASM_SPEC` | resolveDevDeps, downloadDeps | 
+      40 -| `test` | `TASK_TEST` | asmSpec |                             
+      38 +| `flows` | `TASK_FLOWS` | all top-level flow tasks (via `FlowT
+         +asksGenerator`); dasm flow step tasks additionally depend on `r
+         +esolveDasm` when present |                                     
+      39 +| `asm` | `TASK_ASM` | resolveDevDeps, downloadDeps, preprocess
+         +, flows — with `dialect = Dasm`: downloadDeps, preprocess, flow
+         +s, resolveDasm (no resolveDevDeps) |                           
+      40 +| `asmSpec` | `TASK_ASM_SPEC` | resolveDevDeps, downloadDeps — 
+         +with `dialect = Dasm`: a warning-only no-op task |             
+      41 +| `test` | `TASK_TEST` | asmSpec — with `dialect = Dasm`: a war
+         +ning-only no-op task |                                         
+      42  | `clean` | `TASK_CLEAN` | — |
+      43  | `build` | `TASK_BUILD` | asm, test |
+      44  
+
+● All Phase 2+3 code, tests and docs are in. Running the full verification:
+  format, then build.
+
+● Agent(Format and full build) Haiku 4.5
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● Build running. Meanwhile, updating the exec log with Phase 2 progress notes
+  (plans files aren't part of the Gradle build).
+
+● Update(plans\EXEC-0017_complete-dasm-support.md)
+  ⎿  Added 7 lines
+      24  | 1.3 | completed | `:compilers:dasm:test`, `:compilers:dasm:ad
+          apters:out:gradle:test` green | `DasmAssembleUseCaseTest.kt`, `
+          DasmCommandLineBuilderTest.kt` |
+      25  | 1.4 | completed | `:infra:gradle:test` green | `RetroAssemble
+          rPluginTest` extended with dasm flow wiring scenario |
+      26  | 2.1 | completed | Live inspection of dasm-assembler/dasm rele
+          ases + all three v2.20.17 zips | See deviation #2: modern schem
+          e ≥ 2.20.16, default 2.20.17 |
+      27 +| 2.2 | completed | `DownloadDasmUseCaseTest`, `DasmOperatingSy
+         +stemTest` (mocked ports; caught real darwin→WINDOWS detection b
+         +ug) | `DasmAssemblerSettings` (real), `DasmOperatingSystem`, `D
+         +ownloadDasmUseCase` + 4 ports |                                
+      28 +| 2.3 | completed | `UnpackZipAdapterTest` (zip layout, nesting
+         +, zip-slip rejection) | New module `compilers/dasm/adapters/out
+         +/filedownload`; version adapters in `adapters/out/gradle`; sett
+         +ings.gradle.kts + infra deps updated |                         
+      29 +| 2.4 | completed | `RetroAssemblerPluginTest`: `resolveDasm` r
+         +egistration + dasm flow step dependency | `dasmVersion`/`dasmEx
+         +ecutable` extension props; `ResolveDasm` task in new `adapters/
+         +in/gradle` module; settings threaded through `wireFlows` |     
+      30 +| 3.1 | completed | Full build (see 3.3 row) | `AssemblerType.D
+         +asm` added (enum stays deprecated) |                           
+      31 +| 3.2 | completed | `DasmAssembleTest` (defines parsing, PRG→-f
+         +1/.prg, BIN→-f3/.bin, source discovery) | `DasmAssemble` task i
+         +n `compilers/dasm/adapters/in/gradle` |                        
+      32 +| 3.3 | completed | `RetroAssemblerPluginTest` Dasm-dialect sce
+         +narios (asm task type, dependency graph, 64spec no-ops) | `wire
+         +Sources`/`wireSpecAndTest` branch on dialect; asm↛resolveDevDep
+         +s under Dasm |                                                 
+      33 +| 3.4 | completed | Full build; docs rendered as Markdown/Ascii
+         +Doc | `doc/index.adoc`, arc42 `compilers.md`/`05`/`infra.md`, `
+         +CLAUDE.md` overview |                                          
+      34  
+      35  ## 2. Deviations from Plan
+      36  
+
+● Waiting for the full build to finish before closing out the phases.
+
+✻ Cogitated for 6m 46s · done 8:39 PM
+
+● Agent "Format and full build" finished · 3m 37s
+
+● The full build surfaced a real product bug my new test caught: under dialect =
+  Dasm (where users wouldn't set dialectVersion), the plugin still eagerly
+  builds KickAssemblerSettings via SemVer.fromString("latest") and crashes at
+  configuration time. Checking SemVer for a tolerant constructor.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(infra\gradle\src\main\kotlin\com\github\c64lib\gradle\RetroAssemblerPlu
+        gin.kt)
+  ⎿  Added 10 lines, removed 1 line
+      138        val preprocess = wirePreprocess(project, preprocessExten
+           sion)
+      139  
+      140        // TODO Somehow, the ResolveDevDeps should give the sett
+           ings. How!?
+      141 +      // Under the Dasm dialect the KickAssembler version may 
+          +stay at its unparseable "latest"                              
+      142 +      // default; fall back so configuration does not fail — t
+          +he Kick jar is only exercised                                 
+      143 +      // when a KickAssembler use case actually runs.         
+      144 +      val kickVersion =                                       
+      145 +          if (extension.dialect == AssemblerType.Dasm) {      
+      146 +            SemVer.fromStringOrNull(extension.dialectVersion) 
+          +?: SemVer(0, 0)                                               
+      147 +          } else {                                            
+      148 +            SemVer.fromString(extension.dialectVersion)       
+      149 +          }                                                   
+      150        val settings =
+      151            KickAssemblerSettings(
+      152                File("${extension.workDir}/asms/ka/${extension.d
+           ialectVersion}/KickAss.jar"),
+      144 -              SemVer.fromString(extension.dialectVersion))    
+      153 +              kickVersion)                                    
+      154        val dasmSettings = dasmAssemblerSettings(project, extens
+           ion)
+      155  
+      156        val assemble = wireSources(project, extension, settings,
+            dasmSettings, depTasks, preprocess)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agent(Rerun full build) Haiku 4.5
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Waiting for the rebuild to verify the fix.
+
+● Ran 1 stop hook (ctrl+o to expand)
+  ⎿  Stop hook error: <dialogue:reminder>Before ending this turn,
+  context surfaced that has not been recorded:
+  - observation surfaced: <task-notification>
+  <task-id>afcf59a9cf2805cde</task-id>
+  <tool-use-id>toolu_01K88LiTnp1Y24ziunBPMofa</tool-use-id>
+  <output-file>C:\Users\mma
+
+  Record what's worth keeping as you wrap up — no need to ask first.
+  Screen each
+  item for sensitive content (secrets, credentials, PII, health,
+  financial):
+  abstract it and tell the user rather than store it verbatim, as the
+  record is
+  append-only. Confirm any inferred decision rationale before recording,
+  and skip
+  anything not worth keeping.</dialogue:reminder>
+● The observation the hook flags — the build failure Cannot determine version 
+  from "latest" under the Dasm dialect — is already recorded in the store as
+  OBSERVATION-20260907-190845-502159 (together with the darwin/win detection bug
+  and the fix rationale), and linked to the DASM thread. Nothing else from that
+  notification is worth keeping; the rebuild verifying the fix is running and
+  I'll continue when it completes.
+
+✻ Baked for 1m 44s · done 9:09 PM
+
+● Agent "Rerun full build" finished · 3m 50s
+
+● The new DasmAssembleTest hits a JPMS --add-opens issue with ProjectBuilder in
+  that module. The infra module runs ProjectBuilder tests fine — checking what
+  test JVM flags it sets.
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● The infra module sets --add-opens java.base/java.lang=ALL-UNNAMED for its
+  tests. Adding the same to both new dasm adapter modules that use
+  ProjectBuilder.
+
+● Update(compilers\dasm\adapters\in\gradle\build.gradle.kts)
+  ⎿  Added 3 lines
+       4  
+       5  group = "com.github.c64lib.retro-assembler.compilers.dasm.in"
+       6  
+       7 +// ProjectBuilder-based tests need java.lang opened on JDK 9+  
+       8 +tasks.withType<Test> { jvmArgs("--add-opens", "java.base/java.l
+         +ang=ALL-UNNAMED") }                                            
+       9 +                                                               
+      10  dependencies {
+      11    implementation(project(":compilers:dasm"))
+      12    implementation(project(":shared:gradle"))
+
+● Update(compilers\dasm\adapters\out\filedownload\build.gradle.kts)
+  ⎿  Added 3 lines
+       4  
+       5  group = "com.github.c64lib.retro-assembler.compilers.dasm.out"
+       6  
+       7 +// ProjectBuilder-based tests need java.lang opened on JDK 9+  
+       8 +tasks.withType<Test> { jvmArgs("--add-opens", "java.base/java.l
+         +ang=ALL-UNNAMED") }                                            
+       9 +                                                               
+      10  dependencies {
+      11    implementation(project(":compilers:dasm"))
+      12    implementation(project(":shared:filedownload"))
+
+● Agent(Rerun full build again) Haiku 4.5
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● Logging the JPMS fix as a deviation while the build reruns.
+
+● Update(plans\EXEC-0017_complete-dasm-support.md)
+  ⎿  Added 3 lines, removed 1 line
+      40  |---|------|-----------|--------|--------|
+      41  | 1 | — | Feature branch created as `feature/complete-dasm-supp
+          ort` without issue number, and `git pull --rebase` was skipped 
+          during branch creation | GitHub issue creation blocked (EMU acc
+          ount lacks permission); pull blocked by uncommitted plan files,
+           but `develop` was already up to date with origin | Branch may 
+          be renamed to `feature/{issue}-complete-dasm-support` once the 
+          issue exists |
+      42  | 3 | 2.3/2.4 | `compilers/dasm/adapters/in/gradle` module crea
+          ted in Phase 2 (with `ResolveDasm` task) instead of Phase 3 | T
+          he download-trigger task is an inbound Gradle adapter and needs
+           a home before Phase 3 | Phase 3 adds `DasmAssemble` to the alr
+          eady-existing module |
+      43 -| 4 | 1.x | `./gradlew spotlessApply` run once to fix ktfmt vio
+         -lations in the new test files | First full build failed on `:fl
+         -ows:spotlessKotlinCheck` for newly written tests | Formatting-o
+         -nly rewrite of new files; no logic change |                    
+      43 +| 4 | 1.x | `./gradlew spotlessApply` run to fix ktfmt violatio
+         +ns in the new test files (twice during the session) | Full buil
+         +ds failed on `spotlessKotlinCheck` for newly written sources | 
+         +Formatting-only rewrites; no logic change |                    
+      44 +| 5 | 3.3 | Plugin now tolerates unparseable `dialectVersion` (
+         +default `"latest"`) under `dialect = Dasm` via `SemVer.fromStri
+         +ngOrNull ?: SemVer(0, 0)` | New dialect test exposed a configur
+         +ation-time crash (`Cannot determine version from "latest"`) tha
+         +t would hit every real Dasm-dialect project | KickAssembler/Non
+         +e paths unchanged; recorded as OBSERVATION-20260907-190845-5021
+         +59 |                                                           
+      45 +| 6 | 2.3/3.2 | `--add-opens java.base/java.lang=ALL-UNNAMED` a
+         +dded to test JVMs of both new dasm adapter modules | `ProjectBu
+         +ilder`-based tests fail on JDK 9+ module access without it (sam
+         +e flag already present in `infra/gradle`) | Build-config-only c
+         +hange |                                                        
+      46  | 2 | 2.1 | Auto-download targets dasm ≥ 2.20.16 (default 2.20.
+          17), not 2.20.14.1 as the plan assumed | Verified live: since v
+          2.20.16 releases use tag `v{version}` and uniform assets `dasm-
+          v{version}-{windows\|macos\|linux}.zip`, each zip containing a 
+          single root binary (`dasm.exe`/`dasm`); older releases use mixe
+          d tar.gz/arch-suffixed naming | Simpler design: zip-only extrac
+          tion (JDK `java.util.zip`), no tar.gz support, no arch detectio
+          n; older versions remain PATH-only |
+      47  
+      48  ## 3. Follow-ups
+
+● Waiting for the build result.
+
+✻ Brewed for 1m 4s · done 9:14 PM
+
+● Agent "Rerun full build again" finished · 2m 3s
+
+● BUILD SUCCESSFUL — all three phases implemented and verified. Closing out:
+  writing results back to the plan (per the plan skill's UPDATE rules already
+  loaded), closing the exec log, then offering the ship steps.
+
+● Update(plans\PLAN-0017_complete-dasm-support.md)
+  ⎿  Added 1 line, removed 1 line
+      2  
+      3  **Plan ID**: PLAN-0017
+      4  **Issue**: #TBD (issue creation currently blocked — active `gh` 
+         account `MMALECKI_CGEMU` cannot create issues on c64lib; create 
+         and link once re-authenticated)
+      5 -**Status**: accepted                                            
+      5 +**Status**: implemented                                         
+      6  **Challenge**: waived 2026-09-07
+      7  **Created**: 2026-09-07
+      8  **Last Updated**: 2026-09-07
+
+● Update(plans\PLAN-0017_complete-dasm-support.md)
+  ⎿  Added 9 lines, removed 4 lines
+      176  ### Phase 2: DASM binary auto-download
+      177  **Goal**: Versioned, cached, per-OS dasm binary via `resolveDe
+           vDeps`; PATH remains the fallback.
+      178  
+      179 -1. **Step 2.1**: Verify release asset naming                  
+      180 -   - Files: (research) — record findings in this plan         
+      181 -   - Description: Enumerate `dasm-assembler/dasm` release asse
+          -ts for 2.20.14.1 (win/linux/osx archive names, layout inside a
+          -rchive) and pin the URL template.                             
+      182 -   - Testing: manual download of each asset.                  
+      179 +1. **Step 2.1**: Verify release asset naming — **done 2026-09-
+          +07**                                                          
+      180 +   - Files: (research) — findings recorded here               
+      181 +   - Findings: since **v2.20.16** releases use tag `v{version}
+          +` and uniform assets                                          
+      182 +     `dasm-v{version}-{windows|macos|linux}.zip`, each zip con
+          +taining a single root binary                                  
+      183 +     (`dasm.exe`/`dasm`); v2.20.17 is current. Older releases 
+          +(≤ 2.20.14.1) use mixed                                       
+      184 +     tar.gz/arch-suffixed naming and are **not supported** for
+          + auto-download (PATH-only).                                   
+      185 +     Pinned URL template:                                     
+      186 +     `https://github.com/dasm-assembler/dasm/releases/download
+          +/v{version}/dasm-v{version}-{os}.zip`.                        
+      187 +   - Testing: all three v2.20.17 assets downloaded and inspect
+          +ed.                                                           
+      188  2. **Step 2.2**: Domain: settings + download use case
+      189     - Files: `compilers/dasm/src/main/kotlin/.../domain/DasmAss
+           emblerSettings.kt` (replace dummy with `pathToExecutable: File
+           ?`, `version: SemVer?`), `.../usecase/DownloadDasmUseCase.kt`,
+            `.../usecase/port/{DownloadDasmPort,ReadVersionPort,SaveVersi
+           onPort,UnpackArchivePort}.kt`
+      190     - Description: `DownloadDasmUseCase.apply(command)` — OS/ar
+           ch → asset URL, download to `{workDir}/asms/dasm/{version}/`, 
+           unpack, mark executable (Unix), stamp version; skip when stamp
+            matches and `!force`.
+
+● Update(plans\PLAN-0017_complete-dasm-support.md)
+  ⎿  Added 1 line
+      264  | 2026-09-07 | AI Agent | Initial plan created from codebase a
+           nalysis |
+      265  | 2026-09-07 | AI Agent | All four unresolved questions resolv
+           ed by user (upstream download, `dasmVersion`/`dasmExecutable` 
+           properties, 64spec skip-with-warning, configured→downloaded→PA
+           TH resolution); decisions and steps 2.4/3.3 updated accordingl
+           y |
+      266  | 2026-09-07 | AI Agent | Status → accepted; adversarial chall
+           enge waived at acceptance; feature branch deferred to executio
+           n |
+      267 +| 2026-09-07 | AI Agent | Status → implemented: all steps 1.1–
+          +3.4 executed on `feature/complete-dasm-support`, full `./gradl
+          +ew build` green. Step 2.1 findings recorded (v2.20.16+ zip sch
+          +eme, default 2.20.17). Deviations and per-step evidence in [EX
+          +EC-0017](EXEC-0017_complete-dasm-support.md); notable: two rea
+          +l bugs caught by new tests (darwin→WINDOWS detection; configur
+          +ation-time crash on `dialectVersion="latest"` under Dasm diale
+          +ct), both fixed |                                             
+      268  
+      269  ---
+      270  
+
+● Update(plans\README.md)
+  ⎿  Added 1 line, removed 1 line
+      21  | [PLAN-0014](PLAN-0014_adversarial-challenge-at-acceptance.md)
+           | 2026-07-19 | implemented | Move adversarial challenge to pla
+          n acceptance | #186 | [EXEC-0014](EXEC-0014_adversarial-challen
+          ge-at-acceptance.md) |
+      22  | [PLAN-0015](PLAN-0015_flows-groovy-usefrom-useto-nested-closu
+          re.md) | 2026-07-19 | implemented | Fix useFrom()/useTo() in Gr
+          oovy nested commandStep closures | #182 | [EXEC-0015](EXEC-0015
+          _flows-groovy-usefrom-useto-nested-closure.md) |
+      23  | [PLAN-0016](PLAN-0016_flows-empty-artifact-path-collision.md)
+           | 2026-07-19 | implemented | Fix empty-path flow artifact coll
+          ision blocking all Gradle tasks | #181 | [EXEC-0016](EXEC-0016_
+          flows-empty-artifact-path-collision.md) |
+      24 -| [PLAN-0017](PLAN-0017_complete-dasm-support.md) | 2026-09-07 
+         -| accepted | Complete DASM Support | — | [EXEC-0017](EXEC-0017_
+         -complete-dasm-support.md) |                                    
+      24 +| [PLAN-0017](PLAN-0017_complete-dasm-support.md) | 2026-09-07 
+         +| implemented | Complete DASM Support | — | [EXEC-0017](EXEC-00
+         +17_complete-dasm-support.md) |                                 
+
+● Update(plans\EXEC-0017_complete-dasm-support.md)
+  ⎿  Added 1 line, removed 1 line
+       5  **Issue**: #TBD (creation blocked — active `gh` account cannot 
+          create issues on c64lib)
+       6  **Started**: 2026-09-07
+       7  **Last Updated**: 2026-09-07
+       8 -**State**: in progress                                         
+       8 +**State**: completed                                           
+       9  
+      10  ## 1. Execution Sessions
+      11  
+
+● Update(plans\EXEC-0017_complete-dasm-support.md)
+  ⎿  Added 1 line, removed 1 line
+      15  
+      16  - **Scope**: all (1.1–3.4)
+      17  - **Mode**: autonomous
+      18 -- **Outcome**: in progress                                     
+      18 +- **Outcome**: completed — full `./gradlew build` green (298 ta
+         +sks)                                                           
+      19  
+      20  | Step | Result | Verification | Notes |
+      21  |------|--------|--------------|-------|
+
+● All records closed out. Per the execute skill, shipping is an explicit offer:
+
+● User answered Claude's questions:
+  ⎿  · PLAN-0017 is fully implemented and the build is green. Commit the changes
+     on feature/complete-dasm-support and push the branch? → Commit only
+     · After pushing, open a pull request into develop? Note: the active gh 
+     account (MMALECKI_CGEMU) couldn't create issues on c64lib, so PR creation 
+     may also fail — I'd report the error and give you the ready-made PR link to
+     open manually. → No PR
+
+● Commit only, keeping .dialogue/ and the pre-existing
+  sdlc-workflow-comparison.md out (the latter isn't mine, the former is your
+  dialogue store). Checking the exact file list to group the commits.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● One stray build_output.txt from a build subagent — removing it, then
+  delegating the two logical commits to the git-utils Haiku executor.
+
+  Ran 1 shell command (ctrl+o to expand)
+● Agent(Create two feature commits) Haiku 4.5
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● Waiting for the commits to complete before the final summary.
+
+✻ Crunched for 2m 27s · done 9:25 PM
+
+● Agent "Create two feature commits" finished · 1m 12s
+
+● Both commits are in. Recording the final thread association and a project
+  memory about the remaining ship steps, then summarising.
+
+  Ran 1 shell command, wrote 3 memories (ctrl+o to expand)
+
+● DASM support is complete, verified, and committed
+
+  The surprise finding first: DASM support already existed on develop (PR #131,
+  flows-only dasmStep {}, PATH-based, zero tests, unreleased). Per your scope
+  choices, I completed it in three streams under PLAN-0017 (accepted with all
+  questions resolved, challenge waived), executed on branch
+  feature/complete-dasm-support.
+
+  What was built
+
+  - Hardening — 9 new test classes covering DasmStep, DasmConfigMapper,
+    DasmStepBuilder, DasmCommandAdapter, DasmAssembleUseCase,
+    DasmCommandLineBuilder, plus plugin-wiring scenarios. These caught two real 
+    bugs which are now fixed: macOS ("Darwin") was detected as Windows because
+    "darwin" contains "win", and the plugin crashed at configuration time under
+    the Dasm dialect on the default dialectVersion = "latest".
+  - Binary auto-download — retroProject { dasmVersion = "2.20.17" } downloads
+    the per-OS binary from the official dasm-assembler/dasm releases into
+    .ra/asms/dasm/{version}/ via a new resolveDasm task (new DownloadDasmUseCase
+    + ports, new modules compilers:dasm:adapters:in:gradle and
+    :out:filedownload). Research showed releases ≥ 2.20.16 use uniform per-OS
+    zips (I verified all three v2.20.17 archives), so it's zip-only; older
+    versions stay PATH-only. Resolution order: dasmExecutable → downloaded
+    binary → dasm on PATH.
+  - First-class dialect — dialect = Dasm now wires the legacy asm task to DASM
+    (.prg/.bin next to sources, defines and libDirs mapped), without depending
+    on the KickAssembler download; asmSpec/test degrade to warning no-ops so
+    build stays green. Docs updated: user manual (doc/index.adoc), arc42
+    (compilers.md, infra.md task graph, 05), CLAUDE.md.
+
+  Verification: full ./gradlew build is green (298 tasks — all tests, Detekt,
+  Spotless). Per-step evidence and six logged deviations are in
+  plans/EXEC-0017_complete-dasm-support.md.
+
+  Shipped as requested — commit only, no push, no PR: b712c52 (feature) and
+  4fc35ca (plans) on feature/complete-dasm-support. Left untouched: .dialogue/
+  and sdlc-workflow-comparison.md (pre-existing, not mine).
+
+  Still pending (your call, noted in memory): pushing the branch, the PR to
+  develop, and the GitHub issue — the active gh account (MMALECKI_CGEMU, an
+  Enterprise Managed User) can't create issues on c64lib; run ! gh auth switch
+  (or gh auth login) to your personal account and I can finish those, sync the
+  plan onto the issue, and rename the branch to include the issue number.
+
+✻ Cogitated for 3h 9m 5s · done 9:27 PM
+
+❯ /export                                                                       
+  ⎿  Conversation exported to: C:\prj\github.com\c64lib\gradle-retro-assembler-p
+     lugin\2026-09-07-212803-local-command-caveatcaveat-the-messages-below.txt
+
+※ recap: Goal: complete DASM assembler support (tests, binary auto-download, first-class dialect). All three phases are implemented, build green, committed locally on feature/complete-dasm-support. Next: switch gh to your personal account so I can push, open the PR, and create the issue. (disable recaps in /config)
+
+❯ /compact                                                                      
+  ⎿  Compacted (ctrl+o to see full summary)
+     PreCompact [python3 "$CLAUDE_PLUGIN_ROOT/hooks/lib/hook_shim.py" 
+     "$CLAUDE_PLUGIN_ROOT/hooks/precompact.py" compact.pre] completed 
+     successfully: {}
+  ⎿  Read ..\..\..\..\Users\mmalecki\.claude\projects\C--prj-github-com-c64lib-g
+     radle-retro-assembler-plugin\memory\gh-account-emu-limitation.md (16 lines)
+  ⎿  Read ..\..\..\..\Users\mmalecki\.claude\projects\C--prj-github-com-c64lib-g
+     radle-retro-assembler-plugin\memory\dasm-plan-0017-ship-pending.md (16 
+     lines)
+  ⎿  Read plans\EXEC-0017_complete-dasm-support.md (53 lines)
+  ⎿  Read plans\README.md (25 lines)
+  ⎿  Referenced file plans\PLAN-0017_complete-dasm-support.md
+  ⎿  Skills restored (build, test, git-utils, execute, plan, 
+     dialogue-data-fs:capture, dialogue-data-fs:thread, 
+     dialogue-data-fs:context, dialogue-core:dialogue-implement)
+
+❯ explain how dialogue helped implementing this feature                         
+
+● Let me pull the actual thread record so the explanation is grounded in what
+  was captured, not my recollection.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The honest answer is that Dialogue didn't write any code — but it changed the
+  shape of the work at three specific points, and the thread record shows
+  exactly where.
+
+  1. The readiness gate turned "build it" into "complete it" — the biggest 
+  single save.
+  Your request was "Build feature to handle DASM as supported assembler." The
+  dialogue-implement gate blocks code generation until intent, requirements, and
+  a governing design decision are actually held, so the first move was
+  orientation and analysis rather than writing a new compilers/dasm domain from
+  scratch. That analysis produced the thread's first capture,
+  OBSERVATION-20260907-162809 (phase: analysis): DASM support already existed on
+  develop via the flows dasmStep {} (PR #131) — just untested, PATH-only, and
+  unreleased. Without that gate, the natural failure mode was a duplicate,
+  parallel DASM implementation colliding with code that was already merged.
+  Instead, the task was reframed as three completion streams (tests,
+  auto-download, first-class dialect), which you then scoped explicitly.
+
+  2. Decisions were captured with rationale before code, so they governed rather
+  than drifted.
+  The thread holds DECISION-20260907-162946 (planning: the three-stream scope)
+  and DECISION-20260907-163802 (design: the four choices — upstream
+  dasm-assembler/dasm releases, a dedicated dasmVersion property, 64spec
+  skip-with-warning, and the configured → downloaded → PATH resolution order).
+  Because those were pinned as decisions, implementation questions that came up
+  later (e.g. "should older dasm versions be downloadable?") resolved against
+  the recorded rationale — verified live release data said zip-only ≥ 2.20.16 —
+  instead of being re-litigated mid-code. The deviation from the plan's assumed
+  2.20.14.1 default is logged in EXEC-0017 precisely because the original
+  decision was on record to deviate from.
+
+  3. Discoveries during implementation became durable knowledge instead of chat 
+  exhaust.
+  When the new dialect tests exposed the configuration-time crash
+  (SemVer.fromString("latest") throwing for any real Dasm-dialect project), it
+  was captured as OBSERVATION-20260907-190845 (phase: implementation) — a
+  genuine product bug found en route, with the fix rationale (fromStringOrNull 
+  ?: SemVer(0,0), Kick path untouched). The darwin→WINDOWS detection bug got the
+  same treatment via the exec log. Six months from now, "why does the plugin
+  tolerate an unparseable dialectVersion only under Dasm?" has an answer with
+  provenance.
+
+  The thread itself is the connective tissue. Its six associations walk the SDLC
+  in order — analysis observation → scope decision → PLAN-0017 → design
+  decision → implementation observation → the commits themselves
+  (git:feature/complete-dasm-support@b712c52+4fc35ca). Anyone (including a
+  future session of me) can reconstruct not just what was built but why each 
+  choice was made and what was found along the way, without replaying the
+  conversation.
+
+  Worth being fair about the division of labour: your repo's own plan/execute
+  skills carried the process ceremony (PLAN-0017, EXEC-0017, deviations table),
+  and they'd have done so regardless. Dialogue's distinct contribution was
+  upstream and orthogonal — the gate that stopped premature coding and surfaced
+  the existing implementation, the decision captures that anchored the design,
+  and the phase-tagged thread that links the plan artefacts, the captures, and
+  the git history into one traceable record.
+
+✻ Brewed for 49s · done 9:41 PM
