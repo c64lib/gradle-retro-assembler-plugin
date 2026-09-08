@@ -65,6 +65,29 @@ data class DasmCommand(
 )
 
 /**
+ * Domain abstraction for 64tass assembly compilation commands.
+ *
+ * This class defines the 64tass-specific command format, abstracting away compiler implementation
+ * details while providing a clean domain boundary for 64tass operations. The output file is always
+ * explicit because 64tass would otherwise default to `a.out`.
+ */
+data class TassCommand(
+    val includeDirs: List<File>,
+    val defines: Map<String, String>,
+    val source: File,
+    val outputFile: File,
+    val outputFormat: String = "prg",
+    val listFile: File? = null,
+    val labelsFile: File? = null,
+    val viceLabels: Boolean? = null,
+    val cpu: String? = null,
+    val caseSensitive: Boolean? = null,
+    val asciiConversion: Boolean? = null,
+    val quiet: Boolean? = null,
+    val longBranch: Boolean? = null
+)
+
+/**
  * Maps AssemblyConfig from the flows domain to AssemblyCommand.
  *
  * This mapper handles the structural differences between the domain configuration and the assembly

@@ -13,6 +13,7 @@ dependencies {
   implementation(project(":shared:domain"))
   implementation(project(":compilers:kickass"))
   implementation(project(":compilers:dasm"))
+  implementation(project(":compilers:64tass"))
   implementation(project(":testing:64spec"))
   implementation(project(":flows:adapters:out:charpad"))
   implementation(project(":flows:adapters:out:spritepad"))

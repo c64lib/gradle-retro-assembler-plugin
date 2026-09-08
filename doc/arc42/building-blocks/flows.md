@@ -11,7 +11,7 @@ See [§8 Crosscutting Concepts](../08_crosscutting_concepts.md) for parallelism/
 ## Domain model
 
 - **`FlowStep`** (base, `flows/src/main/kotlin/.../domain/Flow.kt`) — immutable step with `name`, `inputs`, `outputs`, an injected port, and `execute()` / `validate()` hooks.
-- **Step subclasses** (`flows/.../domain/steps/`): `AssembleStep`, `DasmStep`, `CharpadStep`, `SpritepadStep`, `GoattrackerStep`, `ImageStep`, `ExomizerStep`, `CommandStep`, `TestStep`.
+- **Step subclasses** (`flows/.../domain/steps/`): `AssembleStep`, `DasmStep`, `TassStep`, `CharpadStep`, `SpritepadStep`, `GoattrackerStep`, `ImageStep`, `ExomizerStep`, `CommandStep`, `TestStep`.
   - **`TestStep`** is *self-contained*: it both assembles each `*.spec.asm` (via `KickAssembleSpecUseCase`, which alone emits `-vicesymbols` + the 64spec KickAssembler variables) and runs it on VICE (via `Run64SpecTestUseCase`). Its DSL separates **`specs(...)`** — the specs to assemble and run — from **`from(...)`** — additional *watched* sources the specs `#import` (library sources under test); both feed the step's `inputs` for up-to-date checks so editing a watched source re-runs the tests, but only the specs are executed. All specs run; the task fails afterwards if any spec failed.
 - **`FlowService`** and **`FlowDependencyGraph`** compute the inter-step / inter-flow dependency graph from artifacts.
 
@@ -23,6 +23,7 @@ All ports live under `flows/src/main/kotlin/com/github/c64lib/rbt/flows/usecase/
 |------|----------------------|----------------------|------|
 | `AssemblyPort` | compilers:kickass | `KickAssemblerPortAdapter` | `flows/adapters/in/gradle/.../assembly/KickAssemblerPortAdapter.kt` |
 | `DasmAssemblyPort` | compilers:dasm | `DasmPortAdapter` | `flows/adapters/in/gradle/.../assembly/DasmPortAdapter.kt` |
+| `TassAssemblyPort` | compilers:64tass | `TassPortAdapter` | `flows/adapters/in/gradle/.../assembly/TassPortAdapter.kt` |
 | `CharpadPort` | processors:charpad | `CharpadAdapter` | `flows/adapters/out/charpad/.../CharpadAdapter.kt` |
 | `SpritepadPort` | processors:spritepad | `SpritepadAdapter` | `flows/adapters/out/spritepad/.../SpritepadAdapter.kt` |
 | `ImagePort` | processors:image | `ImageAdapter` | `flows/adapters/out/image/.../ImageAdapter.kt` |
@@ -38,9 +39,9 @@ All ports live under `flows/src/main/kotlin/com/github/c64lib/rbt/flows/usecase/
 
 **Inbound (DSL & tasks, `flows/adapters/in/gradle/`):**
 
-- **DSL entry:** `FlowsExtension` (registered as the `flows { }` extension), `FlowDsl`, and per-step builders in `dsl/` — `AssembleStepBuilder`, `DasmStepBuilder`, `CharpadStepBuilder`, `SpritepadStepBuilder`, `ImageStepBuilder`, `GoattrackerStepBuilder`, `ExomizerStepBuilder`, `CommandStepBuilder` (the last provides the `useFrom()` / `useTo()` shortcuts), `TestStepBuilder`. `FlowDsl` exposes Groovy `Closure` overloads for `flow(...)` and `testStep(...)` (alongside the Kotlin receiver-lambda forms) so the DSL is callable from Groovy `build.gradle` scripts as well as Kotlin.
+- **DSL entry:** `FlowsExtension` (registered as the `flows { }` extension), `FlowDsl`, and per-step builders in `dsl/` — `AssembleStepBuilder`, `DasmStepBuilder`, `TassStepBuilder`, `CharpadStepBuilder`, `SpritepadStepBuilder`, `ImageStepBuilder`, `GoattrackerStepBuilder`, `ExomizerStepBuilder`, `CommandStepBuilder` (the last provides the `useFrom()` / `useTo()` shortcuts), `TestStepBuilder`. `FlowDsl` exposes Groovy `Closure` overloads for `flow(...)` and `testStep(...)` (alongside the Kotlin receiver-lambda forms) so the DSL is callable from Groovy `build.gradle` scripts as well as Kotlin.
 - **Task generation:** `FlowTasksGenerator` creates one Gradle task per step (`flow{Flow}Step{Step}`), a per-flow aggregation task (`flow{Flow}`), and the top-level `flows` task, wiring dependencies from artifacts + `dependsOn`. `TestStep` tasks additionally `dependsOn(resolveDevDeps, downloadDeps)` (wired in `RetroAssemblerPlugin.wireFlows`) because spec assembly needs the KickAssembler jar and the 64spec library fetched by `libFromGitHub`.
-- **Step tasks (`tasks/`):** `BaseFlowStepTask` + `AssembleTask`, `DasmAssembleTask`, `CharpadTask`, `SpritepadTask`, `ImageTask`, `GoattrackerTask`, `ExomizerTask`, `CommandTask`, `TestTask` — each injects the relevant port before calling `step.execute()`.
+- **Step tasks (`tasks/`):** `BaseFlowStepTask` + `AssembleTask`, `DasmAssembleTask`, `TassAssembleTask`, `CharpadTask`, `SpritepadTask`, `ImageTask`, `GoattrackerTask`, `ExomizerTask`, `CommandTask`, `TestTask` — each injects the relevant port before calling `step.execute()`.
 
 **Outbound (`flows/adapters/out/*`):** the port implementations in the table above. Each translates a flows domain command to the downstream use case (e.g. `CharpadAdapter.process(CharpadCommand)` builds output producers and invokes `ProcessCharpadUseCase`).
 

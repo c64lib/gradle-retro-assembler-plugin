@@ -32,6 +32,7 @@ import com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl.ExomizerStepBuilder
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl.GoattrackerStepBuilder
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl.ImageStepBuilder
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl.SpritepadStepBuilder
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl.TassStepBuilder
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.dsl.TestStepBuilder
 import groovy.lang.Closure
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -173,6 +174,23 @@ class FlowDslGroovyOverloadTest {
   }
 
   @Test
+  fun `tassStep Closure overload binds delegate and registers artifacts`() {
+    val flow =
+        FlowBuilder("f").apply {
+          tassStep(
+              "ta",
+              closureOf {
+                (this as TassStepBuilder).from("a.asm")
+                to("a.prg")
+              })
+        }
+    val built = flow.build()
+    assertEquals(1, built.steps.size)
+    assertTrue(built.consumes.any { it.name == "ta_input_0" })
+    assertTrue(built.produces.any { it.name == "ta_output_0" })
+  }
+
+  @Test
   fun `imageStep Closure overload binds delegate and registers artifacts`() {
     val flow =
         FlowBuilder("f").apply {
@@ -293,6 +311,21 @@ class FlowDslGroovyOverloadTest {
     assertEquals(1, built.steps.size)
     assertTrue(built.consumes.any { it.name == "da_input_0" })
     assertTrue(built.produces.any { it.name == "da_output_0" })
+  }
+
+  @Test
+  fun `tassStep Kotlin lambda overload still resolves and registers artifacts`() {
+    val flow =
+        FlowBuilder("f").apply {
+          tassStep("ta") {
+            from("a.asm")
+            to("a.prg")
+          }
+        }
+    val built = flow.build()
+    assertEquals(1, built.steps.size)
+    assertTrue(built.consumes.any { it.name == "ta_input_0" })
+    assertTrue(built.produces.any { it.name == "ta_output_0" })
   }
 
   @Test

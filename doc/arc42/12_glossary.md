@@ -8,6 +8,7 @@ Domain and technical terms used throughout this documentation. External systems 
 |------|------------|
 | **Kick Assembler** | A feature-rich cross-assembler for the MOS 65xx family, the plugin's primary ASM dialect. Distributed as a Java jar that the `dependencies` context downloads and version-pins (`DownloadKickAssemblerUseCase`). |
 | **DASM** | A veteran macro cross-assembler for 6502-family CPUs; the emerging second compiler backend (`compilers:dasm`, `DasmAssembleUseCase`). Native binary expected on `PATH`. |
+| **64tass** | The Turbo Assembler Macro cross-assembler for 65xx-family CPUs, successor to the C64-native Turbo Assembler (TASM) dialect; the third compiler backend (`compilers:64tass`, `TassAssembleUseCase`). Native binary expected on `PATH`. |
 | **VICE** | The Versatile Commodore Emulator. Its `x64` emulator runs compiled 6502 code so that 64spec tests can execute against real machine behavior (`emulators:vice`). |
 | **64spec** | A unit-testing framework for 6502 assembly: specs are themselves assembled and run inside VICE, reporting pass/fail (`testing:64spec`, `Run64SpecTestUseCase`). |
 | **Exomizer** | A cross-platform compressor/cruncher for 6502 binaries. Produces self-decompressing or raw-crunched output (`crunchers:exomizer`, `CrunchMemUseCase`/`CrunchRawUseCase`). |

@@ -76,6 +76,9 @@ dependencies {
     compileOnly(project(":compilers:dasm"))
     compileOnly(project(":compilers:dasm:adapters:out:gradle"))
 
+    compileOnly(project(":compilers:64tass"))
+    compileOnly(project(":compilers:64tass:adapters:out:gradle"))
+
     compileOnly(project(":flows:"))
     compileOnly(project(":flows:adapters:in:gradle"))
     compileOnly(project(":flows:adapters:out:gradle"))
@@ -128,6 +131,9 @@ dependencies {
 
     testImplementation(project(":compilers:dasm"))
     testImplementation(project(":compilers:dasm:adapters:out:gradle"))
+
+    testImplementation(project(":compilers:64tass"))
+    testImplementation(project(":compilers:64tass:adapters:out:gradle"))
 
     testImplementation(project(":flows:"))
     testImplementation(project(":flows:adapters:in:gradle"))

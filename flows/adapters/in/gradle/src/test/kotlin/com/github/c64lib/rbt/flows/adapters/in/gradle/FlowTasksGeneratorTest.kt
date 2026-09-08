@@ -26,9 +26,12 @@ package com.github.c64lib.rbt.flows.adapters.`in`.gradle
 
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.port.KickAssembleSpecPort
+import com.github.c64lib.rbt.compilers.tass.usecase.TassAssembleUseCase
+import com.github.c64lib.rbt.compilers.tass.usecase.port.TassAssemblePort
 import com.github.c64lib.rbt.emulators.vice.usecase.RunTestOnViceUseCase
 import com.github.c64lib.rbt.emulators.vice.usecase.port.RunTestOnVicePort
 import com.github.c64lib.rbt.emulators.vice.usecase.port.ViceParameters
+import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.TassAssembleTask
 import com.github.c64lib.rbt.flows.adapters.`in`.gradle.tasks.TestTask
 import com.github.c64lib.rbt.flows.domain.Flow
 import com.github.c64lib.rbt.shared.gradle.dsl.RetroAssemblerPluginExtension
@@ -338,6 +341,77 @@ class FlowTasksGeneratorTest :
             task.kickAssembleSpecUseCase shouldBe noopSpecUseCase
             task.run64SpecTestUseCase shouldBe noopRunUseCase
             task.extension shouldBe extension
+          }
+        }
+      }
+
+      val noopTassUseCase =
+          TassAssembleUseCase(
+              object : TassAssemblePort {
+                override fun assemble(
+                    includeDirs: List<File>,
+                    defines: Map<String, String>,
+                    source: File,
+                    outputFile: File,
+                    outputFormat: String,
+                    listFile: File?,
+                    labelsFile: File?,
+                    viceLabels: Boolean?,
+                    cpu: String?,
+                    caseSensitive: Boolean?,
+                    asciiConversion: Boolean?,
+                    quiet: Boolean?,
+                    longBranch: Boolean?
+                ) {}
+              })
+
+      given("a flow with a tass step") {
+        val flows =
+            FlowDslBuilder()
+                .flow("compilation") {
+                  tassStep("game") {
+                    from("src/game.asm")
+                    to("build/game.prg")
+                  }
+                }
+                .build()
+
+        `when`("registering tasks with the tass use case provided") {
+          val project = newProject()
+          FlowTasksGenerator(project, flows, tassAssembleUseCase = noopTassUseCase).registerTasks()
+
+          then("a TassAssembleTask is created with the flow{Flow}Step{Name} name") {
+            val task = project.tasks.findByName("flowCompilationStepGame")
+            task.shouldNotBeNull()
+            task.shouldBeInstanceOf<TassAssembleTask>()
+          }
+
+          then("the tass use case is injected") {
+            val task = project.tasks.getByName("flowCompilationStepGame") as TassAssembleTask
+            task.tassAssembleUseCase shouldBe noopTassUseCase
+          }
+        }
+      }
+
+      given("a flow with a tass step but no tass use case provided") {
+        val flows =
+            FlowDslBuilder()
+                .flow("compilation") {
+                  tassStep("game") {
+                    from("src/game.asm")
+                    to("build/game.prg")
+                  }
+                }
+                .build()
+
+        `when`("registering tasks without the use case") {
+          then("the build fails with a clear message") {
+            val project = newProject()
+            val exception =
+                shouldThrow<IllegalStateException> {
+                  FlowTasksGenerator(project, flows).registerTasks()
+                }
+            exception.message.shouldNotBeNull() shouldContain "TassStep 'game'"
           }
         }
       }

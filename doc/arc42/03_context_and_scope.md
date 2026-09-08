@@ -15,6 +15,7 @@ flowchart LR
 
     Plugin -- downloads assembler jar --> KA[Kick Assembler distribution]
     Plugin -- invokes --> DASM[DASM assembler]
+    Plugin -- invokes --> TASS[64tass assembler]
     Plugin -- resolves libraries from --> GH[GitHub-hosted dependencies]
     Plugin -- reads --> CP[CharPad files]
     Plugin -- reads --> SP[SpritePad files]
@@ -34,6 +35,7 @@ flowchart LR
 | Retro/demoscene developer | inbound | Authors DSL configuration (`build.gradle.kts`), ASM sources, and asset files consumed by the plugin |
 | Kick Assembler distribution | outbound | Downloaded JAR (version-pinned), invoked as an assembler subprocess/library call |
 | DASM | outbound | Invoked as an external assembler process (`compilers:dasm`) |
+| 64tass | outbound | Invoked as an external assembler process (`compilers:64tass`) |
 | GitHub (dependency source) | outbound | HTTP(S) source for downloadable library/asset dependency archives (`dependencies` domain) |
 | CharPad / SpritePad / GoatTracker files | inbound | Binary asset files produced by third-party retro editing tools, parsed by `processors:*` |
 | VICE emulator | outbound | Invoked as an external process to execute 64spec test binaries and report results |
@@ -54,7 +56,7 @@ flowchart TB
 
     FS[(Project file system:\nsources, assets, build/ output)]
     HTTP[[HTTP(S): GitHub releases,\nKick Assembler distribution]]
-    Proc[[External processes:\nDASM, VICE, Exomizer, gt2reloc]]
+    Proc[[External processes:\nDASM, 64tass, VICE, Exomizer, gt2reloc]]
 
     Tasks <--> FS
     Tasks -- file download --> HTTP
@@ -68,7 +70,7 @@ flowchart TB
 | DSL configuration | Gradle Kotlin DSL (`RetroAssemblerPluginExtension`, `FlowsExtension`, `PreprocessingExtension`) | All domains, wired in `RetroAssemblerPlugin.apply` |
 | File system | Java NIO / Gradle `Project` file APIs | Every domain — inputs (sources, assets) and outputs (`build/`) |
 | Dependency/tool download | HTTPS via `shared:filedownload.FileDownloader` | `dependencies`, `compilers:kickass` (Kick Assembler jar) |
-| External process invocation | `ProcessBuilder`/Gradle `ExecOperations` in outbound adapters | `compilers:dasm`, `emulators:vice`, `crunchers:exomizer`, `processors:goattracker` (gt2reloc) |
+| External process invocation | `ProcessBuilder`/Gradle `ExecOperations` in outbound adapters | `compilers:dasm`, `compilers:64tass`, `emulators:vice`, `crunchers:exomizer`, `processors:goattracker` (gt2reloc) |
 | Plugin Portal publication | Gradle `maven-publish` + `com.gradle.plugin-publish` | `infra/gradle`, triggered by `.github/workflows/publish.yml` |
 
 All external systems named above appear in the [Glossary](12_glossary.md).

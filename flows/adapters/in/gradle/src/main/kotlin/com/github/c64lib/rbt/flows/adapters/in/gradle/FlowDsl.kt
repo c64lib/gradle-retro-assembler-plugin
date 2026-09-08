@@ -197,6 +197,22 @@ class FlowBuilder(private val name: String) {
     registerStep(stepName, stepBuilder.build())
   }
 
+  /** Creates a type-safe 64tass assembly processing step. */
+  fun tassStep(stepName: String, configure: TassStepBuilder.() -> Unit) {
+    val stepBuilder = TassStepBuilder(stepName)
+    stepBuilder.configure()
+    registerStep(stepName, stepBuilder.build())
+  }
+
+  /**
+   * Groovy-friendly overload of [tassStep] that binds the closure's delegate to [TassStepBuilder]
+   * so that `tassStep("name") { ... }` works from a Groovy `build.gradle`.
+   */
+  fun tassStep(stepName: String, @DelegatesTo(TassStepBuilder::class) configure: Closure<*>) {
+    val stepBuilder = bindClosure(TassStepBuilder(stepName), configure)
+    registerStep(stepName, stepBuilder.build())
+  }
+
   /** Creates a type-safe Image processing step. */
   fun imageStep(stepName: String, configure: ImageStepBuilder.() -> Unit) {
     val stepBuilder = ImageStepBuilder(stepName)

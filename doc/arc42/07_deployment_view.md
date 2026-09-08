@@ -58,12 +58,14 @@ flowchart TB
 
         ka["KickAssembler.jar<br/>(downloaded to build dir)"]
         dasm["DASM<br/>(native, on PATH)"]
+        tass["64tass<br/>(native, on PATH)"]
         vice["VICE / x64<br/>(native emulator, on PATH)"]
         exo["Exomizer<br/>(native cruncher, on PATH)"]
         gt["gt2reloc / GoatTracker<br/>(native, on PATH)"]
 
         plugin -->|invokes jar| ka
         plugin -->|spawns process| dasm
+        plugin -->|spawns process| tass
         plugin -->|spawns process| vice
         plugin -->|spawns process| exo
         plugin -->|spawns process| gt
@@ -83,6 +85,7 @@ flowchart TB
 | Plugin code | User's Gradle daemon (JVM) | Resolved from the Gradle Plugin Portal |
 | Kick Assembler | User's build directory | **Downloaded** by the `dependencies` context on demand (`DownloadKickAssemblerUseCase`) — not a native install |
 | DASM | User's machine | Native binary expected on `PATH` |
+| 64tass | User's machine | Native binary expected on `PATH` |
 | VICE (`x64`) | User's machine | Native emulator expected on `PATH`; used by `emulators:vice` for 64spec test runs |
 | Exomizer | User's machine | Native cruncher expected on `PATH`; invoked by `crunchers:exomizer` / flows command steps |
 | gt2reloc / GoatTracker | User's machine | Native tool for `processors:goattracker` |

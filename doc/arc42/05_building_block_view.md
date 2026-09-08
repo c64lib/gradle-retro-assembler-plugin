@@ -15,7 +15,7 @@ flowchart TB
     end
 
     subgraph build["Build & Test"]
-        compilers["compilers<br/>(kickass, dasm)"]
+        compilers["compilers<br/>(kickass, dasm, 64tass)"]
         emulators["emulators<br/>(vice)"]
         testing["testing<br/>(64spec)"]
         dependencies["dependencies<br/>(GitHub libs)"]
@@ -66,7 +66,7 @@ Every module declared in [`settings.gradle.kts`](../../settings.gradle.kts) is m
 | **infra** | `:infra:gradle` | [infra.md](building-blocks/infra.md) |
 | **shared** | `:shared:domain`, `:shared:filedownload`, `:shared:gradle`, `:shared:binary-utils`, `:shared:processor`, `:shared:testutils` | [shared.md](building-blocks/shared.md) |
 | **flows** | `:flows`, `:flows:adapters:in:gradle`, `:flows:adapters:out:gradle`, `:flows:adapters:out:charpad`, `:flows:adapters:out:spritepad`, `:flows:adapters:out:image`, `:flows:adapters:out:goattracker`, `:flows:adapters:out:exomizer` | [flows.md](building-blocks/flows.md) |
-| **compilers** | `:compilers:kickass`, `:compilers:kickass:adapters:in:gradle`, `:compilers:kickass:adapters:out:gradle`, `:compilers:kickass:adapters:out:filedownload`, `:compilers:dasm`, `:compilers:dasm:adapters:out:gradle` | [compilers.md](building-blocks/compilers.md) |
+| **compilers** | `:compilers:kickass`, `:compilers:kickass:adapters:in:gradle`, `:compilers:kickass:adapters:out:gradle`, `:compilers:kickass:adapters:out:filedownload`, `:compilers:dasm`, `:compilers:dasm:adapters:out:gradle`, `:compilers:64tass`, `:compilers:64tass:adapters:out:gradle` | [compilers.md](building-blocks/compilers.md) |
 | **emulators** | `:emulators:vice`, `:emulators:vice:adapters:out:gradle` | [emulators.md](building-blocks/emulators.md) |
 | **testing** | `:testing:64spec`, `:testing:64spec:adapters:in:gradle` | [testing.md](building-blocks/testing.md) |
 | **dependencies** | `:dependencies`, `:dependencies:adapters:in:gradle`, `:dependencies:adapters:out:gradle` | [dependencies.md](building-blocks/dependencies.md) |
@@ -80,7 +80,7 @@ Every module declared in [`settings.gradle.kts`](../../settings.gradle.kts) is m
 
 Each bounded context is documented on its own page: purpose, use-case inventory, port table (port → implementing adapter → path), inbound/outbound adapter details, and a Mermaid hexagon diagram (in-adapter → use case → port → out-adapter).
 
-- [compilers](building-blocks/compilers.md) — Kick Assembler and DASM compilation
+- [compilers](building-blocks/compilers.md) — Kick Assembler, DASM, and 64tass compilation
 - [dependencies](building-blocks/dependencies.md) — GitHub library resolution/download
 - [emulators](building-blocks/emulators.md) — VICE emulator control
 - [testing](building-blocks/testing.md) — 64spec test execution

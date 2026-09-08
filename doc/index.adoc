@@ -1417,6 +1417,57 @@ dasmStep("build") {
 | `additionalInputs(pat...)` / `additionalInput(pat)` | Extra input-file patterns to track as dependencies. | —
 |===
 
+==== 64tass Step
+
+Assemble Turbo Assembler dialect sources with the https://tass64.sourceforge.net/[64tass]
+cross-assembler. The `64tass` binary must be available on the system `PATH`:
+
+[source,groovy]
+.build.gradle (Groovy)
+----
+tassStep("build") {
+    from("src/main.asm")
+    to("build/main.prg")
+    cpu("6502")
+    define("TARGET", "c64")
+}
+----
+
+[source,kotlin]
+.build.gradle.kts (Kotlin)
+----
+tassStep("build") {
+    from("src/main.asm")
+    to("build/main.prg")
+    cpu("6502")
+    define("TARGET", "c64")
+}
+----
+
+[cols="1,3,1", options="header"]
+|===
+| Property | Description | Default
+
+| `from(path...)`      | Input source file(s). | —
+| `to(path...)`        | Output file(s). If omitted, the output is derived from the input name with a format-matching extension (`.prg` or `.bin`). | —
+| `outputFormat(f)`    | Output format: `"prg"` (CBM binary with load address) or `"bin"` (raw binary, `--nostart`). | `"prg"`
+| `cpu(name)`          | Target CPU: `65xx`, `6502`, `65c02`, `r65c02`, `w65c02`, `65ce02`, `4510`, `45gs02`, `65816`, `65dtv02`, `65el02` (maps to `--m{name}`). | 64tass default (`65xx`)
+| `caseSensitive(b)`   | Case-sensitive symbols (`--case-sensitive`). | unset
+| `asciiConversion(b)` | ASCII/Unicode source encoding instead of raw 8-bit (`--ascii`). | unset
+| `quiet(b)`           | Suppress header and summary messages (`--quiet`). | unset
+| `longBranch(b)`      | Automatic long branches (`--long-branch`). | unset
+| `listFile(path)`     | Emit an assembly listing at `path` (`-L`). | unset
+| `labelsFile(path)`   | Emit a labels file at `path` (`-l`). | unset
+| `viceLabels(b)`      | Emit the labels file in VICE format (`--vice-labels`). | unset
+| `workDir`            | Working directory for the assembler. | `".ra"`
+| `includePaths(p...)` / `includePath(p)` | Add include search directories (`-I`). | —
+| `define(name, value)` / `defines(pairs...)` | Define symbols on the command line (`-D`). | —
+| `srcDirs(dirs...)` / `srcDir(dir)`   | Source directories for file discovery. | `["."]`
+| `includes(pat...)` / `include(pat)`  | Include patterns for file discovery. | `["**/*.asm"]`
+| `excludes(pat...)` / `exclude(pat)`  | Exclude patterns for file discovery. | `[".ra/**/*.asm"]`
+| `additionalInputs(pat...)` / `additionalInput(pat)` | Extra input-file patterns to track as dependencies. | —
+|===
+
 ==== CharPad Step
 
 Process CharPad CTM files to extract charset, maps, tiles, and other graphical assets. Each

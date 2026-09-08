@@ -43,6 +43,8 @@ import com.github.c64lib.rbt.compilers.kickass.usecase.CleanBuildArtefactsUseCas
 import com.github.c64lib.rbt.compilers.kickass.usecase.DownloadKickAssemblerUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleSpecUseCase
 import com.github.c64lib.rbt.compilers.kickass.usecase.KickAssembleUseCase
+import com.github.c64lib.rbt.compilers.tass.adapters.out.gradle.TassAssembleAdapter
+import com.github.c64lib.rbt.compilers.tass.usecase.TassAssembleUseCase
 import com.github.c64lib.rbt.dependencies.adapters.`in`.gradle.DownloadDependencies
 import com.github.c64lib.rbt.dependencies.adapters.out.gradle.DownloadDependencyAdapter
 import com.github.c64lib.rbt.dependencies.adapters.out.gradle.ReadDependencyVersionAdapter
@@ -256,6 +258,9 @@ class RetroAssemblerPlugin : Plugin<Project> {
     // Create DasmAssembleUseCase for flow tasks that contain DasmSteps
     val dasmAssembleUseCase = DasmAssembleUseCase(DasmAssembleAdapter(project))
 
+    // Create TassAssembleUseCase for flow tasks that contain TassSteps
+    val tassAssembleUseCase = TassAssembleUseCase(TassAssembleAdapter(project))
+
     // Create 64spec use cases for flow tasks that contain TestSteps (spec assembly + VICE run),
     // constructed exactly as in wireSpecAndTest
     val kickAssembleSpecUseCase =
@@ -269,6 +274,7 @@ class RetroAssemblerPlugin : Plugin<Project> {
             flowsExtension.getFlows(),
             kickAssembleUseCase,
             dasmAssembleUseCase,
+            tassAssembleUseCase,
             kickAssembleSpecUseCase,
             run64SpecTestUseCase,
             extension)

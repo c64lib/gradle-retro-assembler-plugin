@@ -145,6 +145,26 @@ data class DasmConfig(
     val additionalInputs: List<String> = emptyList()
 )
 
+// 64tass Assembler Configuration
+data class TassConfig(
+    val includePaths: List<String> = emptyList(),
+    val defines: Map<String, String> = emptyMap(),
+    val outputFormat: String = "prg",
+    val listFile: String? = null,
+    val labelsFile: String? = null,
+    val viceLabels: Boolean? = null,
+    val cpu: String? = null,
+    val caseSensitive: Boolean? = null,
+    val asciiConversion: Boolean? = null,
+    val quiet: Boolean? = null,
+    val longBranch: Boolean? = null,
+    val srcDirs: List<String> = listOf("."),
+    val includes: List<String> = listOf("**/*.asm"),
+    val excludes: List<String> = listOf(".ra/**/*.asm"),
+    val workDir: String = ".ra",
+    val additionalInputs: List<String> = emptyList()
+)
+
 // Image Configuration
 enum class ImageFormat {
   KOALA,
