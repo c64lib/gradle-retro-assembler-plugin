@@ -2,7 +2,7 @@
 
 **Plan ID**: PLAN-0018
 **Issue**: —
-**Status**: accepted
+**Status**: in progress
 **Challenge**: revised 2026-09-08
 **Created**: 2026-09-08
 **Last Updated**: 2026-09-08
@@ -191,6 +191,12 @@ class), `RetroAssemblerPlugin.kt`, and three build/settings files — all additi
 
 ## 5. Implementation Plan
 
+> **Execution status (2026-09-08)**: all steps 1.1–3.4 are **completed** on branch
+> `feature/tasm-64tass-support` (full `./gradlew build` green, 296 tasks). See
+> [EXEC-0018](EXEC-0018_tasm-64tass-support.md) for per-step evidence and deviations.
+> Remaining before `implemented`: the mandatory manual smoke test with a real 64tass
+> binary (Section 6) and the merge to `develop`.
+
 ### Phase 1: compilers/64tass subdomain (mergeable compiler backend)
 **Goal**: A self-contained, fully tested compiler subdomain, not yet reachable from any DSL.
 
@@ -348,6 +354,7 @@ plugin jar, and changes no behaviour.
 | 2026-09-08 | AI Agent | Initial plan created from DASM-pattern codebase analysis |
 | 2026-09-08 | AI Agent | Resolved all open questions (step name `tassStep`, extended config surface, string `outputFormat`) per user decisions |
 | 2026-09-08 | AI Agent | Adversarial challenge run; revised merge-conflict risk row, format-aware output extension, cpu validation, mandatory smoke test. Status → accepted |
+| 2026-09-08 | AI Agent | Executed all steps 1.1–3.4 (EXEC-0018); full build green; docs updated. Status → in progress (smoke test + merge pending) |
 
 ---
 
